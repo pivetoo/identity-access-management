@@ -6,7 +6,7 @@ namespace IdentityManagement.Application.Responses.Contracts
 
         public string CompanyName { get; set; } = string.Empty;
 
-        public string ApplicationName { get; set; } = string.Empty;
+        public string SystemApplicationName { get; set; } = string.Empty;
 
         public DateTimeOffset StartDate { get; set; }
 

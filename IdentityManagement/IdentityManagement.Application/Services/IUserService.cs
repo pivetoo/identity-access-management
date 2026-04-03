@@ -25,6 +25,8 @@ namespace IdentityManagement.Application.Services
 
         Task<string?> DeleteAvatar(long id, CancellationToken cancellationToken = default);
 
+        Task<User?> GetById(long id, CancellationToken cancellationToken = default);
+
         Task<User?> GetByUsernameOrEmail(string usernameOrEmail, CancellationToken cancellationToken = default);
 
         Task<User?> GetByUsername(string username, CancellationToken cancellationToken = default);

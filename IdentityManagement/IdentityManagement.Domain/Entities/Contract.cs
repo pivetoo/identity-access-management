@@ -10,11 +10,11 @@ namespace IdentityManagement.Domain.Entities
 
         public long CompanyId { get; private set; }
 
-        public long ApplicationId { get; private set; }
+        public long SystemApplicationId { get; private set; }
 
         public Company Company { get; private set; } = null!;
 
-        public Application Application { get; private set; } = null!;
+        public SystemApplication SystemApplication { get; private set; } = null!;
 
         public DateTimeOffset StartDate { get; private set; } = DateTimeOffset.UtcNow;
 
@@ -42,16 +42,16 @@ namespace IdentityManagement.Domain.Entities
         {
         }
 
-        public Contract(long companyId, long applicationId, string clientId, string clientSecret, string jwtSecretKey)
+        public Contract(long companyId, long systemApplicationId, string clientId, string clientSecret, string jwtSecretKey)
         {
             if (companyId <= 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(companyId));
             }
 
-            if (applicationId <= 0)
+            if (systemApplicationId <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(applicationId));
+                throw new ArgumentOutOfRangeException(nameof(systemApplicationId));
             }
 
             ArgumentException.ThrowIfNullOrWhiteSpace(clientId);
@@ -59,7 +59,7 @@ namespace IdentityManagement.Domain.Entities
             ArgumentException.ThrowIfNullOrWhiteSpace(jwtSecretKey);
 
             CompanyId = companyId;
-            ApplicationId = applicationId;
+            SystemApplicationId = systemApplicationId;
             ClientId = clientId.Trim();
             ClientSecret = clientSecret.Trim();
             JwtSecretKey = jwtSecretKey.Trim();
@@ -71,20 +71,20 @@ namespace IdentityManagement.Domain.Entities
             return IsActive && now >= StartDate && (!EndDate.HasValue || now <= EndDate.Value);
         }
 
-        public void Update(long companyId, long applicationId, DateTimeOffset startDate, DateTimeOffset? endDate, bool isActive, int accessTokenLifetime, int refreshTokenLifetime)
+        public void Update(long companyId, long systemApplicationId, DateTimeOffset startDate, DateTimeOffset? endDate, bool isActive, int accessTokenLifetime, int refreshTokenLifetime)
         {
             if (companyId <= 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(companyId));
             }
 
-            if (applicationId <= 0)
+            if (systemApplicationId <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(applicationId));
+                throw new ArgumentOutOfRangeException(nameof(systemApplicationId));
             }
 
             CompanyId = companyId;
-            ApplicationId = applicationId;
+            SystemApplicationId = systemApplicationId;
             StartDate = startDate;
             EndDate = endDate;
             IsActive = isActive;

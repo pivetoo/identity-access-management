@@ -26,14 +26,14 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
                 .WithMany(entity => entity.Contracts)
                 .HasForeignKey(entity => entity.CompanyId);
 
-            builder.HasOne(entity => entity.Application)
+            builder.HasOne(entity => entity.SystemApplication)
                 .WithMany(entity => entity.Contracts)
-                .HasForeignKey(entity => entity.ApplicationId);
+                .HasForeignKey(entity => entity.SystemApplicationId);
 
             builder.HasIndex(entity => entity.ClientId)
                 .IsUnique();
 
-            builder.HasIndex(entity => new { entity.CompanyId, entity.ApplicationId })
+            builder.HasIndex(entity => new { entity.CompanyId, entity.SystemApplicationId })
                 .IsUnique();
         }
     }

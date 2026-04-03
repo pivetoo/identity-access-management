@@ -13,11 +13,11 @@ namespace IdentityManagement.Application.Services
 
         Task<IReadOnlyCollection<ContractSummaryResponse>> GetByCompanyId(long companyId, CancellationToken cancellationToken = default);
 
-        Task<IReadOnlyCollection<ContractSummaryResponse>> GetByApplicationId(long applicationId, CancellationToken cancellationToken = default);
+        Task<IReadOnlyCollection<ContractSummaryResponse>> GetBySystemApplicationId(long systemApplicationId, CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<ContractSummaryResponse>> GetActive(CancellationToken cancellationToken = default);
 
-        Task<Contract?> GetByCompanyAndApplication(long companyId, long applicationId, CancellationToken cancellationToken = default);
+        Task<Contract?> GetByCompanyAndSystemApplication(long companyId, long systemApplicationId, CancellationToken cancellationToken = default);
 
         Task<string?> GetUserRoleNameForContract(long userId, long contractId, CancellationToken cancellationToken = default);
 

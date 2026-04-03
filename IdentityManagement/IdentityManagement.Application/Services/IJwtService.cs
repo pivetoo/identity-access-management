@@ -4,7 +4,7 @@ namespace IdentityManagement.Application.Services
 {
     public interface IJwtService
     {
-        string GenerateAccessToken(User user, Contract contract, string? sessionId = null);
+        Task<string> GenerateAccessToken(User user, Contract contract, string? sessionId = null, CancellationToken cancellationToken = default);
 
         string GenerateRefreshToken();
 

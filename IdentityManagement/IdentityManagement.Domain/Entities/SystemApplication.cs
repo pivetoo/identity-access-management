@@ -3,7 +3,7 @@ using IdentityManagement.Domain.ValueObjects;
 
 namespace IdentityManagement.Domain.Entities
 {
-    public class Application : Entity
+    public class SystemApplication : Entity
     {
         private readonly List<Contract> contracts = [];
 
@@ -21,11 +21,11 @@ namespace IdentityManagement.Domain.Entities
 
         public IReadOnlyCollection<Contract> Contracts => contracts.AsReadOnly();
 
-        private Application()
+        private SystemApplication()
         {
         }
 
-        public Application(string name, string description, string redirectUris, string audience, ApplicationType type = ApplicationType.External)
+        public SystemApplication(string name, string description, string redirectUris, string audience, ApplicationType type = ApplicationType.External)
         {
             SetName(name);
             Description = description.Trim();

@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
 {
-    public sealed class ApplicationConfiguration : IEntityTypeConfiguration<Application>
+    public sealed class SystemApplicationConfiguration : IEntityTypeConfiguration<SystemApplication>
     {
-        public void Configure(EntityTypeBuilder<Application> builder)
+        public void Configure(EntityTypeBuilder<SystemApplication> builder)
         {
-            builder.ToTable("Applications");
+            builder.ToTable("SystemApplications");
 
             builder.Property(entity => entity.Name)
                 .IsRequired()

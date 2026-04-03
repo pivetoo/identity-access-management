@@ -6,11 +6,11 @@ namespace IdentityManagement.Application.Responses.Contracts
 
         public long CompanyId { get; set; }
 
-        public long ApplicationId { get; set; }
+        public long SystemApplicationId { get; set; }
 
         public string CompanyName { get; set; } = string.Empty;
 
-        public string ApplicationName { get; set; } = string.Empty;
+        public string SystemApplicationName { get; set; } = string.Empty;
 
         public DateTimeOffset StartDate { get; set; }
 

@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using IdentityManagement.Domain.ValueObjects;
 
-namespace IdentityManagement.Application.Requests.Applications
+namespace IdentityManagement.Application.Requests.SystemApplications
 {
-    public class CreateApplicationRequest
+    public class CreateSystemApplicationRequest
     {
         [Required]
         [StringLength(100, MinimumLength = 2)]

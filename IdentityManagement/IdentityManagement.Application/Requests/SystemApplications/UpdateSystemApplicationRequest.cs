@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using IdentityManagement.Domain.ValueObjects;
 
-namespace IdentityManagement.Application.Requests.Applications
+namespace IdentityManagement.Application.Requests.SystemApplications
 {
-    public class UpdateApplicationRequest
+    public class UpdateSystemApplicationRequest
     {
         [Required]
         public long Id { get; set; }

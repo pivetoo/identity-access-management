@@ -1,8 +1,8 @@
 using IdentityManagement.Domain.ValueObjects;
 
-namespace IdentityManagement.Application.Responses.Applications
+namespace IdentityManagement.Application.Responses.SystemApplications
 {
-    public class ApplicationResponse
+    public class SystemApplicationResponse
     {
         public long Id { get; set; }
 

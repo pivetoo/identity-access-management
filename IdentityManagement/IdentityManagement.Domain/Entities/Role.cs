@@ -43,5 +43,21 @@ namespace IdentityManagement.Domain.Entities
             IsRoot = isRoot;
             IsDefault = isDefault;
         }
+
+        public void Update(string name, string description, bool isRoot, bool isDefault)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(name);
+            ArgumentException.ThrowIfNullOrWhiteSpace(description);
+
+            Name = name.Trim();
+            Description = description.Trim();
+            IsRoot = isRoot;
+            IsDefault = isDefault;
+        }
+
+        public void SetDefault(bool isDefault)
+        {
+            IsDefault = isDefault;
+        }
     }
 }

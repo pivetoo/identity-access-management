@@ -11,7 +11,7 @@ namespace IdentityManagement.Application.Requests.Contracts
         public long CompanyId { get; set; }
 
         [Required]
-        public long ApplicationId { get; set; }
+        public long SystemApplicationId { get; set; }
 
         [Required]
         public DateTimeOffset StartDate { get; set; }

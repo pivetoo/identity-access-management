@@ -5,6 +5,8 @@ namespace IdentityManagement.Application.Responses.Auth
 {
     public class LoginResponse
     {
+        public string AuthenticationStep { get; set; } = "completed";
+
         public string AccessToken { get; set; } = string.Empty;
 
         public string RefreshToken { get; set; } = string.Empty;

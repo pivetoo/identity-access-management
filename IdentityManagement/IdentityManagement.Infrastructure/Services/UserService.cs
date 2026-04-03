@@ -85,6 +85,15 @@ namespace IdentityManagement.Infrastructure.Services
             return UpdateAvatar(id, null, cancellationToken);
         }
 
+        public Task<User?> GetById(long id, CancellationToken cancellationToken = default)
+        {
+            return (
+                from user in DbContext.Set<User>().AsTracking()
+                where user.Id == id
+                select user)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
         public async Task<User?> Authenticate(string username, string password, CancellationToken cancellationToken = default)
         {
             User? user = await GetByUsernameOrEmail(username, cancellationToken);

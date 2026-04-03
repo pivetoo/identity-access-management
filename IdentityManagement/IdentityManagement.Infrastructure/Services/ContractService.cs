@@ -1,4 +1,3 @@
-using ApplicationEntity = IdentityManagement.Domain.Entities.Application;
 using Archon.Infrastructure.Services;
 using IdentityManagement.Application.Requests.Contracts;
 using IdentityManagement.Application.Responses.Contracts;
@@ -17,24 +16,24 @@ namespace IdentityManagement.Infrastructure.Services
 
         public async Task<ContractSummaryResponse> CreateContract(CreateContractRequest request, CancellationToken cancellationToken = default)
         {
-            await EnsureDependencies(request.CompanyId, request.ApplicationId, cancellationToken);
+            await EnsureDependencies(request.CompanyId, request.SystemApplicationId, cancellationToken);
 
-            Contract? existingContract = await GetByCompanyAndApplication(request.CompanyId, request.ApplicationId, cancellationToken);
+            Contract? existingContract = await GetByCompanyAndSystemApplication(request.CompanyId, request.SystemApplicationId, cancellationToken);
             if (existingContract is not null && existingContract.IsActive)
             {
-                throw new InvalidOperationException("An active contract already exists for this company and application.");
+                throw new InvalidOperationException("An active contract already exists for this company and system application.");
             }
 
             Contract contract = new Contract(
                 request.CompanyId,
-                request.ApplicationId,
+                request.SystemApplicationId,
                 GenerateClientId(),
                 GenerateClientSecret(),
                 GenerateRandomString(64));
 
             contract.Update(
                 request.CompanyId,
-                request.ApplicationId,
+                request.SystemApplicationId,
                 request.StartDate,
                 request.EndDate,
                 true,
@@ -71,17 +70,17 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException("Contract not found.");
             }
 
-            await EnsureDependencies(request.CompanyId, request.ApplicationId, cancellationToken);
+            await EnsureDependencies(request.CompanyId, request.SystemApplicationId, cancellationToken);
 
-            Contract? existingContract = await GetByCompanyAndApplication(request.CompanyId, request.ApplicationId, cancellationToken);
+            Contract? existingContract = await GetByCompanyAndSystemApplication(request.CompanyId, request.SystemApplicationId, cancellationToken);
             if (existingContract is not null && existingContract.Id != id && existingContract.IsActive)
             {
-                throw new InvalidOperationException("An active contract already exists for this company and application.");
+                throw new InvalidOperationException("An active contract already exists for this company and system application.");
             }
 
             contract.Update(
                 request.CompanyId,
-                request.ApplicationId,
+                request.SystemApplicationId,
                 request.StartDate,
                 request.EndDate,
                 request.IsActive,
@@ -105,14 +104,14 @@ namespace IdentityManagement.Infrastructure.Services
             List<ContractSummaryResponse> contracts = await (
                 from contract in DbContext.Set<Contract>().AsNoTracking()
                 join company in DbContext.Set<Company>().AsNoTracking() on contract.CompanyId equals company.Id
-                join application in DbContext.Set<ApplicationEntity>().AsNoTracking() on contract.ApplicationId equals application.Id
+                join systemApplication in DbContext.Set<SystemApplication>().AsNoTracking() on contract.SystemApplicationId equals systemApplication.Id
                 where contract.CompanyId == companyId
-                orderby company.LegalName, application.Name
+                orderby company.LegalName, systemApplication.Name
                 select new ContractSummaryResponse
                 {
                     Id = contract.Id,
                     CompanyName = company.LegalName,
-                    ApplicationName = application.Name,
+                    SystemApplicationName = systemApplication.Name,
                     StartDate = contract.StartDate,
                     EndDate = contract.EndDate,
                     IsActive = contract.IsActive,
@@ -123,19 +122,19 @@ namespace IdentityManagement.Infrastructure.Services
             return contracts;
         }
 
-        public async Task<IReadOnlyCollection<ContractSummaryResponse>> GetByApplicationId(long applicationId, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyCollection<ContractSummaryResponse>> GetBySystemApplicationId(long systemApplicationId, CancellationToken cancellationToken = default)
         {
             List<ContractSummaryResponse> contracts = await (
                 from contract in DbContext.Set<Contract>().AsNoTracking()
                 join company in DbContext.Set<Company>().AsNoTracking() on contract.CompanyId equals company.Id
-                join application in DbContext.Set<ApplicationEntity>().AsNoTracking() on contract.ApplicationId equals application.Id
-                where contract.ApplicationId == applicationId
-                orderby company.LegalName, application.Name
+                join systemApplication in DbContext.Set<SystemApplication>().AsNoTracking() on contract.SystemApplicationId equals systemApplication.Id
+                where contract.SystemApplicationId == systemApplicationId
+                orderby company.LegalName, systemApplication.Name
                 select new ContractSummaryResponse
                 {
                     Id = contract.Id,
                     CompanyName = company.LegalName,
-                    ApplicationName = application.Name,
+                    SystemApplicationName = systemApplication.Name,
                     StartDate = contract.StartDate,
                     EndDate = contract.EndDate,
                     IsActive = contract.IsActive,
@@ -153,14 +152,14 @@ namespace IdentityManagement.Infrastructure.Services
             List<ContractSummaryResponse> contracts = await (
                 from contract in DbContext.Set<Contract>().AsNoTracking()
                 join company in DbContext.Set<Company>().AsNoTracking() on contract.CompanyId equals company.Id
-                join application in DbContext.Set<ApplicationEntity>().AsNoTracking() on contract.ApplicationId equals application.Id
+                join systemApplication in DbContext.Set<SystemApplication>().AsNoTracking() on contract.SystemApplicationId equals systemApplication.Id
                 where contract.IsActive && now >= contract.StartDate && (!contract.EndDate.HasValue || now <= contract.EndDate.Value)
-                orderby company.LegalName, application.Name
+                orderby company.LegalName, systemApplication.Name
                 select new ContractSummaryResponse
                 {
                     Id = contract.Id,
                     CompanyName = company.LegalName,
-                    ApplicationName = application.Name,
+                    SystemApplicationName = systemApplication.Name,
                     StartDate = contract.StartDate,
                     EndDate = contract.EndDate,
                     IsActive = contract.IsActive,
@@ -171,11 +170,11 @@ namespace IdentityManagement.Infrastructure.Services
             return contracts;
         }
 
-        public Task<Contract?> GetByCompanyAndApplication(long companyId, long applicationId, CancellationToken cancellationToken = default)
+        public Task<Contract?> GetByCompanyAndSystemApplication(long companyId, long systemApplicationId, CancellationToken cancellationToken = default)
         {
             return (
                 from contract in DbContext.Set<Contract>().AsNoTracking()
-                where contract.CompanyId == companyId && contract.ApplicationId == applicationId
+                where contract.CompanyId == companyId && contract.SystemApplicationId == systemApplicationId
                 select contract)
                 .FirstOrDefaultAsync(cancellationToken);
         }
@@ -199,20 +198,20 @@ namespace IdentityManagement.Infrastructure.Services
                 join role in DbContext.Set<Role>().AsNoTracking() on userRole.RoleId equals role.Id
                 join contract in DbContext.Set<Contract>().AsNoTracking() on role.ContractId equals contract.Id
                 join company in DbContext.Set<Company>().AsNoTracking() on contract.CompanyId equals company.Id
-                join application in DbContext.Set<ApplicationEntity>().AsNoTracking() on contract.ApplicationId equals application.Id
+                join systemApplication in DbContext.Set<SystemApplication>().AsNoTracking() on contract.SystemApplicationId equals systemApplication.Id
                 where userRole.UserId == userId &&
                       userRole.IsActive &&
                       !userRole.RevokedAt.HasValue &&
                       contract.IsActive &&
                       now >= contract.StartDate &&
                       (!contract.EndDate.HasValue || now <= contract.EndDate.Value)
-                orderby company.LegalName, application.Name, role.Name
+                orderby company.LegalName, systemApplication.Name, role.Name
                 select new ContractSelectionResponseItem
                 {
                     ContractId = contract.Id,
-                    ApplicationName = application.Name,
+                    SystemApplicationName = systemApplication.Name,
                     CompanyName = company.LegalName,
-                    RedirectUris = application.RedirectUris,
+                    RedirectUris = systemApplication.RedirectUris,
                     RoleName = role.Name
                 })
                 .ToListAsync(cancellationToken);
@@ -225,7 +224,7 @@ namespace IdentityManagement.Infrastructure.Services
             return DbContext.Set<Contract>()
                 .AsNoTracking()
                 .Include(item => item.Company)
-                .Include(item => item.Application)
+                .Include(item => item.SystemApplication)
                 .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
         }
 
@@ -258,7 +257,7 @@ namespace IdentityManagement.Infrastructure.Services
             return DbContext.Set<Contract>()
                 .AsNoTracking()
                 .Include(item => item.Company)
-                .Include(item => item.Application)
+                .Include(item => item.SystemApplication)
                 .FirstOrDefaultAsync(item => item.ClientId == clientId, cancellationToken);
         }
 
@@ -292,7 +291,7 @@ namespace IdentityManagement.Infrastructure.Services
             {
                 Id = contract.Id,
                 CompanyName = contract.Company.LegalName,
-                ApplicationName = contract.Application.Name,
+                SystemApplicationName = contract.SystemApplication.Name,
                 StartDate = contract.StartDate,
                 EndDate = contract.EndDate,
                 IsActive = contract.IsActive,
@@ -309,7 +308,7 @@ namespace IdentityManagement.Infrastructure.Services
                 .Replace("=", string.Empty, StringComparison.Ordinal)[..length];
         }
 
-        private async Task EnsureDependencies(long companyId, long applicationId, CancellationToken cancellationToken)
+        private async Task EnsureDependencies(long companyId, long systemApplicationId, CancellationToken cancellationToken)
         {
             bool companyExists = await DbContext.Set<Company>().AnyAsync(item => item.Id == companyId && item.IsActive, cancellationToken);
             if (!companyExists)
@@ -317,10 +316,10 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException("Company not found or inactive.");
             }
 
-            bool applicationExists = await DbContext.Set<ApplicationEntity>().AnyAsync(item => item.Id == applicationId && item.IsActive, cancellationToken);
-            if (!applicationExists)
+            bool systemApplicationExists = await DbContext.Set<SystemApplication>().AnyAsync(item => item.Id == systemApplicationId && item.IsActive, cancellationToken);
+            if (!systemApplicationExists)
             {
-                throw new InvalidOperationException("Application not found or inactive.");
+                throw new InvalidOperationException("System application not found or inactive.");
             }
         }
     }

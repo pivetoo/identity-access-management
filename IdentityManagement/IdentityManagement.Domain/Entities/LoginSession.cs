@@ -46,6 +46,11 @@ namespace IdentityManagement.Domain.Entities
             UserAgent = userAgent.Trim();
         }
 
+        public void SetExpiration(DateTimeOffset expiresAt)
+        {
+            ExpiresAt = expiresAt;
+        }
+
         public bool IsValid()
         {
             return IsActive && DateTimeOffset.UtcNow < ExpiresAt;

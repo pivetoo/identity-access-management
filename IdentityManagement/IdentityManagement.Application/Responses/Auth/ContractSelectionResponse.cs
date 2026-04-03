@@ -4,6 +4,8 @@ namespace IdentityManagement.Application.Responses.Auth
 {
     public class ContractSelectionResponse
     {
+        public string AuthenticationStep { get; set; } = "contractSelection";
+
         public long UserId { get; set; }
 
         public string UserName { get; set; } = string.Empty;

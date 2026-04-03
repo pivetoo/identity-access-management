@@ -53,6 +53,11 @@ namespace IdentityManagement.Domain.Entities
             return !IsRevoked && DateTimeOffset.UtcNow < ExpiresAt;
         }
 
+        public void MarkAsUsed()
+        {
+            LastUsedAt = DateTimeOffset.UtcNow;
+        }
+
         public void Revoke()
         {
             IsRevoked = true;
