@@ -1,5 +1,6 @@
 using Archon.Api.DependencyInjection;
 using Archon.Api.MultiTenancy;
+using Archon.Infrastructure.DependencyInjection;
 using IdentityManagement.Infrastructure.DependencyInjection;
 using Scalar.AspNetCore;
 

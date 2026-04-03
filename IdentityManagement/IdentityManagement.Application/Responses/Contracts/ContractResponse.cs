@@ -1,0 +1,33 @@
+namespace IdentityManagement.Application.Responses.Contracts
+{
+    public class ContractResponse
+    {
+        public long Id { get; set; }
+
+        public long CompanyId { get; set; }
+
+        public long ApplicationId { get; set; }
+
+        public string CompanyName { get; set; } = string.Empty;
+
+        public string ApplicationName { get; set; } = string.Empty;
+
+        public DateTimeOffset StartDate { get; set; }
+
+        public DateTimeOffset? EndDate { get; set; }
+
+        public bool IsActive { get; set; }
+
+        public string ClientId { get; set; } = string.Empty;
+
+        public int AccessTokenLifetime { get; set; }
+
+        public int RefreshTokenLifetime { get; set; }
+
+        public DateTimeOffset? CreatedAt { get; set; }
+
+        public DateTimeOffset? UpdatedAt { get; set; }
+
+        public bool IsValid { get; set; }
+    }
+}
