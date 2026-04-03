@@ -54,10 +54,7 @@ app.UseArchonApi();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSessionValidation();
-app.UseIdentityManagementUserSync();
 
 app.MapControllers();
-
-await app.UseArchonAccessSyncAsync();
 
 app.Run();

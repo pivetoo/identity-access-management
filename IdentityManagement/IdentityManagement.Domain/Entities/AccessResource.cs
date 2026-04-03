@@ -39,6 +39,19 @@ namespace IdentityManagement.Domain.Entities
             Route = route.Trim();
         }
 
+        public void Update(string controller, string action, string httpMethod, string route)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(controller);
+            ArgumentException.ThrowIfNullOrWhiteSpace(action);
+            ArgumentException.ThrowIfNullOrWhiteSpace(httpMethod);
+            ArgumentException.ThrowIfNullOrWhiteSpace(route);
+
+            Controller = controller.Trim();
+            Action = action.Trim();
+            HttpMethod = httpMethod.Trim().ToUpperInvariant();
+            Route = route.Trim();
+        }
+
         public void Activate()
         {
             IsActive = true;
