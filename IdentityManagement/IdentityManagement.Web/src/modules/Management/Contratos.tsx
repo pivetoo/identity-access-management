@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Ban, Filter, RotateCcw } from 'lucide-react';
+import { Ban, RotateCcw } from 'lucide-react';
 import { PageLayout, DataTablePreview, Badge, Button, ConfirmModal, FilterDropdown, TableToolbar, toast, useApi } from 'd-rts';
 import type { DataTablePreviewColumn, PaginatedResult, PageAction } from 'd-rts';
 import { ContratoService } from '../../services/contratoService';
