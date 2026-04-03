@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\frameworks\archon-framework\Archon\Archon.Application\Archon.Application.csproj" />
     <ProjectReference Include="..\IdentityManagement.Domain\IdentityManagement.Domain.csproj" />
     <ProjectReference Include="..\..\..\frameworks\archon-framework\Archon\Archon.Application\Archon.Application.csproj" />
   </ItemGroup>

@@ -70,5 +70,26 @@ namespace IdentityManagement.Domain.Entities
             DateTimeOffset now = DateTimeOffset.UtcNow;
             return IsActive && now >= StartDate && (!EndDate.HasValue || now <= EndDate.Value);
         }
+
+        public void Update(long companyId, long applicationId, DateTimeOffset startDate, DateTimeOffset? endDate, bool isActive, int accessTokenLifetime, int refreshTokenLifetime)
+        {
+            if (companyId <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(companyId));
+            }
+
+            if (applicationId <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(applicationId));
+            }
+
+            CompanyId = companyId;
+            ApplicationId = applicationId;
+            StartDate = startDate;
+            EndDate = endDate;
+            IsActive = isActive;
+            AccessTokenLifetime = accessTokenLifetime;
+            RefreshTokenLifetime = refreshTokenLifetime;
+        }
     }
 }

@@ -48,5 +48,11 @@ namespace IdentityManagement.Domain.Entities
             IsActive = false;
             RevokedAt = DateTimeOffset.UtcNow;
         }
+
+        public void Reactivate()
+        {
+            IsActive = true;
+            RevokedAt = null;
+        }
     }
 }

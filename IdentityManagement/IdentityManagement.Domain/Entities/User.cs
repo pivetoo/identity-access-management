@@ -48,6 +48,24 @@ namespace IdentityManagement.Domain.Entities
             LastLoginAt = DateTimeOffset.UtcNow;
         }
 
+        public void Update(string username, string email, string name, bool isActive, string? avatarUrl = null)
+        {
+            SetIdentity(username, email, name);
+            IsActive = isActive;
+            AvatarUrl = string.IsNullOrWhiteSpace(avatarUrl) ? null : avatarUrl.Trim();
+        }
+
+        public void ChangePassword(string passwordHash)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(passwordHash);
+            PasswordHash = passwordHash.Trim();
+        }
+
+        public void UpdateAvatar(string? avatarUrl)
+        {
+            AvatarUrl = string.IsNullOrWhiteSpace(avatarUrl) ? null : avatarUrl.Trim();
+        }
+
         public void Deactivate()
         {
             IsActive = false;

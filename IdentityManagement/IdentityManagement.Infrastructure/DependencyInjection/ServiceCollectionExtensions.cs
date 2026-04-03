@@ -9,6 +9,7 @@ namespace IdentityManagement.Infrastructure.DependencyInjection
         public static IServiceCollection AddIdentityManagementInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddArchonPersistence(configuration, typeof(ServiceCollectionExtensions).Assembly);
+            services.AddServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
 
             return services;
         }

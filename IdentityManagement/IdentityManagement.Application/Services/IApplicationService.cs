@@ -1,11 +1,11 @@
 using Archon.Application.Services;
 using IdentityManagement.Application.Requests.Applications;
 using IdentityManagement.Application.Responses.Applications;
-using IdentityManagement.Domain.Entities;
+using ApplicationEntity = IdentityManagement.Domain.Entities.Application;
 
 namespace IdentityManagement.Application.Services
 {
-    public interface IApplicationService : ICrudService<Application>
+    public interface IApplicationService : ICrudService<ApplicationEntity>
     {
         Task<ApplicationResponse> CreateApplication(CreateApplicationRequest request, CancellationToken cancellationToken = default);
 

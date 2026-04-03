@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <ProjectReference Include="..\..\..\..\frameworks\archon-framework\Archon\Archon.Core\Archon.Core.csproj" />
     <ProjectReference Include="..\..\..\..\frameworks\archon-framework\Archon\Archon.Infrastructure\Archon.Infrastructure.csproj" />
     <ProjectReference Include="..\IdentityManagement.Domain\IdentityManagement.Domain.csproj" />
