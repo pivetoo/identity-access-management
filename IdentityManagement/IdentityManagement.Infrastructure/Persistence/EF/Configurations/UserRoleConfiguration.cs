@@ -8,7 +8,7 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<UserRole> builder)
         {
-            builder.ToTable("UserRoles");
+            builder.ToTable("userroles");
 
             builder.HasOne(entity => entity.User)
                 .WithMany(entity => entity.UserRoles)

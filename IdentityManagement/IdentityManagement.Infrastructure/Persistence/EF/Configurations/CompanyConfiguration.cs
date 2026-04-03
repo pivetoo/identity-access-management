@@ -8,7 +8,7 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<Company> builder)
         {
-            builder.ToTable("Companies");
+            builder.ToTable("companies");
 
             builder.Property(entity => entity.LegalName)
                 .IsRequired()

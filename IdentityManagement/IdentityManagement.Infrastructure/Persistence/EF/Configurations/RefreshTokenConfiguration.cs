@@ -8,7 +8,7 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<RefreshToken> builder)
         {
-            builder.ToTable("RefreshTokens");
+            builder.ToTable("refreshtokens");
 
             builder.Property(entity => entity.Token)
                 .IsRequired()

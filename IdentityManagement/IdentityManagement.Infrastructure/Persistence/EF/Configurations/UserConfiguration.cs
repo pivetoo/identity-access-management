@@ -8,7 +8,7 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
-            builder.ToTable("Users");
+            builder.ToTable("users");
 
             builder.Property(entity => entity.Username)
                 .IsRequired()

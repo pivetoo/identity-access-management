@@ -8,7 +8,7 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<Contract> builder)
         {
-            builder.ToTable("Contracts");
+            builder.ToTable("contracts");
 
             builder.Property(entity => entity.ClientId)
                 .IsRequired()

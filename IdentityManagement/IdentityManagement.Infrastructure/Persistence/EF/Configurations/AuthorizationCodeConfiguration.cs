@@ -8,7 +8,7 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<AuthorizationCode> builder)
         {
-            builder.ToTable("AuthorizationCodes");
+            builder.ToTable("authorizationcodes");
 
             builder.Property(entity => entity.Code)
                 .IsRequired()

@@ -7,322 +7,322 @@ namespace IdentityManagement.Infrastructure.Migrations
     {
         public override void Up()
         {
-            Create.Table("Users")
-                .WithColumn("Id").AsInt64().PrimaryKey().Identity()
-                .WithColumn("Username").AsString(100).NotNullable()
-                .WithColumn("Email").AsString(255).NotNullable()
-                .WithColumn("PasswordHash").AsString(255).NotNullable()
-                .WithColumn("Name").AsString(200).NotNullable()
-                .WithColumn("AvatarUrl").AsString(500).Nullable()
-                .WithColumn("IsActive").AsBoolean().NotNullable().WithDefaultValue(true)
-                .WithColumn("LastLoginAt").AsDateTimeOffset().Nullable()
-                .WithColumn("PreferredLanguage").AsInt32().NotNullable().WithDefaultValue(1)
-                .WithColumn("CreatedAt").AsDateTimeOffset().NotNullable()
-                .WithColumn("UpdatedAt").AsDateTimeOffset().Nullable();
+            Create.Table("users")
+                .WithColumn("id").AsInt64().PrimaryKey().Identity()
+                .WithColumn("username").AsString(100).NotNullable()
+                .WithColumn("email").AsString(255).NotNullable()
+                .WithColumn("passwordhash").AsString(255).NotNullable()
+                .WithColumn("name").AsString(200).NotNullable()
+                .WithColumn("avatarurl").AsString(500).Nullable()
+                .WithColumn("isactive").AsBoolean().NotNullable().WithDefaultValue(true)
+                .WithColumn("lastloginat").AsDateTimeOffset().Nullable()
+                .WithColumn("preferredlanguage").AsInt32().NotNullable().WithDefaultValue(1)
+                .WithColumn("createdat").AsDateTimeOffset().NotNullable()
+                .WithColumn("updatedat").AsDateTimeOffset().Nullable();
 
-            Create.Index("IX_Users_Username")
-                .OnTable("Users")
-                .OnColumn("Username").Ascending()
+            Create.Index("ix_users_username")
+                .OnTable("users")
+                .OnColumn("username").Ascending()
                 .WithOptions().Unique();
 
-            Create.Index("IX_Users_Email")
-                .OnTable("Users")
-                .OnColumn("Email").Ascending()
+            Create.Index("ix_users_email")
+                .OnTable("users")
+                .OnColumn("email").Ascending()
                 .WithOptions().Unique();
 
-            Create.Table("Companies")
-                .WithColumn("Id").AsInt64().PrimaryKey().Identity()
-                .WithColumn("LegalName").AsString(200).NotNullable()
-                .WithColumn("TradeName").AsString(200).NotNullable()
-                .WithColumn("Document").AsString(30).NotNullable()
-                .WithColumn("Email").AsString(255).NotNullable()
-                .WithColumn("PhoneNumber").AsString(30).Nullable()
-                .WithColumn("IsActive").AsBoolean().NotNullable().WithDefaultValue(true)
-                .WithColumn("CreatedAt").AsDateTimeOffset().NotNullable()
-                .WithColumn("UpdatedAt").AsDateTimeOffset().Nullable();
+            Create.Table("companies")
+                .WithColumn("id").AsInt64().PrimaryKey().Identity()
+                .WithColumn("legalname").AsString(200).NotNullable()
+                .WithColumn("tradename").AsString(200).NotNullable()
+                .WithColumn("document").AsString(30).NotNullable()
+                .WithColumn("email").AsString(255).NotNullable()
+                .WithColumn("phonenumber").AsString(30).Nullable()
+                .WithColumn("isactive").AsBoolean().NotNullable().WithDefaultValue(true)
+                .WithColumn("createdat").AsDateTimeOffset().NotNullable()
+                .WithColumn("updatedat").AsDateTimeOffset().Nullable();
 
-            Create.Index("IX_Companies_Document")
-                .OnTable("Companies")
-                .OnColumn("Document").Ascending()
+            Create.Index("ix_companies_document")
+                .OnTable("companies")
+                .OnColumn("document").Ascending()
                 .WithOptions().Unique();
 
-            Create.Index("IX_Companies_Email")
-                .OnTable("Companies")
-                .OnColumn("Email").Ascending()
+            Create.Index("ix_companies_email")
+                .OnTable("companies")
+                .OnColumn("email").Ascending()
                 .WithOptions().Unique();
 
-            Create.Table("SystemApplications")
-                .WithColumn("Id").AsInt64().PrimaryKey().Identity()
-                .WithColumn("Name").AsString(150).NotNullable()
-                .WithColumn("Description").AsString(500).NotNullable()
-                .WithColumn("RedirectUris").AsString(2000).NotNullable()
-                .WithColumn("IsActive").AsBoolean().NotNullable().WithDefaultValue(true)
-                .WithColumn("Audience").AsString(200).NotNullable()
-                .WithColumn("Type").AsInt32().NotNullable().WithDefaultValue(2)
-                .WithColumn("CreatedAt").AsDateTimeOffset().NotNullable()
-                .WithColumn("UpdatedAt").AsDateTimeOffset().Nullable();
+            Create.Table("systemapplications")
+                .WithColumn("id").AsInt64().PrimaryKey().Identity()
+                .WithColumn("name").AsString(150).NotNullable()
+                .WithColumn("description").AsString(500).NotNullable()
+                .WithColumn("redirecturis").AsString(2000).NotNullable()
+                .WithColumn("isactive").AsBoolean().NotNullable().WithDefaultValue(true)
+                .WithColumn("audience").AsString(200).NotNullable()
+                .WithColumn("type").AsInt32().NotNullable().WithDefaultValue(2)
+                .WithColumn("createdat").AsDateTimeOffset().NotNullable()
+                .WithColumn("updatedat").AsDateTimeOffset().Nullable();
 
-            Create.Index("IX_SystemApplications_Name")
-                .OnTable("SystemApplications")
-                .OnColumn("Name").Ascending()
+            Create.Index("ix_systemapplications_name")
+                .OnTable("systemapplications")
+                .OnColumn("name").Ascending()
                 .WithOptions().Unique();
 
-            Create.Index("IX_SystemApplications_Audience")
-                .OnTable("SystemApplications")
-                .OnColumn("Audience").Ascending()
+            Create.Index("ix_systemapplications_audience")
+                .OnTable("systemapplications")
+                .OnColumn("audience").Ascending()
                 .WithOptions().Unique();
 
-            Create.Table("Contracts")
-                .WithColumn("Id").AsInt64().PrimaryKey().Identity()
-                .WithColumn("CompanyId").AsInt64().NotNullable()
-                .WithColumn("SystemApplicationId").AsInt64().NotNullable()
-                .WithColumn("StartDate").AsDateTimeOffset().NotNullable()
-                .WithColumn("EndDate").AsDateTimeOffset().Nullable()
-                .WithColumn("IsActive").AsBoolean().NotNullable().WithDefaultValue(true)
-                .WithColumn("ClientId").AsString(150).NotNullable()
-                .WithColumn("ClientSecret").AsString(255).NotNullable()
-                .WithColumn("AccessTokenLifetime").AsInt32().NotNullable()
-                .WithColumn("RefreshTokenLifetime").AsInt32().NotNullable()
-                .WithColumn("JwtSecretKey").AsString(255).NotNullable()
-                .WithColumn("CreatedAt").AsDateTimeOffset().NotNullable()
-                .WithColumn("UpdatedAt").AsDateTimeOffset().Nullable();
+            Create.Table("contracts")
+                .WithColumn("id").AsInt64().PrimaryKey().Identity()
+                .WithColumn("companyid").AsInt64().NotNullable()
+                .WithColumn("systemapplicationid").AsInt64().NotNullable()
+                .WithColumn("startdate").AsDateTimeOffset().NotNullable()
+                .WithColumn("enddate").AsDateTimeOffset().Nullable()
+                .WithColumn("isactive").AsBoolean().NotNullable().WithDefaultValue(true)
+                .WithColumn("clientid").AsString(150).NotNullable()
+                .WithColumn("clientsecret").AsString(255).NotNullable()
+                .WithColumn("accesstokenlifetime").AsInt32().NotNullable()
+                .WithColumn("refreshtokenlifetime").AsInt32().NotNullable()
+                .WithColumn("jwtsecretkey").AsString(255).NotNullable()
+                .WithColumn("createdat").AsDateTimeOffset().NotNullable()
+                .WithColumn("updatedat").AsDateTimeOffset().Nullable();
 
-            Create.ForeignKey("FK_Contracts_Companies_CompanyId")
-                .FromTable("Contracts").ForeignColumn("CompanyId")
-                .ToTable("Companies").PrimaryColumn("Id");
+            Create.ForeignKey("fk_contracts_companies_companyid")
+                .FromTable("contracts").ForeignColumn("companyid")
+                .ToTable("companies").PrimaryColumn("id");
 
-            Create.ForeignKey("FK_Contracts_SystemApplications_SystemApplicationId")
-                .FromTable("Contracts").ForeignColumn("SystemApplicationId")
-                .ToTable("SystemApplications").PrimaryColumn("Id");
+            Create.ForeignKey("fk_contracts_systemapplications_systemapplicationid")
+                .FromTable("contracts").ForeignColumn("systemapplicationid")
+                .ToTable("systemapplications").PrimaryColumn("id");
 
-            Create.Index("IX_Contracts_ClientId")
-                .OnTable("Contracts")
-                .OnColumn("ClientId").Ascending()
+            Create.Index("ix_contracts_clientid")
+                .OnTable("contracts")
+                .OnColumn("clientid").Ascending()
                 .WithOptions().Unique();
 
-            Create.Index("IX_Contracts_CompanyId_SystemApplicationId")
-                .OnTable("Contracts")
-                .OnColumn("CompanyId").Ascending()
-                .OnColumn("SystemApplicationId").Ascending()
+            Create.Index("ix_contracts_companyid_systemapplicationid")
+                .OnTable("contracts")
+                .OnColumn("companyid").Ascending()
+                .OnColumn("systemapplicationid").Ascending()
                 .WithOptions().Unique();
 
-            Create.Table("Roles")
-                .WithColumn("Id").AsInt64().PrimaryKey().Identity()
-                .WithColumn("Name").AsString(120).NotNullable()
-                .WithColumn("Description").AsString(500).NotNullable()
-                .WithColumn("ContractId").AsInt64().NotNullable()
-                .WithColumn("IsRoot").AsBoolean().NotNullable().WithDefaultValue(false)
-                .WithColumn("IsDefault").AsBoolean().NotNullable().WithDefaultValue(false)
-                .WithColumn("CreatedAt").AsDateTimeOffset().NotNullable()
-                .WithColumn("UpdatedAt").AsDateTimeOffset().Nullable();
+            Create.Table("roles")
+                .WithColumn("id").AsInt64().PrimaryKey().Identity()
+                .WithColumn("name").AsString(120).NotNullable()
+                .WithColumn("description").AsString(500).NotNullable()
+                .WithColumn("contractid").AsInt64().NotNullable()
+                .WithColumn("isroot").AsBoolean().NotNullable().WithDefaultValue(false)
+                .WithColumn("isdefault").AsBoolean().NotNullable().WithDefaultValue(false)
+                .WithColumn("createdat").AsDateTimeOffset().NotNullable()
+                .WithColumn("updatedat").AsDateTimeOffset().Nullable();
 
-            Create.ForeignKey("FK_Roles_Contracts_ContractId")
-                .FromTable("Roles").ForeignColumn("ContractId")
-                .ToTable("Contracts").PrimaryColumn("Id");
+            Create.ForeignKey("fk_roles_contracts_contractid")
+                .FromTable("roles").ForeignColumn("contractid")
+                .ToTable("contracts").PrimaryColumn("id");
 
-            Create.Index("IX_Roles_ContractId_Name")
-                .OnTable("Roles")
-                .OnColumn("ContractId").Ascending()
-                .OnColumn("Name").Ascending()
+            Create.Index("ix_roles_contractid_name")
+                .OnTable("roles")
+                .OnColumn("contractid").Ascending()
+                .OnColumn("name").Ascending()
                 .WithOptions().Unique();
 
-            Create.Table("AccessResources")
-                .WithColumn("Id").AsInt64().PrimaryKey().Identity()
-                .WithColumn("Name").AsString(200).NotNullable()
-                .WithColumn("Controller").AsString(120).NotNullable()
-                .WithColumn("Action").AsString(120).NotNullable()
-                .WithColumn("HttpMethod").AsString(20).NotNullable()
-                .WithColumn("Route").AsString(500).NotNullable()
-                .WithColumn("IsActive").AsBoolean().NotNullable().WithDefaultValue(true)
-                .WithColumn("CreatedAt").AsDateTimeOffset().NotNullable()
-                .WithColumn("UpdatedAt").AsDateTimeOffset().Nullable();
+            Create.Table("accessresources")
+                .WithColumn("id").AsInt64().PrimaryKey().Identity()
+                .WithColumn("name").AsString(200).NotNullable()
+                .WithColumn("controller").AsString(120).NotNullable()
+                .WithColumn("action").AsString(120).NotNullable()
+                .WithColumn("httpmethod").AsString(20).NotNullable()
+                .WithColumn("route").AsString(500).NotNullable()
+                .WithColumn("isactive").AsBoolean().NotNullable().WithDefaultValue(true)
+                .WithColumn("createdat").AsDateTimeOffset().NotNullable()
+                .WithColumn("updatedat").AsDateTimeOffset().Nullable();
 
-            Create.Index("IX_AccessResources_Name")
-                .OnTable("AccessResources")
-                .OnColumn("Name").Ascending()
+            Create.Index("ix_accessresources_name")
+                .OnTable("accessresources")
+                .OnColumn("name").Ascending()
                 .WithOptions().Unique();
 
-            Create.Table("UserRoles")
-                .WithColumn("Id").AsInt64().PrimaryKey().Identity()
-                .WithColumn("UserId").AsInt64().NotNullable()
-                .WithColumn("RoleId").AsInt64().NotNullable()
-                .WithColumn("AssignedAt").AsDateTimeOffset().NotNullable()
-                .WithColumn("RevokedAt").AsDateTimeOffset().Nullable()
-                .WithColumn("IsActive").AsBoolean().NotNullable().WithDefaultValue(true)
-                .WithColumn("CreatedAt").AsDateTimeOffset().NotNullable()
-                .WithColumn("UpdatedAt").AsDateTimeOffset().Nullable();
+            Create.Table("userroles")
+                .WithColumn("id").AsInt64().PrimaryKey().Identity()
+                .WithColumn("userid").AsInt64().NotNullable()
+                .WithColumn("roleid").AsInt64().NotNullable()
+                .WithColumn("assignedat").AsDateTimeOffset().NotNullable()
+                .WithColumn("revokedat").AsDateTimeOffset().Nullable()
+                .WithColumn("isactive").AsBoolean().NotNullable().WithDefaultValue(true)
+                .WithColumn("createdat").AsDateTimeOffset().NotNullable()
+                .WithColumn("updatedat").AsDateTimeOffset().Nullable();
 
-            Create.ForeignKey("FK_UserRoles_Users_UserId")
-                .FromTable("UserRoles").ForeignColumn("UserId")
-                .ToTable("Users").PrimaryColumn("Id");
+            Create.ForeignKey("fk_userroles_users_userid")
+                .FromTable("userroles").ForeignColumn("userid")
+                .ToTable("users").PrimaryColumn("id");
 
-            Create.ForeignKey("FK_UserRoles_Roles_RoleId")
-                .FromTable("UserRoles").ForeignColumn("RoleId")
-                .ToTable("Roles").PrimaryColumn("Id");
+            Create.ForeignKey("fk_userroles_roles_roleid")
+                .FromTable("userroles").ForeignColumn("roleid")
+                .ToTable("roles").PrimaryColumn("id");
 
-            Create.Index("IX_UserRoles_UserId_RoleId")
-                .OnTable("UserRoles")
-                .OnColumn("UserId").Ascending()
-                .OnColumn("RoleId").Ascending()
+            Create.Index("ix_userroles_userid_roleid")
+                .OnTable("userroles")
+                .OnColumn("userid").Ascending()
+                .OnColumn("roleid").Ascending()
                 .WithOptions().Unique();
 
-            Create.Table("RoleAccessResources")
-                .WithColumn("Id").AsInt64().PrimaryKey().Identity()
-                .WithColumn("RoleId").AsInt64().NotNullable()
-                .WithColumn("AccessResourceId").AsInt64().NotNullable()
-                .WithColumn("IsActive").AsBoolean().NotNullable().WithDefaultValue(true)
-                .WithColumn("CreatedAt").AsDateTimeOffset().NotNullable()
-                .WithColumn("UpdatedAt").AsDateTimeOffset().Nullable();
+            Create.Table("roleaccessresources")
+                .WithColumn("id").AsInt64().PrimaryKey().Identity()
+                .WithColumn("roleid").AsInt64().NotNullable()
+                .WithColumn("accessresourceid").AsInt64().NotNullable()
+                .WithColumn("isactive").AsBoolean().NotNullable().WithDefaultValue(true)
+                .WithColumn("createdat").AsDateTimeOffset().NotNullable()
+                .WithColumn("updatedat").AsDateTimeOffset().Nullable();
 
-            Create.ForeignKey("FK_RoleAccessResources_Roles_RoleId")
-                .FromTable("RoleAccessResources").ForeignColumn("RoleId")
-                .ToTable("Roles").PrimaryColumn("Id");
+            Create.ForeignKey("fk_roleaccessresources_roles_roleid")
+                .FromTable("roleaccessresources").ForeignColumn("roleid")
+                .ToTable("roles").PrimaryColumn("id");
 
-            Create.ForeignKey("FK_RoleAccessResources_AccessResources_AccessResourceId")
-                .FromTable("RoleAccessResources").ForeignColumn("AccessResourceId")
-                .ToTable("AccessResources").PrimaryColumn("Id");
+            Create.ForeignKey("fk_roleaccessresources_accessresources_accessresourceid")
+                .FromTable("roleaccessresources").ForeignColumn("accessresourceid")
+                .ToTable("accessresources").PrimaryColumn("id");
 
-            Create.Index("IX_RoleAccessResources_RoleId_AccessResourceId")
-                .OnTable("RoleAccessResources")
-                .OnColumn("RoleId").Ascending()
-                .OnColumn("AccessResourceId").Ascending()
+            Create.Index("ix_roleaccessresources_roleid_accessresourceid")
+                .OnTable("roleaccessresources")
+                .OnColumn("roleid").Ascending()
+                .OnColumn("accessresourceid").Ascending()
                 .WithOptions().Unique();
 
-            Create.Table("LoginSessions")
-                .WithColumn("Id").AsInt64().PrimaryKey().Identity()
-                .WithColumn("UserId").AsInt64().NotNullable()
-                .WithColumn("ContractId").AsInt64().NotNullable()
-                .WithColumn("SessionId").AsString(64).NotNullable()
-                .WithColumn("IpAddress").AsString(45).Nullable()
-                .WithColumn("UserAgent").AsString(1000).Nullable()
-                .WithColumn("ExpiresAt").AsDateTimeOffset().NotNullable()
-                .WithColumn("IsActive").AsBoolean().NotNullable().WithDefaultValue(true)
-                .WithColumn("RevokedAt").AsDateTimeOffset().Nullable()
-                .WithColumn("CreatedAt").AsDateTimeOffset().NotNullable()
-                .WithColumn("UpdatedAt").AsDateTimeOffset().Nullable();
+            Create.Table("loginsessions")
+                .WithColumn("id").AsInt64().PrimaryKey().Identity()
+                .WithColumn("userid").AsInt64().NotNullable()
+                .WithColumn("contractid").AsInt64().NotNullable()
+                .WithColumn("sessionid").AsString(64).NotNullable()
+                .WithColumn("ipaddress").AsString(45).Nullable()
+                .WithColumn("useragent").AsString(1000).Nullable()
+                .WithColumn("expiresat").AsDateTimeOffset().NotNullable()
+                .WithColumn("isactive").AsBoolean().NotNullable().WithDefaultValue(true)
+                .WithColumn("revokedat").AsDateTimeOffset().Nullable()
+                .WithColumn("createdat").AsDateTimeOffset().NotNullable()
+                .WithColumn("updatedat").AsDateTimeOffset().Nullable();
 
-            Create.ForeignKey("FK_LoginSessions_Users_UserId")
-                .FromTable("LoginSessions").ForeignColumn("UserId")
-                .ToTable("Users").PrimaryColumn("Id");
+            Create.ForeignKey("fk_loginsessions_users_userid")
+                .FromTable("loginsessions").ForeignColumn("userid")
+                .ToTable("users").PrimaryColumn("id");
 
-            Create.ForeignKey("FK_LoginSessions_Contracts_ContractId")
-                .FromTable("LoginSessions").ForeignColumn("ContractId")
-                .ToTable("Contracts").PrimaryColumn("Id");
+            Create.ForeignKey("fk_loginsessions_contracts_contractid")
+                .FromTable("loginsessions").ForeignColumn("contractid")
+                .ToTable("contracts").PrimaryColumn("id");
 
-            Create.Index("IX_LoginSessions_SessionId")
-                .OnTable("LoginSessions")
-                .OnColumn("SessionId").Ascending()
+            Create.Index("ix_loginsessions_sessionid")
+                .OnTable("loginsessions")
+                .OnColumn("sessionid").Ascending()
                 .WithOptions().Unique();
 
-            Create.Table("RefreshTokens")
-                .WithColumn("Id").AsInt64().PrimaryKey().Identity()
-                .WithColumn("Token").AsString(512).NotNullable()
-                .WithColumn("UserId").AsInt64().NotNullable()
-                .WithColumn("ContractId").AsInt64().Nullable()
-                .WithColumn("SessionId").AsString(64).NotNullable()
-                .WithColumn("Scopes").AsString(2000).NotNullable()
-                .WithColumn("ExpiresAt").AsDateTimeOffset().NotNullable()
-                .WithColumn("IsRevoked").AsBoolean().NotNullable().WithDefaultValue(false)
-                .WithColumn("RevokedAt").AsDateTimeOffset().Nullable()
-                .WithColumn("LastUsedAt").AsDateTimeOffset().Nullable()
-                .WithColumn("CreatedAt").AsDateTimeOffset().NotNullable()
-                .WithColumn("UpdatedAt").AsDateTimeOffset().Nullable();
+            Create.Table("refreshtokens")
+                .WithColumn("id").AsInt64().PrimaryKey().Identity()
+                .WithColumn("token").AsString(512).NotNullable()
+                .WithColumn("userid").AsInt64().NotNullable()
+                .WithColumn("contractid").AsInt64().Nullable()
+                .WithColumn("sessionid").AsString(64).NotNullable()
+                .WithColumn("scopes").AsString(2000).NotNullable()
+                .WithColumn("expiresat").AsDateTimeOffset().NotNullable()
+                .WithColumn("isrevoked").AsBoolean().NotNullable().WithDefaultValue(false)
+                .WithColumn("revokedat").AsDateTimeOffset().Nullable()
+                .WithColumn("lastusedat").AsDateTimeOffset().Nullable()
+                .WithColumn("createdat").AsDateTimeOffset().NotNullable()
+                .WithColumn("updatedat").AsDateTimeOffset().Nullable();
 
-            Create.ForeignKey("FK_RefreshTokens_Users_UserId")
-                .FromTable("RefreshTokens").ForeignColumn("UserId")
-                .ToTable("Users").PrimaryColumn("Id");
+            Create.ForeignKey("fk_refreshtokens_users_userid")
+                .FromTable("refreshtokens").ForeignColumn("userid")
+                .ToTable("users").PrimaryColumn("id");
 
-            Create.ForeignKey("FK_RefreshTokens_Contracts_ContractId")
-                .FromTable("RefreshTokens").ForeignColumn("ContractId")
-                .ToTable("Contracts").PrimaryColumn("Id");
+            Create.ForeignKey("fk_refreshtokens_contracts_contractid")
+                .FromTable("refreshtokens").ForeignColumn("contractid")
+                .ToTable("contracts").PrimaryColumn("id");
 
-            Create.Index("IX_RefreshTokens_Token")
-                .OnTable("RefreshTokens")
-                .OnColumn("Token").Ascending()
+            Create.Index("ix_refreshtokens_token")
+                .OnTable("refreshtokens")
+                .OnColumn("token").Ascending()
                 .WithOptions().Unique();
 
-            Create.Table("AuthorizationCodes")
-                .WithColumn("Id").AsInt64().PrimaryKey().Identity()
-                .WithColumn("Code").AsString(512).NotNullable()
-                .WithColumn("UserId").AsInt64().NotNullable()
-                .WithColumn("ContractId").AsInt64().Nullable()
-                .WithColumn("Scopes").AsString(2000).NotNullable()
-                .WithColumn("RedirectUri").AsString(2000).NotNullable()
-                .WithColumn("SessionId").AsString(64).NotNullable()
-                .WithColumn("ExpiresAt").AsDateTimeOffset().NotNullable()
-                .WithColumn("IsUsed").AsBoolean().NotNullable().WithDefaultValue(false)
-                .WithColumn("IsRevoked").AsBoolean().NotNullable().WithDefaultValue(false)
-                .WithColumn("Success").AsBoolean().NotNullable().WithDefaultValue(false)
-                .WithColumn("TokenExpiration").AsDateTimeOffset().Nullable()
-                .WithColumn("UsedAt").AsDateTimeOffset().Nullable()
-                .WithColumn("CreatedAt").AsDateTimeOffset().NotNullable()
-                .WithColumn("UpdatedAt").AsDateTimeOffset().Nullable();
+            Create.Table("authorizationcodes")
+                .WithColumn("id").AsInt64().PrimaryKey().Identity()
+                .WithColumn("code").AsString(512).NotNullable()
+                .WithColumn("userid").AsInt64().NotNullable()
+                .WithColumn("contractid").AsInt64().Nullable()
+                .WithColumn("scopes").AsString(2000).NotNullable()
+                .WithColumn("redirecturi").AsString(2000).NotNullable()
+                .WithColumn("sessionid").AsString(64).NotNullable()
+                .WithColumn("expiresat").AsDateTimeOffset().NotNullable()
+                .WithColumn("isused").AsBoolean().NotNullable().WithDefaultValue(false)
+                .WithColumn("isrevoked").AsBoolean().NotNullable().WithDefaultValue(false)
+                .WithColumn("success").AsBoolean().NotNullable().WithDefaultValue(false)
+                .WithColumn("tokenexpiration").AsDateTimeOffset().Nullable()
+                .WithColumn("usedat").AsDateTimeOffset().Nullable()
+                .WithColumn("createdat").AsDateTimeOffset().NotNullable()
+                .WithColumn("updatedat").AsDateTimeOffset().Nullable();
 
-            Create.ForeignKey("FK_AuthorizationCodes_Users_UserId")
-                .FromTable("AuthorizationCodes").ForeignColumn("UserId")
-                .ToTable("Users").PrimaryColumn("Id");
+            Create.ForeignKey("fk_authorizationcodes_users_userid")
+                .FromTable("authorizationcodes").ForeignColumn("userid")
+                .ToTable("users").PrimaryColumn("id");
 
-            Create.ForeignKey("FK_AuthorizationCodes_Contracts_ContractId")
-                .FromTable("AuthorizationCodes").ForeignColumn("ContractId")
-                .ToTable("Contracts").PrimaryColumn("Id");
+            Create.ForeignKey("fk_authorizationcodes_contracts_contractid")
+                .FromTable("authorizationcodes").ForeignColumn("contractid")
+                .ToTable("contracts").PrimaryColumn("id");
 
-            Create.Index("IX_AuthorizationCodes_Code")
-                .OnTable("AuthorizationCodes")
-                .OnColumn("Code").Ascending()
+            Create.Index("ix_authorizationcodes_code")
+                .OnTable("authorizationcodes")
+                .OnColumn("code").Ascending()
                 .WithOptions().Unique();
         }
 
         public override void Down()
         {
-            Delete.Index("IX_AuthorizationCodes_Code").OnTable("AuthorizationCodes");
-            Delete.ForeignKey("FK_AuthorizationCodes_Contracts_ContractId").OnTable("AuthorizationCodes");
-            Delete.ForeignKey("FK_AuthorizationCodes_Users_UserId").OnTable("AuthorizationCodes");
-            Delete.Table("AuthorizationCodes");
+            Delete.Index("ix_authorizationcodes_code").OnTable("authorizationcodes");
+            Delete.ForeignKey("fk_authorizationcodes_contracts_contractid").OnTable("authorizationcodes");
+            Delete.ForeignKey("fk_authorizationcodes_users_userid").OnTable("authorizationcodes");
+            Delete.Table("authorizationcodes");
 
-            Delete.Index("IX_RefreshTokens_Token").OnTable("RefreshTokens");
-            Delete.ForeignKey("FK_RefreshTokens_Contracts_ContractId").OnTable("RefreshTokens");
-            Delete.ForeignKey("FK_RefreshTokens_Users_UserId").OnTable("RefreshTokens");
-            Delete.Table("RefreshTokens");
+            Delete.Index("ix_refreshtokens_token").OnTable("refreshtokens");
+            Delete.ForeignKey("fk_refreshtokens_contracts_contractid").OnTable("refreshtokens");
+            Delete.ForeignKey("fk_refreshtokens_users_userid").OnTable("refreshtokens");
+            Delete.Table("refreshtokens");
 
-            Delete.Index("IX_LoginSessions_SessionId").OnTable("LoginSessions");
-            Delete.ForeignKey("FK_LoginSessions_Contracts_ContractId").OnTable("LoginSessions");
-            Delete.ForeignKey("FK_LoginSessions_Users_UserId").OnTable("LoginSessions");
-            Delete.Table("LoginSessions");
+            Delete.Index("ix_loginsessions_sessionid").OnTable("loginsessions");
+            Delete.ForeignKey("fk_loginsessions_contracts_contractid").OnTable("loginsessions");
+            Delete.ForeignKey("fk_loginsessions_users_userid").OnTable("loginsessions");
+            Delete.Table("loginsessions");
 
-            Delete.Index("IX_RoleAccessResources_RoleId_AccessResourceId").OnTable("RoleAccessResources");
-            Delete.ForeignKey("FK_RoleAccessResources_AccessResources_AccessResourceId").OnTable("RoleAccessResources");
-            Delete.ForeignKey("FK_RoleAccessResources_Roles_RoleId").OnTable("RoleAccessResources");
-            Delete.Table("RoleAccessResources");
+            Delete.Index("ix_roleaccessresources_roleid_accessresourceid").OnTable("roleaccessresources");
+            Delete.ForeignKey("fk_roleaccessresources_accessresources_accessresourceid").OnTable("roleaccessresources");
+            Delete.ForeignKey("fk_roleaccessresources_roles_roleid").OnTable("roleaccessresources");
+            Delete.Table("roleaccessresources");
 
-            Delete.Index("IX_UserRoles_UserId_RoleId").OnTable("UserRoles");
-            Delete.ForeignKey("FK_UserRoles_Roles_RoleId").OnTable("UserRoles");
-            Delete.ForeignKey("FK_UserRoles_Users_UserId").OnTable("UserRoles");
-            Delete.Table("UserRoles");
+            Delete.Index("ix_userroles_userid_roleid").OnTable("userroles");
+            Delete.ForeignKey("fk_userroles_roles_roleid").OnTable("userroles");
+            Delete.ForeignKey("fk_userroles_users_userid").OnTable("userroles");
+            Delete.Table("userroles");
 
-            Delete.Index("IX_AccessResources_Name").OnTable("AccessResources");
-            Delete.Table("AccessResources");
+            Delete.Index("ix_accessresources_name").OnTable("accessresources");
+            Delete.Table("accessresources");
 
-            Delete.Index("IX_Roles_ContractId_Name").OnTable("Roles");
-            Delete.ForeignKey("FK_Roles_Contracts_ContractId").OnTable("Roles");
-            Delete.Table("Roles");
+            Delete.Index("ix_roles_contractid_name").OnTable("roles");
+            Delete.ForeignKey("fk_roles_contracts_contractid").OnTable("roles");
+            Delete.Table("roles");
 
-            Delete.Index("IX_Contracts_CompanyId_SystemApplicationId").OnTable("Contracts");
-            Delete.Index("IX_Contracts_ClientId").OnTable("Contracts");
-            Delete.ForeignKey("FK_Contracts_SystemApplications_SystemApplicationId").OnTable("Contracts");
-            Delete.ForeignKey("FK_Contracts_Companies_CompanyId").OnTable("Contracts");
-            Delete.Table("Contracts");
+            Delete.Index("ix_contracts_companyid_systemapplicationid").OnTable("contracts");
+            Delete.Index("ix_contracts_clientid").OnTable("contracts");
+            Delete.ForeignKey("fk_contracts_systemapplications_systemapplicationid").OnTable("contracts");
+            Delete.ForeignKey("fk_contracts_companies_companyid").OnTable("contracts");
+            Delete.Table("contracts");
 
-            Delete.Index("IX_SystemApplications_Audience").OnTable("SystemApplications");
-            Delete.Index("IX_SystemApplications_Name").OnTable("SystemApplications");
-            Delete.Table("SystemApplications");
+            Delete.Index("ix_systemapplications_audience").OnTable("systemapplications");
+            Delete.Index("ix_systemapplications_name").OnTable("systemapplications");
+            Delete.Table("systemapplications");
 
-            Delete.Index("IX_Companies_Email").OnTable("Companies");
-            Delete.Index("IX_Companies_Document").OnTable("Companies");
-            Delete.Table("Companies");
+            Delete.Index("ix_companies_email").OnTable("companies");
+            Delete.Index("ix_companies_document").OnTable("companies");
+            Delete.Table("companies");
 
-            Delete.Index("IX_Users_Email").OnTable("Users");
-            Delete.Index("IX_Users_Username").OnTable("Users");
-            Delete.Table("Users");
+            Delete.Index("ix_users_email").OnTable("users");
+            Delete.Index("ix_users_username").OnTable("users");
+            Delete.Table("users");
         }
     }
 }

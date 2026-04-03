@@ -8,7 +8,7 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<RoleAccessResource> builder)
         {
-            builder.ToTable("RoleAccessResources");
+            builder.ToTable("roleaccessresources");
 
             builder.HasOne(entity => entity.Role)
                 .WithMany(entity => entity.RoleAccessResources)

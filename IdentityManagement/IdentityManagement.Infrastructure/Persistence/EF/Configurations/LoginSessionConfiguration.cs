@@ -8,7 +8,7 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<LoginSession> builder)
         {
-            builder.ToTable("LoginSessions");
+            builder.ToTable("loginsessions");
 
             builder.Property(entity => entity.SessionId)
                 .IsRequired()

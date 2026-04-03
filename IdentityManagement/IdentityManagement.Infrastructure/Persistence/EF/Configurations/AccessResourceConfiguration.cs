@@ -8,7 +8,7 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<AccessResource> builder)
         {
-            builder.ToTable("AccessResources");
+            builder.ToTable("accessresources");
 
             builder.Property(entity => entity.Name)
                 .IsRequired()
