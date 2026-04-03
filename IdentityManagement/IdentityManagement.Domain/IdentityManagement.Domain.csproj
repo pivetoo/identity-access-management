@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\frameworks\archon-framework\Archon\Archon.Core\Archon.Core.csproj" />
+  </ItemGroup>
+
 </Project>
