@@ -1,6 +1,6 @@
 using Archon.Api.DependencyInjection;
 using Archon.Api.MultiTenancy;
-using Archon.Infrastructure.DependencyInjection;
+using IdentityManagement.Infrastructure.DependencyInjection;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
 builder.Services.AddArchonApi(builder.Configuration);
-builder.Services.AddArchonPersistence(builder.Configuration, typeof(Program).Assembly);
+builder.Services.AddIdentityManagementInfrastructure(builder.Configuration);
 builder.Services.AddArchonAuthentication(builder.Configuration);
 builder.Services.AddServicesFromAssembly(typeof(Program).Assembly);
 
