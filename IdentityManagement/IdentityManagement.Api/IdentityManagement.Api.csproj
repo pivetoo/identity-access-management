@@ -8,10 +8,14 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.13.9" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\..\..\..\frameworks\archon-framework\Archon\Archon.Api\Archon.Api.csproj" />
+    <ProjectReference Include="..\..\..\..\frameworks\archon-framework\Archon\Archon.Infrastructure\Archon.Infrastructure.csproj" />
+    <ProjectReference Include="..\IdentityManagement.Application\IdentityManagement.Application.csproj" />
+    <ProjectReference Include="..\IdentityManagement.Infrastructure\IdentityManagement.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
