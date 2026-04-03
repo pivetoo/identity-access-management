@@ -8,6 +8,10 @@ export default defineConfig({
   resolve: {
     alias: {
       'd-rts': path.resolve(__dirname, './src/compat/d-rts.ts'),
+      react: path.resolve(__dirname, 'node_modules/react'),
+      'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+      'react-router-dom': path.resolve(__dirname, 'node_modules/react-router-dom'),
     },
+    dedupe: ['react', 'react-dom', 'react-router-dom'],
   },
 })
