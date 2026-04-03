@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Ban, Filter, RotateCcw } from 'lucide-react';
-import { PageLayout, DataTablePreview, Badge, Button, ConfirmModal, TableToolbar, toast, useApi } from 'd-rts';
+import { PageLayout, DataTablePreview, Badge, Button, ConfirmModal, FilterDropdown, TableToolbar, toast, useApi } from 'd-rts';
 import type { DataTablePreviewColumn, PaginatedResult, PageAction } from 'd-rts';
 import { ContratoService } from '../../services/contratoService';
 import type { Contrato } from '../../types/contrato';
@@ -14,6 +14,7 @@ export default function Contratos() {
   const [isConfirmToggleOpen, setIsConfirmToggleOpen] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const pageSize = 30;
 
   const loadContratosApi = useApi({
@@ -195,15 +196,17 @@ export default function Contratos() {
 
   const filteredContratos = contratos.filter((contrato) => {
     const search = searchTerm.trim().toLowerCase();
-    if (!search) {
-      return true;
-    }
-
-    return [
+    const matchesSearch = !search || [
       contrato.empresaName ?? '',
       contrato.sistemaName ?? '',
       contrato.clientId ?? ''
     ].some((value) => value.toLowerCase().includes(search));
+    const matchesStatus =
+      statusFilter === 'all' ||
+      (statusFilter === 'active' && contrato.isActive) ||
+      (statusFilter === 'inactive' && !contrato.isActive);
+
+    return matchesSearch && matchesStatus;
   });
 
   const customActions: PageAction[] = [];
@@ -245,7 +248,17 @@ export default function Contratos() {
           searchValue={searchTerm}
           onSearchChange={setSearchTerm}
           searchPlaceholder="Buscar por empresa, sistema ou client id"
-          rightSlot={<Button variant="outline" size="sm" icon={<Filter className="h-4 w-4" />} />}
+          rightSlot={
+            <FilterDropdown
+              label="Filtrar contratos"
+              value={statusFilter}
+              onChange={(value) => setStatusFilter(value as 'all' | 'active' | 'inactive')}
+              options={[
+                { value: 'active', label: 'Apenas ativos' },
+                { value: 'inactive', label: 'Apenas inativos' },
+              ]}
+            />
+          }
         />
 
         <DataTablePreview
