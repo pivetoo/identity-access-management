@@ -32,6 +32,15 @@ namespace IdentityManagement.Domain.Entities
             PhoneNumber = phoneNumber.Trim();
         }
 
+        public void Update(string legalName, string tradeName, string document, string email, string phoneNumber, bool isActive)
+        {
+            SetNames(legalName, tradeName);
+            Document = document.Trim();
+            Email = email.Trim();
+            PhoneNumber = phoneNumber.Trim();
+            IsActive = isActive;
+        }
+
         public void Deactivate()
         {
             IsActive = false;

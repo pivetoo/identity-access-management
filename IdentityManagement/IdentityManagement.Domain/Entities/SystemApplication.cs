@@ -34,6 +34,16 @@ namespace IdentityManagement.Domain.Entities
             Type = type;
         }
 
+        public void Update(string name, string description, string redirectUris, string audience, ApplicationType type, bool isActive)
+        {
+            SetName(name);
+            Description = description.Trim();
+            RedirectUris = redirectUris.Trim();
+            Audience = audience.Trim();
+            Type = type;
+            IsActive = isActive;
+        }
+
         public bool IsRedirectUriValid(string redirectUri)
         {
             if (string.IsNullOrWhiteSpace(RedirectUris))

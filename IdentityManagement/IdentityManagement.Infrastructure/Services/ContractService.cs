@@ -16,6 +16,7 @@ namespace IdentityManagement.Infrastructure.Services
 
         public async Task<ContractSummaryResponse> CreateContract(CreateContractRequest request, CancellationToken cancellationToken = default)
         {
+            ValidateDateRange(request.StartDate, request.EndDate);
             await EnsureDependencies(request.CompanyId, request.SystemApplicationId, cancellationToken);
 
             Contract? existingContract = await GetByCompanyAndSystemApplication(request.CompanyId, request.SystemApplicationId, cancellationToken);
@@ -58,6 +59,8 @@ namespace IdentityManagement.Infrastructure.Services
             {
                 throw new InvalidOperationException("Route id does not match body id.");
             }
+
+            ValidateDateRange(request.StartDate, request.EndDate);
 
             Contract? contract = await (
                 from item in DbContext.Set<Contract>().AsTracking()
@@ -193,7 +196,7 @@ namespace IdentityManagement.Infrastructure.Services
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
 
-            List<ContractSelectionResponseItem> contracts = await (
+            List<ContractSelectionResponseItem> rows = await (
                 from userRole in DbContext.Set<UserRole>().AsNoTracking()
                 join role in DbContext.Set<Role>().AsNoTracking() on userRole.RoleId equals role.Id
                 join contract in DbContext.Set<Contract>().AsNoTracking() on role.ContractId equals contract.Id
@@ -215,6 +218,24 @@ namespace IdentityManagement.Infrastructure.Services
                     RoleName = role.Name
                 })
                 .ToListAsync(cancellationToken);
+
+            List<ContractSelectionResponseItem> contracts = rows
+                .GroupBy(item => new
+                {
+                    item.ContractId,
+                    item.SystemApplicationName,
+                    item.CompanyName,
+                    item.RedirectUris
+                })
+                .Select(group => new ContractSelectionResponseItem
+                {
+                    ContractId = group.Key.ContractId,
+                    SystemApplicationName = group.Key.SystemApplicationName,
+                    CompanyName = group.Key.CompanyName,
+                    RedirectUris = group.Key.RedirectUris,
+                    RoleName = group.Select(item => item.RoleName).FirstOrDefault() ?? string.Empty
+                })
+                .ToList();
 
             return contracts;
         }
@@ -320,6 +341,14 @@ namespace IdentityManagement.Infrastructure.Services
             if (!systemApplicationExists)
             {
                 throw new InvalidOperationException("System application not found or inactive.");
+            }
+        }
+
+        private static void ValidateDateRange(DateTimeOffset startDate, DateTimeOffset? endDate)
+        {
+            if (endDate.HasValue && endDate.Value <= startDate)
+            {
+                throw new InvalidOperationException("End date must be greater than start date.");
             }
         }
     }

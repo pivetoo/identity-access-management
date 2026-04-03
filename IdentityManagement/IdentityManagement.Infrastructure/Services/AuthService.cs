@@ -3,6 +3,8 @@ using IdentityManagement.Application.Responses.Auth;
 using IdentityManagement.Application.Responses.Contracts;
 using IdentityManagement.Application.Responses.Users;
 using IdentityManagement.Application.Services;
+using IdentityManagement.Domain.Entities;
+using IdentityManagement.Domain.ValueObjects;
 
 namespace IdentityManagement.Infrastructure.Services
 {
@@ -59,7 +61,7 @@ namespace IdentityManagement.Infrastructure.Services
                     RefreshToken = refreshToken.Token,
                     TokenType = "Bearer",
                     ExpiresIn = contract.AccessTokenLifetime,
-                    RedirectUrl = BuildRedirectUrl(contract.SystemApplication.RedirectUris, accessToken, refreshToken.Token),
+                    RedirectUrl = BuildRedirectUrl(contract.SystemApplication, accessToken, refreshToken.Token),
                     User = ToUserResponse(user),
                     Contract = selectedContract
                 };
@@ -114,7 +116,7 @@ namespace IdentityManagement.Infrastructure.Services
                 RefreshToken = refreshToken.Token,
                 TokenType = "Bearer",
                 ExpiresIn = contract.AccessTokenLifetime,
-                RedirectUrl = BuildRedirectUrl(contract.SystemApplication.RedirectUris, accessToken, refreshToken.Token),
+                RedirectUrl = BuildRedirectUrl(contract.SystemApplication, accessToken, refreshToken.Token),
                 User = ToUserResponse(user),
                 Contract = selectedContract
             };
@@ -147,9 +149,14 @@ namespace IdentityManagement.Infrastructure.Services
             };
         }
 
-        private static string? BuildRedirectUrl(string redirectUris, string accessToken, string refreshToken)
+        private static string? BuildRedirectUrl(SystemApplication systemApplication, string accessToken, string refreshToken)
         {
-            string? baseUrl = redirectUris
+            if (systemApplication.Type != ApplicationType.External)
+            {
+                return null;
+            }
+
+            string? baseUrl = systemApplication.RedirectUris
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .FirstOrDefault();
 
