@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, RotateCcw, Ban } from 'lucide-react';
+import { RotateCcw, Ban } from 'lucide-react';
 import {
   PageLayout,
   DataTable,
@@ -229,7 +229,7 @@ export default function UsuarioPerfis() {
   return (
     <PageLayout
       title="Vincular Usuários"
-      icon={<Link size={24} />}
+      subtitle="Associe usuários aos perfis disponíveis em cada contrato."
       onAdd={handleAddUsuarioPerfil}
       onRefresh={handleRefresh}
       selectedRowsCount={selectedUsuarioPerfis.length}

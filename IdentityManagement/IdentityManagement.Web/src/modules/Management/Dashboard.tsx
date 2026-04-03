@@ -108,10 +108,10 @@ export default function Dashboard() {
     <div className="flex flex-col gap-6">
       <div className="border-l-4 border-primary pl-5">
         <h1 className="text-3xl font-bold text-foreground tracking-tight">
-          Bem-vindo ao <strong className="text-primary">Identity Provider</strong>
+          <strong className="text-primary">Identity Access Management</strong>
         </h1>
         <p className="text-lg text-muted-foreground mt-3 leading-relaxed">
-          Nosso sistema de gerenciamento de identidade e autenticação
+          Sistema de gerenciamento de identidade e acesso com autenticação, autorização e suporte a aplicações multi-tenant.
         </p>
       </div>
 
@@ -136,8 +136,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <ChartContainer
-          title="Sistemas Mais Usados"
-          icon={<Layers size={20} />}
+          title="Sistemas Mais Usados"
           isEmpty={topSistemas.length === 0}
           emptyMessage="Nenhum dado disponivel"
         >

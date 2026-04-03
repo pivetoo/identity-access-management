@@ -115,10 +115,13 @@ namespace IdentityManagement.Infrastructure.Services
                     Id = contract.Id,
                     CompanyName = company.LegalName,
                     SystemApplicationName = systemApplication.Name,
+                    ClientId = contract.ClientId,
                     StartDate = contract.StartDate,
                     EndDate = contract.EndDate,
                     IsActive = contract.IsActive,
-                    IsValid = contract.IsActive && DateTimeOffset.UtcNow >= contract.StartDate && (!contract.EndDate.HasValue || DateTimeOffset.UtcNow <= contract.EndDate.Value)
+                    IsValid = contract.IsActive && DateTimeOffset.UtcNow >= contract.StartDate && (!contract.EndDate.HasValue || DateTimeOffset.UtcNow <= contract.EndDate.Value),
+                    AccessTokenLifetime = contract.AccessTokenLifetime,
+                    RefreshTokenLifetime = contract.RefreshTokenLifetime
                 })
                 .ToListAsync(cancellationToken);
 
@@ -138,10 +141,13 @@ namespace IdentityManagement.Infrastructure.Services
                     Id = contract.Id,
                     CompanyName = company.LegalName,
                     SystemApplicationName = systemApplication.Name,
+                    ClientId = contract.ClientId,
                     StartDate = contract.StartDate,
                     EndDate = contract.EndDate,
                     IsActive = contract.IsActive,
-                    IsValid = contract.IsActive && DateTimeOffset.UtcNow >= contract.StartDate && (!contract.EndDate.HasValue || DateTimeOffset.UtcNow <= contract.EndDate.Value)
+                    IsValid = contract.IsActive && DateTimeOffset.UtcNow >= contract.StartDate && (!contract.EndDate.HasValue || DateTimeOffset.UtcNow <= contract.EndDate.Value),
+                    AccessTokenLifetime = contract.AccessTokenLifetime,
+                    RefreshTokenLifetime = contract.RefreshTokenLifetime
                 })
                 .ToListAsync(cancellationToken);
 
@@ -163,10 +169,13 @@ namespace IdentityManagement.Infrastructure.Services
                     Id = contract.Id,
                     CompanyName = company.LegalName,
                     SystemApplicationName = systemApplication.Name,
+                    ClientId = contract.ClientId,
                     StartDate = contract.StartDate,
                     EndDate = contract.EndDate,
                     IsActive = contract.IsActive,
-                    IsValid = true
+                    IsValid = true,
+                    AccessTokenLifetime = contract.AccessTokenLifetime,
+                    RefreshTokenLifetime = contract.RefreshTokenLifetime
                 })
                 .ToListAsync(cancellationToken);
 
@@ -313,10 +322,13 @@ namespace IdentityManagement.Infrastructure.Services
                 Id = contract.Id,
                 CompanyName = contract.Company.LegalName,
                 SystemApplicationName = contract.SystemApplication.Name,
+                ClientId = contract.ClientId,
                 StartDate = contract.StartDate,
                 EndDate = contract.EndDate,
                 IsActive = contract.IsActive,
-                IsValid = contract.IsValid()
+                IsValid = contract.IsValid(),
+                AccessTokenLifetime = contract.AccessTokenLifetime,
+                RefreshTokenLifetime = contract.RefreshTokenLifetime
             };
         }
 

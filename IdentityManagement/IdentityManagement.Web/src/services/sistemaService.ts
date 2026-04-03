@@ -29,7 +29,7 @@ function mapSystemApplication(systemApplication: SystemApplicationApiResponse): 
 }
 
 export class SistemaService {
-  private static baseUrl = '/system-applications'
+  private static baseUrl = '/systemapplications'
 
   static async getAll(params?: PaginationParams): Promise<PaginatedResult<Sistema>> {
     const response = await httpClient.get<SystemApplicationApiResponse[]>(this.baseUrl)

@@ -27,8 +27,8 @@ export default function CentralSistemas({
     if (!searchTerm.trim()) return contracts;
 
     return contracts.filter(contract =>
-      contract.sistemaName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contract.empresaName.toLowerCase().includes(searchTerm.toLowerCase())
+      contract.systemApplicationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contract.companyName.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [contracts, searchTerm]);
 
@@ -82,21 +82,21 @@ export default function CentralSistemas({
             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-thin">
               {filteredContracts.map((contract) => (
                 <div
-                  key={contract.contratoId}
+                  key={contract.contractId}
                   className="border border-border rounded-lg p-6 flex flex-col gap-6 transition-all duration-200 bg-card min-w-[300px] flex-shrink-0 hover:border-secondary hover:shadow-[0_4px_12px_rgba(97,121,183,0.13)] hover:translate-y-0.5"
                 >
                   <div className="flex items-start gap-4 flex-1">
                     <Briefcase className="h-6 w-6 text-secondary flex-shrink-0" />
                     <div>
                       <h3 className="text-lg font-semibold text-foreground mb-1 leading-tight">
-                        {contract.empresaName}
+                        {contract.companyName}
                       </h3>
                       <p className="text-base text-secondary font-medium mb-1">
-                        {contract.sistemaName}
+                        {contract.systemApplicationName}
                       </p>
-                      {contract.perfilName && (
+                      {contract.roleName && (
                         <p className="text-sm text-muted-foreground">
-                          {contract.perfilName}
+                          {contract.roleName}
                         </p>
                       )}
                     </div>

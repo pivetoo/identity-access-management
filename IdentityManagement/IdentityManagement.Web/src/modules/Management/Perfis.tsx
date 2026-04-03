@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { UserCheck } from 'lucide-react';
 import {
   PageLayout,
   DataTable,
@@ -214,7 +213,7 @@ export default function Perfis() {
   return (
     <PageLayout
       title="Perfis de Permissão"
-      icon={<UserCheck size={24} />}
+      subtitle="Defina perfis de acesso e comportamento padrão por contrato."
       onAdd={handleAddPerfil}
       onEdit={handleEditPerfil}
       onDelete={handleDeletePerfil}

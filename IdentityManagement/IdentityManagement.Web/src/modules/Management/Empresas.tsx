@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { MapPin } from 'lucide-react';
-import { PageLayout, DataTable, Badge, Button, ConfirmModal, toast, useApi } from 'd-rts';
+import { Filter } from 'lucide-react';
+import { PageLayout, DataTable, Badge, Button, ConfirmModal, TableToolbar, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, toast, useApi } from 'd-rts';
 import type { DataTableColumn } from 'd-rts';
 import { EmpresaService } from '../../services/empresaService';
 import type { Empresa } from '../../types/empresa';
@@ -14,6 +14,7 @@ export default function Empresas() {
   const [editingEmpresa, setEditingEmpresa] = useState<Empresa | undefined>();
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   const pageSize = 30;
 
   const loadEmpresasApi = useApi({
@@ -183,59 +184,131 @@ export default function Empresas() {
     setEditingEmpresa(undefined);
   };
 
+  const filteredEmpresas = empresas.filter((empresa) => {
+    const search = searchTerm.trim().toLowerCase();
+    if (!search) {
+      return true;
+    }
+
+    return [empresa.nome, empresa.nomeFantasia, empresa.email, empresa.documento]
+      .some((value) => value.toLowerCase().includes(search));
+  });
+
+  const previewEmpresa = selectedEmpresas.length === 1 ? selectedEmpresas[0] : null;
+
   return (
-    <PageLayout
-      title="Empresas"
-      icon={<MapPin size={24} />}
-      onAdd={handleAddEmpresa}
-      onEdit={handleEditEmpresa}
-      onDelete={handleDeleteEmpresa}
-      onRefresh={handleRefresh}
-      selectedRowsCount={selectedEmpresas.length}
-    >
-      <DataTable
-        columns={columns}
-        data={empresas}
-        loading={loadEmpresasApi.isLoading || deleteEmpresaApi.isLoading}
-        rowKey="id"
-        selectable
-        selectedRows={selectedEmpresas}
-        onSelectionChange={handleSelectionChange}
-      />
+    <>
+      <PageLayout
+        title="Empresas"
+        subtitle="Cadastre e mantenha as organizações vinculadas ao Identity Management."
+        onAdd={handleAddEmpresa}
+        onEdit={handleEditEmpresa}
+        onDelete={handleDeleteEmpresa}
+        onRefresh={handleRefresh}
+        selectedRowsCount={selectedEmpresas.length}
+      >
+        <div className="space-y-4">
+          <TableToolbar
+            searchValue={searchTerm}
+            onSearchChange={setSearchTerm}
+            searchPlaceholder="Buscar por nome, fantasia, e-mail ou CNPJ"
+            rightSlot={<Button variant="outline" size="sm" icon={<Filter className="h-4 w-4" />} />}
+          />
 
-      {hasMore && (
-        <div className="flex justify-end mt-4">
-          <Button
-            variant="outline"
-            onClick={loadMoreEmpresas}
-            loading={loadMoreEmpresasApi.isLoading}
-          >
-            Carregar mais
-          </Button>
+          <DataTable
+            columns={columns}
+            data={filteredEmpresas}
+            loading={loadEmpresasApi.isLoading || deleteEmpresaApi.isLoading}
+            rowKey="id"
+            selectable
+            selectedRows={selectedEmpresas}
+            onSelectionChange={handleSelectionChange}
+          />
+
+          {hasMore && (
+            <div className="mt-4 flex justify-end">
+              <Button
+                variant="outline"
+                onClick={loadMoreEmpresas}
+                loading={loadMoreEmpresasApi.isLoading}
+              >
+                Carregar mais
+              </Button>
+            </div>
+          )}
         </div>
-      )}
 
-      <EmpresaModal
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        empresa={editingEmpresa}
-        onSuccess={handleModalSuccess}
-      />
+        <EmpresaModal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          empresa={editingEmpresa}
+          onSuccess={handleModalSuccess}
+        />
 
-      <ConfirmModal
-        open={isConfirmDeleteOpen}
-        onOpenChange={(open) => setIsConfirmDeleteOpen(open)}
-        onConfirm={handleConfirmDelete}
-        title="Confirmar Exclusão"
-        description={
-          selectedEmpresas.length === 1
-            ? `Deseja excluir a empresa "${selectedEmpresas[0]?.nome}"?`
-            : `Deseja excluir ${selectedEmpresas.length} empresas selecionadas?`
-        }
-        confirmText="Excluir"
-        variant="danger"
-        loading={deleteEmpresaApi.isLoading}
-      />
-    </PageLayout>
+        <ConfirmModal
+          open={isConfirmDeleteOpen}
+          onOpenChange={(open) => setIsConfirmDeleteOpen(open)}
+          onConfirm={handleConfirmDelete}
+          title="Confirmar Exclusão"
+          description={
+            selectedEmpresas.length === 1
+              ? `Deseja excluir a empresa "${selectedEmpresas[0]?.nome}"?`
+              : `Deseja excluir ${selectedEmpresas.length} empresas selecionadas?`
+          }
+          confirmText="Excluir"
+          variant="danger"
+          loading={deleteEmpresaApi.isLoading}
+        />
+      </PageLayout>
+
+      <Sheet open={!!previewEmpresa} onOpenChange={(open) => !open && setSelectedEmpresas([])}>
+        <SheetContent side="right" className="w-full sm:max-w-md">
+          {previewEmpresa ? (
+            <div className="flex h-full flex-col">
+              <SheetHeader>
+                <SheetTitle>{previewEmpresa.nome}</SheetTitle>
+                <SheetDescription>
+                  Visualização rápida da empresa selecionada.
+                </SheetDescription>
+              </SheetHeader>
+
+              <div className="mt-6 flex-1 space-y-5 overflow-y-auto">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">Nome fantasia</div>
+                    <div className="mt-1 text-sm font-medium text-foreground">{previewEmpresa.nomeFantasia || '-'}</div>
+                  </div>
+                  <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">Situação</div>
+                    <div className="mt-2">
+                      <Badge variant={previewEmpresa.isActive ? 'success' : 'destructive'}>
+                        {previewEmpresa.isActive ? 'Ativo' : 'Inativo'}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">CNPJ</div>
+                    <div className="mt-1 text-sm font-medium text-foreground">{previewEmpresa.documento || '-'}</div>
+                  </div>
+                  <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">Telefone</div>
+                    <div className="mt-1 text-sm font-medium text-foreground">{previewEmpresa.telefone || '-'}</div>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">E-mail</div>
+                  <div className="mt-1 text-sm font-medium text-foreground">{previewEmpresa.email || '-'}</div>
+                </div>
+              </div>
+
+            </div>
+          ) : null}
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }

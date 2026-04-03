@@ -12,12 +12,14 @@ namespace IdentityManagement.Api.Controllers
         private readonly IAuthService authService;
         private readonly IRefreshTokenService refreshTokenService;
         private readonly IJwtService jwtService;
+        private readonly ILoginSessionService loginSessionService;
 
-        public AuthController(IAuthService authService, IRefreshTokenService refreshTokenService, IJwtService jwtService)
+        public AuthController(IAuthService authService, IRefreshTokenService refreshTokenService, IJwtService jwtService, ILoginSessionService loginSessionService)
         {
             this.authService = authService;
             this.refreshTokenService = refreshTokenService;
             this.jwtService = jwtService;
+            this.loginSessionService = loginSessionService;
         }
 
         [AllowAnonymous]
@@ -90,6 +92,24 @@ namespace IdentityManagement.Api.Controllers
 
             await refreshTokenService.RevokeRefreshToken(request.RefreshToken, cancellationToken);
             return Http200(message: "Logout completed successfully.");
+        }
+
+        [RequireAccess]
+        [Authorize]
+        [PostEndpoint("revoke-session/{sessionId}")]
+        public async Task<IActionResult> RevokeSession(string sessionId, CancellationToken cancellationToken)
+        {
+            await loginSessionService.RevokeSession(sessionId, cancellationToken);
+            return Http200(message: "Session revoked successfully.");
+        }
+
+        [RequireAccess]
+        [Authorize]
+        [PostEndpoint("revoke-all-sessions")]
+        public async Task<IActionResult> RevokeAllSessions(CancellationToken cancellationToken)
+        {
+            int count = await loginSessionService.RevokeAllActiveSessions(cancellationToken);
+            return Http200(new { Count = count }, "All active sessions revoked successfully.");
         }
 
         [RequireAccess]

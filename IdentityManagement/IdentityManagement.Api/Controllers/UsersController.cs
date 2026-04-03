@@ -2,6 +2,7 @@ using Archon.Api.Attributes;
 using Archon.Api.Controllers;
 using IdentityManagement.Application.Requests.Users;
 using IdentityManagement.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IdentityManagement.Api.Controllers
@@ -15,8 +16,28 @@ namespace IdentityManagement.Api.Controllers
             this.userService = userService;
         }
 
+        [AllowAnonymous]
+        [PostEndpoint("register-first")]
+        public async Task<IActionResult> RegisterFirst([FromBody] RegisterUserRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            IReadOnlyCollection<IdentityManagement.Application.Responses.Users.UserResponse> existingUsers = await userService.GetActiveUsers(cancellationToken);
+            if (existingUsers.Count > 0)
+            {
+                return Http403("First user registration is not allowed because active users already exist.");
+            }
+
+            var response = await userService.CreateUser(request, cancellationToken);
+            return Http201(response, "First user created successfully.");
+        }
+
         [RequireAccess]
-        [PostEndpoint]
+        [PostEndpoint("")]
         public async Task<IActionResult> Create([FromBody] RegisterUserRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -44,7 +65,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint]
+        [GetEndpoint("")]
         public async Task<IActionResult> GetActive(CancellationToken cancellationToken)
         {
             var users = await userService.GetActiveUsers(cancellationToken);

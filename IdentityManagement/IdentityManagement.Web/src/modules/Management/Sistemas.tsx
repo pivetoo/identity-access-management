@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Layers } from 'lucide-react';
-import { PageLayout, DataTable, Badge, Button, ConfirmModal, toast, useApi } from 'd-rts';
+import { PageLayout, DataTable, Badge, Button, ConfirmModal, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, toast, useApi } from 'd-rts';
 import type { DataTableColumn } from 'd-rts';
 import { SistemaService } from '../../services/sistemaService';
 import type { Sistema } from '../../types/sistema';
@@ -166,59 +165,117 @@ export default function Sistemas() {
     setEditingSistema(undefined);
   };
 
+  const previewSistema = selectedSistemas.length === 1 ? selectedSistemas[0] : null;
+
   return (
-    <PageLayout
-      title="Sistemas"
-      icon={<Layers size={24} />}
-      onAdd={handleAddSistema}
-      onEdit={handleEditSistema}
-      onDelete={handleDeleteSistema}
-      onRefresh={handleRefresh}
-      selectedRowsCount={selectedSistemas.length}
-    >
-      <DataTable
-        columns={columns}
-        data={sistemas}
-        loading={loadSistemasApi.isLoading || deleteSistemaApi.isLoading}
-        rowKey="id"
-        selectable
-        selectedRows={selectedSistemas}
-        onSelectionChange={handleSelectionChange}
-      />
+    <>
+      <PageLayout
+        title="Sistemas"
+        subtitle="Gerencie aplicações integradas e suas configurações de autenticação."
+        onAdd={handleAddSistema}
+        onEdit={handleEditSistema}
+        onDelete={handleDeleteSistema}
+        onRefresh={handleRefresh}
+        selectedRowsCount={selectedSistemas.length}
+      >
+        <DataTable
+          columns={columns}
+          data={sistemas}
+          loading={loadSistemasApi.isLoading || deleteSistemaApi.isLoading}
+          rowKey="id"
+          selectable
+          selectedRows={selectedSistemas}
+          onSelectionChange={handleSelectionChange}
+        />
 
-      {hasMore && (
-        <div className="flex justify-end mt-4">
-          <Button
-            variant="outline"
-            onClick={loadMoreSistemas}
-            loading={loadMoreSistemasApi.isLoading}
-          >
-            Carregar mais
-          </Button>
-        </div>
-      )}
+        {hasMore && (
+          <div className="mt-4 flex justify-end">
+            <Button
+              variant="outline"
+              onClick={loadMoreSistemas}
+              loading={loadMoreSistemasApi.isLoading}
+            >
+              Carregar mais
+            </Button>
+          </div>
+        )}
 
-      <SistemaModal
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        sistema={editingSistema}
-        onSuccess={handleModalSuccess}
-      />
+        <SistemaModal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          sistema={editingSistema}
+          onSuccess={handleModalSuccess}
+        />
 
-      <ConfirmModal
-        open={isConfirmDeleteOpen}
-        onOpenChange={(open) => setIsConfirmDeleteOpen(open)}
-        onConfirm={handleConfirmDelete}
-        title="Confirmar Exclusão"
-        description={
-          selectedSistemas.length === 1
-            ? `Deseja excluir o sistema "${selectedSistemas[0]?.name}"?`
-            : `Deseja excluir ${selectedSistemas.length} sistemas selecionados?`
-        }
-        confirmText="Excluir"
-        variant="danger"
-        loading={deleteSistemaApi.isLoading}
-      />
-    </PageLayout>
+        <ConfirmModal
+          open={isConfirmDeleteOpen}
+          onOpenChange={(open) => setIsConfirmDeleteOpen(open)}
+          onConfirm={handleConfirmDelete}
+          title="Confirmar Exclusão"
+          description={
+            selectedSistemas.length === 1
+              ? `Deseja excluir o sistema "${selectedSistemas[0]?.name}"?`
+              : `Deseja excluir ${selectedSistemas.length} sistemas selecionados?`
+          }
+          confirmText="Excluir"
+          variant="danger"
+          loading={deleteSistemaApi.isLoading}
+        />
+      </PageLayout>
+
+      <Sheet open={!!previewSistema} onOpenChange={(open) => !open && setSelectedSistemas([])}>
+        <SheetContent side="right" className="w-full sm:max-w-md">
+          {previewSistema ? (
+            <div className="flex h-full flex-col">
+              <SheetHeader>
+                <SheetTitle>{previewSistema.name}</SheetTitle>
+                <SheetDescription>
+                  Visualização rápida do sistema selecionado.
+                </SheetDescription>
+              </SheetHeader>
+
+              <div className="mt-6 flex-1 space-y-5 overflow-y-auto">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">Audience</div>
+                    <div className="mt-1 text-sm font-medium text-foreground">{previewSistema.audience || '-'}</div>
+                  </div>
+                  <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">Situação</div>
+                    <div className="mt-2">
+                      <Badge variant={previewSistema.isActive ? 'success' : 'destructive'}>
+                        {previewSistema.isActive ? 'Ativo' : 'Inativo'}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">Descrição</div>
+                  <div className="mt-1 text-sm font-medium text-foreground">{previewSistema.description || '-'}</div>
+                </div>
+
+                <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">Redirect URI</div>
+                  <div className="mt-1 break-all text-sm font-medium text-foreground">{previewSistema.redirectUris || '-'}</div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end">
+                <Button
+                  variant="outline-primary"
+                  onClick={() => {
+                    setEditingSistema(previewSistema);
+                    setIsModalOpen(true);
+                  }}
+                >
+                  Editar sistema
+                </Button>
+              </div>
+            </div>
+          ) : null}
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }

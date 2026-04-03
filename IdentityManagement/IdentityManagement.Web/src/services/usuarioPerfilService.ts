@@ -32,7 +32,7 @@ function mapUserRole(userRole: UserRoleApiResponse): UsuarioPerfil {
 }
 
 export class UsuarioPerfilService {
-  private static baseUrl = '/user-roles'
+  private static baseUrl = '/userroles'
 
   static async getByContrato(contratoId: number): Promise<UsuarioPerfil[]> {
     const response = await httpClient.get<UserRoleApiResponse[]>(`${this.baseUrl}/contract/${contratoId}`)

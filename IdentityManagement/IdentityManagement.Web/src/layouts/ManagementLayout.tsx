@@ -50,7 +50,7 @@ export default function ManagementLayout() {
     return {
       name: authUser!.name,
       email: authUser!.email,
-      role: contract!.perfilName!,
+      role: contract?.roleName ?? '',
       avatar: getAvatar()
     };
   }, [authUser, contract]);
@@ -96,12 +96,12 @@ export default function ManagementLayout() {
 
   return (
     <AppLayout
-      title="Identity Provider"
-      subtitle={contract!.empresaName}
+      title="Identity Management"
+      subtitle={contract?.companyName ?? ''}
       logo={
         <img
           src={logoIdentityProvider}
-          alt="Identity Provider"
+          alt="Identity Management"
           style={{ width: '32px', height: '32px', objectFit: 'contain' }}
         />
       }

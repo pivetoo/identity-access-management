@@ -16,7 +16,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [PostEndpoint]
+        [PostEndpoint("")]
         public async Task<IActionResult> Assign([FromBody] AssignUserRoleRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -30,7 +30,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [DeleteEndpoint]
+        [DeleteEndpoint("")]
         public async Task<IActionResult> Revoke([FromBody] RevokeUserRoleRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

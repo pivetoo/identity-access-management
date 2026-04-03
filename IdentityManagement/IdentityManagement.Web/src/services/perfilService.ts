@@ -67,8 +67,8 @@ export class PerfilService {
   }
 
   static async getById(id: number): Promise<Perfil> {
-    const perfis = await this.getActive()
-    const perfil = perfis.find((item) => item.id === id)
+    const response = await httpClient.get<RoleApiResponse[]>(this.baseUrl)
+    const perfil = (response.data ?? []).map(mapRole).find((item) => item.id === id)
 
     if (!perfil) {
       throw new Error('Perfil não encontrado.')
@@ -147,7 +147,7 @@ export class PerfilService {
     throw new Error('A validação direta de permissão ainda não foi exposta no backend.')
   }
 
-  static async delete(): Promise<void> {
+  static async delete(_id?: number): Promise<void> {
     throw new Error('A exclusão de perfis ainda não foi exposta no backend.')
   }
 }

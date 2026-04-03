@@ -22,8 +22,7 @@ namespace IdentityManagement.Application.Requests.Companies
         [StringLength(150, MinimumLength = 5)]
         public string Email { get; set; } = string.Empty;
 
-        [StringLength(30, MinimumLength = 8)]
-        [Phone]
+        [RegularExpression(@"^$|^[0-9()\-\s+]{8,30}$", ErrorMessage = "The PhoneNumber field must contain between 8 and 30 valid phone characters.")]
         public string PhoneNumber { get; set; } = string.Empty;
 
         public bool IsActive { get; set; }

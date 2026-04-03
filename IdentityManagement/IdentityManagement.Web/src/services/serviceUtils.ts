@@ -1,6 +1,6 @@
 import type { PaginationParams, PaginatedResult } from 'd-rts'
 
-function getValue(record: Record<string, unknown>, field: string): unknown {
+function getValue(record: object, field: string): unknown {
   return field.split('.').reduce<unknown>((current, part) => {
     if (current && typeof current === 'object' && part in current) {
       return (current as Record<string, unknown>)[part]
@@ -30,7 +30,7 @@ function compareValues(left: unknown, right: unknown): number {
   return String(left).localeCompare(String(right), 'pt-BR', { sensitivity: 'base' })
 }
 
-export function queryCollection<T extends Record<string, unknown>>(
+export function queryCollection<T extends object>(
   items: T[],
   params?: PaginationParams,
   searchFields: string[] = []

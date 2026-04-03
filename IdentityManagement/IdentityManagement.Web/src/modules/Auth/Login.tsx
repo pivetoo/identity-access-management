@@ -89,8 +89,8 @@ export default function Login() {
     setContractLoading(true);
 
     const data = await AuthService.loginWithContract({
-      usuarioId: contractData.usuarioId,
-      contratoId: contract.contratoId,
+      userId: contractData.userId,
+      contractId: contract.contractId,
       temporaryToken: contractData.temporaryToken
     });
 
@@ -117,9 +117,9 @@ export default function Login() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-br from-background via-background to-primary/5 p-8">
         <CentralSistemas
-          userName={contractData.usuarioName}
-          userEmail={contractData.usuarioEmail}
-          contracts={contractData.availableContratos}
+          userName={contractData.userName}
+          userEmail={contractData.userEmail}
+          contracts={contractData.availableContracts}
           onSelectContract={handleSelectContract}
           onBack={handleBackToLogin}
           loading={contractLoading}

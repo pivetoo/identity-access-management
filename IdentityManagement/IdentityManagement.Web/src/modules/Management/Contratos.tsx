@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { FileText, Ban, RotateCcw } from 'lucide-react';
-import { PageLayout, DataTable, Badge, Button, ConfirmModal, toast, useApi } from 'd-rts';
-import type { DataTableColumn, PaginatedResult, PageAction } from 'd-rts';
+import { Ban, Filter, RotateCcw } from 'lucide-react';
+import { PageLayout, DataTablePreview, Badge, Button, ConfirmModal, TableToolbar, toast, useApi } from 'd-rts';
+import type { DataTablePreviewColumn, PaginatedResult, PageAction } from 'd-rts';
 import { ContratoService } from '../../services/contratoService';
 import type { Contrato } from '../../types/contrato';
 import ContratoModal from '../../components/modals/ContratoModal';
@@ -13,6 +13,7 @@ export default function Contratos() {
   const [editingContrato, setEditingContrato] = useState<Contrato | undefined>();
   const [isConfirmToggleOpen, setIsConfirmToggleOpen] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   const pageSize = 30;
 
   const loadContratosApi = useApi({
@@ -124,45 +125,56 @@ export default function Contratos() {
     return date.toLocaleDateString('pt-BR');
   };
 
-  const columns: DataTableColumn<Contrato>[] = [
+  const formatLifetime = (seconds: number) => {
+    if (!seconds || seconds <= 0) {
+      return '-';
+    }
+
+    const days = seconds / 86400;
+    if (Number.isInteger(days) && days >= 1) {
+      return `${days} ${days === 1 ? 'dia' : 'dias'}`;
+    }
+
+    const hours = seconds / 3600;
+    if (Number.isInteger(hours) && hours >= 1) {
+      return `${hours} ${hours === 1 ? 'hora' : 'horas'}`;
+    }
+
+    const minutes = seconds / 60;
+    if (Number.isInteger(minutes) && minutes >= 1) {
+      return `${minutes} ${minutes === 1 ? 'minuto' : 'minutos'}`;
+    }
+
+    return `${seconds} s`;
+  };
+
+  const columns: DataTablePreviewColumn<Contrato>[] = [
     {
       key: 'empresaName',
       title: 'Empresa',
       dataIndex: 'empresaName',
-      sortable: false,
     },
     {
       key: 'sistemaName',
       title: 'Sistema',
       dataIndex: 'sistemaName',
-      sortable: false,
-    },
-    {
-      key: 'clientId',
-      title: 'Client ID',
-      dataIndex: 'clientId',
-      sortable: false,
-      render: (value: string) => value || '-',
     },
     {
       key: 'startDate',
       title: 'Data Início',
       dataIndex: 'startDate',
-      sortable: false,
       render: (value: string) => formatDate(value),
     },
     {
       key: 'endDate',
       title: 'Data Término',
       dataIndex: 'endDate',
-      sortable: false,
       render: (value: string) => formatDate(value),
     },
     {
       key: 'isActive',
       title: 'Status',
       dataIndex: 'isActive',
-      sortable: false,
       render: (value: boolean) => (
         <Badge variant={value ? 'success' : 'destructive'}>
           {value ? 'Ativo' : 'Inativo'}
@@ -176,14 +188,23 @@ export default function Contratos() {
     loadContratos(true);
   };
 
-  const handleSelectionChange = (selected: Contrato[]) => {
-    setSelectedContratos(selected);
-  };
-
   const handleModalClose = () => {
     setIsModalOpen(false);
     setEditingContrato(undefined);
   };
+
+  const filteredContratos = contratos.filter((contrato) => {
+    const search = searchTerm.trim().toLowerCase();
+    if (!search) {
+      return true;
+    }
+
+    return [
+      contrato.empresaName ?? '',
+      contrato.sistemaName ?? '',
+      contrato.clientId ?? ''
+    ].some((value) => value.toLowerCase().includes(search));
+  });
 
   const customActions: PageAction[] = [];
 
@@ -212,34 +233,124 @@ export default function Contratos() {
   return (
     <PageLayout
       title="Contratos"
-      icon={<FileText size={24} />}
+      subtitle="Controle vigência, credenciais e configuração de acesso entre empresa e sistema."
       onAdd={handleAddContrato}
       onEdit={handleEditContrato}
       onRefresh={handleRefresh}
       selectedRowsCount={selectedContratos.length}
       actions={customActions}
     >
-      <DataTable
-        columns={columns}
-        data={contratos}
-        loading={loadContratosApi.isLoading}
-        rowKey="id"
-        selectable
-        selectedRows={selectedContratos}
-        onSelectionChange={handleSelectionChange}
-      />
+      <div className="space-y-4">
+        <TableToolbar
+          searchValue={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Buscar por empresa, sistema ou client id"
+          rightSlot={<Button variant="outline" size="sm" icon={<Filter className="h-4 w-4" />} />}
+        />
 
-      {hasMore && (
-        <div className="flex justify-end mt-4">
-          <Button
-            variant="outline"
-            onClick={loadMoreContratos}
-            loading={loadMoreContratosApi.isLoading}
-          >
-            Carregar mais
-          </Button>
-        </div>
-      )}
+        <DataTablePreview
+          columns={columns}
+          data={filteredContratos}
+          rowKey="id"
+          selectedRow={selectedContratos[0] ?? null}
+          onRowSelect={(selected) => setSelectedContratos(selected ? [selected] : [])}
+          renderDetail={(record) => (
+            <div className="space-y-5 p-5">
+              <div className="space-y-1">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/80">
+                  Preview do contrato
+                </div>
+                <h3 className="text-xl font-semibold text-primary">
+                  {record.empresaName} · {record.sistemaName}
+                </h3>
+                <p className="text-sm text-primary/80">
+                  Visualização rápida do contrato selecionado, com identificação e vigência.
+                </p>
+              </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                      Client ID
+                    </div>
+                    <div
+                      className="mt-1 truncate text-sm font-medium text-foreground"
+                      title={record.clientId || '-'}
+                    >
+                      {record.clientId || '-'}
+                    </div>
+                  </div>
+
+                <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Situação
+                  </div>
+                  <div className="mt-2">
+                    <Badge variant={record.isActive ? 'success' : 'destructive'}>
+                      {record.isActive ? 'Ativo' : 'Inativo'}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Início
+                  </div>
+                  <div className="mt-1 text-sm font-medium text-foreground">{formatDate(record.startDate)}</div>
+                </div>
+
+                <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Término
+                  </div>
+                  <div className="mt-1 text-sm font-medium text-foreground">{formatDate(record.endDate)}</div>
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Access Token
+                  </div>
+                  <div className="mt-1 text-sm font-medium text-foreground">{formatLifetime(record.accessTokenLifetime)}</div>
+                </div>
+
+                <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Refresh Token
+                  </div>
+                  <div className="mt-1 text-sm font-medium text-foreground">{formatLifetime(record.refreshTokenLifetime)}</div>
+                </div>
+              </div>
+
+              <Button
+                variant="outline-primary"
+                size="sm"
+                onClick={() => {
+                  setEditingContrato(record);
+                  setIsModalOpen(true);
+                }}
+              >
+                Abrir detalhes
+              </Button>
+            </div>
+          )}
+        />
+
+        {hasMore && (
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              onClick={loadMoreContratos}
+              loading={loadMoreContratosApi.isLoading}
+            >
+              Carregar mais
+            </Button>
+          </div>
+        )}
+      </div>
 
       <ContratoModal
         isOpen={isModalOpen}
