@@ -12,6 +12,15 @@ namespace IdentityManagement.Infrastructure.Services
 {
     public sealed class JwtService : IJwtService
     {
+        private sealed class UserRoleClaimModel
+        {
+            public long Id { get; init; }
+
+            public string Name { get; init; } = string.Empty;
+
+            public bool IsRoot { get; init; }
+        }
+
         private readonly DbContext dbContext;
         private readonly IConfiguration configuration;
 
@@ -38,20 +47,20 @@ namespace IdentityManagement.Infrastructure.Services
                 new Claim("company_name", contract.Company.LegalName)
             ];
 
-            var userRoles = await (
+            List<UserRoleClaimModel> userRoles = await (
                 from userRole in dbContext.Set<UserRole>().AsNoTracking()
                 join role in dbContext.Set<Role>().AsNoTracking() on userRole.RoleId equals role.Id
                 where userRole.UserId == user.Id &&
                       role.ContractId == contract.Id &&
                       userRole.IsActive &&
                       !userRole.RevokedAt.HasValue
-                select new
+                select new UserRoleClaimModel
                 {
-                    role.Id,
-                    role.Name,
-                    role.IsRoot
+                    Id = role.Id,
+                    Name = role.Name,
+                    IsRoot = role.IsRoot
                 })
-                .ToList();
+                .ToListAsync(cancellationToken);
 
             if (userRoles.Count == 0)
             {
