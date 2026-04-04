@@ -57,12 +57,26 @@ function mapRoleSummary(role: RoleApiResponse): PerfilSummaryViewModel {
   }
 }
 
+function sortRolesByPriority<T extends { isSuperUser: boolean; isDefault?: boolean; name: string }>(roles: T[]): T[] {
+  return [...roles].sort((left, right) => {
+    if (left.isSuperUser !== right.isSuperUser) {
+      return left.isSuperUser ? -1 : 1
+    }
+
+    if ((left.isDefault ?? false) !== (right.isDefault ?? false)) {
+      return left.isDefault ? -1 : 1
+    }
+
+    return left.name.localeCompare(right.name, 'pt-BR', { sensitivity: 'base' })
+  })
+}
+
 export class PerfilService {
   private static baseUrl = '/roles'
 
   static async getAll(params?: PaginationParams): Promise<PaginatedResult<Perfil>> {
     const response = await httpClient.get<RoleApiResponse[]>(this.baseUrl)
-    const perfis = (response.data ?? []).map(mapRole)
+    const perfis = sortRolesByPriority((response.data ?? []).map(mapRole))
 
     return queryCollection(perfis, params, ['name', 'description'])
   }
@@ -80,19 +94,19 @@ export class PerfilService {
 
   static async getActive(): Promise<PerfilSummaryViewModel[]> {
     const response = await httpClient.get<RoleApiResponse[]>(this.baseUrl)
-    return (response.data ?? []).map(mapRoleSummary)
+    return sortRolesByPriority((response.data ?? []).map(mapRoleSummary))
   }
 
   static async getByContrato(contratoId: number, params?: PaginationParams): Promise<PaginatedResult<Perfil>> {
     const response = await httpClient.get<RoleApiResponse[]>(`${this.baseUrl}/contract/${contratoId}`)
-    const perfis = (response.data ?? []).map(mapRole)
+    const perfis = sortRolesByPriority((response.data ?? []).map(mapRole))
 
     return queryCollection(perfis, params, ['name', 'description'])
   }
 
   static async getByContratoSummary(contratoId: number): Promise<PerfilSummaryViewModel[]> {
     const response = await httpClient.get<RoleApiResponse[]>(`${this.baseUrl}/contract/${contratoId}`)
-    return (response.data ?? []).map(mapRoleSummary)
+    return sortRolesByPriority((response.data ?? []).map(mapRoleSummary))
   }
 
   static async getDefaultPerfil(contratoId: number): Promise<PerfilDetailViewModel> {

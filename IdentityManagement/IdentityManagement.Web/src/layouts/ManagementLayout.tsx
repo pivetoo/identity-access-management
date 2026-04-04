@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
-import { Home, Users, MapPin, FileText, Layers, UserCheck, Link } from 'lucide-react';
+import { Home, Users, MapPin, FileText, Layers, UserCheck, Link, ShieldCheck } from 'lucide-react';
 import { AppLayout, useAuth, AuthService, useAppNavigation } from 'archon-ui';
 import type { BreadcrumbItem } from 'archon-ui';
 import logoIdentityProvider from '../assets/logo-identity-provider.svg';
@@ -65,6 +65,7 @@ export default function ManagementLayout() {
   ]);
 
   const systemGroup = createMenuGroup('Sistema', [
+    { key: 'perfis-padrao', label: 'Template de Perfis', path: '/perfis-padrao', icon: <ShieldCheck size={20} /> },
     { key: 'perfis', label: 'Perfis', path: '/perfis', icon: <UserCheck size={20} /> },
     { key: 'usuario-perfis', label: 'Vincular Usuários', path: '/usuario-perfis', icon: <Link size={20} /> }
   ]);
@@ -82,6 +83,7 @@ export default function ManagementLayout() {
       '/management/empresas': 'Empresas',
       '/management/contratos': 'Contratos',
       '/management/sistemas': 'Sistemas',
+      '/management/perfis-padrao': 'Template de Perfis',
       '/management/perfis': 'Perfis',
       '/management/usuario-perfis': 'Vincular Usuários'
     };

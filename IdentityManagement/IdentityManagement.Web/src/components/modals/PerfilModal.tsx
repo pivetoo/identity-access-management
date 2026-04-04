@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Badge, Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Input, Button, Switch, SearchableSelect, useApi, toast, useFormErrors } from 'archon-ui';
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Input, Button, Switch, SearchableSelect, useApi, toast, useFormErrors } from 'archon-ui';
 import { PerfilService } from '../../services/perfilService';
 import { ContratoService } from '../../services/contratoService';
 import { AccessResourceService } from '../../services/accessResourceService';
@@ -36,6 +36,19 @@ export default function PerfilModal({
     isDefault: false,
   });
 
+  const resetForm = () => {
+    setSelectedResourceIds([]);
+    setIsPermissionsModalOpen(false);
+    setFormData({
+      name: '',
+      description: '',
+      contratoId: contratoId || 0,
+      isSuperUser: false,
+      isDefault: false,
+    });
+    clearErrors();
+  };
+
   const loadContratosApi = useApi({
     onSuccess: (data: Contrato[]) => {
       setContratos(data);
@@ -49,7 +62,7 @@ export default function PerfilModal({
         title: 'Sucesso',
         description: perfil ? 'Perfil atualizado com sucesso' : 'Perfil criado com sucesso',
       });
-      clearErrors();
+      resetForm();
       onSuccess();
       onClose();
     },
@@ -149,11 +162,16 @@ export default function PerfilModal({
     }
   };
 
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
   const isValid = formData.name && formData.contratoId;
 
   return (
     <>
-      <Modal open={isOpen} onOpenChange={onClose}>
+      <Modal open={isOpen} onOpenChange={(open) => !open && handleClose()}>
         <ModalContent size="xl">
           <ModalHeader>
             <ModalTitle>{perfil ? 'Editar Perfil' : 'Novo Perfil'}</ModalTitle>
@@ -234,9 +252,6 @@ export default function PerfilModal({
                     Escolha as permissões em uma tela dedicada, agrupadas por recurso e endpoint.
                   </p>
                 </div>
-                {selectedResourceIds.length > 0 && !formData.isSuperUser ? (
-                  <Badge variant="secondary">{selectedResourceIds.length} selecionadas</Badge>
-                ) : null}
               </div>
 
               <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -256,7 +271,7 @@ export default function PerfilModal({
           <ModalFooter>
             <Button
               variant="outline"
-              onClick={onClose}
+              onClick={handleClose}
               disabled={savePerfilApi.isLoading}
             >
               Cancelar

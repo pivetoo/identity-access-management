@@ -85,11 +85,16 @@ namespace IdentityManagement.Domain.Entities
 
             CompanyId = companyId;
             SystemApplicationId = systemApplicationId;
-            StartDate = startDate;
-            EndDate = endDate;
+            StartDate = NormalizeUtc(startDate);
+            EndDate = endDate.HasValue ? NormalizeUtc(endDate.Value) : null;
             IsActive = isActive;
             AccessTokenLifetime = accessTokenLifetime;
             RefreshTokenLifetime = refreshTokenLifetime;
+        }
+
+        private static DateTimeOffset NormalizeUtc(DateTimeOffset value)
+        {
+            return value.ToUniversalTime();
         }
     }
 }

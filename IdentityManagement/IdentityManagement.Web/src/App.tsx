@@ -9,6 +9,7 @@ import Empresas from './modules/Management/Empresas';
 import Contratos from './modules/Management/Contratos';
 import Sistemas from './modules/Management/Sistemas';
 import Perfis from './modules/Management/Perfis';
+import PerfisPadrao from './modules/Management/PerfisPadrao';
 import UsuarioPerfis from './modules/Management/UsuarioPerfis';
 import ForgotPassword from './modules/Auth/ForgotPassword';
 
@@ -44,6 +45,7 @@ function ProtectedRoutes() {
         <Route path="empresas" element={<Empresas />} />
         <Route path="contratos" element={<Contratos />} />
         <Route path="sistemas" element={<Sistemas />} />
+        <Route path="perfis-padrao" element={<PerfisPadrao />} />
         <Route path="perfis" element={<Perfis />} />
         <Route path="usuario-perfis" element={<UsuarioPerfis />} />
       </Route>

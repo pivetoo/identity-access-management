@@ -47,6 +47,8 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException(GetErrorMessages());
             }
 
+            await ApplySystemRoleTemplates(contract.Id, contract.SystemApplicationId, cancellationToken);
+
             Contract hydratedContract = await GetByIdWithRelations(contract.Id, cancellationToken)
                 ?? throw new InvalidOperationException("Contract could not be loaded after creation.");
 
@@ -73,6 +75,7 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException("Contract not found.");
             }
 
+            await EnsureSystemApplicationChangeAllowed(contract, request.SystemApplicationId, cancellationToken);
             await EnsureDependencies(request.CompanyId, request.SystemApplicationId, cancellationToken);
 
             Contract? existingContract = await GetByCompanyAndSystemApplication(request.CompanyId, request.SystemApplicationId, cancellationToken);
@@ -323,6 +326,7 @@ namespace IdentityManagement.Infrastructure.Services
             return new ContractSummaryResponse
             {
                 Id = contract.Id,
+                SystemApplicationId = contract.SystemApplicationId,
                 CompanyName = contract.Company.LegalName,
                 SystemApplicationName = contract.SystemApplication.Name,
                 ClientId = contract.ClientId,
@@ -356,6 +360,75 @@ namespace IdentityManagement.Infrastructure.Services
             if (!systemApplicationExists)
             {
                 throw new InvalidOperationException("System application not found or inactive.");
+            }
+        }
+
+        private async Task ApplySystemRoleTemplates(long contractId, long systemApplicationId, CancellationToken cancellationToken)
+        {
+            List<SystemRoleTemplate> templates = await (
+                from template in DbContext.Set<SystemRoleTemplate>().AsNoTracking()
+                where template.SystemApplicationId == systemApplicationId && template.IsActive
+                orderby template.Name
+                select template)
+                .ToListAsync(cancellationToken);
+
+            if (templates.Count == 0)
+            {
+                return;
+            }
+
+            List<Role> roles = templates
+                .Select(template => new Role(template.Name, template.Description, contractId, template.IsRoot, template.IsDefault))
+                .ToList();
+
+            await DbContext.Set<Role>().AddRangeAsync(roles, cancellationToken);
+            await DbContext.SaveChangesAsync(cancellationToken);
+
+            List<long> templateIds = templates
+                .Select(item => item.Id)
+                .ToList();
+
+            List<SystemRoleTemplateAccessResource> templateLinks = await (
+                from link in DbContext.Set<SystemRoleTemplateAccessResource>().AsNoTracking()
+                where templateIds.Contains(link.SystemRoleTemplateId) && link.IsActive
+                select link)
+                .ToListAsync(cancellationToken);
+
+            List<RoleAccessResource> roleAccessResources = [];
+
+            foreach (SystemRoleTemplate template in templates)
+            {
+                Role role = roles.First(item => item.Name == template.Name);
+
+                List<RoleAccessResource> currentRoleAccessResources = templateLinks
+                    .Where(item => item.SystemRoleTemplateId == template.Id)
+                    .Select(item => new RoleAccessResource(role.Id, item.AccessResourceId))
+                    .ToList();
+
+                roleAccessResources.AddRange(currentRoleAccessResources);
+            }
+
+            if (roleAccessResources.Count > 0)
+            {
+                await DbContext.Set<RoleAccessResource>().AddRangeAsync(roleAccessResources, cancellationToken);
+                await DbContext.SaveChangesAsync(cancellationToken);
+            }
+        }
+
+        private async Task EnsureSystemApplicationChangeAllowed(Contract contract, long requestedSystemApplicationId, CancellationToken cancellationToken)
+        {
+            if (contract.SystemApplicationId == requestedSystemApplicationId)
+            {
+                return;
+            }
+
+            bool hasRoles = await DbContext.Set<Role>()
+                .AsNoTracking()
+                .AnyAsync(item => item.ContractId == contract.Id, cancellationToken);
+
+            if (hasRoles)
+            {
+                throw new InvalidOperationException("System application cannot be changed after roles have been created for the contract.");
             }
         }
 
