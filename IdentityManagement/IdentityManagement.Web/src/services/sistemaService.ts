@@ -1,5 +1,5 @@
-import { httpClient } from 'd-rts'
-import type { PaginationParams, PaginatedResult } from 'd-rts'
+import { httpClient } from 'archon-ui'
+import type { PaginationParams, PaginatedResult } from '../types/pagination'
 import type { Sistema, CreateSistemaRequest, UpdateSistemaRequest } from '../types/sistema'
 import { queryCollection } from './serviceUtils'
 

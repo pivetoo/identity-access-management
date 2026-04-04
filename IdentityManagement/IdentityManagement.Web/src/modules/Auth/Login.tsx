@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Card, CardContent, Input, useAuth, AuthService } from 'd-rts';
+import { Button, Card, CardContent, Input, useAuth, AuthService } from 'archon-ui';
 import { User, Lock } from 'lucide-react';
-import type { IdentifyResult, ContractType } from 'd-rts';
+import type { IdentifyResult, ContractType } from 'archon-ui';
 import CentralSistemas from './CentralSistemas';
 import logoEmpresa from '../../assets/logo-empresa.svg';
 import { validateEmail } from '../../utils/validation';

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Briefcase, ArrowLeft, Search } from 'lucide-react';
-import { Button, Card, CardContent, Input } from 'd-rts';
-import type { ContractType } from 'd-rts';
+import { Button, Card, CardContent, Input } from 'archon-ui';
+import type { ContractType } from 'archon-ui';
 import logoEmpresa from '../../assets/logo-empresa.svg';
 
 interface CentralSistemasProps {

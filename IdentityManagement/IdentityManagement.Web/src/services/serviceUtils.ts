@@ -1,4 +1,4 @@
-import type { PaginationParams, PaginatedResult } from 'd-rts'
+import type { PaginationParams, PaginatedResult } from '../types/pagination'
 
 function getValue(record: object, field: string): unknown {
   return field.split('.').reduce<unknown>((current, part) => {

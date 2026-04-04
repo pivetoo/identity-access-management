@@ -1,18 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalTitle,
-  ModalFooter,
-  Input,
-  Button,
-  Switch,
-  SearchableSelect,
-  useApi,
-  toast,
-  useFormErrors
-} from 'd-rts';
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Input, Button, Switch, SearchableSelect, useApi, toast, useFormErrors } from 'archon-ui';
 import { ContratoService } from '../../services/contratoService';
 import { EmpresaService } from '../../services/empresaService';
 import { SistemaService } from '../../services/sistemaService';

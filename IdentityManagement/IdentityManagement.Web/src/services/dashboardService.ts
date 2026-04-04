@@ -1,4 +1,4 @@
-import { httpClient } from 'd-rts';
+import { httpClient } from 'archon-ui';
 import type { KPIs, UsersByEmpresa, TopSistema, ActiveSession, PagedResult } from '../types/dashboard';
 
 const dashboardService = {

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Ban, RotateCcw } from 'lucide-react';
-import { PageLayout, DataTablePreview, Badge, Button, ConfirmModal, FilterDropdown, TableToolbar, toast, useApi } from 'd-rts';
-import type { DataTablePreviewColumn, PaginatedResult, PageAction } from 'd-rts';
+import { PageLayout, DataTablePreview, Badge, Button, ConfirmModal, FilterDropdown, TableToolbar, toast, useApi } from 'archon-ui';
+import type { DataTablePreviewColumn, PageAction } from 'archon-ui';
 import { ContratoService } from '../../services/contratoService';
 import type { Contrato } from '../../types/contrato';
+import type { PaginatedResult } from '../../types/pagination';
 import ContratoModal from '../../components/modals/ContratoModal';
 
 export default function Contratos() {

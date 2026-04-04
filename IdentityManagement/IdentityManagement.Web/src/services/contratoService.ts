@@ -1,6 +1,6 @@
-import { httpClient } from 'd-rts'
-import type { PaginationParams, PaginatedResult } from 'd-rts'
+import { httpClient } from 'archon-ui'
 import type { Contrato, CreateContratoRequest, UpdateContratoRequest, ContratoSecrets } from '../types/contrato'
+import type { PaginationParams, PaginatedResult } from '../types/pagination'
 import { queryCollection } from './serviceUtils'
 
 interface ContractApiResponse {

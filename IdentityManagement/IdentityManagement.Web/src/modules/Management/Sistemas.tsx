@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { PageLayout, DataTable, Badge, Button, ConfirmModal, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, toast, useApi } from 'd-rts';
-import type { DataTableColumn } from 'd-rts';
+import { PageLayout, DataTable, Badge, Button, ConfirmModal, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, toast, useApi } from 'archon-ui';
+import type { DataTableColumn } from 'archon-ui';
 import { SistemaService } from '../../services/sistemaService';
 import type { Sistema } from '../../types/sistema';
-import type { PaginatedResult } from 'd-rts';
+import type { PaginatedResult } from '../../types/pagination';
 import SistemaModal from '../../components/modals/SistemaModal';
 
 export default function Sistemas() {

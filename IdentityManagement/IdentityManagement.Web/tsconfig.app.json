@@ -10,10 +10,6 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
-    "baseUrl": ".",
-    "paths": {
-      "d-rts": ["./src/compat/d-rts.ts"]
-    },
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",

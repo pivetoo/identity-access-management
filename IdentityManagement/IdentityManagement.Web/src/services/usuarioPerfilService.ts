@@ -1,4 +1,4 @@
-import { httpClient } from 'd-rts'
+import { httpClient } from 'archon-ui'
 import type { UsuarioPerfil, AssignUsuarioToPerfilRequest, RevokeUsuarioFromPerfilRequest } from '../types/usuarioPerfil'
 
 interface UserRoleApiResponse {

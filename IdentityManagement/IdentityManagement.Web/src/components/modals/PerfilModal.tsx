@@ -1,18 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalTitle,
-  ModalFooter,
-  Input,
-  Button,
-  Switch,
-  SearchableSelect,
-  useApi,
-  toast,
-  useFormErrors
-} from 'd-rts';
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Input, Button, Switch, SearchableSelect, useApi, toast, useFormErrors } from 'archon-ui';
 import { PerfilService } from '../../services/perfilService';
 import { ContratoService } from '../../services/contratoService';
 import type { Perfil, CreatePerfilRequest, UpdatePerfilRequest } from '../../types/perfil';

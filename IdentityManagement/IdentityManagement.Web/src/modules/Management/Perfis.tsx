@@ -1,19 +1,11 @@
 import { useState, useEffect } from 'react';
-import {
-  PageLayout,
-  DataTable,
-  Button,
-  ConfirmModal,
-  toast,
-  useApi,
-  SearchableSelect
-} from 'd-rts';
-import type { DataTableColumn } from 'd-rts';
+import { PageLayout, DataTable, Button, ConfirmModal, toast, useApi, SearchableSelect } from 'archon-ui';
+import type { DataTableColumn } from 'archon-ui';
 import { PerfilService } from '../../services/perfilService';
 import { ContratoService } from '../../services/contratoService';
 import type { Perfil, PerfilSummaryViewModel } from '../../types/perfil';
 import type { Contrato } from '../../types/contrato';
-import type { PaginatedResult } from 'd-rts';
+import type { PaginatedResult } from '../../types/pagination';
 import PerfilModal from '../../components/modals/PerfilModal';
 
 export default function Perfis() {

@@ -1,17 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalTitle,
-  ModalFooter,
-  Input,
-  Button,
-  Switch,
-  useApi,
-  toast,
-  useFormErrors
-} from 'd-rts';
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Input, Button, Switch, useApi, toast, useFormErrors } from 'archon-ui';
 import { SistemaService } from '../../services/sistemaService';
 import type { Sistema, CreateSistemaRequest, UpdateSistemaRequest } from '../../types/sistema';
 

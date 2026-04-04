@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { PageLayout, DataTable, Badge, Button, ConfirmModal, FilterDropdown, TableToolbar, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, toast, useApi } from 'd-rts';
-import type { DataTableColumn } from 'd-rts';
+import { PageLayout, DataTable, Badge, Button, ConfirmModal, FilterDropdown, TableToolbar, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, toast, useApi } from 'archon-ui';
+import type { DataTableColumn } from 'archon-ui';
 import { UsuarioService } from '../../services/usuarioService';
 import type { Usuario } from '../../types/usuario';
-import type { PaginatedResult } from 'd-rts';
+import type { PaginatedResult } from '../../types/pagination';
 import UsuarioModal from '../../components/modals/UsuarioModal';
 
 export default function Usuarios() {

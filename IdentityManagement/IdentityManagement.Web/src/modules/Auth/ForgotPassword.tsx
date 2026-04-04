@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, ArrowLeft, KeyRound } from 'lucide-react';
-import { Button, Card, CardContent, Input, useToast } from 'd-rts';
+import { Button, Card, CardContent, Input, useToast } from 'archon-ui';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');

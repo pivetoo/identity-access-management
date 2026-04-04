@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { Home, Users, MapPin, FileText, Layers, UserCheck, Link } from 'lucide-react';
-import { AppLayout, useAuth, AuthService, useAppNavigation } from 'd-rts';
-import type { BreadcrumbItem } from 'd-rts';
+import { AppLayout, useAuth, AuthService, useAppNavigation } from 'archon-ui';
+import type { BreadcrumbItem } from 'archon-ui';
 import logoIdentityProvider from '../assets/logo-identity-provider.svg';
 import logoempresa from '../assets/logo-empresa.svg';
 

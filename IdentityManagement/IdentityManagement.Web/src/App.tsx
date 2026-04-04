@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider, GlobalLoaderProvider, useGlobalLoader, useAuth, Toaster, setApiBaseURL, setIdentityManagementURL, ProtectedRoute, Callback, setGlobalLoaderContext, ThemeProvider } from 'd-rts';
+import { AuthProvider, GlobalLoaderProvider, useGlobalLoader, useAuth, Toaster, setApiBaseURL, setIdentityManagementURL, ProtectedRoute, Callback, setGlobalLoaderContext, ThemeProvider } from 'archon-ui';
 import Login from './modules/Auth/Login';
 import ManagementLayout from './layouts/ManagementLayout';
 import Dashboard from './modules/Management/Dashboard';

@@ -1,17 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalTitle,
-  ModalFooter,
-  Input,
-  Button,
-  Switch,
-  useApi,
-  toast,
-  useFormErrors
-} from 'd-rts';
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Input, Button, Switch, useApi, toast, useFormErrors } from 'archon-ui';
 import { EmpresaService } from '../../services/empresaService';
 import type { Empresa, CreateEmpresaRequest, UpdateEmpresaRequest } from '../../types/empresa';
 

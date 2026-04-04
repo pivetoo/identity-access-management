@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Users, FileText, MapPin, Layers, Clock, ExternalLink, Search } from 'lucide-react';
-import { Button, Input, Modal, ModalContent, ModalHeader, ModalTitle, ConfirmModal, toast, Card, CardContent, CardHeader, CardTitle, ChartContainer, PieChart } from 'd-rts';
+import { Button, Input, Modal, ModalContent, ModalHeader, ModalTitle, ConfirmModal, toast, Card, CardContent, CardHeader, CardTitle, ChartContainer, PieChart } from 'archon-ui';
 import dashboardService from '../../services/dashboardService';
 import type { KPIs, TopSistema, ActiveSession } from '../../types/dashboard';
 

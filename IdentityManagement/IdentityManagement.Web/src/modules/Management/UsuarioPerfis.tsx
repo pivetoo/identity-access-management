@@ -1,14 +1,7 @@
 import { useState, useEffect } from 'react';
 import { RotateCcw, Ban } from 'lucide-react';
-import {
-  PageLayout,
-  DataTable,
-  ConfirmModal,
-  toast,
-  useApi,
-  SearchableSelect
-} from 'd-rts';
-import type { DataTableColumn, PageAction } from 'd-rts';
+import { PageLayout, DataTable, ConfirmModal, toast, useApi, SearchableSelect } from 'archon-ui';
+import type { DataTableColumn, PageAction } from 'archon-ui';
 import { ContratoService } from '../../services/contratoService';
 import { UsuarioPerfilService } from '../../services/usuarioPerfilService';
 import type { UsuarioPerfil } from '../../types/usuarioPerfil';
