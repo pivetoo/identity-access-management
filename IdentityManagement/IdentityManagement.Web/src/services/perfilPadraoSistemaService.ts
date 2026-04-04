@@ -35,6 +35,20 @@ function mapSystemRoleTemplate(template: SystemRoleTemplateApiResponse): PerfilP
   }
 }
 
+function sortTemplatesByPriority<T extends { isRoot: boolean; isDefault: boolean; name: string }>(templates: T[]): T[] {
+  return [...templates].sort((left, right) => {
+    if (left.isRoot !== right.isRoot) {
+      return left.isRoot ? -1 : 1
+    }
+
+    if (left.isDefault !== right.isDefault) {
+      return left.isDefault ? -1 : 1
+    }
+
+    return left.name.localeCompare(right.name, 'pt-BR', { sensitivity: 'base' })
+  })
+}
+
 export class PerfilPadraoSistemaService {
   private static baseUrl = '/systemroletemplates'
 
@@ -46,7 +60,7 @@ export class PerfilPadraoSistemaService {
       `${this.baseUrl}/system-application/${systemApplicationId}`
     )
 
-    const templates = (response.data ?? []).map(mapSystemRoleTemplate)
+    const templates = sortTemplatesByPriority((response.data ?? []).map(mapSystemRoleTemplate))
     return queryCollection(templates, params, ['name', 'description'])
   }
 

@@ -260,7 +260,7 @@ export default function PerfisPadrao() {
       </PageLayout>
 
       <Sheet open={!!previewPerfilPadrao} onOpenChange={(open) => !open && setPreviewPerfilPadrao(null)}>
-        <SheetContent side="right" className="w-full sm:max-w-xl">
+        <SheetContent side="right" className="w-full sm:max-w-md">
           {previewPerfilPadrao ? (
             <div className="flex h-full flex-col">
               <SheetPreviewHeader
