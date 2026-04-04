@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IdentityManagement.Api.Controllers
 {
-    [AllowAnonymous]
     public sealed class AccessResourcesController : ApiControllerBase
     {
         private readonly IAccessResourceService accessResourceService;
@@ -18,6 +17,15 @@ namespace IdentityManagement.Api.Controllers
             this.accessResourceService = accessResourceService;
         }
 
+        [RequireAccess]
+        [GetEndpoint("")]
+        public async Task<IActionResult> Get(CancellationToken cancellationToken)
+        {
+            var response = await accessResourceService.GetActiveResources(cancellationToken);
+            return Http200(response);
+        }
+
+        [AllowAnonymous]
         [RequireIntegrationSecret]
         [PostEndpoint("/api/access-resources/sync")]
         public async Task<IActionResult> Sync([FromBody] List<AccessResourceModel> resources, CancellationToken cancellationToken)

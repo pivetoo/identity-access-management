@@ -7,7 +7,7 @@ export interface Perfil {
   empresaName?: string;
   isSuperUser: boolean;
   isDefault: boolean;
-  permissions: string;
+  accessResourceIds: number[];
   userCount?: number;
   criadoEm: string;
   ultimaAlteracao?: string;
@@ -19,7 +19,7 @@ export interface CreatePerfilRequest {
   contratoId: number;
   isSuperUser: boolean;
   isDefault: boolean;
-  permissions?: string;
+  accessResourceIds?: number[];
 }
 
 export interface UpdatePerfilRequest {
@@ -27,11 +27,11 @@ export interface UpdatePerfilRequest {
   description?: string;
   isSuperUser: boolean;
   isDefault: boolean;
-  permissions?: string;
+  accessResourceIds?: number[];
 }
 
 export interface UpdatePerfilPermissionsRequest {
-  permissions: string;
+  accessResourceIds: number[];
 }
 
 export interface SetDefaultPerfilRequest {
@@ -57,7 +57,7 @@ export interface PerfilDetailViewModel {
   empresaName: string;
   isSuperUser: boolean;
   isDefault: boolean;
-  permissions: string;
+  accessResourceIds: number[];
   criadoEm: string;
   ultimaAlteracao?: string;
 }

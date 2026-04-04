@@ -4,6 +4,8 @@ namespace IdentityManagement.Application.Responses.Contracts
     {
         public long Id { get; set; }
 
+        public long SystemApplicationId { get; set; }
+
         public string CompanyName { get; set; } = string.Empty;
 
         public string SystemApplicationName { get; set; } = string.Empty;

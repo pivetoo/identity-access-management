@@ -281,7 +281,6 @@ export default function Usuarios() {
           {previewUsuario ? (
             <div className="flex h-full flex-col">
               <SheetPreviewHeader
-                eyebrow="Usuário"
                 title={previewUsuario.name || previewUsuario.username}
                 meta={
                   <>

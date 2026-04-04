@@ -278,7 +278,6 @@ export default function Empresas() {
           {previewEmpresa ? (
             <div className="flex h-full flex-col">
               <SheetPreviewHeader
-                eyebrow="Empresa"
                 title={previewEmpresa.nome}
                 meta={
                   <>

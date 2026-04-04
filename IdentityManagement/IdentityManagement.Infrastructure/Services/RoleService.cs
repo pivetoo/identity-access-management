@@ -29,7 +29,9 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException(GetErrorMessages());
             }
 
-            return ToResponse(role);
+            await SyncAccessResources(role.Id, request.AccessResourceIds, cancellationToken);
+
+            return await GetRoleResponse(role.Id, cancellationToken);
         }
 
         public async Task<RoleResponse> UpdateRole(long id, UpdateRoleRequest request, CancellationToken cancellationToken = default)
@@ -58,7 +60,9 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException(GetErrorMessages());
             }
 
-            return ToResponse(result);
+            await SyncAccessResources(result.Id, request.AccessResourceIds, cancellationToken);
+
+            return await GetRoleResponse(result.Id, cancellationToken);
         }
 
         public async Task<IReadOnlyCollection<RoleResponse>> GetActiveRoles(CancellationToken cancellationToken = default)
@@ -76,6 +80,11 @@ namespace IdentityManagement.Infrastructure.Services
                     ContractId = role.ContractId,
                     IsRoot = role.IsRoot,
                     IsDefault = role.IsDefault,
+                    AccessResourceIds = DbContext.Set<RoleAccessResource>()
+                        .Where(item => item.RoleId == role.Id && item.IsActive)
+                        .OrderBy(item => item.AccessResourceId)
+                        .Select(item => item.AccessResourceId)
+                        .ToList(),
                     CreatedAt = role.CreatedAt,
                     UpdatedAt = role.UpdatedAt
                 })
@@ -98,6 +107,11 @@ namespace IdentityManagement.Infrastructure.Services
                     ContractId = role.ContractId,
                     IsRoot = role.IsRoot,
                     IsDefault = role.IsDefault,
+                    AccessResourceIds = DbContext.Set<RoleAccessResource>()
+                        .Where(item => item.RoleId == role.Id && item.IsActive)
+                        .OrderBy(item => item.AccessResourceId)
+                        .Select(item => item.AccessResourceId)
+                        .ToList(),
                     CreatedAt = role.CreatedAt,
                     UpdatedAt = role.UpdatedAt
                 })
@@ -119,6 +133,11 @@ namespace IdentityManagement.Infrastructure.Services
                     ContractId = role.ContractId,
                     IsRoot = role.IsRoot,
                     IsDefault = role.IsDefault,
+                    AccessResourceIds = DbContext.Set<RoleAccessResource>()
+                        .Where(item => item.RoleId == role.Id && item.IsActive)
+                        .OrderBy(item => item.AccessResourceId)
+                        .Select(item => item.AccessResourceId)
+                        .ToList(),
                     CreatedAt = role.CreatedAt,
                     UpdatedAt = role.UpdatedAt
                 })
@@ -163,9 +182,107 @@ namespace IdentityManagement.Infrastructure.Services
                 ContractId = role.ContractId,
                 IsRoot = role.IsRoot,
                 IsDefault = role.IsDefault,
+                AccessResourceIds = [],
                 CreatedAt = role.CreatedAt,
                 UpdatedAt = role.UpdatedAt
             };
+        }
+
+        private async Task<RoleResponse> GetRoleResponse(long id, CancellationToken cancellationToken)
+        {
+            RoleResponse? role = await (
+                from item in DbContext.Set<Role>().AsNoTracking()
+                where item.Id == id
+                select new RoleResponse
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    Description = item.Description,
+                    ContractId = item.ContractId,
+                    IsRoot = item.IsRoot,
+                    IsDefault = item.IsDefault,
+                    AccessResourceIds = DbContext.Set<RoleAccessResource>()
+                        .Where(link => link.RoleId == item.Id && link.IsActive)
+                        .OrderBy(link => link.AccessResourceId)
+                        .Select(link => link.AccessResourceId)
+                        .ToList(),
+                    CreatedAt = item.CreatedAt,
+                    UpdatedAt = item.UpdatedAt
+                })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (role is null)
+            {
+                throw new InvalidOperationException("Role not found.");
+            }
+
+            return role;
+        }
+
+        private async Task SyncAccessResources(long roleId, IReadOnlyCollection<long> accessResourceIds, CancellationToken cancellationToken)
+        {
+            long systemApplicationId = await (
+                from role in DbContext.Set<Role>().AsNoTracking()
+                join contract in DbContext.Set<Contract>().AsNoTracking() on role.ContractId equals contract.Id
+                where role.Id == roleId
+                select contract.SystemApplicationId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (systemApplicationId <= 0)
+            {
+                throw new InvalidOperationException("Role contract system application was not found.");
+            }
+
+            List<long> normalizedIds = accessResourceIds
+                .Where(item => item > 0)
+                .Distinct()
+                .ToList();
+
+            List<long> validResourceIds = await (
+                from accessResource in DbContext.Set<AccessResource>().AsNoTracking()
+                where accessResource.IsActive &&
+                      accessResource.SystemApplicationId == systemApplicationId &&
+                      normalizedIds.Contains(accessResource.Id)
+                select accessResource.Id)
+                .ToListAsync(cancellationToken);
+
+            if (validResourceIds.Count != normalizedIds.Count)
+            {
+                throw new InvalidOperationException("One or more access resources are invalid.");
+            }
+
+            List<RoleAccessResource> existingLinks = await (
+                from link in DbContext.Set<RoleAccessResource>().AsTracking()
+                where link.RoleId == roleId
+                select link)
+                .ToListAsync(cancellationToken);
+
+            foreach (RoleAccessResource existingLink in existingLinks)
+            {
+                if (normalizedIds.Contains(existingLink.AccessResourceId))
+                {
+                    existingLink.Activate();
+                    continue;
+                }
+
+                existingLink.Deactivate();
+            }
+
+            HashSet<long> existingResourceIds = existingLinks
+                .Select(item => item.AccessResourceId)
+                .ToHashSet();
+
+            List<RoleAccessResource> newLinks = normalizedIds
+                .Where(item => !existingResourceIds.Contains(item))
+                .Select(item => new RoleAccessResource(roleId, item))
+                .ToList();
+
+            if (newLinks.Count > 0)
+            {
+                await DbContext.Set<RoleAccessResource>().AddRangeAsync(newLinks, cancellationToken);
+            }
+
+            await DbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }

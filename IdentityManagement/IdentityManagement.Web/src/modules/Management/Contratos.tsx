@@ -338,17 +338,6 @@ export default function Contratos() {
                   <div className="mt-1 text-sm font-medium text-foreground">{formatLifetime(record.refreshTokenLifetime)}</div>
                 </div>
               </div>
-
-              <Button
-                variant="outline-primary"
-                size="sm"
-                onClick={() => {
-                  setEditingContrato(record);
-                  setIsModalOpen(true);
-                }}
-              >
-                Abrir detalhes
-              </Button>
             </div>
           )}
         />

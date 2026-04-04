@@ -15,5 +15,7 @@ namespace IdentityManagement.Application.Requests.Roles
         public bool IsRoot { get; set; }
 
         public bool IsDefault { get; set; }
+
+        public List<long> AccessResourceIds { get; set; } = [];
     }
 }

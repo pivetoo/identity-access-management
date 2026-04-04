@@ -6,7 +6,7 @@ import { queryCollection } from './serviceUtils'
 interface ContractApiResponse {
   id: number
   companyId: number
-  systemApplicationId: number
+  systemApplicationId?: number
   companyName: string
   systemApplicationName: string
   startDate: string
@@ -29,7 +29,7 @@ function mapContract(contract: ContractApiResponse): Contrato {
     },
     empresaName: contract.companyName,
     sistema: {
-      id: contract.systemApplicationId,
+      id: contract.systemApplicationId ?? 0,
       name: contract.systemApplicationName,
     },
     sistemaName: contract.systemApplicationName,

@@ -10,9 +10,16 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
         {
             builder.ToTable("accessresources");
 
+            builder.HasOne(entity => entity.SystemApplication)
+                .WithMany()
+                .HasForeignKey(entity => entity.SystemApplicationId);
+
             builder.Property(entity => entity.Name)
                 .IsRequired()
                 .HasMaxLength(200);
+
+            builder.Property(entity => entity.Description)
+                .HasMaxLength(500);
 
             builder.Property(entity => entity.Controller)
                 .IsRequired()
@@ -30,7 +37,7 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
                 .IsRequired()
                 .HasMaxLength(500);
 
-            builder.HasIndex(entity => entity.Name)
+            builder.HasIndex(entity => new { entity.SystemApplicationId, entity.Name })
                 .IsUnique();
         }
     }

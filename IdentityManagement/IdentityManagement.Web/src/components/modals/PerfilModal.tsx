@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Input, Button, Switch, SearchableSelect, useApi, toast, useFormErrors } from 'archon-ui';
+import { useEffect, useState } from 'react';
+import { Badge, Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Input, Button, Switch, SearchableSelect, useApi, toast, useFormErrors } from 'archon-ui';
 import { PerfilService } from '../../services/perfilService';
 import { ContratoService } from '../../services/contratoService';
+import { AccessResourceService } from '../../services/accessResourceService';
 import type { Perfil, CreatePerfilRequest, UpdatePerfilRequest } from '../../types/perfil';
 import type { Contrato } from '../../types/contrato';
+import type { AccessResource } from '../../types/accessResource';
+import PerfilPermissoesModal from './PerfilPermissoesModal';
 
 interface PerfilModalProps {
   isOpen: boolean;
@@ -22,13 +25,15 @@ export default function PerfilModal({
 }: PerfilModalProps) {
   const { getError, setErrors, clearErrors } = useFormErrors();
   const [contratos, setContratos] = useState<Contrato[]>([]);
+  const [accessResources, setAccessResources] = useState<AccessResource[]>([]);
+  const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false);
+  const [selectedResourceIds, setSelectedResourceIds] = useState<number[]>([]);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     contratoId: 0,
     isSuperUser: false,
     isDefault: false,
-    permissions: ''
   });
 
   const loadContratosApi = useApi({
@@ -60,31 +65,51 @@ export default function PerfilModal({
     }
   });
 
+  const loadAccessResourcesApi = useApi({
+    onSuccess: (data: AccessResource[]) => {
+      setAccessResources(data);
+    },
+    onError: (error) => {
+      toast({
+        title: 'Erro',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  });
+
   useEffect(() => {
     if (isOpen) {
       loadContratosApi.execute(() => ContratoService.getActive());
+      loadAccessResourcesApi.execute(() => AccessResourceService.getAll());
 
       if (perfil) {
+        setSelectedResourceIds(perfil.accessResourceIds ?? []);
         setFormData({
           name: perfil.name,
           description: perfil.description || '',
           contratoId: perfil.contratoId,
           isSuperUser: perfil.isSuperUser,
           isDefault: perfil.isDefault,
-          permissions: perfil.permissions || ''
         });
       } else {
+        setSelectedResourceIds([]);
         setFormData({
           name: '',
           description: '',
           contratoId: contratoId || 0,
           isSuperUser: false,
           isDefault: false,
-          permissions: ''
         });
       }
     }
   }, [isOpen, perfil]);
+
+  const selectedSystemApplicationId = contratos.find((contrato) => contrato.id === formData.contratoId)?.sistema?.id;
+
+  const availableAccessResources = selectedSystemApplicationId
+    ? accessResources.filter((resource) => resource.systemApplicationId === selectedSystemApplicationId)
+    : [];
 
   useEffect(() => {
     if (!perfil && contratos.length > 0 && !contratoId) {
@@ -108,7 +133,7 @@ export default function PerfilModal({
         description: formData.description,
         isSuperUser: formData.isSuperUser,
         isDefault: formData.isDefault,
-        permissions: formData.permissions
+        accessResourceIds: selectedResourceIds
       };
       await savePerfilApi.execute(() => PerfilService.update(perfil.id, updateData));
     } else {
@@ -118,7 +143,7 @@ export default function PerfilModal({
         contratoId: formData.contratoId,
         isSuperUser: formData.isSuperUser,
         isDefault: formData.isDefault,
-        permissions: formData.permissions
+        accessResourceIds: selectedResourceIds
       };
       await savePerfilApi.execute(() => PerfilService.create(createData));
     }
@@ -127,13 +152,14 @@ export default function PerfilModal({
   const isValid = formData.name && formData.contratoId;
 
   return (
-    <Modal open={isOpen} onOpenChange={onClose}>
-      <ModalContent size="xl">
-        <ModalHeader>
-          <ModalTitle>{perfil ? 'Editar Perfil' : 'Novo Perfil'}</ModalTitle>
-        </ModalHeader>
+    <>
+      <Modal open={isOpen} onOpenChange={onClose}>
+        <ModalContent size="xl">
+          <ModalHeader>
+            <ModalTitle>{perfil ? 'Editar Perfil' : 'Novo Perfil'}</ModalTitle>
+          </ModalHeader>
 
-        <div className="flex flex-col gap-4 py-4">
+          <div className="flex flex-col gap-4 py-4">
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">
               Nome do Perfil <span className="text-destructive">*</span>
@@ -200,39 +226,61 @@ export default function PerfilModal({
 
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">Permissões</label>
-            <textarea
-              value={formData.permissions}
-              onChange={(e) => handleInputChange('permissions', e.target.value)}
-              placeholder="Digite as permissões separadas por virgula (ex: user.read, user.write, admin.access)"
-              rows={4}
-              className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-            />
-            <p className="text-xs text-muted-foreground">
-              {formData.isSuperUser
-                ? 'Super usuário tem acesso a todas as permissões automaticamente'
-                : 'Separe as permissões por virgula'}
-            </p>
-          </div>
-        </div>
+            <div className="rounded-lg border bg-muted/20 p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Seleção por recurso</p>
+                  <p className="text-sm text-muted-foreground">
+                    Escolha as permissões em uma tela dedicada, agrupadas por recurso e endpoint.
+                  </p>
+                </div>
+                {selectedResourceIds.length > 0 && !formData.isSuperUser ? (
+                  <Badge variant="secondary">{selectedResourceIds.length} selecionadas</Badge>
+                ) : null}
+              </div>
 
-        <ModalFooter>
-          <Button
-            variant="outline"
-            onClick={onClose}
-            disabled={savePerfilApi.isLoading}
-          >
-            Cancelar
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleSave}
-            loading={savePerfilApi.isLoading}
-            disabled={!isValid}
-          >
-            {perfil ? 'Atualizar' : 'Criar'}
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <Button
+                  variant="secondary"
+                  onClick={() => setIsPermissionsModalOpen(true)}
+                  disabled={formData.isSuperUser}
+                >
+                  Selecionar permissões
+                </Button>
+
+              </div>
+            </div>
+          </div>
+          </div>
+
+          <ModalFooter>
+            <Button
+              variant="outline"
+              onClick={onClose}
+              disabled={savePerfilApi.isLoading}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleSave}
+              loading={savePerfilApi.isLoading}
+              disabled={!isValid}
+            >
+              {perfil ? 'Atualizar' : 'Criar'}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <PerfilPermissoesModal
+        isOpen={isPermissionsModalOpen}
+        onClose={() => setIsPermissionsModalOpen(false)}
+        resources={availableAccessResources}
+        selectedResourceIds={selectedResourceIds}
+        onConfirm={setSelectedResourceIds}
+        disabled={formData.isSuperUser}
+      />
+    </>
   );
 }

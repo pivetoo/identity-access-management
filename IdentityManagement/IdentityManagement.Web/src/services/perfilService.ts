@@ -10,6 +10,7 @@ interface RoleApiResponse {
   contractId: number
   isRoot: boolean
   isDefault: boolean
+  accessResourceIds?: number[]
   createdAt?: string
   updatedAt?: string
 }
@@ -22,7 +23,7 @@ function mapRole(role: RoleApiResponse): Perfil {
     contratoId: role.contractId,
     isSuperUser: role.isRoot,
     isDefault: role.isDefault,
-    permissions: '',
+    accessResourceIds: role.accessResourceIds ?? [],
     criadoEm: role.createdAt ?? '',
     ultimaAlteracao: role.updatedAt,
   }
@@ -38,7 +39,7 @@ function mapRoleDetail(role: RoleApiResponse): PerfilDetailViewModel {
     empresaName: '',
     isSuperUser: role.isRoot,
     isDefault: role.isDefault,
-    permissions: '',
+    accessResourceIds: role.accessResourceIds ?? [],
     criadoEm: role.createdAt ?? '',
     ultimaAlteracao: role.updatedAt,
   }
@@ -111,6 +112,7 @@ export class PerfilService {
       contractId: perfil.contratoId,
       isRoot: perfil.isSuperUser,
       isDefault: perfil.isDefault,
+      accessResourceIds: perfil.accessResourceIds ?? [],
     })
 
     if (!response.data) {
@@ -126,6 +128,7 @@ export class PerfilService {
       description: perfil.description ?? '',
       isRoot: perfil.isSuperUser,
       isDefault: perfil.isDefault,
+      accessResourceIds: perfil.accessResourceIds ?? [],
     })
 
     if (!response.data) {

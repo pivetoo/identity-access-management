@@ -228,7 +228,6 @@ export default function Sistemas() {
           {previewSistema ? (
             <div className="flex h-full flex-col">
               <SheetPreviewHeader
-                eyebrow="Sistema"
                 title={previewSistema.name}
                 meta={
                   <>

@@ -113,6 +113,7 @@ namespace IdentityManagement.Infrastructure.Services
                 select new ContractSummaryResponse
                 {
                     Id = contract.Id,
+                    SystemApplicationId = contract.SystemApplicationId,
                     CompanyName = company.LegalName,
                     SystemApplicationName = systemApplication.Name,
                     ClientId = contract.ClientId,
@@ -139,6 +140,7 @@ namespace IdentityManagement.Infrastructure.Services
                 select new ContractSummaryResponse
                 {
                     Id = contract.Id,
+                    SystemApplicationId = contract.SystemApplicationId,
                     CompanyName = company.LegalName,
                     SystemApplicationName = systemApplication.Name,
                     ClientId = contract.ClientId,
@@ -167,6 +169,7 @@ namespace IdentityManagement.Infrastructure.Services
                 select new ContractSummaryResponse
                 {
                     Id = contract.Id,
+                    SystemApplicationId = contract.SystemApplicationId,
                     CompanyName = company.LegalName,
                     SystemApplicationName = systemApplication.Name,
                     ClientId = contract.ClientId,

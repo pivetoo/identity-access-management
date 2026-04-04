@@ -6,7 +6,13 @@ namespace IdentityManagement.Domain.Entities
     {
         private readonly List<RoleAccessResource> roleAccessResources = [];
 
+        public long SystemApplicationId { get; private set; }
+
+        public SystemApplication SystemApplication { get; private set; } = null!;
+
         public string Name { get; private set; } = string.Empty;
+
+        public string Description { get; private set; } = string.Empty;
 
         public string Controller { get; private set; } = string.Empty;
 
@@ -24,28 +30,44 @@ namespace IdentityManagement.Domain.Entities
         {
         }
 
-        public AccessResource(string name, string controller, string action, string httpMethod, string route)
+        public AccessResource(long systemApplicationId, string name, string description, string controller, string action, string httpMethod, string route)
         {
+            if (systemApplicationId <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(systemApplicationId));
+            }
+
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
+            ArgumentNullException.ThrowIfNull(description);
             ArgumentException.ThrowIfNullOrWhiteSpace(controller);
             ArgumentException.ThrowIfNullOrWhiteSpace(action);
             ArgumentException.ThrowIfNullOrWhiteSpace(httpMethod);
             ArgumentException.ThrowIfNullOrWhiteSpace(route);
 
+            SystemApplicationId = systemApplicationId;
             Name = name.Trim();
+            Description = description.Trim();
             Controller = controller.Trim();
             Action = action.Trim();
             HttpMethod = httpMethod.Trim().ToUpperInvariant();
             Route = route.Trim();
         }
 
-        public void Update(string controller, string action, string httpMethod, string route)
+        public void Update(long systemApplicationId, string description, string controller, string action, string httpMethod, string route)
         {
+            if (systemApplicationId <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(systemApplicationId));
+            }
+
+            ArgumentNullException.ThrowIfNull(description);
             ArgumentException.ThrowIfNullOrWhiteSpace(controller);
             ArgumentException.ThrowIfNullOrWhiteSpace(action);
             ArgumentException.ThrowIfNullOrWhiteSpace(httpMethod);
             ArgumentException.ThrowIfNullOrWhiteSpace(route);
 
+            SystemApplicationId = systemApplicationId;
+            Description = description.Trim();
             Controller = controller.Trim();
             Action = action.Trim();
             HttpMethod = httpMethod.Trim().ToUpperInvariant();
