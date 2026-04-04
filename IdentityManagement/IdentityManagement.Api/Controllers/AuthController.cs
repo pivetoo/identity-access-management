@@ -1,5 +1,6 @@
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
+using IdentityManagement.Api.Attributes;
 using IdentityManagement.Application.Requests.Auth;
 using IdentityManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -10,13 +11,15 @@ namespace IdentityManagement.Api.Controllers
     public sealed class AuthController : ApiControllerBase
     {
         private readonly IAuthService authService;
+        private readonly IContractService contractService;
         private readonly IRefreshTokenService refreshTokenService;
         private readonly IJwtService jwtService;
         private readonly ILoginSessionService loginSessionService;
 
-        public AuthController(IAuthService authService, IRefreshTokenService refreshTokenService, IJwtService jwtService, ILoginSessionService loginSessionService)
+        public AuthController(IAuthService authService, IContractService contractService, IRefreshTokenService refreshTokenService, IJwtService jwtService, ILoginSessionService loginSessionService)
         {
             this.authService = authService;
+            this.contractService = contractService;
             this.refreshTokenService = refreshTokenService;
             this.jwtService = jwtService;
             this.loginSessionService = loginSessionService;
@@ -76,6 +79,29 @@ namespace IdentityManagement.Api.Controllers
                 RefreshToken = result.NewRefreshToken,
                 TokenType = "Bearer",
                 ExpiresIn = expiresIn
+            });
+        }
+
+        [RequireIntegrationSecret]
+        [AllowAnonymous]
+        [GetEndpoint("contract/{clientId}")]
+        public async Task<IActionResult> GetContractByClientId(string clientId, CancellationToken cancellationToken)
+        {
+            var contract = await contractService.GetByClientId(clientId, cancellationToken);
+            if (contract is null)
+            {
+                return Http404("Contract not found.");
+            }
+
+            return Http200(new
+            {
+                Id = contract.Id,
+                ClientId = contract.ClientId,
+                Name = contract.SystemApplication.Name,
+                JwtSecretKey = contract.JwtSecretKey,
+                IsActive = contract.IsValid(),
+                AccessTokenLifetime = contract.AccessTokenLifetime,
+                RefreshTokenLifetime = contract.RefreshTokenLifetime
             });
         }
 
