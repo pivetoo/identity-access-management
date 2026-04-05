@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Input, Button, Switch, useApi, toast, useFormErrors } from 'archon-ui';
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Input, Button, Switch, useApi, toast, useFormErrors, useI18n } from 'archon-ui';
 import { SystemApplicationService } from '../../services/systemApplicationService';
 import type { SystemApplication, CreateSystemApplicationRequest, UpdateSystemApplicationRequest } from '../../types/systemApplication';
 
@@ -16,6 +16,7 @@ export default function SystemApplicationFormModal({
   sistema,
   onSuccess
 }: SystemApplicationFormModalProps) {
+  const { t } = useI18n()
   const { getError, setErrors, clearErrors } = useFormErrors();
   const [formData, setFormData] = useState({
     name: '',
@@ -29,8 +30,8 @@ export default function SystemApplicationFormModal({
     onSuccess: () => {
       toast({
         variant: 'success',
-        title: 'Sucesso',
-        description: sistema ? 'SystemApplication atualizado com sucesso' : 'SystemApplication criado com sucesso',
+        title: t('common.toast.successTitle'),
+        description: sistema ? t('systemApplication.form.toast.updated') : t('systemApplication.form.toast.created'),
       });
       clearErrors();
       onSuccess();
@@ -40,7 +41,7 @@ export default function SystemApplicationFormModal({
       setErrors(error);
       if (!error.errors) {
         toast({
-          title: 'Erro',
+          title: t('common.toast.errorTitle'),
           description: error.message,
           variant: 'destructive',
         });
@@ -101,14 +102,14 @@ export default function SystemApplicationFormModal({
     <Modal open={isOpen} onOpenChange={onClose}>
       <ModalContent size="xl">
         <ModalHeader>
-          <ModalTitle>{sistema ? 'Editar SystemApplication' : 'Novo SystemApplication'}</ModalTitle>
+          <ModalTitle>{sistema ? t('systemApplication.form.editTitle') : t('systemApplication.form.createTitle')}</ModalTitle>
         </ModalHeader>
 
         <div className="flex flex-col gap-4 py-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">
-                Nome <span className="text-destructive">*</span>
+                {t('common.column.name')} <span className="text-destructive">*</span>
               </label>
               <Input
                 value={formData.name}
@@ -119,7 +120,7 @@ export default function SystemApplicationFormModal({
             </div>
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">
-                Audience <span className="text-destructive">*</span>
+                {t('systemApplication.field.audience')} <span className="text-destructive">*</span>
               </label>
               <Input
                 value={formData.audience}
@@ -131,7 +132,7 @@ export default function SystemApplicationFormModal({
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Descrição</label>
+            <label className="text-sm font-medium">{t('common.field.description')}</label>
             <Input
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
@@ -142,7 +143,7 @@ export default function SystemApplicationFormModal({
 
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">
-              Redirect URIs <span className="text-destructive">*</span>
+              {t('systemApplication.field.redirectUris')} <span className="text-destructive">*</span>
             </label>
             <Input
               value={formData.redirectUris}
@@ -159,7 +160,7 @@ export default function SystemApplicationFormModal({
                 onCheckedChange={(checked) => handleInputChange('isActive', checked)}
               />
               <label className="text-sm font-medium cursor-pointer">
-                Ativo
+                {t('common.status.active')}
               </label>
             </div>
           )}
@@ -171,7 +172,7 @@ export default function SystemApplicationFormModal({
             onClick={onClose}
             disabled={saveSistemaApi.isLoading}
           >
-            Cancelar
+            {t('common.action.cancel')}
           </Button>
           <Button
             variant="primary"
@@ -179,7 +180,7 @@ export default function SystemApplicationFormModal({
             loading={saveSistemaApi.isLoading}
             disabled={!isValid}
           >
-            {sistema ? 'Atualizar' : 'Criar'}
+            {sistema ? t('common.action.update') : t('common.action.create')}
           </Button>
         </ModalFooter>
       </ModalContent>

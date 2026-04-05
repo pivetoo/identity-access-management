@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Ban, RotateCcw } from 'lucide-react';
-import { PageLayout, DataTablePreview, Badge, Button, ConfirmModal, FilterDropdown, TableToolbar, toast, useApi } from 'archon-ui';
+import { PageLayout, DataTablePreview, Badge, Button, ConfirmModal, FilterDropdown, TableToolbar, toast, useApi, useI18n } from 'archon-ui';
 import type { DataTablePreviewColumn, PageAction, PaginatedResult } from 'archon-ui';
 import { ContractService } from '../../../services/contractService';
 import type { Contract } from '../../../types/contract';
@@ -8,6 +8,7 @@ import ContractFormModal from '../../../components/modals/ContractFormModal';
 import { formatDate } from '../../../utils/date';
 
 export default function Contracts() {
+  const { t } = useI18n()
   const [selectedContratos, setSelectedContratos] = useState<Contract[]>([]);
   const [contratos, setContratos] = useState<Contract[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,8 +38,8 @@ export default function Contracts() {
       const wasInactive = selectedContratos[0] && !selectedContratos[0].isActive;
       toast({
         variant: 'success',
-        title: 'Sucesso',
-        description: wasInactive ? 'Contract ativado com sucesso' : 'Contract inativado com sucesso',
+        title: t('common.toast.successTitle'),
+        description: wasInactive ? t('contract.list.toast.activated') : t('contract.list.toast.inactivated'),
       });
       loadContratos(true);
       setSelectedContratos([]);
@@ -90,8 +91,8 @@ export default function Contracts() {
     if (selectedContratos.length === 0) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione um contrato para editar',
+        title: t('common.toast.warningTitle'),
+        description: t('contract.list.validation.selectToEdit'),
       });
       return;
     }
@@ -103,8 +104,8 @@ export default function Contracts() {
     if (selectedContratos.length === 0) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione um contrato para ativar/inativar',
+        title: t('common.toast.warningTitle'),
+        description: t('contract.list.validation.selectToToggle'),
       });
       return;
     }
@@ -123,22 +124,22 @@ export default function Contracts() {
 
   const formatLifetime = (seconds: number) => {
     if (!seconds || seconds <= 0) {
-      return '-';
+      return t('common.value.notAvailable');
     }
 
     const days = seconds / 86400;
     if (Number.isInteger(days) && days >= 1) {
-      return `${days} ${days === 1 ? 'dia' : 'dias'}`;
+      return t(days === 1 ? 'common.duration.day' : 'common.duration.days').replace('{0}', String(days));
     }
 
     const hours = seconds / 3600;
     if (Number.isInteger(hours) && hours >= 1) {
-      return `${hours} ${hours === 1 ? 'hora' : 'horas'}`;
+      return t(hours === 1 ? 'common.duration.hour' : 'common.duration.hours').replace('{0}', String(hours));
     }
 
     const minutes = seconds / 60;
     if (Number.isInteger(minutes) && minutes >= 1) {
-      return `${minutes} ${minutes === 1 ? 'minuto' : 'minutos'}`;
+      return t(minutes === 1 ? 'common.duration.minute' : 'common.duration.minutes').replace('{0}', String(minutes));
     }
 
     return `${seconds} s`;
@@ -147,33 +148,33 @@ export default function Contracts() {
   const columns: DataTablePreviewColumn<Contract>[] = [
     {
       key: 'companyName',
-      title: 'Company',
+      title: t('contract.field.company'),
       dataIndex: 'companyName',
     },
     {
       key: 'systemApplicationName',
-      title: 'SystemApplication',
+      title: t('contract.field.systemApplication'),
       dataIndex: 'systemApplicationName',
     },
     {
       key: 'startDate',
-      title: 'Data Início',
+      title: t('common.field.startDate'),
       dataIndex: 'startDate',
       render: (value: string) => formatDate(value),
     },
     {
       key: 'endDate',
-      title: 'Data Término',
+      title: t('common.field.endDate'),
       dataIndex: 'endDate',
       render: (value: string) => formatDate(value),
     },
     {
       key: 'isActive',
-      title: 'Status',
+      title: t('common.column.status'),
       dataIndex: 'isActive',
       render: (value: boolean) => (
         <Badge variant={value ? 'success' : 'destructive'}>
-          {value ? 'Ativo' : 'Inativo'}
+          {value ? t('common.status.active') : t('common.status.inactive')}
         </Badge>
       )
     },
@@ -209,7 +210,7 @@ export default function Contracts() {
   if (hasActiveSelected) {
     customActions.push({
       key: 'inactivate',
-      label: 'Inativar',
+      label: t('common.action.inactivate'),
       icon: <Ban className="h-4 w-4" />,
       variant: 'outline',
       onClick: handleToggleContrato,
@@ -220,7 +221,7 @@ export default function Contracts() {
   if (hasInactiveSelected) {
     customActions.push({
       key: 'reactivate',
-      label: 'Reativar',
+      label: t('common.action.reactivate'),
       icon: <RotateCcw className="h-4 w-4" />,
       variant: 'outline',
       onClick: handleToggleContrato,
@@ -230,8 +231,8 @@ export default function Contracts() {
 
   return (
     <PageLayout
-      title="Contratos"
-      subtitle="Controle vigência, credenciais e configuração de acesso entre empresa e sistema."
+      title={t('contract.list.title')}
+      subtitle={t('contract.list.subtitle')}
       onAdd={handleAddContrato}
       onEdit={handleEditContrato}
       onRefresh={handleRefresh}
@@ -242,15 +243,15 @@ export default function Contracts() {
         <TableToolbar
           searchValue={searchTerm}
           onSearchChange={setSearchTerm}
-          searchPlaceholder="Buscar por empresa, sistema ou client id"
+          searchPlaceholder={t('contract.list.searchPlaceholder')}
           rightSlot={
             <FilterDropdown
-              label="Filtrar contratos"
+              label={t('contract.list.filterLabel')}
               value={statusFilter}
               onChange={(value) => setStatusFilter(value as 'all' | 'active' | 'inactive')}
               options={[
-                { value: 'active', label: 'Apenas ativos' },
-                { value: 'inactive', label: 'Apenas inativos' },
+                { value: 'active', label: t('common.filter.activeOnly') },
+                { value: 'inactive', label: t('common.filter.inactiveOnly') },
               ]}
             />
           }
@@ -266,36 +267,36 @@ export default function Contracts() {
             <div className="space-y-5 p-5">
               <div className="space-y-1">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/80">
-                  Preview do contrato
+                  {t('contract.preview.title')}
                 </div>
                 <h3 className="text-xl font-semibold text-primary">
                   {record.companyName} · {record.systemApplicationName}
                 </h3>
                 <p className="text-sm text-primary/80">
-                  Visualização rápida do contrato selecionado, com identificação e vigência.
+                  {t('contract.preview.subtitle')}
                 </p>
               </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
                     <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                      Client ID
+                      {t('contract.preview.clientId')}
                     </div>
                     <div
                       className="mt-1 truncate text-sm font-medium text-foreground"
-                      title={record.clientId || '-'}
+                      title={record.clientId || t('common.value.notAvailable')}
                     >
-                      {record.clientId || '-'}
+                      {record.clientId || t('common.value.notAvailable')}
                     </div>
                   </div>
 
                 <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    Situação
+                    {t('common.field.situation')}
                   </div>
                   <div className="mt-2">
                     <Badge variant={record.isActive ? 'success' : 'destructive'}>
-                      {record.isActive ? 'Ativo' : 'Inativo'}
+                      {record.isActive ? t('common.status.active') : t('common.status.inactive')}
                     </Badge>
                   </div>
                 </div>
@@ -304,14 +305,14 @@ export default function Contracts() {
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    Início
+                    {t('common.field.startDate')}
                   </div>
                   <div className="mt-1 text-sm font-medium text-foreground">{formatDate(record.startDate)}</div>
                 </div>
 
                 <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    Término
+                    {t('common.field.endDate')}
                   </div>
                   <div className="mt-1 text-sm font-medium text-foreground">{formatDate(record.endDate)}</div>
                 </div>
@@ -320,14 +321,14 @@ export default function Contracts() {
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    Access Token
+                    {t('contract.preview.accessToken')}
                   </div>
                   <div className="mt-1 text-sm font-medium text-foreground">{formatLifetime(record.accessTokenLifetime)}</div>
                 </div>
 
                 <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    Refresh Token
+                    {t('contract.preview.refreshToken')}
                   </div>
                   <div className="mt-1 text-sm font-medium text-foreground">{formatLifetime(record.refreshTokenLifetime)}</div>
                 </div>
@@ -343,7 +344,7 @@ export default function Contracts() {
               onClick={loadMoreContratos}
               loading={loadMoreContratosApi.isLoading}
             >
-              Carregar mais
+              {t('common.action.loadMore')}
             </Button>
           </div>
         )}
@@ -360,13 +361,15 @@ export default function Contracts() {
         open={isConfirmToggleOpen}
         onOpenChange={(open) => setIsConfirmToggleOpen(open)}
         onConfirm={handleConfirmToggle}
-        title={isSelectedInactive ? 'Confirmar Ativação' : 'Confirmar Inativação'}
+        title={isSelectedInactive ? t('contract.list.confirmActivateTitle') : t('contract.list.confirmInactivateTitle')}
         description={
           selectedContratos.length > 0
-            ? `Deseja ${isSelectedInactive ? 'ativar' : 'inativar'} o contrato entre "${selectedContratos[0].companyName}" e "${selectedContratos[0].systemApplicationName}"?`
-            : `Deseja ${isSelectedInactive ? 'ativar' : 'inativar'} este contrato?`
+            ? t(isSelectedInactive ? 'contract.list.confirmActivateDescription' : 'contract.list.confirmInactivateDescription')
+              .replace('{0}', selectedContratos[0].companyName)
+              .replace('{1}', selectedContratos[0].systemApplicationName)
+            : t(isSelectedInactive ? 'contract.list.confirmActivateDescriptionFallback' : 'contract.list.confirmInactivateDescriptionFallback')
         }
-        confirmText={isSelectedInactive ? 'Ativar' : 'Inativar'}
+        confirmText={isSelectedInactive ? t('common.action.activate') : t('common.action.inactivate')}
         variant={isSelectedInactive ? 'primary' : 'danger'}
         loading={toggleContratoApi.isLoading}
       />

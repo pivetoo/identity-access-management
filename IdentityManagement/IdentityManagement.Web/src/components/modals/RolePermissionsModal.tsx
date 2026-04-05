@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Badge, Button, Checkbox, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle } from 'archon-ui'
+import { Badge, Button, Checkbox, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, useI18n } from 'archon-ui'
 import type { AccessResource } from '../../types/accessResource'
 import { getHttpMethodClassName } from '../../utils/accessResource'
 
@@ -20,6 +20,7 @@ export default function RolePermissionsModal({
   onConfirm,
   disabled = false,
 }: RolePermissionsModalProps) {
+  const { t } = useI18n()
   const [search, setSearch] = useState('')
   const [draftResourceIds, setDraftResourceIds] = useState<number[]>(selectedResourceIds)
 
@@ -37,7 +38,7 @@ export default function RolePermissionsModal({
     return Array.from(groupedResources.entries())
       .map(([controller, groupResources]) => ({
         title: controller,
-        description: `Recursos protegidos do controller ${controller}.`,
+        description: t('rolePermissions.groupDescription').replace('{0}', controller),
         resources: groupResources
           .filter((resource) => {
             if (!normalizedSearch) {
@@ -95,27 +96,27 @@ export default function RolePermissionsModal({
     <Modal open={isOpen} onOpenChange={handleOpenChange}>
       <ModalContent size="full" className="h-[92vh] max-w-[96vw] grid-rows-[auto_auto_minmax(0,1fr)_auto]">
         <ModalHeader>
-          <ModalTitle>Selecionar permissões</ModalTitle>
+          <ModalTitle>{t('rolePermissions.title')}</ModalTitle>
         </ModalHeader>
 
         <div className="flex flex-col gap-4 py-4 min-h-0">
           <div className="rounded-lg border bg-muted/20 p-4">
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-1">
-                <p className="text-sm font-medium">Catálogo de recursos</p>
-                <p className="text-sm text-muted-foreground">
-                  Selecione os recursos que este perfil poderá acessar. O catálogo é carregado do backend e sincronizado pelo Archon conforme os endpoints protegidos.
-                </p>
+                  <p className="text-sm font-medium">{t('rolePermissions.catalogTitle')}</p>
+                  <p className="text-sm text-muted-foreground">
+                  {t('rolePermissions.catalogDescription')}
+                  </p>
               </div>
             </div>
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Pesquisar permissões</label>
+            <label className="text-sm font-medium">{t('rolePermissions.searchLabel')}</label>
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Buscar por recurso, controller, ação ou rota"
+              placeholder={t('rolePermissions.searchPlaceholder')}
               disabled={disabled}
             />
           </div>
@@ -123,9 +124,9 @@ export default function RolePermissionsModal({
           <div className="min-h-0 space-y-4 overflow-y-auto pr-1">
             {filteredGroups.length === 0 ? (
               <div className="rounded-lg border border-dashed p-8 text-center">
-                <p className="text-sm font-medium">Nenhum recurso encontrado</p>
+                <p className="text-sm font-medium">{t('rolePermissions.emptyTitle')}</p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Ajuste o termo de busca para localizar os recursos desejados.
+                  {t('rolePermissions.emptyDescription')}
                 </p>
               </div>
             ) : (
@@ -152,7 +153,7 @@ export default function RolePermissionsModal({
                           onCheckedChange={(checked) => toggleGroup(resourceIds, checked === true)}
                           disabled={disabled}
                         />
-                        Selecionar grupo
+                        {t('rolePermissions.selectGroup')}
                       </label>
                     </div>
 
@@ -197,10 +198,10 @@ export default function RolePermissionsModal({
 
         <ModalFooter>
           <Button variant="outline" onClick={onClose}>
-            Cancelar
+            {t('common.action.cancel')}
           </Button>
           <Button variant="primary" onClick={handleConfirm} disabled={disabled}>
-            Aplicar permissões
+            {t('common.action.applyPermissions')}
           </Button>
         </ModalFooter>
       </ModalContent>

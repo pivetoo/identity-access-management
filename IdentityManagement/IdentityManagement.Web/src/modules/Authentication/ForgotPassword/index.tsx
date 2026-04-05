@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, ArrowLeft, KeyRound } from 'lucide-react';
-import { Button, Card, CardContent, Input, useToast } from 'archon-ui';
+import { Button, Card, CardContent, Input, useToast, useI18n } from 'archon-ui';
 
 export default function ForgotPassword() {
+  const { t } = useI18n()
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
@@ -15,8 +16,8 @@ export default function ForgotPassword() {
 
     if (!email) {
       toast({
-        title: 'Atenção',
-        description: 'Por favor, insira seu email',
+        title: t('common.toast.warningTitle'),
+        description: t('authentication.forgotPassword.validation.emailRequired'),
         variant: 'destructive'
       });
       return;
@@ -25,8 +26,8 @@ export default function ForgotPassword() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       toast({
-        title: 'Atenção',
-        description: 'Por favor, insira um email válido',
+        title: t('common.toast.warningTitle'),
+        description: t('authentication.forgotPassword.validation.emailInvalid'),
         variant: 'destructive'
       });
       return;
@@ -39,13 +40,13 @@ export default function ForgotPassword() {
 
       setEmailSent(true);
       toast({
-        title: 'Sucesso',
-        description: 'Email de recuperação enviado com sucesso!'
+        title: t('common.toast.successTitle'),
+        description: t('authentication.forgotPassword.toast.sent'),
       });
     } catch (error) {
       toast({
-        title: 'Erro',
-        description: 'Erro ao enviar email de recuperação',
+        title: t('common.toast.errorTitle'),
+        description: t('authentication.forgotPassword.toast.error'),
         variant: 'destructive'
       });
     } finally {
@@ -78,20 +79,20 @@ export default function ForgotPassword() {
             {!emailSent ? (
               <>
                 <h1 className="text-center text-2xl font-bold text-foreground mb-4">
-                  Recuperar Senha
+                  {t('authentication.forgotPassword.title')}
                 </h1>
                 <p className="text-center text-sm text-muted-foreground mb-6">
-                  Digite seu email cadastrado e enviaremos as instruções para redefinir sua senha
+                  {t('authentication.forgotPassword.subtitle')}
                 </p>
 
                 <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
                   <div>
-                    <label className="text-sm font-medium mb-2 block text-muted-foreground">Email</label>
+                    <label className="text-sm font-medium mb-2 block text-muted-foreground">{t('common.field.email')}</label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-60" />
                       <Input
                         type="email"
-                        placeholder="seu.email@empresa.com"
+                        placeholder={t('authentication.forgotPassword.emailPlaceholder')}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         disabled={isLoading}
@@ -108,7 +109,7 @@ export default function ForgotPassword() {
                       className="w-full"
                       loading={isLoading}
                     >
-                      Enviar Email
+                      {t('authentication.forgotPassword.submit')}
                     </Button>
 
                     <Button
@@ -120,7 +121,7 @@ export default function ForgotPassword() {
                       icon={<ArrowLeft />}
                       iconPosition="left"
                     >
-                      Voltar para o Login
+                      {t('authentication.forgotPassword.backToLogin')}
                     </Button>
                   </div>
                 </form>
@@ -130,14 +131,13 @@ export default function ForgotPassword() {
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
                   <Mail className="h-8 w-8 text-primary" />
                 </div>
-                <h2 className="text-2xl font-bold text-foreground mb-4">Email Enviado!</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-4">{t('authentication.forgotPassword.successTitle')}</h2>
                 <p className="text-center text-sm text-muted-foreground mb-2">
-                  Enviamos as instruções de recuperação de senha para o email:
+                  {t('authentication.forgotPassword.successDescription')}
                 </p>
                 <p className="text-center text-base font-semibold text-foreground mb-4">{email}</p>
                 <p className="text-center text-sm text-muted-foreground mb-6">
-                  Verifique sua caixa de entrada e siga as instruções no email para criar uma nova senha.
-                  O link expira em 24 horas.
+                  {t('authentication.forgotPassword.successHint')}
                 </p>
 
                 <div className="flex flex-col gap-3 w-full">
@@ -146,7 +146,7 @@ export default function ForgotPassword() {
                     className="w-full"
                     onClick={handleResendEmail}
                   >
-                    Reenviar Email
+                    {t('authentication.forgotPassword.resend')}
                   </Button>
 
                   <Button
@@ -156,7 +156,7 @@ export default function ForgotPassword() {
                     icon={<ArrowLeft />}
                     iconPosition="left"
                   >
-                    Voltar para o Login
+                    {t('authentication.forgotPassword.backToLogin')}
                   </Button>
                 </div>
               </div>
@@ -166,12 +166,12 @@ export default function ForgotPassword() {
       </div>
 
       <p className="text-center mt-7 text-sm text-muted-foreground">
-        Lembrou sua senha?{' '}
+        {t('authentication.forgotPassword.rememberedPassword')}{' '}
         <button
           onClick={handleBackToLogin}
           className="font-medium text-foreground hover:text-primary transition-colors"
         >
-          Faça login
+          {t('authentication.forgotPassword.loginLink')}
         </button>
       </p>
     </div>

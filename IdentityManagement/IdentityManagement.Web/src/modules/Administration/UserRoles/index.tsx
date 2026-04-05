@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { RotateCcw, Ban } from 'lucide-react';
-import { PageLayout, DataTable, ConfirmModal, toast, useApi, SearchableSelect } from 'archon-ui';
+import { PageLayout, DataTable, ConfirmModal, toast, useApi, SearchableSelect, useI18n } from 'archon-ui';
 import type { DataTableColumn, PageAction } from 'archon-ui';
 import { ContractService } from '../../../services/contractService';
 import { UserRoleService } from '../../../services/userRoleService';
@@ -10,6 +10,7 @@ import UserRoleFormModal from '../../../components/modals/UserRoleFormModal';
 import { formatDate } from '../../../utils/date';
 
 export default function UserRoles() {
+  const { t } = useI18n()
   const [selectedUsuarioPerfis, setSelectedUsuarioPerfis] = useState<UserRole[]>([]);
   const [usuarioPerfis, setUsuarioPerfis] = useState<UserRole[]>([]);
   const [contratos, setContratos] = useState<Contract[]>([]);
@@ -33,8 +34,8 @@ export default function UserRoles() {
     onSuccess: () => {
       toast({
         variant: 'success',
-        title: 'Sucesso',
-        description: 'Vinculação inativada com sucesso',
+        title: t('common.toast.successTitle'),
+        description: t('userRole.list.toast.inactivated'),
       });
       loadUsuarioPerfis();
       setSelectedUsuarioPerfis([]);
@@ -49,8 +50,8 @@ export default function UserRoles() {
     onSuccess: () => {
       toast({
         variant: 'success',
-        title: 'Sucesso',
-        description: 'Vinculação reativada com sucesso',
+        title: t('common.toast.successTitle'),
+        description: t('userRole.list.toast.reactivated'),
       });
       loadUsuarioPerfis();
       setSelectedUsuarioPerfis([]);
@@ -85,8 +86,8 @@ export default function UserRoles() {
     if (!selectedContratoId) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione um contrato primeiro',
+        title: t('common.toast.warningTitle'),
+        description: t('userRole.list.validation.selectContractFirst'),
       });
       return;
     }
@@ -97,8 +98,8 @@ export default function UserRoles() {
     if (selectedUsuarioPerfis.length === 0) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione uma ou mais vinculações para remover',
+        title: t('common.toast.warningTitle'),
+        description: t('userRole.list.validation.selectToInactivate'),
       });
       return;
     }
@@ -115,8 +116,8 @@ export default function UserRoles() {
     if (selectedUsuarioPerfis.length === 0) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione uma ou mais vinculações para reativar',
+        title: t('common.toast.warningTitle'),
+        description: t('userRole.list.validation.selectToReactivate'),
       });
       return;
     }
@@ -135,37 +136,37 @@ export default function UserRoles() {
   const columns: DataTableColumn<UserRole>[] = [
     {
       key: 'username',
-      title: 'Usuário',
+      title: t('userRole.field.user'),
       dataIndex: 'username',
       sortable: false,
     },
     {
       key: 'userEmail',
-      title: 'E-mail',
+      title: t('common.field.email'),
       dataIndex: 'userEmail',
       sortable: false,
     },
     {
       key: 'roleName',
-      title: 'Role',
+      title: t('userRole.field.role'),
       dataIndex: 'roleName',
       sortable: false,
     },
     {
       key: 'companyName',
-      title: 'Company',
+      title: t('contract.field.company'),
       dataIndex: 'companyName',
-      render: (value: string) => value || '-'
+      render: (value: string) => value || t('common.value.notAvailable')
     },
     {
       key: 'isActive',
-      title: 'Status',
+      title: t('common.column.status'),
       dataIndex: 'isActive',
-      render: (value: boolean) => value ? 'Ativo' : 'Inativo'
+      render: (value: boolean) => value ? t('common.status.active') : t('common.status.inactive')
     },
     {
       key: 'assignedAt',
-      title: 'Data Vinculação',
+      title: t('userRole.field.assignedAt'),
       dataIndex: 'assignedAt',
       render: (value: string) => formatDate(value),
       sortable: false,
@@ -195,7 +196,7 @@ export default function UserRoles() {
   if (hasActiveSelected) {
     customActions.push({
       key: 'inactivate',
-      label: 'Inativar',
+      label: t('common.action.inactivate'),
       icon: <Ban className="h-4 w-4" />,
       variant: 'outline',
       onClick: handleDeleteUsuarioPerfil,
@@ -206,7 +207,7 @@ export default function UserRoles() {
   if (hasInactiveSelected) {
     customActions.push({
       key: 'reactivate',
-      label: 'Reativar',
+      label: t('common.action.reactivate'),
       icon: <RotateCcw className="h-4 w-4" />,
       variant: 'outline',
       onClick: handleReactivate,
@@ -216,8 +217,8 @@ export default function UserRoles() {
 
   return (
     <PageLayout
-      title="Vincular Usuários"
-      subtitle="Associe usuários aos perfis disponíveis em cada contrato."
+      title={t('userRole.list.title')}
+      subtitle={t('userRole.list.subtitle')}
       onAdd={handleAddUsuarioPerfil}
       onRefresh={handleRefresh}
       selectedRowsCount={selectedUsuarioPerfis.length}
@@ -227,7 +228,7 @@ export default function UserRoles() {
         <div className="flex gap-4 items-end">
           <div className="flex-1 flex flex-col gap-2">
             <label className="text-sm font-medium">
-              Contract (Company - SystemApplication)
+              {t('userRole.list.contractLabel')}
             </label>
             <SearchableSelect
               options={contratos.map((contrato) => ({
@@ -236,8 +237,8 @@ export default function UserRoles() {
               }))}
               value={selectedContratoId?.toString()}
               onValueChange={handleContratoChange}
-              placeholder="Selecione um contrato para listar as vinculações"
-              searchPlaceholder="Pesquisar contrato..."
+              placeholder={t('userRole.list.contractPlaceholder')}
+              searchPlaceholder={t('userRole.list.contractSearchPlaceholder')}
               disabled={loadContratosApi.isLoading}
             />
           </div>
@@ -256,7 +257,7 @@ export default function UserRoles() {
         />
       ) : (
         <div className="text-center py-12 text-muted-foreground">
-          <p>Selecione um contrato para visualizar as vinculações de usuarios.</p>
+          <p>{t('userRole.list.emptyWithoutContract')}</p>
         </div>
       )}
 
@@ -264,13 +265,15 @@ export default function UserRoles() {
         open={isConfirmDeleteOpen}
         onOpenChange={(open) => setIsConfirmDeleteOpen(open)}
         onConfirm={handleConfirmDelete}
-        title="Confirmar Inativação"
+        title={t('userRole.list.confirmInactivateTitle')}
         description={
           selectedUsuarioPerfis.length === 1
-            ? `Deseja inativar a vinculação do usuário "${selectedUsuarioPerfis[0]?.username}" com o perfil "${selectedUsuarioPerfis[0]?.roleName}"?`
-            : `Deseja inativar ${selectedUsuarioPerfis.length} vinculações selecionadas?`
+            ? t('userRole.list.confirmInactivateSingle')
+              .replace('{0}', selectedUsuarioPerfis[0]?.username ?? '')
+              .replace('{1}', selectedUsuarioPerfis[0]?.roleName ?? '')
+            : t('userRole.list.confirmInactivateMultiple').replace('{0}', String(selectedUsuarioPerfis.length))
         }
-        confirmText="Inativar"
+        confirmText={t('common.action.inactivate')}
         variant="danger"
         loading={revokeUsuarioPerfilApi.isLoading}
       />

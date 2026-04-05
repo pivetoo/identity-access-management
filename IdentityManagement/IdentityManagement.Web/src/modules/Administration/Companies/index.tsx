@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { PageLayout, DataTable, Badge, Button, ConfirmModal, FilterDropdown, TableToolbar, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, toast, useApi } from 'archon-ui';
+import { PageLayout, DataTable, Badge, Button, ConfirmModal, FilterDropdown, TableToolbar, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, toast, useApi, useI18n } from 'archon-ui';
 import type { DataTableColumn, PaginatedResult } from 'archon-ui';
 import { CompanyService } from '../../../services/companyService';
 import type { Company } from '../../../types/company';
 import CompanyFormModal from '../../../components/modals/CompanyFormModal';
 
 export default function Companies() {
+  const { t } = useI18n()
   const [selectedEmpresas, setSelectedEmpresas] = useState<Company[]>([]);
   const [previewEmpresa, setPreviewEmpresa] = useState<Company | null>(null);
   const [empresas, setEmpresas] = useState<Company[]>([]);
@@ -35,8 +36,8 @@ export default function Companies() {
     onSuccess: () => {
       toast({
         variant: 'success',
-        title: 'Sucesso',
-        description: 'Company excluida com sucesso',
+        title: t('common.toast.successTitle'),
+        description: t('company.list.toast.deleted'),
       });
       loadEmpresas(true);
       setSelectedEmpresas([]);
@@ -84,16 +85,16 @@ export default function Companies() {
     if (selectedEmpresas.length === 0) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione uma empresa para editar',
+        title: t('common.toast.warningTitle'),
+        description: t('company.list.validation.selectOneToEdit'),
       });
       return;
     }
     if (selectedEmpresas.length > 1) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione apenas uma empresa para editar',
+        title: t('common.toast.warningTitle'),
+        description: t('company.list.validation.selectOnlyOneToEdit'),
       });
       return;
     }
@@ -105,8 +106,8 @@ export default function Companies() {
     if (selectedEmpresas.length === 0) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione uma ou mais empresas para excluir',
+        title: t('common.toast.warningTitle'),
+        description: t('company.list.validation.selectToDelete'),
       });
       return;
     }
@@ -126,18 +127,18 @@ export default function Companies() {
   const columns: DataTableColumn<Company>[] = [
     {
       key: 'nome',
-      title: 'Nome',
+      title: t('common.column.name'),
       dataIndex: 'legalName',
       sortable: true,
     },
     {
       key: 'nomeFantasia',
-      title: 'Nome Fantasia',
+      title: t('company.field.tradeName'),
       dataIndex: 'tradeName',
     },
     {
       key: 'documento',
-      title: 'CNPJ',
+      title: t('company.field.document'),
       dataIndex: 'document',
       render: (value: string) => {
         if (!value) return '-';
@@ -146,12 +147,12 @@ export default function Companies() {
     },
     {
       key: 'email',
-      title: 'E-mail',
+      title: t('common.field.email'),
       dataIndex: 'email',
     },
     {
       key: 'telefone',
-      title: 'Telefone',
+      title: t('common.field.phoneNumber'),
       dataIndex: 'phoneNumber',
       render: (value: string) => {
         if (!value) return '-';
@@ -160,11 +161,11 @@ export default function Companies() {
     },
     {
       key: 'isActive',
-      title: 'Status',
+      title: t('common.column.status'),
       dataIndex: 'isActive',
       render: (value: boolean) => (
         <Badge variant={value ? 'success' : 'destructive'}>
-          {value ? 'Ativo' : 'Inativo'}
+          {value ? t('common.status.active') : t('common.status.inactive')}
         </Badge>
       )
     },
@@ -199,8 +200,8 @@ export default function Companies() {
   return (
     <>
       <PageLayout
-        title="Empresas"
-        subtitle="Cadastre e mantenha as organizações vinculadas ao Identity Management."
+        title={t('company.list.title')}
+        subtitle={t('company.list.subtitle')}
         onAdd={handleAddEmpresa}
         onEdit={handleEditEmpresa}
         onDelete={handleDeleteEmpresa}
@@ -211,15 +212,15 @@ export default function Companies() {
           <TableToolbar
             searchValue={searchTerm}
             onSearchChange={setSearchTerm}
-            searchPlaceholder="Buscar por nome, fantasia, e-mail ou CNPJ"
+            searchPlaceholder={t('company.list.searchPlaceholder')}
             rightSlot={
               <FilterDropdown
-                label="Filtrar empresas"
+                label={t('company.list.filterLabel')}
                 value={statusFilter}
                 onChange={(value) => setStatusFilter(value as 'all' | 'active' | 'inactive')}
                 options={[
-                  { value: 'active', label: 'Apenas ativas' },
-                  { value: 'inactive', label: 'Apenas inativas' },
+                  { value: 'active', label: t('common.filter.activeOnly') },
+                  { value: 'inactive', label: t('common.filter.inactiveOnly') },
                 ]}
               />
             }
@@ -243,7 +244,7 @@ export default function Companies() {
                 onClick={loadMoreEmpresas}
                 loading={loadMoreEmpresasApi.isLoading}
               >
-                Carregar mais
+                {t('common.action.loadMore')}
               </Button>
             </div>
           )}
@@ -260,13 +261,13 @@ export default function Companies() {
           open={isConfirmDeleteOpen}
           onOpenChange={(open) => setIsConfirmDeleteOpen(open)}
           onConfirm={handleConfirmDelete}
-          title="Confirmar Exclusão"
+          title={t('common.confirm.deleteTitle')}
           description={
             selectedEmpresas.length === 1
-              ? `Deseja excluir a empresa "${selectedEmpresas[0]?.legalName}"?`
-              : `Deseja excluir ${selectedEmpresas.length} empresas selecionadas?`
+              ? t('company.list.confirmDeleteSingle').replace('{0}', selectedEmpresas[0]?.legalName ?? '')
+              : t('company.list.confirmDeleteMultiple').replace('{0}', String(selectedEmpresas.length))
           }
-          confirmText="Excluir"
+          confirmText={t('common.action.delete')}
           variant="danger"
           loading={deleteEmpresaApi.isLoading}
         />
@@ -281,29 +282,29 @@ export default function Companies() {
                 meta={
                   <>
                     <Badge variant={previewEmpresa.isActive ? 'success' : 'destructive'}>
-                      {previewEmpresa.isActive ? 'Ativo' : 'Inativo'}
+                      {previewEmpresa.isActive ? t('common.status.active') : t('common.status.inactive')}
                     </Badge>
                     <span className="text-xs font-medium text-muted-foreground">
-                      {previewEmpresa.document || 'CNPJ não informado'}
+                      {previewEmpresa.document || t('company.preview.documentNotProvided')}
                     </span>
                   </>
                 }
-                description="Dados cadastrais e informações de contato da empresa selecionada."
+                description={t('company.preview.description')}
               />
 
               <div className="mt-6 flex-1 space-y-4 overflow-y-auto">
-                <SheetPreviewSection title="Dados cadastrais" description="Identificação principal da empresa">
+                <SheetPreviewSection title={t('company.preview.registrationTitle')} description={t('company.preview.registrationDescription')}>
                   <SheetPreviewGrid>
-                    <SheetPreviewField label="Razão social" value={previewEmpresa.legalName || '-'} />
-                    <SheetPreviewField label="CNPJ" value={previewEmpresa.document || '-'} />
-                    <SheetPreviewField className="sm:col-span-2" label="Nome fantasia" value={previewEmpresa.tradeName || '-'} />
+                    <SheetPreviewField label={t('company.field.legalName')} value={previewEmpresa.legalName || t('common.value.notAvailable')} />
+                    <SheetPreviewField label={t('company.field.document')} value={previewEmpresa.document || t('common.value.notAvailable')} />
+                    <SheetPreviewField className="sm:col-span-2" label={t('company.field.tradeName')} value={previewEmpresa.tradeName || t('common.value.notAvailable')} />
                   </SheetPreviewGrid>
                 </SheetPreviewSection>
 
-                <SheetPreviewSection title="Contato" description="Canais principais da empresa">
+                <SheetPreviewSection title={t('company.preview.contactTitle')} description={t('company.preview.contactDescription')}>
                   <div className="grid gap-4">
-                    <SheetPreviewField label="Telefone" value={previewEmpresa.phoneNumber || '-'} />
-                    <SheetPreviewField label="E-mail" value={previewEmpresa.email || '-'} />
+                    <SheetPreviewField label={t('common.field.phoneNumber')} value={previewEmpresa.phoneNumber || t('common.value.notAvailable')} />
+                    <SheetPreviewField label={t('common.field.email')} value={previewEmpresa.email || t('common.value.notAvailable')} />
                   </div>
                 </SheetPreviewSection>
               </div>

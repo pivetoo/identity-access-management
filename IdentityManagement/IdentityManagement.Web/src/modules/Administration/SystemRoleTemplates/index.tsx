@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Badge, DataTable, PageLayout, SearchableSelect, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, toast, useApi } from 'archon-ui';
+import { Badge, DataTable, PageLayout, SearchableSelect, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, toast, useApi, useI18n } from 'archon-ui';
 import type { DataTableColumn, PaginatedResult } from 'archon-ui';
 import SystemRoleTemplateFormModal from '../../../components/modals/SystemRoleTemplateFormModal';
 import { AccessResourceService } from '../../../services/accessResourceService';
@@ -10,6 +10,7 @@ import type { SystemRoleTemplate } from '../../../types/systemRoleTemplate';
 import type { SystemApplication } from '../../../types/systemApplication';
 
 export default function SystemRoleTemplates() {
+  const { t } = useI18n()
   const [selectedPerfisPadrao, setSelectedPerfisPadrao] = useState<SystemRoleTemplate[]>([]);
   const [previewPerfilPadrao, setPreviewPerfilPadrao] = useState<SystemRoleTemplate | null>(null);
   const [perfisPadrao, setPerfisPadrao] = useState<SystemRoleTemplate[]>([]);
@@ -39,7 +40,7 @@ export default function SystemRoleTemplates() {
     },
     onError: (error) => {
       toast({
-        title: 'Erro',
+        title: t('common.toast.errorTitle'),
         description: error.message,
         variant: 'destructive',
       });
@@ -70,8 +71,8 @@ export default function SystemRoleTemplates() {
     if (!selectedSystemApplicationId) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione um sistema primeiro',
+        title: t('common.toast.warningTitle'),
+        description: t('systemRoleTemplate.list.validation.selectSystemFirst'),
       });
       return;
     }
@@ -84,8 +85,8 @@ export default function SystemRoleTemplates() {
     if (selectedPerfisPadrao.length === 0) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione um perfil padrão para editar',
+        title: t('common.toast.warningTitle'),
+        description: t('systemRoleTemplate.list.validation.selectOneToEdit'),
       });
       return;
     }
@@ -93,8 +94,8 @@ export default function SystemRoleTemplates() {
     if (selectedPerfisPadrao.length > 1) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione apenas um perfil padrão para editar',
+        title: t('common.toast.warningTitle'),
+        description: t('systemRoleTemplate.list.validation.selectOnlyOneToEdit'),
       });
       return;
     }
@@ -144,40 +145,40 @@ export default function SystemRoleTemplates() {
   const columns: DataTableColumn<SystemRoleTemplate>[] = [
     {
       key: 'name',
-      title: 'Nome',
+      title: t('common.column.name'),
       dataIndex: 'name',
       sortable: true,
     },
     {
       key: 'description',
-      title: 'Descrição',
+      title: t('common.field.description'),
       dataIndex: 'description',
-      render: (value: string) => value || '-',
+      render: (value: string) => value || t('common.value.notAvailable'),
     },
     {
       key: 'isRoot',
-      title: 'Super Usuário',
+      title: t('role.field.isRoot'),
       dataIndex: 'isRoot',
-      render: (value: boolean) => (value ? 'Sim' : 'Não'),
+      render: (value: boolean) => (value ? t('common.boolean.yes') : t('common.boolean.no')),
     },
     {
       key: 'isDefault',
-      title: 'Padrão',
+      title: t('role.field.isDefault'),
       dataIndex: 'isDefault',
-      render: (value: boolean) => (value ? 'Sim' : 'Não'),
+      render: (value: boolean) => (value ? t('common.boolean.yes') : t('common.boolean.no')),
     },
     {
       key: 'accessResourceIds',
-      title: 'Permissões',
+      title: t('common.field.permissions'),
       dataIndex: 'accessResourceIds',
       render: (value: number[]) => value.length,
     },
     {
       key: 'isActive',
-      title: 'Status',
+      title: t('common.column.status'),
       dataIndex: 'isActive',
       render: (value: boolean) => (
-        <Badge variant={value ? 'success' : 'destructive'}>{value ? 'Ativo' : 'Inativo'}</Badge>
+        <Badge variant={value ? 'success' : 'destructive'}>{value ? t('common.status.active') : t('common.status.inactive')}</Badge>
       ),
     },
   ];
@@ -185,8 +186,8 @@ export default function SystemRoleTemplates() {
   return (
     <>
       <PageLayout
-        title="Template de Perfis"
-        subtitle="Configure os perfis base de cada aplicação para replicar automaticamente em novos contratos."
+        title={t('systemRoleTemplate.list.title')}
+        subtitle={t('systemRoleTemplate.list.subtitle')}
         onAdd={handleAddPerfilPadrao}
         onEdit={handleEditPerfilPadrao}
         onRefresh={handleRefresh}
@@ -195,7 +196,7 @@ export default function SystemRoleTemplates() {
         <div className="mb-6 rounded-lg border bg-card p-4">
           <div className="flex items-end gap-4">
             <div className="flex flex-1 flex-col gap-2">
-              <label className="text-sm font-medium">SystemApplication</label>
+              <label className="text-sm font-medium">{t('systemRoleTemplate.list.systemLabel')}</label>
               <SearchableSelect
                 options={sistemas.map((sistema) => ({
                   label: sistema.name,
@@ -207,8 +208,8 @@ export default function SystemRoleTemplates() {
                   setSelectedPerfisPadrao([]);
                   setPreviewPerfilPadrao(null);
                 }}
-                placeholder="Selecione um sistema para listar os perfis padrão"
-                searchPlaceholder="Pesquisar sistema..."
+                placeholder={t('systemRoleTemplate.list.systemPlaceholder')}
+                searchPlaceholder={t('systemRoleTemplate.list.systemSearchPlaceholder')}
                 disabled={loadSistemasApi.isLoading}
               />
             </div>
@@ -228,7 +229,7 @@ export default function SystemRoleTemplates() {
           />
         ) : (
           <div className="py-12 text-center text-muted-foreground">
-            <p>Selecione um sistema para visualizar os templates de perfis.</p>
+            <p>{t('systemRoleTemplate.list.emptyWithoutSystem')}</p>
           </div>
         )}
 
@@ -250,27 +251,27 @@ export default function SystemRoleTemplates() {
                 meta={
                   <>
                     <Badge variant={previewPerfilPadrao.isActive ? 'success' : 'destructive'}>
-                      {previewPerfilPadrao.isActive ? 'Ativo' : 'Inativo'}
+                      {previewPerfilPadrao.isActive ? t('common.status.active') : t('common.status.inactive')}
                     </Badge>
-                    {previewPerfilPadrao.isDefault ? <Badge variant="secondary">Padrão</Badge> : null}
-                    {previewPerfilPadrao.isRoot ? <Badge variant="warning">Super Usuário</Badge> : null}
+                    {previewPerfilPadrao.isDefault ? <Badge variant="secondary">{t('common.badge.default')}</Badge> : null}
+                    {previewPerfilPadrao.isRoot ? <Badge variant="warning">{t('common.badge.root')}</Badge> : null}
                   </>
                 }
-                description="Template aplicado automaticamente quando um novo contrato é criado para esta aplicação."
+                description={t('systemRoleTemplate.preview.description')}
               />
 
               <div className="mt-6 flex-1 space-y-4 overflow-y-auto">
-                <SheetPreviewSection title="Contexto" description="Identificação e comportamento do template">
+                <SheetPreviewSection title={t('systemRoleTemplate.preview.contextTitle')} description={t('systemRoleTemplate.preview.contextDescription')}>
                   <SheetPreviewGrid>
-                    <SheetPreviewField label="SystemApplication" value={selectedSystemName || '-'} />
-                    <SheetPreviewField label="Permissões" value={previewPerfilPadrao.accessResourceIds.length} />
-                    <SheetPreviewField className="sm:col-span-2" label="Descrição" value={previewPerfilPadrao.description} />
+                    <SheetPreviewField label={t('systemRoleTemplate.list.systemLabel')} value={selectedSystemName || t('common.value.notAvailable')} />
+                    <SheetPreviewField label={t('common.field.permissions')} value={previewPerfilPadrao.accessResourceIds.length} />
+                    <SheetPreviewField className="sm:col-span-2" label={t('common.field.description')} value={previewPerfilPadrao.description || t('common.value.notAvailable')} />
                   </SheetPreviewGrid>
                 </SheetPreviewSection>
 
                 <SheetPreviewSection
-                  title="Recursos vinculados"
-                  description="Permissões que serão copiadas para os perfis gerados no contrato"
+                  title={t('systemRoleTemplate.preview.resourcesTitle')}
+                  description={t('systemRoleTemplate.preview.resourcesDescription')}
                 >
                   <div className="space-y-2">
                     {previewResources.length > 0 ? (
@@ -284,7 +285,7 @@ export default function SystemRoleTemplates() {
                         </div>
                       ))
                     ) : (
-                      <p className="text-sm text-muted-foreground">Nenhuma permissão vinculada a este perfil padrão.</p>
+                      <p className="text-sm text-muted-foreground">{t('systemRoleTemplate.preview.emptyResources')}</p>
                     )}
                   </div>
                 </SheetPreviewSection>

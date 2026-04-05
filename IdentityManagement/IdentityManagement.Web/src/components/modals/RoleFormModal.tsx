@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Input, Button, Switch, SearchableSelect, useApi, toast, useFormErrors } from 'archon-ui';
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Input, Button, Switch, SearchableSelect, useApi, toast, useFormErrors, useI18n } from 'archon-ui';
 import { RoleService } from '../../services/roleService';
 import { ContractService } from '../../services/contractService';
 import { AccessResourceService } from '../../services/accessResourceService';
@@ -23,6 +23,7 @@ export default function RoleFormModal({
   contractId,
   onSuccess
 }: RoleFormModalProps) {
+  const { t } = useI18n()
   const { getError, setErrors, clearErrors } = useFormErrors();
   const [contratos, setContratos] = useState<Contract[]>([]);
   const [accessResources, setAccessResources] = useState<AccessResource[]>([]);
@@ -59,8 +60,8 @@ export default function RoleFormModal({
     onSuccess: () => {
       toast({
         variant: 'success',
-        title: 'Sucesso',
-        description: role ? 'Role atualizado com sucesso' : 'Role criado com sucesso',
+        title: t('common.toast.successTitle'),
+        description: role ? t('role.form.toast.updated') : t('role.form.toast.created'),
       });
       resetForm();
       onSuccess();
@@ -70,7 +71,7 @@ export default function RoleFormModal({
       setErrors(error);
       if (!error.errors) {
         toast({
-          title: 'Erro',
+          title: t('common.toast.errorTitle'),
           description: error.message,
           variant: 'destructive',
         });
@@ -84,7 +85,7 @@ export default function RoleFormModal({
     },
     onError: (error) => {
       toast({
-        title: 'Erro',
+        title: t('common.toast.errorTitle'),
         description: error.message,
         variant: 'destructive',
       });
@@ -174,29 +175,29 @@ export default function RoleFormModal({
       <Modal open={isOpen} onOpenChange={(open) => !open && handleClose()}>
         <ModalContent size="xl">
           <ModalHeader>
-          <ModalTitle>{role ? 'Editar Role' : 'Novo Role'}</ModalTitle>
+          <ModalTitle>{role ? t('role.form.editTitle') : t('role.form.createTitle')}</ModalTitle>
           </ModalHeader>
 
           <div className="flex flex-col gap-4 py-4">
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">
-              Nome do Role <span className="text-destructive">*</span>
+              {t('role.form.nameLabel')} <span className="text-destructive">*</span>
             </label>
             <Input
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
-              placeholder="Digite o nome do perfil"
+              placeholder={t('role.form.namePlaceholder')}
               error={!!getError('name')}
               helperText={getError('name')}
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Descrição</label>
+            <label className="text-sm font-medium">{t('common.field.description')}</label>
             <Input
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Digite uma descrição para o perfil"
+              placeholder={t('role.form.descriptionPlaceholder')}
               error={!!getError('description')}
               helperText={getError('description')}
             />
@@ -205,7 +206,7 @@ export default function RoleFormModal({
           {!role && (
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">
-                Contract <span className="text-destructive">*</span>
+                {t('role.list.contractLabel')} <span className="text-destructive">*</span>
               </label>
               <SearchableSelect
                 options={contratos.map((contract) => ({
@@ -214,8 +215,8 @@ export default function RoleFormModal({
                 }))}
                 value={formData.contractId.toString()}
                 onValueChange={(value) => handleInputChange('contractId', parseInt(value))}
-                placeholder="Selecione um contrato"
-                searchPlaceholder="Pesquisar contrato..."
+                placeholder={t('role.form.contractPlaceholder')}
+                searchPlaceholder={t('role.form.contractSearchPlaceholder')}
                 disabled={!!contractId}
               />
             </div>
@@ -228,7 +229,7 @@ export default function RoleFormModal({
                 onCheckedChange={(checked) => handleInputChange('isRoot', checked)}
               />
               <label className="text-sm font-medium cursor-pointer">
-                Super Usuário
+                {t('role.field.isRoot')}
               </label>
             </div>
             <div className="flex items-center gap-2">
@@ -237,19 +238,19 @@ export default function RoleFormModal({
                 onCheckedChange={(checked) => handleInputChange('isDefault', checked)}
               />
               <label className="text-sm font-medium cursor-pointer">
-                Role Padrão
+                {t('role.form.defaultLabel')}
               </label>
             </div>
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Permissões</label>
+            <label className="text-sm font-medium">{t('common.field.permissions')}</label>
             <div className="rounded-lg border bg-muted/20 p-4">
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1">
-                  <p className="text-sm font-medium">Seleção por recurso</p>
+                  <p className="text-sm font-medium">{t('role.form.permissionsTitle')}</p>
                   <p className="text-sm text-muted-foreground">
-                    Escolha as permissões em uma tela dedicada, agrupadas por recurso e endpoint.
+                    {t('role.form.permissionsDescription')}
                   </p>
                 </div>
               </div>
@@ -260,7 +261,7 @@ export default function RoleFormModal({
                   onClick={() => setIsPermissionsModalOpen(true)}
                   disabled={formData.isRoot}
                 >
-                  Selecionar permissões
+                  {t('common.action.selectPermissions')}
                 </Button>
 
               </div>
@@ -274,7 +275,7 @@ export default function RoleFormModal({
               onClick={handleClose}
               disabled={savePerfilApi.isLoading}
             >
-              Cancelar
+              {t('common.action.cancel')}
             </Button>
             <Button
               variant="primary"
@@ -282,7 +283,7 @@ export default function RoleFormModal({
               loading={savePerfilApi.isLoading}
               disabled={!isValid}
             >
-              {role ? 'Atualizar' : 'Criar'}
+              {role ? t('common.action.update') : t('common.action.create')}
             </Button>
           </ModalFooter>
         </ModalContent>

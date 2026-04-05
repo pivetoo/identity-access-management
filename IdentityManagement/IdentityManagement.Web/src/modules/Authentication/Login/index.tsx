@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Card, CardContent, Input, useAuth, AuthService } from 'archon-ui';
+import { Button, Card, CardContent, Input, useAuth, AuthService, useI18n } from 'archon-ui';
 import { User, Lock } from 'lucide-react';
 import type { IdentifyResult, ContractType } from 'archon-ui';
 import SystemCenter from '../SystemCenter';
@@ -8,6 +8,7 @@ import logoEmpresa from '../../../assets/logo-empresa.svg';
 import { validateEmail } from '../../../utils/validation';
 
 export default function Login() {
+  const { t } = useI18n()
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -25,22 +26,22 @@ export default function Login() {
     setPasswordError('');
 
     if (!email) {
-      setEmailError('E-mail é obrigatório');
+      setEmailError(t('authentication.login.validation.emailRequired'));
       return false;
     }
 
     if (!validateEmail(email)) {
-      setEmailError('E-mail inválido');
+      setEmailError(t('authentication.login.validation.emailInvalid'));
       return false;
     }
 
     if (!password) {
-      setPasswordError('Senha é obrigatória');
+      setPasswordError(t('authentication.login.validation.passwordRequired'));
       return false;
     }
 
     if (password.length < 6) {
-      setPasswordError('Senha deve ter no mínimo 6 caracteres');
+      setPasswordError(t('authentication.login.validation.passwordMinLength'));
       return false;
     }
 
@@ -125,7 +126,7 @@ export default function Login() {
           loading={contractLoading}
         />
         <p className="text-center mt-8 text-xs text-muted-foreground/50">
-          © {new Date().getFullYear()} Company de Testes. Todos os direitos reservados
+          {t('authentication.footer.copyright').replace('{0}', String(new Date().getFullYear()))}
         </p>
       </div>
     );
@@ -142,24 +143,24 @@ export default function Login() {
               <div className="flex justify-center mb-2">
                 <img
                   src={logoEmpresa}
-                  alt="Testes"
+                  alt={t('authentication.login.companyLogoAlt')}
                   className="h-40"
                 />
               </div>
 
               <p className="text-center text-sm text-muted-foreground mb-10">
-                Você está acessando<br />
-                <strong>[Provedor de Identidade]</strong>
+                {t('authentication.login.accessing')}<br />
+                <strong>{t('authentication.login.providerName')}</strong>
               </p>
 
               <form onSubmit={handleSubmit} className="flex flex-col">
                 <div className="mb-2">
-                  <label className="text-sm font-medium mb-1 block text-muted-foreground pl-1">Email</label>
+                  <label className="text-sm font-medium mb-1 block text-muted-foreground pl-1">{t('common.field.email')}</label>
                   <div className="relative w-full">
                     <User className="absolute left-3 top-3 h-4 w-4 text-foreground opacity-70 pointer-events-none z-10" />
                     <Input
                       type="email"
-                      placeholder="Email"
+                      placeholder={t('common.field.email')}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       error={!!emailError}
@@ -171,12 +172,12 @@ export default function Login() {
                 </div>
 
                 <div className="mb-2">
-                  <label className="text-sm font-medium mb-1 block text-muted-foreground pl-1">Senha</label>
+                  <label className="text-sm font-medium mb-1 block text-muted-foreground pl-1">{t('common.field.password')}</label>
                   <div className="relative w-full">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-foreground opacity-70 pointer-events-none z-10" />
                     <Input
                       type="password"
-                      placeholder="Senha"
+                      placeholder={t('common.field.password')}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       error={!!passwordError}
@@ -195,7 +196,7 @@ export default function Login() {
                     loading={loading}
                     disabled={loading}
                   >
-                    Entrar
+                    {t('authentication.login.submit')}
                   </Button>
                 </div>
               </form>
@@ -205,7 +206,7 @@ export default function Login() {
                 onClick={handleForgotPassword}
                 className="w-full text-right mt-4 text-sm text-muted-foreground hover:text-primary transition-colors"
               >
-                Esqueceu a senha?
+                {t('authentication.login.forgotPassword')}
               </button>
             </CardContent>
           </Card>
@@ -213,7 +214,7 @@ export default function Login() {
       </div>
 
       <p className="text-center mt-8 text-xs text-muted-foreground/50">
-        © {new Date().getFullYear()} Company de Testes. Todos os direitos reservados
+        {t('authentication.footer.copyright').replace('{0}', String(new Date().getFullYear()))}
       </p>
 
           </div>

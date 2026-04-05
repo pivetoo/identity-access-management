@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { PageLayout, DataTable, Badge, Button, ConfirmModal, FilterDropdown, TableToolbar, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, toast, useApi } from 'archon-ui';
+import { PageLayout, DataTable, Badge, Button, ConfirmModal, FilterDropdown, TableToolbar, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, toast, useApi, useI18n } from 'archon-ui';
 import type { DataTableColumn, PaginatedResult } from 'archon-ui';
 import { UserService } from '../../../services/userService';
 import type { User } from '../../../types/user';
@@ -7,6 +7,7 @@ import UserFormModal from '../../../components/modals/UserFormModal';
 import { formatDate } from '../../../utils/date';
 
 export default function Users() {
+  const { t } = useI18n()
   const [selectedUsuarios, setSelectedUsuarios] = useState<User[]>([]);
   const [previewUsuario, setPreviewUsuario] = useState<User | null>(null);
   const [usuarios, setUsuarios] = useState<User[]>([]);
@@ -36,8 +37,8 @@ export default function Users() {
     onSuccess: () => {
       toast({
         variant: 'success',
-        title: 'Sucesso',
-        description: 'Usuário excluído com sucesso',
+        title: t('common.toast.successTitle'),
+        description: t('user.list.toast.deleted'),
       });
       loadUsuarios(true);
       setSelectedUsuarios([]);
@@ -85,16 +86,16 @@ export default function Users() {
     if (selectedUsuarios.length === 0) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione um usuário para editar',
+        title: t('common.toast.warningTitle'),
+        description: t('user.list.validation.selectOneToEdit'),
       });
       return;
     }
     if (selectedUsuarios.length > 1) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione apenas um usuário para editar',
+        title: t('common.toast.warningTitle'),
+        description: t('user.list.validation.selectOnlyOneToEdit'),
       });
       return;
     }
@@ -106,8 +107,8 @@ export default function Users() {
     if (selectedUsuarios.length === 0) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione um ou mais usuários para excluir',
+        title: t('common.toast.warningTitle'),
+        description: t('user.list.validation.selectToDelete'),
       });
       return;
     }
@@ -127,41 +128,41 @@ export default function Users() {
   const columns: DataTableColumn<User>[] = [
     {
       key: 'username',
-      title: 'Nome de Usuário',
+      title: t('user.field.username'),
       dataIndex: 'username',
       sortable: true,
     },
     {
       key: 'name',
-      title: 'Nome Completo',
+      title: t('user.field.fullName'),
       dataIndex: 'name',
-      render: (value: string) => value || '-'
+      render: (value: string) => value || t('common.value.notAvailable')
     },
     {
       key: 'email',
-      title: 'E-mail',
+      title: t('common.field.email'),
       dataIndex: 'email',
       sortable: true,
     },
     {
       key: 'isActive',
-      title: 'Status',
+      title: t('common.column.status'),
       dataIndex: 'isActive',
       render: (value: boolean) => (
         <Badge variant={value ? 'success' : 'destructive'}>
-          {value ? 'Ativo' : 'Inativo'}
+          {value ? t('common.status.active') : t('common.status.inactive')}
         </Badge>
       )
     },
     {
       key: 'lastLoginAt',
-      title: 'Último Login',
+      title: t('user.field.lastLoginAt'),
       dataIndex: 'lastLoginAt',
       render: (value: string) => formatDate(value)
     },
     {
       key: 'createdAt',
-      title: 'Data Criação',
+      title: t('user.field.createdAt'),
       dataIndex: 'createdAt',
       render: (value: string) => formatDate(value),
       sortable: true,
@@ -197,8 +198,8 @@ export default function Users() {
   return (
     <>
       <PageLayout
-        title="Usuários"
-        subtitle="Gerencie contas, status de acesso e informações básicas dos usuários."
+        title={t('user.list.title')}
+        subtitle={t('user.list.subtitle')}
         onAdd={handleAddUsuario}
         onEdit={handleEditUsuario}
         onDelete={handleDeleteUsuario}
@@ -209,15 +210,15 @@ export default function Users() {
           <TableToolbar
             searchValue={searchTerm}
             onSearchChange={setSearchTerm}
-            searchPlaceholder="Buscar por usuário, nome ou e-mail"
+            searchPlaceholder={t('user.list.searchPlaceholder')}
             rightSlot={
               <FilterDropdown
-                label="Filtrar usuários"
+                label={t('user.list.filterLabel')}
                 value={statusFilter}
                 onChange={(value) => setStatusFilter(value as 'all' | 'active' | 'inactive')}
                 options={[
-                  { value: 'active', label: 'Apenas ativos' },
-                  { value: 'inactive', label: 'Apenas inativos' },
+                  { value: 'active', label: t('common.filter.activeOnly') },
+                  { value: 'inactive', label: t('common.filter.inactiveOnly') },
                 ]}
               />
             }
@@ -241,7 +242,7 @@ export default function Users() {
                 onClick={loadMoreUsuarios}
                 loading={loadMoreUsuariosApi.isLoading}
               >
-                Carregar mais
+                {t('common.action.loadMore')}
               </Button>
             </div>
           )}
@@ -258,13 +259,13 @@ export default function Users() {
           open={isConfirmDeleteOpen}
           onOpenChange={(open) => setIsConfirmDeleteOpen(open)}
           onConfirm={handleConfirmDelete}
-          title="Confirmar Exclusão"
+          title={t('common.confirm.deleteTitle')}
           description={
             selectedUsuarios.length === 1
-              ? `Deseja excluir o usuário "${selectedUsuarios[0]?.username}"?`
-              : `Deseja excluir ${selectedUsuarios.length} usuários selecionados?`
+              ? t('user.list.confirmDeleteSingle').replace('{0}', selectedUsuarios[0]?.username ?? '')
+              : t('user.list.confirmDeleteMultiple').replace('{0}', String(selectedUsuarios.length))
           }
-          confirmText="Excluir"
+          confirmText={t('common.action.delete')}
           variant="danger"
           loading={deleteUsuarioApi.isLoading}
         />
@@ -279,36 +280,36 @@ export default function Users() {
                 meta={
                   <>
                     <Badge variant={previewUsuario.isActive ? 'success' : 'destructive'}>
-                      {previewUsuario.isActive ? 'Ativo' : 'Inativo'}
+                      {previewUsuario.isActive ? t('common.status.active') : t('common.status.inactive')}
                     </Badge>
                     <span className="text-xs font-medium text-muted-foreground">
                       @{previewUsuario.username}
                     </span>
                   </>
                 }
-                description="Dados de acesso e atividade do usuário selecionado."
+                description={t('user.preview.description')}
               />
 
               <div className="mt-6 flex-1 space-y-4 overflow-y-auto">
-                <SheetPreviewSection title="Acesso" description="Identificação e status do usuário">
+                <SheetPreviewSection title={t('user.preview.accessTitle')} description={t('user.preview.accessDescription')}>
                   <SheetPreviewGrid>
-                    <SheetPreviewField label="Usuário" value={previewUsuario.username} />
+                    <SheetPreviewField label={t('user.field.username')} value={previewUsuario.username} />
                     <SheetPreviewField
-                      label="Situação"
+                      label={t('common.field.situation')}
                       value={
                         <Badge variant={previewUsuario.isActive ? 'success' : 'destructive'}>
-                          {previewUsuario.isActive ? 'Ativo' : 'Inativo'}
+                          {previewUsuario.isActive ? t('common.status.active') : t('common.status.inactive')}
                         </Badge>
                       }
                     />
-                    <SheetPreviewField className="sm:col-span-2" label="E-mail" value={previewUsuario.email} />
+                    <SheetPreviewField className="sm:col-span-2" label={t('common.field.email')} value={previewUsuario.email} />
                   </SheetPreviewGrid>
                 </SheetPreviewSection>
 
-                <SheetPreviewSection title="Atividade" description="Datas principais de uso e cadastro">
+                <SheetPreviewSection title={t('user.preview.activityTitle')} description={t('user.preview.activityDescription')}>
                   <SheetPreviewGrid>
-                    <SheetPreviewField label="Último login" value={formatDate(previewUsuario.lastLoginAt || '')} />
-                    <SheetPreviewField label="Criado em" value={formatDate(previewUsuario.createdAt)} />
+                    <SheetPreviewField label={t('user.field.lastLoginAt')} value={formatDate(previewUsuario.lastLoginAt || '')} />
+                    <SheetPreviewField label={t('user.field.createdAtLabel')} value={formatDate(previewUsuario.createdAt)} />
                   </SheetPreviewGrid>
                 </SheetPreviewSection>
               </div>

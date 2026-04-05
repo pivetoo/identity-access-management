@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Briefcase, ArrowLeft, Search } from 'lucide-react';
-import { Button, Card, CardContent, Input } from 'archon-ui';
+import { Button, Card, CardContent, Input, useI18n } from 'archon-ui';
 import type { ContractType } from 'archon-ui';
 import logoEmpresa from '../../assets/logo-empresa.svg';
 
@@ -20,6 +20,7 @@ export default function SystemCenter({
   onBack,
   loading = false
 }: SystemCenterProps) {
+  const { t } = useI18n()
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredContracts = useMemo(() => {
@@ -46,17 +47,17 @@ export default function SystemCenter({
                 onClick={onBack}
                 disabled={loading}
               >
-                Voltar
+                {t('common.action.back')}
               </Button>
             </div>
 
             <div className="flex flex-col items-center text-center w-full">
               <h1 className="text-2xl font-bold text-foreground mb-4">
-                Central de Sistemas
+                {t('authentication.systemCenter.title')}
               </h1>
               <p className="text-base text-muted-foreground leading-relaxed">
-                Ola, <strong className="text-primary">{userName}</strong><br />
-                Selecione qual sistema voce deseja acessar
+                {t('authentication.systemCenter.greeting').replace('{0}', userName)}<br />
+                {t('authentication.systemCenter.subtitle')}
               </p>
             </div>
           </div>
@@ -66,7 +67,7 @@ export default function SystemCenter({
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-60" />
               <Input
                 type="text"
-                placeholder="Buscar sistemas..."
+                placeholder={t('authentication.systemCenter.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 bg-white"
@@ -76,7 +77,7 @@ export default function SystemCenter({
 
           {filteredContracts.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground text-base">
-              {searchTerm.trim() ? 'Nenhum sistema encontrado com esse termo.' : 'Nenhum sistema disponivel.'}
+              {searchTerm.trim() ? t('authentication.systemCenter.emptyFiltered') : t('authentication.systemCenter.empty')}
             </div>
           ) : (
             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-thin">
@@ -109,7 +110,7 @@ export default function SystemCenter({
                     disabled={loading}
                     className="w-full"
                   >
-                    Acessar
+                    {t('common.action.access')}
                   </Button>
                 </div>
               ))}
@@ -127,7 +128,7 @@ export default function SystemCenter({
     >
       <img
         src={logoEmpresa}
-        alt="Company de Testes"
+        alt={t('authentication.login.companyLogoAlt')}
         className="h-14 opacity-80 hover:opacity-100 transition-opacity cursor-pointer object-contain"
       />
     </a>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, SearchableSelect, useApi, toast, useFormErrors } from 'archon-ui';
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, SearchableSelect, useApi, toast, useFormErrors, useI18n } from 'archon-ui';
 import { UserRoleService } from '../../services/userRoleService';
 import { UserService } from '../../services/userService';
 import { RoleService } from '../../services/roleService';
@@ -20,6 +20,7 @@ export default function UserRoleFormModal({
   contractId,
   onSuccess
 }: UserRoleFormModalProps) {
+  const { t } = useI18n()
   const { setErrors, clearErrors } = useFormErrors();
   const [usuarios, setUsuarios] = useState<User[]>([]);
   const [perfis, setPerfis] = useState<Role[]>([]);
@@ -44,8 +45,8 @@ export default function UserRoleFormModal({
     onSuccess: () => {
       toast({
         variant: 'success',
-        title: 'Sucesso',
-        description: 'Usuário vinculado ao perfil com sucesso',
+        title: t('common.toast.successTitle'),
+        description: t('userRole.form.toast.created'),
       });
       clearErrors();
       onSuccess();
@@ -55,7 +56,7 @@ export default function UserRoleFormModal({
       setErrors(error);
       if (!error.errors) {
         toast({
-          title: 'Erro',
+          title: t('common.toast.errorTitle'),
           description: error.message,
           variant: 'destructive',
         });
@@ -99,13 +100,13 @@ export default function UserRoleFormModal({
     <Modal open={isOpen} onOpenChange={onClose}>
       <ModalContent size="xl">
         <ModalHeader>
-          <ModalTitle>Vincular Usuário ao Role</ModalTitle>
+          <ModalTitle>{t('userRole.form.title')}</ModalTitle>
         </ModalHeader>
 
         <div className="flex flex-col gap-4 py-4">
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">
-              Usuário <span className="text-destructive">*</span>
+              {t('userRole.field.user')} <span className="text-destructive">*</span>
             </label>
             <SearchableSelect
               options={usuarios.map(usuario => ({
@@ -114,15 +115,15 @@ export default function UserRoleFormModal({
               }))}
               value={formData.userId.toString()}
               onValueChange={(value) => handleInputChange('userId', parseInt(value))}
-              placeholder="Selecione um usuário"
-              searchPlaceholder="Pesquisar usuário..."
+              placeholder={t('userRole.form.userPlaceholder')}
+              searchPlaceholder={t('userRole.form.userSearchPlaceholder')}
               disabled={loadUsuariosApi.isLoading}
             />
           </div>
 
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">
-              Role <span className="text-destructive">*</span>
+              {t('userRole.field.role')} <span className="text-destructive">*</span>
             </label>
             <SearchableSelect
               options={perfis.map(perfil => ({
@@ -131,8 +132,8 @@ export default function UserRoleFormModal({
               }))}
               value={formData.roleId.toString()}
               onValueChange={(value) => handleInputChange('roleId', parseInt(value))}
-              placeholder="Selecione um perfil"
-              searchPlaceholder="Pesquisar perfil..."
+              placeholder={t('userRole.form.rolePlaceholder')}
+              searchPlaceholder={t('userRole.form.roleSearchPlaceholder')}
               disabled={loadPerfisApi.isLoading}
             />
           </div>
@@ -144,7 +145,7 @@ export default function UserRoleFormModal({
             onClick={onClose}
             disabled={saveUsuarioPerfilApi.isLoading}
           >
-            Cancelar
+            {t('common.action.cancel')}
           </Button>
           <Button
             variant="primary"
@@ -152,7 +153,7 @@ export default function UserRoleFormModal({
             loading={saveUsuarioPerfilApi.isLoading}
             disabled={!isValid}
           >
-            Vincular
+            {t('common.action.link')}
           </Button>
         </ModalFooter>
       </ModalContent>

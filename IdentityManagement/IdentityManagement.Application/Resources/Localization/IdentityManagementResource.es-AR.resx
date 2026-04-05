@@ -66,4 +66,298 @@
   <data name="auth.sessions.revokedAll" xml:space="preserve"><value>Todas las sesiones activas fueron revocadas correctamente.</value></data>
   <data name="auth.password.currentInvalid" xml:space="preserve"><value>La contraseña actual es inválida.</value></data>
   <data name="auth.password.changed" xml:space="preserve"><value>Contraseña cambiada correctamente.</value></data>
+  <data name="layout.title" xml:space="preserve"><value>Identity Management</value></data>
+  <data name="layout.menu.dashboard" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="layout.menu.management" xml:space="preserve"><value>Gestión</value></data>
+  <data name="layout.menu.users" xml:space="preserve"><value>Usuarios</value></data>
+  <data name="layout.menu.companies" xml:space="preserve"><value>Empresas</value></data>
+  <data name="layout.menu.systemApplications" xml:space="preserve"><value>Sistemas</value></data>
+  <data name="layout.menu.contracts" xml:space="preserve"><value>Contratos</value></data>
+  <data name="layout.menu.accessControl" xml:space="preserve"><value>Control de acceso</value></data>
+  <data name="layout.menu.systemRoleTemplates" xml:space="preserve"><value>Plantillas de perfiles</value></data>
+  <data name="layout.menu.roles" xml:space="preserve"><value>Perfiles</value></data>
+  <data name="layout.menu.userRoles" xml:space="preserve"><value>Vincular usuarios</value></data>
+  <data name="layout.breadcrumb.home" xml:space="preserve"><value>Inicio</value></data>
+  <data name="common.field.email" xml:space="preserve"><value>Correo electrónico</value></data>
+  <data name="common.field.password" xml:space="preserve"><value>Contraseña</value></data>
+  <data name="common.field.phoneNumber" xml:space="preserve"><value>Teléfono</value></data>
+  <data name="common.field.description" xml:space="preserve"><value>Descripción</value></data>
+  <data name="common.field.startDate" xml:space="preserve"><value>Fecha de Inicio</value></data>
+  <data name="common.field.endDate" xml:space="preserve"><value>Fecha de Fin</value></data>
+  <data name="common.field.situation" xml:space="preserve"><value>Situación</value></data>
+  <data name="common.field.permissions" xml:space="preserve"><value>Permisos</value></data>
+  <data name="common.column.name" xml:space="preserve"><value>Nombre</value></data>
+  <data name="common.column.status" xml:space="preserve"><value>Estado</value></data>
+  <data name="common.action.back" xml:space="preserve"><value>Volver</value></data>
+  <data name="common.action.access" xml:space="preserve"><value>Acceder</value></data>
+  <data name="common.action.cancel" xml:space="preserve"><value>Cancelar</value></data>
+  <data name="common.action.update" xml:space="preserve"><value>Actualizar</value></data>
+  <data name="common.action.create" xml:space="preserve"><value>Crear</value></data>
+  <data name="common.action.delete" xml:space="preserve"><value>Eliminar</value></data>
+  <data name="common.action.loadMore" xml:space="preserve"><value>Cargar más</value></data>
+  <data name="common.action.selectPermissions" xml:space="preserve"><value>Seleccionar permisos</value></data>
+  <data name="common.action.link" xml:space="preserve"><value>Vincular</value></data>
+  <data name="common.action.inactivate" xml:space="preserve"><value>Inactivar</value></data>
+  <data name="common.action.reactivate" xml:space="preserve"><value>Reactivar</value></data>
+  <data name="common.action.activate" xml:space="preserve"><value>Activar</value></data>
+  <data name="common.action.revoke" xml:space="preserve"><value>Revocar</value></data>
+  <data name="common.action.applyPermissions" xml:space="preserve"><value>Aplicar permisos</value></data>
+  <data name="common.toast.successTitle" xml:space="preserve"><value>Éxito</value></data>
+  <data name="common.toast.errorTitle" xml:space="preserve"><value>Error</value></data>
+  <data name="common.toast.warningTitle" xml:space="preserve"><value>Atención</value></data>
+  <data name="common.status.active" xml:space="preserve"><value>Activo</value></data>
+  <data name="common.status.inactive" xml:space="preserve"><value>Inactivo</value></data>
+  <data name="common.pagination.previous" xml:space="preserve"><value>Anterior</value></data>
+  <data name="common.pagination.next" xml:space="preserve"><value>Siguiente</value></data>
+  <data name="common.pagination.pageOf" xml:space="preserve"><value>Página {0} de {1}</value></data>
+  <data name="common.confirm.deleteTitle" xml:space="preserve"><value>Confirmar eliminación</value></data>
+  <data name="common.filter.activeOnly" xml:space="preserve"><value>Solo activos</value></data>
+  <data name="common.filter.inactiveOnly" xml:space="preserve"><value>Solo inactivos</value></data>
+  <data name="common.value.notAvailable" xml:space="preserve"><value>-</value></data>
+  <data name="common.boolean.yes" xml:space="preserve"><value>Sí</value></data>
+  <data name="common.boolean.no" xml:space="preserve"><value>No</value></data>
+  <data name="common.badge.default" xml:space="preserve"><value>Predeterminado</value></data>
+  <data name="common.badge.root" xml:space="preserve"><value>Super Usuario</value></data>
+  <data name="common.duration.day" xml:space="preserve"><value>{0} día</value></data>
+  <data name="common.duration.days" xml:space="preserve"><value>{0} días</value></data>
+  <data name="common.duration.hour" xml:space="preserve"><value>{0} hora</value></data>
+  <data name="common.duration.hours" xml:space="preserve"><value>{0} horas</value></data>
+  <data name="common.duration.minute" xml:space="preserve"><value>{0} minuto</value></data>
+  <data name="common.duration.minutes" xml:space="preserve"><value>{0} minutos</value></data>
+  <data name="authentication.footer.copyright" xml:space="preserve"><value>© {0} Company de Testes. Todos los derechos reservados</value></data>
+  <data name="authentication.login.companyLogoAlt" xml:space="preserve"><value>Company de Testes</value></data>
+  <data name="authentication.login.accessing" xml:space="preserve"><value>Estás accediendo a</value></data>
+  <data name="authentication.login.providerName" xml:space="preserve"><value>[Proveedor de Identidad]</value></data>
+  <data name="authentication.login.submit" xml:space="preserve"><value>Ingresar</value></data>
+  <data name="authentication.login.forgotPassword" xml:space="preserve"><value>¿Olvidaste tu contraseña?</value></data>
+  <data name="authentication.login.validation.emailRequired" xml:space="preserve"><value>El correo electrónico es obligatorio.</value></data>
+  <data name="authentication.login.validation.emailInvalid" xml:space="preserve"><value>Correo electrónico inválido.</value></data>
+  <data name="authentication.login.validation.passwordRequired" xml:space="preserve"><value>La contraseña es obligatoria.</value></data>
+  <data name="authentication.login.validation.passwordMinLength" xml:space="preserve"><value>La contraseña debe tener al menos 6 caracteres.</value></data>
+  <data name="authentication.forgotPassword.title" xml:space="preserve"><value>Recuperar Contraseña</value></data>
+  <data name="authentication.forgotPassword.subtitle" xml:space="preserve"><value>Ingresa tu correo registrado y enviaremos instrucciones para restablecer tu contraseña.</value></data>
+  <data name="authentication.forgotPassword.emailPlaceholder" xml:space="preserve"><value>tu.email@empresa.com</value></data>
+  <data name="authentication.forgotPassword.submit" xml:space="preserve"><value>Enviar correo</value></data>
+  <data name="authentication.forgotPassword.backToLogin" xml:space="preserve"><value>Volver al Login</value></data>
+  <data name="authentication.forgotPassword.successTitle" xml:space="preserve"><value>¡Correo enviado!</value></data>
+  <data name="authentication.forgotPassword.successDescription" xml:space="preserve"><value>Enviamos las instrucciones de recuperación al correo:</value></data>
+  <data name="authentication.forgotPassword.successHint" xml:space="preserve"><value>Revisa tu bandeja de entrada y sigue las instrucciones del correo para crear una nueva contraseña. El enlace expira en 24 horas.</value></data>
+  <data name="authentication.forgotPassword.resend" xml:space="preserve"><value>Reenviar correo</value></data>
+  <data name="authentication.forgotPassword.rememberedPassword" xml:space="preserve"><value>¿Recordaste tu contraseña?</value></data>
+  <data name="authentication.forgotPassword.loginLink" xml:space="preserve"><value>Inicia sesión</value></data>
+  <data name="authentication.forgotPassword.validation.emailRequired" xml:space="preserve"><value>Por favor, ingresa tu correo electrónico.</value></data>
+  <data name="authentication.forgotPassword.validation.emailInvalid" xml:space="preserve"><value>Por favor, ingresa un correo electrónico válido.</value></data>
+  <data name="authentication.forgotPassword.toast.sent" xml:space="preserve"><value>Correo de recuperación enviado correctamente.</value></data>
+  <data name="authentication.forgotPassword.toast.error" xml:space="preserve"><value>Error al enviar el correo de recuperación.</value></data>
+  <data name="authentication.systemCenter.title" xml:space="preserve"><value>Centro de Sistemas</value></data>
+  <data name="authentication.systemCenter.greeting" xml:space="preserve"><value>Hola, {0}</value></data>
+  <data name="authentication.systemCenter.subtitle" xml:space="preserve"><value>Selecciona qué sistema deseas acceder</value></data>
+  <data name="authentication.systemCenter.searchPlaceholder" xml:space="preserve"><value>Buscar sistemas...</value></data>
+  <data name="authentication.systemCenter.emptyFiltered" xml:space="preserve"><value>No se encontró ningún sistema con ese término.</value></data>
+  <data name="authentication.systemCenter.empty" xml:space="preserve"><value>No hay sistemas disponibles.</value></data>
+  <data name="dashboard.title" xml:space="preserve"><value>Identity Access Management</value></data>
+  <data name="dashboard.subtitle" xml:space="preserve"><value>Sistema de gestión de identidad y acceso con autenticación, autorización y soporte para aplicaciones multi-tenant.</value></data>
+  <data name="dashboard.kpi.activeUsers" xml:space="preserve"><value>Usuarios Activos</value></data>
+  <data name="dashboard.kpi.activeContracts" xml:space="preserve"><value>Contratos Activos</value></data>
+  <data name="dashboard.kpi.companies" xml:space="preserve"><value>Empresas</value></data>
+  <data name="dashboard.kpi.systems" xml:space="preserve"><value>Sistemas</value></data>
+  <data name="dashboard.topSystems.title" xml:space="preserve"><value>Sistemas Más Usados</value></data>
+  <data name="dashboard.topSystems.empty" xml:space="preserve"><value>No hay datos disponibles.</value></data>
+  <data name="dashboard.activeSessions.title" xml:space="preserve"><value>Sesiones Activas</value></data>
+  <data name="dashboard.activeSessions.summary" xml:space="preserve"><value>Sesiones activas en el sistema</value></data>
+  <data name="dashboard.activeSessions.viewAll" xml:space="preserve"><value>Ver Todas las Sesiones</value></data>
+  <data name="dashboard.activeSessions.searchPlaceholder" xml:space="preserve"><value>Buscar por nombre, correo, empresa o sistema...</value></data>
+  <data name="dashboard.activeSessions.revokeAll" xml:space="preserve"><value>Revocar Todas</value></data>
+  <data name="dashboard.activeSessions.sessionMeta" xml:space="preserve"><value>IP: {0} - Creado: {1} - Expira: {2}</value></data>
+  <data name="dashboard.activeSessions.empty" xml:space="preserve"><value>No hay sesiones activas.</value></data>
+  <data name="dashboard.confirm.revokeSessionTitle" xml:space="preserve"><value>Revocar Sesión</value></data>
+  <data name="dashboard.confirm.revokeSessionDescription" xml:space="preserve"><value>¿Seguro que deseas revocar esta sesión? Esta acción no se puede deshacer.</value></data>
+  <data name="dashboard.confirm.revokeAllTitle" xml:space="preserve"><value>Revocar Todas las Sesiones</value></data>
+  <data name="dashboard.confirm.revokeAllDescription" xml:space="preserve"><value>¿Seguro que deseas revocar todas las sesiones activas? Esta acción no se puede deshacer y todos los usuarios serán desconectados.</value></data>
+  <data name="company.field.legalName" xml:space="preserve"><value>Razón social</value></data>
+  <data name="company.field.tradeName" xml:space="preserve"><value>Nombre de fantasía</value></data>
+  <data name="company.field.document" xml:space="preserve"><value>CUIT/CNPJ</value></data>
+  <data name="company.list.title" xml:space="preserve"><value>Empresas</value></data>
+  <data name="company.list.subtitle" xml:space="preserve"><value>Registra y mantiene las organizaciones vinculadas a Identity Management.</value></data>
+  <data name="company.list.searchPlaceholder" xml:space="preserve"><value>Buscar por nombre, fantasía, correo o documento</value></data>
+  <data name="company.list.filterLabel" xml:space="preserve"><value>Filtrar empresas</value></data>
+  <data name="company.list.toast.deleted" xml:space="preserve"><value>Empresa eliminada correctamente.</value></data>
+  <data name="company.list.validation.selectOneToEdit" xml:space="preserve"><value>Selecciona una empresa para editar.</value></data>
+  <data name="company.list.validation.selectOnlyOneToEdit" xml:space="preserve"><value>Selecciona solo una empresa para editar.</value></data>
+  <data name="company.list.validation.selectToDelete" xml:space="preserve"><value>Selecciona una o más empresas para eliminar.</value></data>
+  <data name="company.list.confirmDeleteSingle" xml:space="preserve"><value>¿Deseas eliminar la empresa "{0}"?</value></data>
+  <data name="company.list.confirmDeleteMultiple" xml:space="preserve"><value>¿Deseas eliminar {0} empresas seleccionadas?</value></data>
+  <data name="company.preview.documentNotProvided" xml:space="preserve"><value>Documento no informado</value></data>
+  <data name="company.preview.description" xml:space="preserve"><value>Datos registrales e información de contacto de la empresa seleccionada.</value></data>
+  <data name="company.preview.registrationTitle" xml:space="preserve"><value>Datos registrales</value></data>
+  <data name="company.preview.registrationDescription" xml:space="preserve"><value>Identificación principal de la empresa</value></data>
+  <data name="company.preview.contactTitle" xml:space="preserve"><value>Contacto</value></data>
+  <data name="company.preview.contactDescription" xml:space="preserve"><value>Canales principales de la empresa</value></data>
+  <data name="company.form.toast.updated" xml:space="preserve"><value>Empresa actualizada correctamente.</value></data>
+  <data name="company.form.toast.created" xml:space="preserve"><value>Empresa creada correctamente.</value></data>
+  <data name="company.form.editTitle" xml:space="preserve"><value>Editar Empresa</value></data>
+  <data name="company.form.createTitle" xml:space="preserve"><value>Nueva Empresa</value></data>
+  <data name="contract.field.company" xml:space="preserve"><value>Empresa</value></data>
+  <data name="contract.field.systemApplication" xml:space="preserve"><value>Sistema</value></data>
+  <data name="contract.list.title" xml:space="preserve"><value>Contratos</value></data>
+  <data name="contract.list.subtitle" xml:space="preserve"><value>Gestiona vigencia, credenciales y configuración de acceso entre empresa y sistema.</value></data>
+  <data name="contract.list.searchPlaceholder" xml:space="preserve"><value>Buscar por empresa, sistema o client id</value></data>
+  <data name="contract.list.filterLabel" xml:space="preserve"><value>Filtrar contratos</value></data>
+  <data name="contract.list.toast.activated" xml:space="preserve"><value>Contrato activado correctamente.</value></data>
+  <data name="contract.list.toast.inactivated" xml:space="preserve"><value>Contrato inactivado correctamente.</value></data>
+  <data name="contract.list.validation.selectToEdit" xml:space="preserve"><value>Selecciona un contrato para editar.</value></data>
+  <data name="contract.list.validation.selectToToggle" xml:space="preserve"><value>Selecciona un contrato para activar o inactivar.</value></data>
+  <data name="contract.list.confirmActivateTitle" xml:space="preserve"><value>Confirmar Activación</value></data>
+  <data name="contract.list.confirmInactivateTitle" xml:space="preserve"><value>Confirmar Inactivación</value></data>
+  <data name="contract.list.confirmActivateDescription" xml:space="preserve"><value>¿Deseas activar el contrato entre "{0}" y "{1}"?</value></data>
+  <data name="contract.list.confirmInactivateDescription" xml:space="preserve"><value>¿Deseas inactivar el contrato entre "{0}" y "{1}"?</value></data>
+  <data name="contract.list.confirmActivateDescriptionFallback" xml:space="preserve"><value>¿Deseas activar este contrato?</value></data>
+  <data name="contract.list.confirmInactivateDescriptionFallback" xml:space="preserve"><value>¿Deseas inactivar este contrato?</value></data>
+  <data name="contract.preview.title" xml:space="preserve"><value>Vista previa del contrato</value></data>
+  <data name="contract.preview.subtitle" xml:space="preserve"><value>Visualización rápida del contrato seleccionado, con identificación y vigencia.</value></data>
+  <data name="contract.preview.clientId" xml:space="preserve"><value>Client ID</value></data>
+  <data name="contract.preview.accessToken" xml:space="preserve"><value>Access Token</value></data>
+  <data name="contract.preview.refreshToken" xml:space="preserve"><value>Refresh Token</value></data>
+  <data name="contract.form.toast.loadCompaniesError" xml:space="preserve"><value>Error al cargar empresas.</value></data>
+  <data name="contract.form.toast.loadSystemsError" xml:space="preserve"><value>Error al cargar sistemas.</value></data>
+  <data name="contract.form.toast.updated" xml:space="preserve"><value>Contrato actualizado correctamente.</value></data>
+  <data name="contract.form.toast.created" xml:space="preserve"><value>Contrato creado correctamente.</value></data>
+  <data name="contract.form.editTitle" xml:space="preserve"><value>Editar Contrato</value></data>
+  <data name="contract.form.createTitle" xml:space="preserve"><value>Nuevo Contrato</value></data>
+  <data name="contract.form.companyPlaceholder" xml:space="preserve"><value>Selecciona una empresa</value></data>
+  <data name="contract.form.companySearchPlaceholder" xml:space="preserve"><value>Buscar empresa...</value></data>
+  <data name="contract.form.systemPlaceholder" xml:space="preserve"><value>Selecciona un sistema</value></data>
+  <data name="contract.form.systemSearchPlaceholder" xml:space="preserve"><value>Buscar sistema...</value></data>
+  <data name="contract.form.accessTokenLifetime" xml:space="preserve"><value>Duración del Access Token (segundos)</value></data>
+  <data name="contract.form.refreshTokenLifetime" xml:space="preserve"><value>Duración del Refresh Token (segundos)</value></data>
+  <data name="contract.form.activeLabel" xml:space="preserve"><value>Contrato Activo</value></data>
+  <data name="role.field.isRoot" xml:space="preserve"><value>Super Usuario</value></data>
+  <data name="role.field.isDefault" xml:space="preserve"><value>Predeterminado</value></data>
+  <data name="role.list.title" xml:space="preserve"><value>Perfiles de Permiso</value></data>
+  <data name="role.list.subtitle" xml:space="preserve"><value>Define perfiles de acceso y comportamiento predeterminado por contrato.</value></data>
+  <data name="role.list.contractLabel" xml:space="preserve"><value>Contrato (Empresa - Sistema)</value></data>
+  <data name="role.list.contractPlaceholder" xml:space="preserve"><value>Selecciona un contrato para listar perfiles</value></data>
+  <data name="role.list.contractSearchPlaceholder" xml:space="preserve"><value>Buscar contrato...</value></data>
+  <data name="role.list.emptyWithoutContract" xml:space="preserve"><value>Selecciona un contrato para visualizar los perfiles de permiso.</value></data>
+  <data name="role.list.toast.deleted" xml:space="preserve"><value>Perfil eliminado correctamente.</value></data>
+  <data name="role.list.validation.selectContractFirst" xml:space="preserve"><value>Selecciona un contrato primero.</value></data>
+  <data name="role.list.validation.selectOneToEdit" xml:space="preserve"><value>Selecciona un perfil para editar.</value></data>
+  <data name="role.list.validation.selectOnlyOneToEdit" xml:space="preserve"><value>Selecciona solo un perfil para editar.</value></data>
+  <data name="role.list.validation.selectToDelete" xml:space="preserve"><value>Selecciona uno o más perfiles para eliminar.</value></data>
+  <data name="role.list.confirmDeleteSingle" xml:space="preserve"><value>¿Deseas eliminar el perfil "{0}"?</value></data>
+  <data name="role.list.confirmDeleteMultiple" xml:space="preserve"><value>¿Deseas eliminar {0} perfiles seleccionados?</value></data>
+  <data name="role.form.toast.updated" xml:space="preserve"><value>Perfil actualizado correctamente.</value></data>
+  <data name="role.form.toast.created" xml:space="preserve"><value>Perfil creado correctamente.</value></data>
+  <data name="role.form.editTitle" xml:space="preserve"><value>Editar Perfil</value></data>
+  <data name="role.form.createTitle" xml:space="preserve"><value>Nuevo Perfil</value></data>
+  <data name="role.form.nameLabel" xml:space="preserve"><value>Nombre del Perfil</value></data>
+  <data name="role.form.namePlaceholder" xml:space="preserve"><value>Ingresa el nombre del perfil</value></data>
+  <data name="role.form.descriptionPlaceholder" xml:space="preserve"><value>Ingresa una descripción para el perfil</value></data>
+  <data name="role.form.contractPlaceholder" xml:space="preserve"><value>Selecciona un contrato</value></data>
+  <data name="role.form.contractSearchPlaceholder" xml:space="preserve"><value>Buscar contrato...</value></data>
+  <data name="role.form.defaultLabel" xml:space="preserve"><value>Perfil Predeterminado</value></data>
+  <data name="role.form.permissionsTitle" xml:space="preserve"><value>Selección por recurso</value></data>
+  <data name="role.form.permissionsDescription" xml:space="preserve"><value>Elige los permisos en una pantalla dedicada, agrupados por recurso y endpoint.</value></data>
+  <data name="rolePermissions.title" xml:space="preserve"><value>Seleccionar permisos</value></data>
+  <data name="rolePermissions.catalogTitle" xml:space="preserve"><value>Catálogo de recursos</value></data>
+  <data name="rolePermissions.catalogDescription" xml:space="preserve"><value>Selecciona los recursos a los que este perfil podrá acceder. El catálogo se carga desde el backend y Archon lo sincroniza según los endpoints protegidos.</value></data>
+  <data name="rolePermissions.searchLabel" xml:space="preserve"><value>Buscar permisos</value></data>
+  <data name="rolePermissions.searchPlaceholder" xml:space="preserve"><value>Buscar por recurso, controller, acción o ruta</value></data>
+  <data name="rolePermissions.emptyTitle" xml:space="preserve"><value>No se encontraron recursos</value></data>
+  <data name="rolePermissions.emptyDescription" xml:space="preserve"><value>Ajusta el término de búsqueda para localizar los recursos deseados.</value></data>
+  <data name="rolePermissions.selectGroup" xml:space="preserve"><value>Seleccionar grupo</value></data>
+  <data name="rolePermissions.groupDescription" xml:space="preserve"><value>Recursos protegidos del controller {0}.</value></data>
+  <data name="systemApplication.field.audience" xml:space="preserve"><value>Audience</value></data>
+  <data name="systemApplication.field.redirectUris" xml:space="preserve"><value>Redirect URIs</value></data>
+  <data name="systemApplication.list.title" xml:space="preserve"><value>Sistemas</value></data>
+  <data name="systemApplication.list.subtitle" xml:space="preserve"><value>Gestiona aplicaciones integradas y sus configuraciones de autenticación.</value></data>
+  <data name="systemApplication.list.toast.deleted" xml:space="preserve"><value>Sistema eliminado correctamente.</value></data>
+  <data name="systemApplication.list.validation.selectOneToEdit" xml:space="preserve"><value>Selecciona un sistema para editar.</value></data>
+  <data name="systemApplication.list.validation.selectOnlyOneToEdit" xml:space="preserve"><value>Selecciona solo un sistema para editar.</value></data>
+  <data name="systemApplication.list.validation.selectToDelete" xml:space="preserve"><value>Selecciona uno o más sistemas para eliminar.</value></data>
+  <data name="systemApplication.list.confirmDeleteSingle" xml:space="preserve"><value>¿Deseas eliminar el sistema "{0}"?</value></data>
+  <data name="systemApplication.list.confirmDeleteMultiple" xml:space="preserve"><value>¿Deseas eliminar {0} sistemas seleccionados?</value></data>
+  <data name="systemApplication.preview.audienceNotProvided" xml:space="preserve"><value>Audience no informada</value></data>
+  <data name="systemApplication.preview.description" xml:space="preserve"><value>Configuraciones principales y metadatos del sistema seleccionado.</value></data>
+  <data name="systemApplication.preview.configurationTitle" xml:space="preserve"><value>Configuración</value></data>
+  <data name="systemApplication.preview.configurationDescription" xml:space="preserve"><value>Identificación y estado del sistema</value></data>
+  <data name="systemApplication.preview.endpointsTitle" xml:space="preserve"><value>Endpoints</value></data>
+  <data name="systemApplication.preview.endpointsDescription" xml:space="preserve"><value>URIs de retorno configuradas</value></data>
+  <data name="systemApplication.form.toast.updated" xml:space="preserve"><value>Sistema actualizado correctamente.</value></data>
+  <data name="systemApplication.form.toast.created" xml:space="preserve"><value>Sistema creado correctamente.</value></data>
+  <data name="systemApplication.form.editTitle" xml:space="preserve"><value>Editar Sistema</value></data>
+  <data name="systemApplication.form.createTitle" xml:space="preserve"><value>Nuevo Sistema</value></data>
+  <data name="systemRoleTemplate.list.title" xml:space="preserve"><value>Plantillas de Perfiles</value></data>
+  <data name="systemRoleTemplate.list.subtitle" xml:space="preserve"><value>Configura los perfiles base de cada aplicación para replicarlos automáticamente en nuevos contratos.</value></data>
+  <data name="systemRoleTemplate.list.systemLabel" xml:space="preserve"><value>Sistema</value></data>
+  <data name="systemRoleTemplate.list.systemPlaceholder" xml:space="preserve"><value>Selecciona un sistema para listar perfiles predeterminados</value></data>
+  <data name="systemRoleTemplate.list.systemSearchPlaceholder" xml:space="preserve"><value>Buscar sistema...</value></data>
+  <data name="systemRoleTemplate.list.emptyWithoutSystem" xml:space="preserve"><value>Selecciona un sistema para ver las plantillas de perfiles.</value></data>
+  <data name="systemRoleTemplate.list.validation.selectSystemFirst" xml:space="preserve"><value>Selecciona un sistema primero.</value></data>
+  <data name="systemRoleTemplate.list.validation.selectOneToEdit" xml:space="preserve"><value>Selecciona un perfil predeterminado para editar.</value></data>
+  <data name="systemRoleTemplate.list.validation.selectOnlyOneToEdit" xml:space="preserve"><value>Selecciona solo un perfil predeterminado para editar.</value></data>
+  <data name="systemRoleTemplate.preview.description" xml:space="preserve"><value>Plantilla aplicada automáticamente cuando se crea un nuevo contrato para esta aplicación.</value></data>
+  <data name="systemRoleTemplate.preview.contextTitle" xml:space="preserve"><value>Contexto</value></data>
+  <data name="systemRoleTemplate.preview.contextDescription" xml:space="preserve"><value>Identificación y comportamiento de la plantilla</value></data>
+  <data name="systemRoleTemplate.preview.resourcesTitle" xml:space="preserve"><value>Recursos vinculados</value></data>
+  <data name="systemRoleTemplate.preview.resourcesDescription" xml:space="preserve"><value>Permisos que se copiarán a los perfiles generados en el contrato</value></data>
+  <data name="systemRoleTemplate.preview.emptyResources" xml:space="preserve"><value>No hay permisos vinculados a este perfil predeterminado.</value></data>
+  <data name="systemRoleTemplate.form.toast.updated" xml:space="preserve"><value>Perfil predeterminado actualizado correctamente.</value></data>
+  <data name="systemRoleTemplate.form.toast.created" xml:space="preserve"><value>Perfil predeterminado creado correctamente.</value></data>
+  <data name="systemRoleTemplate.form.editTitle" xml:space="preserve"><value>Editar Plantilla de Perfil</value></data>
+  <data name="systemRoleTemplate.form.createTitle" xml:space="preserve"><value>Nueva Plantilla de Perfil</value></data>
+  <data name="systemRoleTemplate.form.systemPlaceholder" xml:space="preserve"><value>Selecciona un sistema</value></data>
+  <data name="systemRoleTemplate.form.systemSearchPlaceholder" xml:space="preserve"><value>Buscar sistema...</value></data>
+  <data name="systemRoleTemplate.form.defaultLabel" xml:space="preserve"><value>Plantilla Predeterminada</value></data>
+  <data name="systemRoleTemplate.form.permissionsTitle" xml:space="preserve"><value>Selección por recurso</value></data>
+  <data name="systemRoleTemplate.form.permissionsDescription" xml:space="preserve"><value>Elige los permisos predeterminados que se copiarán a los nuevos contratos de esta aplicación.</value></data>
+  <data name="userRole.field.user" xml:space="preserve"><value>Usuario</value></data>
+  <data name="userRole.field.role" xml:space="preserve"><value>Perfil</value></data>
+  <data name="userRole.field.assignedAt" xml:space="preserve"><value>Fecha de Vinculación</value></data>
+  <data name="userRole.list.title" xml:space="preserve"><value>Vincular Usuarios</value></data>
+  <data name="userRole.list.subtitle" xml:space="preserve"><value>Asocia usuarios a los perfiles disponibles en cada contrato.</value></data>
+  <data name="userRole.list.contractLabel" xml:space="preserve"><value>Contrato (Empresa - Sistema)</value></data>
+  <data name="userRole.list.contractPlaceholder" xml:space="preserve"><value>Selecciona un contrato para listar vinculaciones</value></data>
+  <data name="userRole.list.contractSearchPlaceholder" xml:space="preserve"><value>Buscar contrato...</value></data>
+  <data name="userRole.list.emptyWithoutContract" xml:space="preserve"><value>Selecciona un contrato para ver las vinculaciones de usuarios.</value></data>
+  <data name="userRole.list.toast.inactivated" xml:space="preserve"><value>Vinculación inactivada correctamente.</value></data>
+  <data name="userRole.list.toast.reactivated" xml:space="preserve"><value>Vinculación reactivada correctamente.</value></data>
+  <data name="userRole.list.validation.selectContractFirst" xml:space="preserve"><value>Selecciona un contrato primero.</value></data>
+  <data name="userRole.list.validation.selectToInactivate" xml:space="preserve"><value>Selecciona una o más vinculaciones para inactivar.</value></data>
+  <data name="userRole.list.validation.selectToReactivate" xml:space="preserve"><value>Selecciona una o más vinculaciones para reactivar.</value></data>
+  <data name="userRole.list.confirmInactivateTitle" xml:space="preserve"><value>Confirmar Inactivación</value></data>
+  <data name="userRole.list.confirmInactivateSingle" xml:space="preserve"><value>¿Deseas inactivar la vinculación del usuario "{0}" con el perfil "{1}"?</value></data>
+  <data name="userRole.list.confirmInactivateMultiple" xml:space="preserve"><value>¿Deseas inactivar {0} vinculaciones seleccionadas?</value></data>
+  <data name="userRole.form.toast.created" xml:space="preserve"><value>Usuario vinculado al perfil correctamente.</value></data>
+  <data name="userRole.form.title" xml:space="preserve"><value>Vincular Usuario al Perfil</value></data>
+  <data name="userRole.form.userPlaceholder" xml:space="preserve"><value>Selecciona un usuario</value></data>
+  <data name="userRole.form.userSearchPlaceholder" xml:space="preserve"><value>Buscar usuario...</value></data>
+  <data name="userRole.form.rolePlaceholder" xml:space="preserve"><value>Selecciona un perfil</value></data>
+  <data name="userRole.form.roleSearchPlaceholder" xml:space="preserve"><value>Buscar perfil...</value></data>
+  <data name="user.field.username" xml:space="preserve"><value>Nombre de usuario</value></data>
+  <data name="user.field.fullName" xml:space="preserve"><value>Nombre completo</value></data>
+  <data name="user.field.lastLoginAt" xml:space="preserve"><value>Último acceso</value></data>
+  <data name="user.field.createdAt" xml:space="preserve"><value>Fecha de creación</value></data>
+  <data name="user.field.createdAtLabel" xml:space="preserve"><value>Creado en</value></data>
+  <data name="user.list.title" xml:space="preserve"><value>Usuarios</value></data>
+  <data name="user.list.subtitle" xml:space="preserve"><value>Gestiona cuentas, estado de acceso e información básica de los usuarios.</value></data>
+  <data name="user.list.searchPlaceholder" xml:space="preserve"><value>Buscar por usuario, nombre o correo</value></data>
+  <data name="user.list.filterLabel" xml:space="preserve"><value>Filtrar usuarios</value></data>
+  <data name="user.list.toast.deleted" xml:space="preserve"><value>Usuario eliminado correctamente.</value></data>
+  <data name="user.list.validation.selectOneToEdit" xml:space="preserve"><value>Selecciona un usuario para editar.</value></data>
+  <data name="user.list.validation.selectOnlyOneToEdit" xml:space="preserve"><value>Selecciona solo un usuario para editar.</value></data>
+  <data name="user.list.validation.selectToDelete" xml:space="preserve"><value>Selecciona uno o más usuarios para eliminar.</value></data>
+  <data name="user.list.confirmDeleteSingle" xml:space="preserve"><value>¿Deseas eliminar el usuario "{0}"?</value></data>
+  <data name="user.list.confirmDeleteMultiple" xml:space="preserve"><value>¿Deseas eliminar {0} usuarios seleccionados?</value></data>
+  <data name="user.preview.description" xml:space="preserve"><value>Datos de acceso y actividad del usuario seleccionado.</value></data>
+  <data name="user.preview.accessTitle" xml:space="preserve"><value>Acceso</value></data>
+  <data name="user.preview.accessDescription" xml:space="preserve"><value>Identificación y estado del usuario</value></data>
+  <data name="user.preview.activityTitle" xml:space="preserve"><value>Actividad</value></data>
+  <data name="user.preview.activityDescription" xml:space="preserve"><value>Fechas principales de uso y alta</value></data>
+  <data name="user.form.toast.updated" xml:space="preserve"><value>Usuario actualizado correctamente.</value></data>
+  <data name="user.form.toast.created" xml:space="preserve"><value>Usuario creado correctamente.</value></data>
+  <data name="user.form.editTitle" xml:space="preserve"><value>Editar Usuario</value></data>
+  <data name="user.form.createTitle" xml:space="preserve"><value>Nuevo Usuario</value></data>
+  <data name="user.form.newPasswordLabel" xml:space="preserve"><value>Nueva Contraseña (dejar vacío para mantener la actual)</value></data>
+  <data name="user.form.activeLabel" xml:space="preserve"><value>Usuario Activo</value></data>
 </root>

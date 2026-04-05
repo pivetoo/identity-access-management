@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { PageLayout, DataTable, Badge, Button, ConfirmModal, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, toast, useApi } from 'archon-ui';
+import { PageLayout, DataTable, Badge, Button, ConfirmModal, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, toast, useApi, useI18n } from 'archon-ui';
 import type { DataTableColumn, PaginatedResult } from 'archon-ui';
 import { SystemApplicationService } from '../../../services/systemApplicationService';
 import type { SystemApplication } from '../../../types/systemApplication';
 import SystemApplicationFormModal from '../../../components/modals/SystemApplicationFormModal';
 
 export default function SystemApplications() {
+  const { t } = useI18n()
   const [selectedSistemas, setSelectedSistemas] = useState<SystemApplication[]>([]);
   const [previewSistema, setPreviewSistema] = useState<SystemApplication | null>(null);
   const [sistemas, setSistemas] = useState<SystemApplication[]>([]);
@@ -33,8 +34,8 @@ export default function SystemApplications() {
     onSuccess: () => {
       toast({
         variant: 'success',
-        title: 'Sucesso',
-        description: 'SystemApplication excluido com sucesso',
+        title: t('common.toast.successTitle'),
+        description: t('systemApplication.list.toast.deleted'),
       });
       loadSistemas(true);
       setSelectedSistemas([]);
@@ -82,16 +83,16 @@ export default function SystemApplications() {
     if (selectedSistemas.length === 0) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione um sistema para editar',
+        title: t('common.toast.warningTitle'),
+        description: t('systemApplication.list.validation.selectOneToEdit'),
       });
       return;
     }
     if (selectedSistemas.length > 1) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione apenas um sistema para editar',
+        title: t('common.toast.warningTitle'),
+        description: t('systemApplication.list.validation.selectOnlyOneToEdit'),
       });
       return;
     }
@@ -103,8 +104,8 @@ export default function SystemApplications() {
     if (selectedSistemas.length === 0) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione um ou mais sistemas para excluir',
+        title: t('common.toast.warningTitle'),
+        description: t('systemApplication.list.validation.selectToDelete'),
       });
       return;
     }
@@ -124,28 +125,28 @@ export default function SystemApplications() {
   const columns: DataTableColumn<SystemApplication>[] = [
     {
       key: 'name',
-      title: 'Nome',
+      title: t('common.column.name'),
       dataIndex: 'name',
       sortable: true,
     },
     {
       key: 'description',
-      title: 'Descrição',
+      title: t('common.field.description'),
       dataIndex: 'description',
-      render: (value: string) => value || '-'
+      render: (value: string) => value || t('common.value.notAvailable')
     },
     {
       key: 'audience',
-      title: 'Audience',
+      title: t('systemApplication.field.audience'),
       dataIndex: 'audience',
     },
     {
       key: 'isActive',
-      title: 'Status',
+      title: t('common.column.status'),
       dataIndex: 'isActive',
       render: (value: boolean) => (
         <Badge variant={value ? 'success' : 'destructive'}>
-          {value ? 'Ativo' : 'Inativo'}
+          {value ? t('common.status.active') : t('common.status.inactive')}
         </Badge>
       )
     },
@@ -168,8 +169,8 @@ export default function SystemApplications() {
   return (
     <>
       <PageLayout
-        title="Sistemas"
-        subtitle="Gerencie aplicações integradas e suas configurações de autenticação."
+        title={t('systemApplication.list.title')}
+        subtitle={t('systemApplication.list.subtitle')}
         onAdd={handleAddSistema}
         onEdit={handleEditSistema}
         onDelete={handleDeleteSistema}
@@ -194,7 +195,7 @@ export default function SystemApplications() {
               onClick={loadMoreSistemas}
               loading={loadMoreSistemasApi.isLoading}
             >
-              Carregar mais
+              {t('common.action.loadMore')}
             </Button>
           </div>
         )}
@@ -210,13 +211,13 @@ export default function SystemApplications() {
           open={isConfirmDeleteOpen}
           onOpenChange={(open) => setIsConfirmDeleteOpen(open)}
           onConfirm={handleConfirmDelete}
-          title="Confirmar Exclusão"
+          title={t('common.confirm.deleteTitle')}
           description={
             selectedSistemas.length === 1
-              ? `Deseja excluir o sistema "${selectedSistemas[0]?.name}"?`
-              : `Deseja excluir ${selectedSistemas.length} sistemas selecionados?`
+              ? t('systemApplication.list.confirmDeleteSingle').replace('{0}', selectedSistemas[0]?.name ?? '')
+              : t('systemApplication.list.confirmDeleteMultiple').replace('{0}', String(selectedSistemas.length))
           }
-          confirmText="Excluir"
+          confirmText={t('common.action.delete')}
           variant="danger"
           loading={deleteSistemaApi.isLoading}
         />
@@ -231,34 +232,34 @@ export default function SystemApplications() {
                 meta={
                   <>
                     <Badge variant={previewSistema.isActive ? 'success' : 'destructive'}>
-                      {previewSistema.isActive ? 'Ativo' : 'Inativo'}
+                      {previewSistema.isActive ? t('common.status.active') : t('common.status.inactive')}
                     </Badge>
                     <span className="text-xs font-medium text-muted-foreground">
-                      {previewSistema.audience || 'Audience não informado'}
+                      {previewSistema.audience || t('systemApplication.preview.audienceNotProvided')}
                     </span>
                   </>
                 }
-                description="Configurações principais e metadados do sistema selecionado."
+                description={t('systemApplication.preview.description')}
               />
 
               <div className="mt-6 flex-1 space-y-4 overflow-y-auto">
-                <SheetPreviewSection title="Configuração" description="Identificação e estado do sistema">
+                <SheetPreviewSection title={t('systemApplication.preview.configurationTitle')} description={t('systemApplication.preview.configurationDescription')}>
                   <SheetPreviewGrid>
-                    <SheetPreviewField label="Audience" value={previewSistema.audience || '-'} />
+                    <SheetPreviewField label={t('systemApplication.field.audience')} value={previewSistema.audience || t('common.value.notAvailable')} />
                     <SheetPreviewField
-                      label="Situação"
+                      label={t('common.field.situation')}
                       value={
                         <Badge variant={previewSistema.isActive ? 'success' : 'destructive'}>
-                          {previewSistema.isActive ? 'Ativo' : 'Inativo'}
+                          {previewSistema.isActive ? t('common.status.active') : t('common.status.inactive')}
                         </Badge>
                       }
                     />
-                    <SheetPreviewField className="sm:col-span-2" label="Descrição" value={previewSistema.description || '-'} />
+                    <SheetPreviewField className="sm:col-span-2" label={t('common.field.description')} value={previewSistema.description || t('common.value.notAvailable')} />
                   </SheetPreviewGrid>
                 </SheetPreviewSection>
 
-                <SheetPreviewSection title="Endpoints" description="URIs de retorno configuradas">
-                  <SheetPreviewField label="Redirect URI" value={previewSistema.redirectUris || '-'} />
+                <SheetPreviewSection title={t('systemApplication.preview.endpointsTitle')} description={t('systemApplication.preview.endpointsDescription')}>
+                  <SheetPreviewField label={t('systemApplication.field.redirectUris')} value={previewSistema.redirectUris || t('common.value.notAvailable')} />
                 </SheetPreviewSection>
               </div>
 

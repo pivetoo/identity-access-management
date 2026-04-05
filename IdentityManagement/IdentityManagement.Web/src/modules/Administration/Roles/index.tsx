@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { PageLayout, DataTable, Button, ConfirmModal, toast, useApi, SearchableSelect } from 'archon-ui';
+import { PageLayout, DataTable, Button, ConfirmModal, toast, useApi, SearchableSelect, useI18n } from 'archon-ui';
 import type { DataTableColumn, PaginatedResult } from 'archon-ui';
 import { RoleService } from '../../../services/roleService';
 import { ContractService } from '../../../services/contractService';
@@ -8,6 +8,7 @@ import type { Contract } from '../../../types/contract';
 import RoleFormModal from '../../../components/modals/RoleFormModal';
 
 export default function Roles() {
+  const { t } = useI18n()
   const [selectedPerfis, setSelectedPerfis] = useState<Role[]>([]);
   const [perfis, setPerfis] = useState<Role[]>([]);
   const [contratos, setContratos] = useState<Contract[]>([]);
@@ -36,8 +37,8 @@ export default function Roles() {
     onSuccess: () => {
       toast({
         variant: 'success',
-        title: 'Sucesso',
-        description: 'Role excluido com sucesso',
+        title: t('common.toast.successTitle'),
+        description: t('role.list.toast.deleted'),
       });
       loadPerfis(true);
       setSelectedPerfis([]);
@@ -104,8 +105,8 @@ export default function Roles() {
     if (!selectedContratoId) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione um contrato primeiro',
+        title: t('common.toast.warningTitle'),
+        description: t('role.list.validation.selectContractFirst'),
       });
       return;
     }
@@ -117,16 +118,16 @@ export default function Roles() {
     if (selectedPerfis.length === 0) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione um perfil para editar',
+        title: t('common.toast.warningTitle'),
+        description: t('role.list.validation.selectOneToEdit'),
       });
       return;
     }
     if (selectedPerfis.length > 1) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione apenas um perfil para editar',
+        title: t('common.toast.warningTitle'),
+        description: t('role.list.validation.selectOnlyOneToEdit'),
       });
       return;
     }
@@ -138,8 +139,8 @@ export default function Roles() {
     if (selectedPerfis.length === 0) {
       toast({
         variant: 'warning',
-        title: 'Atenção',
-        description: 'Selecione um ou mais perfis para excluir',
+        title: t('common.toast.warningTitle'),
+        description: t('role.list.validation.selectToDelete'),
       });
       return;
     }
@@ -161,27 +162,27 @@ export default function Roles() {
   const columns: DataTableColumn<Role>[] = [
     {
       key: 'name',
-      title: 'Nome',
+      title: t('common.column.name'),
       dataIndex: 'name',
       sortable: false,
     },
     {
       key: 'description',
-      title: 'Descrição',
+      title: t('common.field.description'),
       dataIndex: 'description',
-      render: (value: string) => value || '-'
+      render: (value: string) => value || t('common.value.notAvailable')
     },
     {
       key: 'isRoot',
-      title: 'Super Usuário',
+      title: t('role.field.isRoot'),
       dataIndex: 'isRoot',
-      render: (value: boolean) => value ? 'Sim' : 'Não'
+      render: (value: boolean) => value ? t('common.boolean.yes') : t('common.boolean.no')
     },
     {
       key: 'isDefault',
-      title: 'Padrão',
+      title: t('role.field.isDefault'),
       dataIndex: 'isDefault',
-      render: (value: boolean) => value ? 'Sim' : 'Não'
+      render: (value: boolean) => value ? t('common.boolean.yes') : t('common.boolean.no')
     }
   ];
 
@@ -203,8 +204,8 @@ export default function Roles() {
 
   return (
     <PageLayout
-      title="Perfis de Permissão"
-      subtitle="Defina perfis de acesso e comportamento padrão por contrato."
+      title={t('role.list.title')}
+      subtitle={t('role.list.subtitle')}
       onAdd={handleAddPerfil}
       onEdit={handleEditPerfil}
       onDelete={handleDeletePerfil}
@@ -215,7 +216,7 @@ export default function Roles() {
         <div className="flex gap-4 items-end">
           <div className="flex-1 flex flex-col gap-2">
             <label className="text-sm font-medium">
-              Contract (Company - SystemApplication)
+              {t('role.list.contractLabel')}
             </label>
             <SearchableSelect
               options={contratos.map((contrato) => ({
@@ -224,8 +225,8 @@ export default function Roles() {
               }))}
               value={selectedContratoId?.toString()}
               onValueChange={handleContratoChange}
-              placeholder="Selecione um contrato para listar os perfis"
-              searchPlaceholder="Pesquisar contrato..."
+              placeholder={t('role.list.contractPlaceholder')}
+              searchPlaceholder={t('role.list.contractSearchPlaceholder')}
               disabled={loadContratosApi.isLoading}
             />
           </div>
@@ -251,14 +252,14 @@ export default function Roles() {
                 onClick={loadMorePerfis}
                 loading={loadMorePerfisApi.isLoading}
               >
-                Carregar mais
+                {t('common.action.loadMore')}
               </Button>
             </div>
           )}
         </>
       ) : (
         <div className="text-center py-12 text-muted-foreground">
-          <p>Selecione um contrato para visualizar os perfis de permissão.</p>
+          <p>{t('role.list.emptyWithoutContract')}</p>
         </div>
       )}
 
@@ -274,13 +275,13 @@ export default function Roles() {
         open={isConfirmDeleteOpen}
         onOpenChange={(open) => setIsConfirmDeleteOpen(open)}
         onConfirm={handleConfirmDelete}
-        title="Confirmar Exclusão"
+        title={t('common.confirm.deleteTitle')}
         description={
           selectedPerfis.length === 1
-            ? `Deseja excluir o perfil "${selectedPerfis[0]?.name}"?`
-            : `Deseja excluir ${selectedPerfis.length} perfis selecionados?`
+            ? t('role.list.confirmDeleteSingle').replace('{0}', selectedPerfis[0]?.name ?? '')
+            : t('role.list.confirmDeleteMultiple').replace('{0}', String(selectedPerfis.length))
         }
-        confirmText="Excluir"
+        confirmText={t('common.action.delete')}
         variant="danger"
         loading={deletePerfilApi.isLoading}
       />

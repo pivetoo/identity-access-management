@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Input, Button, Switch, useApi, toast, useFormErrors } from 'archon-ui';
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Input, Button, Switch, useApi, toast, useFormErrors, useI18n } from 'archon-ui';
 import { UserService } from '../../services/userService';
 import type { User, CreateUserRequest } from '../../types/user';
 
@@ -16,6 +16,7 @@ export default function UserFormModal({
   usuario,
   onSuccess
 }: UserFormModalProps) {
+  const { t } = useI18n()
   const { getError, setErrors, clearErrors } = useFormErrors();
   const [formData, setFormData] = useState({
     username: '',
@@ -29,8 +30,8 @@ export default function UserFormModal({
     onSuccess: () => {
       toast({
         variant: 'success',
-        title: 'Sucesso',
-        description: usuario ? 'Usuário atualizado com sucesso' : 'Usuário criado com sucesso',
+        title: t('common.toast.successTitle'),
+        description: usuario ? t('user.form.toast.updated') : t('user.form.toast.created'),
       });
       clearErrors();
       onSuccess();
@@ -40,7 +41,7 @@ export default function UserFormModal({
       setErrors(error);
       if (!error.errors) {
         toast({
-          title: 'Erro',
+          title: t('common.toast.errorTitle'),
           description: error.message,
           variant: 'destructive',
         });
@@ -109,14 +110,14 @@ export default function UserFormModal({
     <Modal open={isOpen} onOpenChange={onClose}>
       <ModalContent size="xl">
         <ModalHeader>
-          <ModalTitle>{usuario ? 'Editar Usuário' : 'Novo Usuário'}</ModalTitle>
+          <ModalTitle>{usuario ? t('user.form.editTitle') : t('user.form.createTitle')}</ModalTitle>
         </ModalHeader>
 
         <div className="flex flex-col gap-4 py-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">
-                Nome de Usuário <span className="text-destructive">*</span>
+                {t('user.field.username')} <span className="text-destructive">*</span>
               </label>
               <Input
                 value={formData.username}
@@ -127,7 +128,7 @@ export default function UserFormModal({
             </div>
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">
-                E-mail <span className="text-destructive">*</span>
+                {t('common.field.email')} <span className="text-destructive">*</span>
               </label>
               <Input
                 type="email"
@@ -140,7 +141,7 @@ export default function UserFormModal({
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Nome Completo</label>
+            <label className="text-sm font-medium">{t('user.field.fullName')}</label>
             <Input
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
@@ -151,7 +152,7 @@ export default function UserFormModal({
 
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">
-              {usuario ? "Nova Senha (deixe em branco para não alterar)" : "Senha"}
+              {usuario ? t('user.form.newPasswordLabel') : t('common.field.password')}
               {!usuario && <span className="text-destructive"> *</span>}
             </label>
             <Input
@@ -171,7 +172,7 @@ export default function UserFormModal({
                   onCheckedChange={(checked) => handleInputChange('isActive', checked)}
                 />
                 <label className="text-sm font-medium cursor-pointer">
-                  Usuário Ativo
+                  {t('user.form.activeLabel')}
                 </label>
               </div>
             </div>
@@ -184,7 +185,7 @@ export default function UserFormModal({
             onClick={onClose}
             disabled={saveUsuarioApi.isLoading}
           >
-            Cancelar
+            {t('common.action.cancel')}
           </Button>
           <Button
             variant="primary"
@@ -192,7 +193,7 @@ export default function UserFormModal({
             loading={saveUsuarioApi.isLoading}
             disabled={!isValid}
           >
-            {usuario ? 'Atualizar' : 'Criar'}
+            {usuario ? t('common.action.update') : t('common.action.create')}
           </Button>
         </ModalFooter>
       </ModalContent>

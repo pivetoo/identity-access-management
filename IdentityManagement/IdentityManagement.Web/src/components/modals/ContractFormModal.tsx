@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Input, Button, Switch, SearchableSelect, useApi, toast, useFormErrors } from 'archon-ui';
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Input, Button, Switch, SearchableSelect, useApi, toast, useFormErrors, useI18n } from 'archon-ui';
 import { ContractService } from '../../services/contractService';
 import { CompanyService } from '../../services/companyService';
 import { SystemApplicationService } from '../../services/systemApplicationService';
@@ -20,6 +20,7 @@ export default function ContractFormModal({
   contrato,
   onSuccess
 }: ContractFormModalProps) {
+  const { t } = useI18n()
   const { getError, setErrors, clearErrors } = useFormErrors();
   const [empresas, setEmpresas] = useState<Company[]>([]);
   const [sistemas, setSistemas] = useState<SystemApplication[]>([]);
@@ -39,8 +40,8 @@ export default function ContractFormModal({
     },
     onError: () => {
       toast({
-        title: 'Erro',
-        description: 'Erro ao carregar empresas',
+        title: t('common.toast.errorTitle'),
+        description: t('contract.form.toast.loadCompaniesError'),
         variant: 'destructive',
       });
     }
@@ -52,8 +53,8 @@ export default function ContractFormModal({
     },
     onError: () => {
       toast({
-        title: 'Erro',
-        description: 'Erro ao carregar sistemas',
+        title: t('common.toast.errorTitle'),
+        description: t('contract.form.toast.loadSystemsError'),
         variant: 'destructive',
       });
     }
@@ -63,8 +64,8 @@ export default function ContractFormModal({
     onSuccess: () => {
       toast({
         variant: 'success',
-        title: 'Sucesso',
-        description: contrato ? 'Contract atualizado com sucesso' : 'Contract criado com sucesso',
+        title: t('common.toast.successTitle'),
+        description: contrato ? t('contract.form.toast.updated') : t('contract.form.toast.created'),
       });
       clearErrors();
       onSuccess();
@@ -74,7 +75,7 @@ export default function ContractFormModal({
       setErrors(error);
       if (!error.errors) {
         toast({
-          title: 'Erro',
+          title: t('common.toast.errorTitle'),
           description: error.message,
           variant: 'destructive',
         });
@@ -150,14 +151,14 @@ export default function ContractFormModal({
     <Modal open={isOpen} onOpenChange={onClose}>
       <ModalContent size="2xl">
         <ModalHeader>
-          <ModalTitle>{contrato ? 'Editar Contract' : 'Novo Contract'}</ModalTitle>
+          <ModalTitle>{contrato ? t('contract.form.editTitle') : t('contract.form.createTitle')}</ModalTitle>
         </ModalHeader>
 
         <div className="flex flex-col gap-4 py-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">
-                Company <span className="text-destructive">*</span>
+                {t('contract.field.company')} <span className="text-destructive">*</span>
               </label>
               <SearchableSelect
                 options={empresas.map((empresa) => ({
@@ -166,14 +167,14 @@ export default function ContractFormModal({
                 }))}
                 value={formData.companyId.toString()}
                 onValueChange={(value) => handleInputChange('companyId', parseInt(value))}
-                placeholder="Selecione uma empresa"
-                searchPlaceholder="Pesquisar empresa..."
+                placeholder={t('contract.form.companyPlaceholder')}
+                searchPlaceholder={t('contract.form.companySearchPlaceholder')}
                 disabled={!!contrato || loadEmpresasApi.isLoading}
               />
             </div>
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">
-                SystemApplication <span className="text-destructive">*</span>
+                {t('contract.field.systemApplication')} <span className="text-destructive">*</span>
               </label>
               <SearchableSelect
                 options={sistemas.map((sistema) => ({
@@ -182,8 +183,8 @@ export default function ContractFormModal({
                 }))}
                 value={formData.systemApplicationId.toString()}
                 onValueChange={(value) => handleInputChange('systemApplicationId', parseInt(value))}
-                placeholder="Selecione um sistema"
-                searchPlaceholder="Pesquisar sistema..."
+                placeholder={t('contract.form.systemPlaceholder')}
+                searchPlaceholder={t('contract.form.systemSearchPlaceholder')}
                 disabled={!!contrato || loadSistemasApi.isLoading}
               />
             </div>
@@ -192,7 +193,7 @@ export default function ContractFormModal({
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">
-                Data de Início <span className="text-destructive">*</span>
+                {t('common.field.startDate')} <span className="text-destructive">*</span>
               </label>
               <Input
                 type="date"
@@ -203,7 +204,7 @@ export default function ContractFormModal({
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Data de Término</label>
+              <label className="text-sm font-medium">{t('common.field.endDate')}</label>
               <Input
                 type="date"
                 value={formData.endDate}
@@ -217,7 +218,7 @@ export default function ContractFormModal({
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">
-                Duração do Access Token (segundos) <span className="text-destructive">*</span>
+                {t('contract.form.accessTokenLifetime')} <span className="text-destructive">*</span>
               </label>
               <Input
                 type="number"
@@ -229,7 +230,7 @@ export default function ContractFormModal({
             </div>
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">
-                Duração do Refresh Token (segundos) <span className="text-destructive">*</span>
+                {t('contract.form.refreshTokenLifetime')} <span className="text-destructive">*</span>
               </label>
               <Input
                 type="number"
@@ -248,7 +249,7 @@ export default function ContractFormModal({
                 onCheckedChange={(checked) => handleInputChange('isActive', checked)}
               />
               <label className="text-sm font-medium cursor-pointer">
-                Contract Ativo
+                {t('contract.form.activeLabel')}
               </label>
             </div>
           )}
@@ -260,7 +261,7 @@ export default function ContractFormModal({
             onClick={onClose}
             disabled={saveContratoApi.isLoading}
           >
-            Cancelar
+            {t('common.action.cancel')}
           </Button>
           <Button
             variant="primary"
@@ -268,7 +269,7 @@ export default function ContractFormModal({
             loading={saveContratoApi.isLoading}
             disabled={!isValid}
           >
-            {contrato ? 'Atualizar' : 'Criar'}
+            {contrato ? t('common.action.update') : t('common.action.create')}
           </Button>
         </ModalFooter>
       </ModalContent>

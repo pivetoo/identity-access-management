@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Input, Button, Switch, useApi, toast, useFormErrors } from 'archon-ui';
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Input, Button, Switch, useApi, toast, useFormErrors, useI18n } from 'archon-ui';
 import { CompanyService } from '../../services/companyService';
 import type { Company, CreateCompanyRequest, UpdateCompanyRequest } from '../../types/company';
 
@@ -16,6 +16,7 @@ export default function CompanyFormModal({
   company,
   onSuccess
 }: CompanyFormModalProps) {
+  const { t } = useI18n()
   const { getError, setErrors, clearErrors } = useFormErrors();
   const [formData, setFormData] = useState({
     legalName: '',
@@ -30,8 +31,8 @@ export default function CompanyFormModal({
     onSuccess: () => {
       toast({
         variant: 'success',
-        title: 'Sucesso',
-        description: company ? 'Company atualizada com sucesso' : 'Company criada com sucesso',
+        title: t('common.toast.successTitle'),
+        description: company ? t('company.form.toast.updated') : t('company.form.toast.created'),
       });
       clearErrors();
       onSuccess();
@@ -41,7 +42,7 @@ export default function CompanyFormModal({
       setErrors(error);
       if (!error.errors) {
         toast({
-          title: 'Erro',
+          title: t('common.toast.errorTitle'),
           description: error.message,
           variant: 'destructive',
         });
@@ -105,13 +106,13 @@ export default function CompanyFormModal({
     <Modal open={isOpen} onOpenChange={onClose}>
       <ModalContent size="xl">
         <ModalHeader>
-          <ModalTitle>{company ? 'Editar Company' : 'Nova Company'}</ModalTitle>
+          <ModalTitle>{company ? t('company.form.editTitle') : t('company.form.createTitle')}</ModalTitle>
         </ModalHeader>
 
         <div className="flex flex-col gap-4 py-4">
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">
-              Nome <span className="text-destructive">*</span>
+              {t('company.field.legalName')} <span className="text-destructive">*</span>
             </label>
             <Input
               value={formData.legalName}
@@ -122,7 +123,7 @@ export default function CompanyFormModal({
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Nome Fantasia</label>
+            <label className="text-sm font-medium">{t('company.field.tradeName')}</label>
             <Input
               value={formData.tradeName}
               onChange={(e) => handleInputChange('tradeName', e.target.value)}
@@ -133,7 +134,7 @@ export default function CompanyFormModal({
 
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">
-              CNPJ <span className="text-destructive">*</span>
+              {t('company.field.document')} <span className="text-destructive">*</span>
             </label>
             <Input
               value={formData.document}
@@ -145,7 +146,7 @@ export default function CompanyFormModal({
 
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">
-              E-mail <span className="text-destructive">*</span>
+              {t('common.field.email')} <span className="text-destructive">*</span>
             </label>
             <Input
               type="email"
@@ -157,7 +158,7 @@ export default function CompanyFormModal({
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Telefone</label>
+            <label className="text-sm font-medium">{t('common.field.phoneNumber')}</label>
             <Input
               value={formData.phoneNumber}
               onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
@@ -173,7 +174,7 @@ export default function CompanyFormModal({
                 onCheckedChange={(checked) => handleInputChange('isActive', checked)}
               />
               <label className="text-sm font-medium cursor-pointer">
-                Ativo
+                {t('common.status.active')}
               </label>
             </div>
           )}
@@ -185,7 +186,7 @@ export default function CompanyFormModal({
             onClick={onClose}
             disabled={saveEmpresaApi.isLoading}
           >
-            Cancelar
+            {t('common.action.cancel')}
           </Button>
           <Button
             variant="primary"
@@ -193,7 +194,7 @@ export default function CompanyFormModal({
             loading={saveEmpresaApi.isLoading}
             disabled={!isValid}
           >
-            {company ? 'Atualizar' : 'Criar'}
+            {company ? t('common.action.update') : t('common.action.create')}
           </Button>
         </ModalFooter>
       </ModalContent>

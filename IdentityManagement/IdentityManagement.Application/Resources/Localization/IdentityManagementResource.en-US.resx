@@ -74,4 +74,298 @@
   <data name="auth.sessions.revokedAll" xml:space="preserve"><value>All active sessions revoked successfully.</value></data>
   <data name="auth.password.currentInvalid" xml:space="preserve"><value>Current password is invalid.</value></data>
   <data name="auth.password.changed" xml:space="preserve"><value>Password changed successfully.</value></data>
+  <data name="layout.title" xml:space="preserve"><value>Identity Management</value></data>
+  <data name="layout.menu.dashboard" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="layout.menu.management" xml:space="preserve"><value>Management</value></data>
+  <data name="layout.menu.users" xml:space="preserve"><value>Users</value></data>
+  <data name="layout.menu.companies" xml:space="preserve"><value>Companies</value></data>
+  <data name="layout.menu.systemApplications" xml:space="preserve"><value>Systems</value></data>
+  <data name="layout.menu.contracts" xml:space="preserve"><value>Contracts</value></data>
+  <data name="layout.menu.accessControl" xml:space="preserve"><value>Access Control</value></data>
+  <data name="layout.menu.systemRoleTemplates" xml:space="preserve"><value>Role Templates</value></data>
+  <data name="layout.menu.roles" xml:space="preserve"><value>Roles</value></data>
+  <data name="layout.menu.userRoles" xml:space="preserve"><value>User Role Assignments</value></data>
+  <data name="layout.breadcrumb.home" xml:space="preserve"><value>Home</value></data>
+  <data name="common.field.email" xml:space="preserve"><value>Email</value></data>
+  <data name="common.field.password" xml:space="preserve"><value>Password</value></data>
+  <data name="common.field.phoneNumber" xml:space="preserve"><value>Phone</value></data>
+  <data name="common.field.description" xml:space="preserve"><value>Description</value></data>
+  <data name="common.field.startDate" xml:space="preserve"><value>Start Date</value></data>
+  <data name="common.field.endDate" xml:space="preserve"><value>End Date</value></data>
+  <data name="common.field.situation" xml:space="preserve"><value>Status</value></data>
+  <data name="common.field.permissions" xml:space="preserve"><value>Permissions</value></data>
+  <data name="common.column.name" xml:space="preserve"><value>Name</value></data>
+  <data name="common.column.status" xml:space="preserve"><value>Status</value></data>
+  <data name="common.action.back" xml:space="preserve"><value>Back</value></data>
+  <data name="common.action.access" xml:space="preserve"><value>Access</value></data>
+  <data name="common.action.cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="common.action.update" xml:space="preserve"><value>Update</value></data>
+  <data name="common.action.create" xml:space="preserve"><value>Create</value></data>
+  <data name="common.action.delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="common.action.loadMore" xml:space="preserve"><value>Load More</value></data>
+  <data name="common.action.selectPermissions" xml:space="preserve"><value>Select Permissions</value></data>
+  <data name="common.action.link" xml:space="preserve"><value>Link</value></data>
+  <data name="common.action.inactivate" xml:space="preserve"><value>Inactivate</value></data>
+  <data name="common.action.reactivate" xml:space="preserve"><value>Reactivate</value></data>
+  <data name="common.action.activate" xml:space="preserve"><value>Activate</value></data>
+  <data name="common.action.revoke" xml:space="preserve"><value>Revoke</value></data>
+  <data name="common.action.applyPermissions" xml:space="preserve"><value>Apply Permissions</value></data>
+  <data name="common.toast.successTitle" xml:space="preserve"><value>Success</value></data>
+  <data name="common.toast.errorTitle" xml:space="preserve"><value>Error</value></data>
+  <data name="common.toast.warningTitle" xml:space="preserve"><value>Warning</value></data>
+  <data name="common.status.active" xml:space="preserve"><value>Active</value></data>
+  <data name="common.status.inactive" xml:space="preserve"><value>Inactive</value></data>
+  <data name="common.pagination.previous" xml:space="preserve"><value>Previous</value></data>
+  <data name="common.pagination.next" xml:space="preserve"><value>Next</value></data>
+  <data name="common.pagination.pageOf" xml:space="preserve"><value>Page {0} of {1}</value></data>
+  <data name="common.confirm.deleteTitle" xml:space="preserve"><value>Confirm Deletion</value></data>
+  <data name="common.filter.activeOnly" xml:space="preserve"><value>Active Only</value></data>
+  <data name="common.filter.inactiveOnly" xml:space="preserve"><value>Inactive Only</value></data>
+  <data name="common.value.notAvailable" xml:space="preserve"><value>-</value></data>
+  <data name="common.boolean.yes" xml:space="preserve"><value>Yes</value></data>
+  <data name="common.boolean.no" xml:space="preserve"><value>No</value></data>
+  <data name="common.badge.default" xml:space="preserve"><value>Default</value></data>
+  <data name="common.badge.root" xml:space="preserve"><value>Root</value></data>
+  <data name="common.duration.day" xml:space="preserve"><value>{0} day</value></data>
+  <data name="common.duration.days" xml:space="preserve"><value>{0} days</value></data>
+  <data name="common.duration.hour" xml:space="preserve"><value>{0} hour</value></data>
+  <data name="common.duration.hours" xml:space="preserve"><value>{0} hours</value></data>
+  <data name="common.duration.minute" xml:space="preserve"><value>{0} minute</value></data>
+  <data name="common.duration.minutes" xml:space="preserve"><value>{0} minutes</value></data>
+  <data name="authentication.footer.copyright" xml:space="preserve"><value>© {0} Test Company. All rights reserved</value></data>
+  <data name="authentication.login.companyLogoAlt" xml:space="preserve"><value>Test Company</value></data>
+  <data name="authentication.login.accessing" xml:space="preserve"><value>You are accessing</value></data>
+  <data name="authentication.login.providerName" xml:space="preserve"><value>[Identity Provider]</value></data>
+  <data name="authentication.login.submit" xml:space="preserve"><value>Sign In</value></data>
+  <data name="authentication.login.forgotPassword" xml:space="preserve"><value>Forgot your password?</value></data>
+  <data name="authentication.login.validation.emailRequired" xml:space="preserve"><value>Email is required.</value></data>
+  <data name="authentication.login.validation.emailInvalid" xml:space="preserve"><value>Invalid email.</value></data>
+  <data name="authentication.login.validation.passwordRequired" xml:space="preserve"><value>Password is required.</value></data>
+  <data name="authentication.login.validation.passwordMinLength" xml:space="preserve"><value>Password must be at least 6 characters long.</value></data>
+  <data name="authentication.forgotPassword.title" xml:space="preserve"><value>Recover Password</value></data>
+  <data name="authentication.forgotPassword.subtitle" xml:space="preserve"><value>Enter your registered email and we will send instructions to reset your password.</value></data>
+  <data name="authentication.forgotPassword.emailPlaceholder" xml:space="preserve"><value>your.email@company.com</value></data>
+  <data name="authentication.forgotPassword.submit" xml:space="preserve"><value>Send Email</value></data>
+  <data name="authentication.forgotPassword.backToLogin" xml:space="preserve"><value>Back to Login</value></data>
+  <data name="authentication.forgotPassword.successTitle" xml:space="preserve"><value>Email Sent!</value></data>
+  <data name="authentication.forgotPassword.successDescription" xml:space="preserve"><value>We sent password recovery instructions to:</value></data>
+  <data name="authentication.forgotPassword.successHint" xml:space="preserve"><value>Check your inbox and follow the instructions in the email to create a new password. The link expires in 24 hours.</value></data>
+  <data name="authentication.forgotPassword.resend" xml:space="preserve"><value>Resend Email</value></data>
+  <data name="authentication.forgotPassword.rememberedPassword" xml:space="preserve"><value>Remembered your password?</value></data>
+  <data name="authentication.forgotPassword.loginLink" xml:space="preserve"><value>Sign in</value></data>
+  <data name="authentication.forgotPassword.validation.emailRequired" xml:space="preserve"><value>Please enter your email.</value></data>
+  <data name="authentication.forgotPassword.validation.emailInvalid" xml:space="preserve"><value>Please enter a valid email.</value></data>
+  <data name="authentication.forgotPassword.toast.sent" xml:space="preserve"><value>Recovery email sent successfully.</value></data>
+  <data name="authentication.forgotPassword.toast.error" xml:space="preserve"><value>Failed to send recovery email.</value></data>
+  <data name="authentication.systemCenter.title" xml:space="preserve"><value>System Center</value></data>
+  <data name="authentication.systemCenter.greeting" xml:space="preserve"><value>Hello, {0}</value></data>
+  <data name="authentication.systemCenter.subtitle" xml:space="preserve"><value>Select which system you want to access</value></data>
+  <data name="authentication.systemCenter.searchPlaceholder" xml:space="preserve"><value>Search systems...</value></data>
+  <data name="authentication.systemCenter.emptyFiltered" xml:space="preserve"><value>No system found for this term.</value></data>
+  <data name="authentication.systemCenter.empty" xml:space="preserve"><value>No systems available.</value></data>
+  <data name="dashboard.title" xml:space="preserve"><value>Identity Access Management</value></data>
+  <data name="dashboard.subtitle" xml:space="preserve"><value>Identity and access management system with authentication, authorization, and support for multi-tenant applications.</value></data>
+  <data name="dashboard.kpi.activeUsers" xml:space="preserve"><value>Active Users</value></data>
+  <data name="dashboard.kpi.activeContracts" xml:space="preserve"><value>Active Contracts</value></data>
+  <data name="dashboard.kpi.companies" xml:space="preserve"><value>Companies</value></data>
+  <data name="dashboard.kpi.systems" xml:space="preserve"><value>Systems</value></data>
+  <data name="dashboard.topSystems.title" xml:space="preserve"><value>Most Used Systems</value></data>
+  <data name="dashboard.topSystems.empty" xml:space="preserve"><value>No data available.</value></data>
+  <data name="dashboard.activeSessions.title" xml:space="preserve"><value>Active Sessions</value></data>
+  <data name="dashboard.activeSessions.summary" xml:space="preserve"><value>Active sessions in the system</value></data>
+  <data name="dashboard.activeSessions.viewAll" xml:space="preserve"><value>View All Sessions</value></data>
+  <data name="dashboard.activeSessions.searchPlaceholder" xml:space="preserve"><value>Search by name, email, company or system...</value></data>
+  <data name="dashboard.activeSessions.revokeAll" xml:space="preserve"><value>Revoke All</value></data>
+  <data name="dashboard.activeSessions.sessionMeta" xml:space="preserve"><value>IP: {0} - Created: {1} - Expires: {2}</value></data>
+  <data name="dashboard.activeSessions.empty" xml:space="preserve"><value>No active sessions.</value></data>
+  <data name="dashboard.confirm.revokeSessionTitle" xml:space="preserve"><value>Revoke Session</value></data>
+  <data name="dashboard.confirm.revokeSessionDescription" xml:space="preserve"><value>Are you sure you want to revoke this session? This action cannot be undone.</value></data>
+  <data name="dashboard.confirm.revokeAllTitle" xml:space="preserve"><value>Revoke All Sessions</value></data>
+  <data name="dashboard.confirm.revokeAllDescription" xml:space="preserve"><value>Are you sure you want to revoke all active sessions? This action cannot be undone and all users will be disconnected.</value></data>
+  <data name="company.field.legalName" xml:space="preserve"><value>Legal Name</value></data>
+  <data name="company.field.tradeName" xml:space="preserve"><value>Trade Name</value></data>
+  <data name="company.field.document" xml:space="preserve"><value>Tax ID</value></data>
+  <data name="company.list.title" xml:space="preserve"><value>Companies</value></data>
+  <data name="company.list.subtitle" xml:space="preserve"><value>Register and maintain organizations linked to Identity Management.</value></data>
+  <data name="company.list.searchPlaceholder" xml:space="preserve"><value>Search by name, trade name, email or tax id</value></data>
+  <data name="company.list.filterLabel" xml:space="preserve"><value>Filter companies</value></data>
+  <data name="company.list.toast.deleted" xml:space="preserve"><value>Company deleted successfully.</value></data>
+  <data name="company.list.validation.selectOneToEdit" xml:space="preserve"><value>Select a company to edit.</value></data>
+  <data name="company.list.validation.selectOnlyOneToEdit" xml:space="preserve"><value>Select only one company to edit.</value></data>
+  <data name="company.list.validation.selectToDelete" xml:space="preserve"><value>Select one or more companies to delete.</value></data>
+  <data name="company.list.confirmDeleteSingle" xml:space="preserve"><value>Do you want to delete company "{0}"?</value></data>
+  <data name="company.list.confirmDeleteMultiple" xml:space="preserve"><value>Do you want to delete {0} selected companies?</value></data>
+  <data name="company.preview.documentNotProvided" xml:space="preserve"><value>Tax ID not provided</value></data>
+  <data name="company.preview.description" xml:space="preserve"><value>Registration and contact information for the selected company.</value></data>
+  <data name="company.preview.registrationTitle" xml:space="preserve"><value>Registration Data</value></data>
+  <data name="company.preview.registrationDescription" xml:space="preserve"><value>Main company identification</value></data>
+  <data name="company.preview.contactTitle" xml:space="preserve"><value>Contact</value></data>
+  <data name="company.preview.contactDescription" xml:space="preserve"><value>Main company contact channels</value></data>
+  <data name="company.form.toast.updated" xml:space="preserve"><value>Company updated successfully.</value></data>
+  <data name="company.form.toast.created" xml:space="preserve"><value>Company created successfully.</value></data>
+  <data name="company.form.editTitle" xml:space="preserve"><value>Edit Company</value></data>
+  <data name="company.form.createTitle" xml:space="preserve"><value>New Company</value></data>
+  <data name="contract.field.company" xml:space="preserve"><value>Company</value></data>
+  <data name="contract.field.systemApplication" xml:space="preserve"><value>System</value></data>
+  <data name="contract.list.title" xml:space="preserve"><value>Contracts</value></data>
+  <data name="contract.list.subtitle" xml:space="preserve"><value>Manage validity, credentials, and access settings between company and system.</value></data>
+  <data name="contract.list.searchPlaceholder" xml:space="preserve"><value>Search by company, system or client id</value></data>
+  <data name="contract.list.filterLabel" xml:space="preserve"><value>Filter contracts</value></data>
+  <data name="contract.list.toast.activated" xml:space="preserve"><value>Contract activated successfully.</value></data>
+  <data name="contract.list.toast.inactivated" xml:space="preserve"><value>Contract inactivated successfully.</value></data>
+  <data name="contract.list.validation.selectToEdit" xml:space="preserve"><value>Select a contract to edit.</value></data>
+  <data name="contract.list.validation.selectToToggle" xml:space="preserve"><value>Select a contract to activate or inactivate.</value></data>
+  <data name="contract.list.confirmActivateTitle" xml:space="preserve"><value>Confirm Activation</value></data>
+  <data name="contract.list.confirmInactivateTitle" xml:space="preserve"><value>Confirm Inactivation</value></data>
+  <data name="contract.list.confirmActivateDescription" xml:space="preserve"><value>Do you want to activate the contract between "{0}" and "{1}"?</value></data>
+  <data name="contract.list.confirmInactivateDescription" xml:space="preserve"><value>Do you want to inactivate the contract between "{0}" and "{1}"?</value></data>
+  <data name="contract.list.confirmActivateDescriptionFallback" xml:space="preserve"><value>Do you want to activate this contract?</value></data>
+  <data name="contract.list.confirmInactivateDescriptionFallback" xml:space="preserve"><value>Do you want to inactivate this contract?</value></data>
+  <data name="contract.preview.title" xml:space="preserve"><value>Contract Preview</value></data>
+  <data name="contract.preview.subtitle" xml:space="preserve"><value>Quick view of the selected contract, including identification and validity.</value></data>
+  <data name="contract.preview.clientId" xml:space="preserve"><value>Client ID</value></data>
+  <data name="contract.preview.accessToken" xml:space="preserve"><value>Access Token</value></data>
+  <data name="contract.preview.refreshToken" xml:space="preserve"><value>Refresh Token</value></data>
+  <data name="contract.form.toast.loadCompaniesError" xml:space="preserve"><value>Failed to load companies.</value></data>
+  <data name="contract.form.toast.loadSystemsError" xml:space="preserve"><value>Failed to load systems.</value></data>
+  <data name="contract.form.toast.updated" xml:space="preserve"><value>Contract updated successfully.</value></data>
+  <data name="contract.form.toast.created" xml:space="preserve"><value>Contract created successfully.</value></data>
+  <data name="contract.form.editTitle" xml:space="preserve"><value>Edit Contract</value></data>
+  <data name="contract.form.createTitle" xml:space="preserve"><value>New Contract</value></data>
+  <data name="contract.form.companyPlaceholder" xml:space="preserve"><value>Select a company</value></data>
+  <data name="contract.form.companySearchPlaceholder" xml:space="preserve"><value>Search company...</value></data>
+  <data name="contract.form.systemPlaceholder" xml:space="preserve"><value>Select a system</value></data>
+  <data name="contract.form.systemSearchPlaceholder" xml:space="preserve"><value>Search system...</value></data>
+  <data name="contract.form.accessTokenLifetime" xml:space="preserve"><value>Access Token Lifetime (seconds)</value></data>
+  <data name="contract.form.refreshTokenLifetime" xml:space="preserve"><value>Refresh Token Lifetime (seconds)</value></data>
+  <data name="contract.form.activeLabel" xml:space="preserve"><value>Active Contract</value></data>
+  <data name="role.field.isRoot" xml:space="preserve"><value>Root</value></data>
+  <data name="role.field.isDefault" xml:space="preserve"><value>Default</value></data>
+  <data name="role.list.title" xml:space="preserve"><value>Permission Roles</value></data>
+  <data name="role.list.subtitle" xml:space="preserve"><value>Define access roles and default behavior per contract.</value></data>
+  <data name="role.list.contractLabel" xml:space="preserve"><value>Contract (Company - System)</value></data>
+  <data name="role.list.contractPlaceholder" xml:space="preserve"><value>Select a contract to list roles</value></data>
+  <data name="role.list.contractSearchPlaceholder" xml:space="preserve"><value>Search contract...</value></data>
+  <data name="role.list.emptyWithoutContract" xml:space="preserve"><value>Select a contract to view permission roles.</value></data>
+  <data name="role.list.toast.deleted" xml:space="preserve"><value>Role deleted successfully.</value></data>
+  <data name="role.list.validation.selectContractFirst" xml:space="preserve"><value>Select a contract first.</value></data>
+  <data name="role.list.validation.selectOneToEdit" xml:space="preserve"><value>Select a role to edit.</value></data>
+  <data name="role.list.validation.selectOnlyOneToEdit" xml:space="preserve"><value>Select only one role to edit.</value></data>
+  <data name="role.list.validation.selectToDelete" xml:space="preserve"><value>Select one or more roles to delete.</value></data>
+  <data name="role.list.confirmDeleteSingle" xml:space="preserve"><value>Do you want to delete role "{0}"?</value></data>
+  <data name="role.list.confirmDeleteMultiple" xml:space="preserve"><value>Do you want to delete {0} selected roles?</value></data>
+  <data name="role.form.toast.updated" xml:space="preserve"><value>Role updated successfully.</value></data>
+  <data name="role.form.toast.created" xml:space="preserve"><value>Role created successfully.</value></data>
+  <data name="role.form.editTitle" xml:space="preserve"><value>Edit Role</value></data>
+  <data name="role.form.createTitle" xml:space="preserve"><value>New Role</value></data>
+  <data name="role.form.nameLabel" xml:space="preserve"><value>Role Name</value></data>
+  <data name="role.form.namePlaceholder" xml:space="preserve"><value>Enter the role name</value></data>
+  <data name="role.form.descriptionPlaceholder" xml:space="preserve"><value>Enter a description for the role</value></data>
+  <data name="role.form.contractPlaceholder" xml:space="preserve"><value>Select a contract</value></data>
+  <data name="role.form.contractSearchPlaceholder" xml:space="preserve"><value>Search contract...</value></data>
+  <data name="role.form.defaultLabel" xml:space="preserve"><value>Default Role</value></data>
+  <data name="role.form.permissionsTitle" xml:space="preserve"><value>Selection by resource</value></data>
+  <data name="role.form.permissionsDescription" xml:space="preserve"><value>Choose permissions in a dedicated screen, grouped by resource and endpoint.</value></data>
+  <data name="rolePermissions.title" xml:space="preserve"><value>Select Permissions</value></data>
+  <data name="rolePermissions.catalogTitle" xml:space="preserve"><value>Resource Catalog</value></data>
+  <data name="rolePermissions.catalogDescription" xml:space="preserve"><value>Select the resources this role can access. The catalog is loaded from the backend and synchronized by Archon according to protected endpoints.</value></data>
+  <data name="rolePermissions.searchLabel" xml:space="preserve"><value>Search Permissions</value></data>
+  <data name="rolePermissions.searchPlaceholder" xml:space="preserve"><value>Search by resource, controller, action or route</value></data>
+  <data name="rolePermissions.emptyTitle" xml:space="preserve"><value>No resources found</value></data>
+  <data name="rolePermissions.emptyDescription" xml:space="preserve"><value>Adjust the search term to find the desired resources.</value></data>
+  <data name="rolePermissions.selectGroup" xml:space="preserve"><value>Select group</value></data>
+  <data name="rolePermissions.groupDescription" xml:space="preserve"><value>Protected resources from controller {0}.</value></data>
+  <data name="systemApplication.field.audience" xml:space="preserve"><value>Audience</value></data>
+  <data name="systemApplication.field.redirectUris" xml:space="preserve"><value>Redirect URIs</value></data>
+  <data name="systemApplication.list.title" xml:space="preserve"><value>Systems</value></data>
+  <data name="systemApplication.list.subtitle" xml:space="preserve"><value>Manage integrated applications and their authentication settings.</value></data>
+  <data name="systemApplication.list.toast.deleted" xml:space="preserve"><value>System deleted successfully.</value></data>
+  <data name="systemApplication.list.validation.selectOneToEdit" xml:space="preserve"><value>Select a system to edit.</value></data>
+  <data name="systemApplication.list.validation.selectOnlyOneToEdit" xml:space="preserve"><value>Select only one system to edit.</value></data>
+  <data name="systemApplication.list.validation.selectToDelete" xml:space="preserve"><value>Select one or more systems to delete.</value></data>
+  <data name="systemApplication.list.confirmDeleteSingle" xml:space="preserve"><value>Do you want to delete system "{0}"?</value></data>
+  <data name="systemApplication.list.confirmDeleteMultiple" xml:space="preserve"><value>Do you want to delete {0} selected systems?</value></data>
+  <data name="systemApplication.preview.audienceNotProvided" xml:space="preserve"><value>Audience not provided</value></data>
+  <data name="systemApplication.preview.description" xml:space="preserve"><value>Main settings and metadata of the selected system.</value></data>
+  <data name="systemApplication.preview.configurationTitle" xml:space="preserve"><value>Configuration</value></data>
+  <data name="systemApplication.preview.configurationDescription" xml:space="preserve"><value>System identification and state</value></data>
+  <data name="systemApplication.preview.endpointsTitle" xml:space="preserve"><value>Endpoints</value></data>
+  <data name="systemApplication.preview.endpointsDescription" xml:space="preserve"><value>Configured return URIs</value></data>
+  <data name="systemApplication.form.toast.updated" xml:space="preserve"><value>System updated successfully.</value></data>
+  <data name="systemApplication.form.toast.created" xml:space="preserve"><value>System created successfully.</value></data>
+  <data name="systemApplication.form.editTitle" xml:space="preserve"><value>Edit System</value></data>
+  <data name="systemApplication.form.createTitle" xml:space="preserve"><value>New System</value></data>
+  <data name="systemRoleTemplate.list.title" xml:space="preserve"><value>Role Templates</value></data>
+  <data name="systemRoleTemplate.list.subtitle" xml:space="preserve"><value>Configure base roles for each application to replicate automatically in new contracts.</value></data>
+  <data name="systemRoleTemplate.list.systemLabel" xml:space="preserve"><value>System</value></data>
+  <data name="systemRoleTemplate.list.systemPlaceholder" xml:space="preserve"><value>Select a system to list default roles</value></data>
+  <data name="systemRoleTemplate.list.systemSearchPlaceholder" xml:space="preserve"><value>Search system...</value></data>
+  <data name="systemRoleTemplate.list.emptyWithoutSystem" xml:space="preserve"><value>Select a system to view role templates.</value></data>
+  <data name="systemRoleTemplate.list.validation.selectSystemFirst" xml:space="preserve"><value>Select a system first.</value></data>
+  <data name="systemRoleTemplate.list.validation.selectOneToEdit" xml:space="preserve"><value>Select a default role to edit.</value></data>
+  <data name="systemRoleTemplate.list.validation.selectOnlyOneToEdit" xml:space="preserve"><value>Select only one default role to edit.</value></data>
+  <data name="systemRoleTemplate.preview.description" xml:space="preserve"><value>Template automatically applied when a new contract is created for this application.</value></data>
+  <data name="systemRoleTemplate.preview.contextTitle" xml:space="preserve"><value>Context</value></data>
+  <data name="systemRoleTemplate.preview.contextDescription" xml:space="preserve"><value>Template identification and behavior</value></data>
+  <data name="systemRoleTemplate.preview.resourcesTitle" xml:space="preserve"><value>Linked Resources</value></data>
+  <data name="systemRoleTemplate.preview.resourcesDescription" xml:space="preserve"><value>Permissions that will be copied to roles generated in the contract</value></data>
+  <data name="systemRoleTemplate.preview.emptyResources" xml:space="preserve"><value>No permissions linked to this default role.</value></data>
+  <data name="systemRoleTemplate.form.toast.updated" xml:space="preserve"><value>Default role updated successfully.</value></data>
+  <data name="systemRoleTemplate.form.toast.created" xml:space="preserve"><value>Default role created successfully.</value></data>
+  <data name="systemRoleTemplate.form.editTitle" xml:space="preserve"><value>Edit Role Template</value></data>
+  <data name="systemRoleTemplate.form.createTitle" xml:space="preserve"><value>New Role Template</value></data>
+  <data name="systemRoleTemplate.form.systemPlaceholder" xml:space="preserve"><value>Select a system</value></data>
+  <data name="systemRoleTemplate.form.systemSearchPlaceholder" xml:space="preserve"><value>Search system...</value></data>
+  <data name="systemRoleTemplate.form.defaultLabel" xml:space="preserve"><value>Default Template</value></data>
+  <data name="systemRoleTemplate.form.permissionsTitle" xml:space="preserve"><value>Selection by resource</value></data>
+  <data name="systemRoleTemplate.form.permissionsDescription" xml:space="preserve"><value>Choose the default permissions that will be copied to new contracts of this application.</value></data>
+  <data name="userRole.field.user" xml:space="preserve"><value>User</value></data>
+  <data name="userRole.field.role" xml:space="preserve"><value>Role</value></data>
+  <data name="userRole.field.assignedAt" xml:space="preserve"><value>Assignment Date</value></data>
+  <data name="userRole.list.title" xml:space="preserve"><value>User Role Assignments</value></data>
+  <data name="userRole.list.subtitle" xml:space="preserve"><value>Associate users with the roles available in each contract.</value></data>
+  <data name="userRole.list.contractLabel" xml:space="preserve"><value>Contract (Company - System)</value></data>
+  <data name="userRole.list.contractPlaceholder" xml:space="preserve"><value>Select a contract to list assignments</value></data>
+  <data name="userRole.list.contractSearchPlaceholder" xml:space="preserve"><value>Search contract...</value></data>
+  <data name="userRole.list.emptyWithoutContract" xml:space="preserve"><value>Select a contract to view user assignments.</value></data>
+  <data name="userRole.list.toast.inactivated" xml:space="preserve"><value>Assignment inactivated successfully.</value></data>
+  <data name="userRole.list.toast.reactivated" xml:space="preserve"><value>Assignment reactivated successfully.</value></data>
+  <data name="userRole.list.validation.selectContractFirst" xml:space="preserve"><value>Select a contract first.</value></data>
+  <data name="userRole.list.validation.selectToInactivate" xml:space="preserve"><value>Select one or more assignments to inactivate.</value></data>
+  <data name="userRole.list.validation.selectToReactivate" xml:space="preserve"><value>Select one or more assignments to reactivate.</value></data>
+  <data name="userRole.list.confirmInactivateTitle" xml:space="preserve"><value>Confirm Inactivation</value></data>
+  <data name="userRole.list.confirmInactivateSingle" xml:space="preserve"><value>Do you want to inactivate user "{0}" assignment with role "{1}"?</value></data>
+  <data name="userRole.list.confirmInactivateMultiple" xml:space="preserve"><value>Do you want to inactivate {0} selected assignments?</value></data>
+  <data name="userRole.form.toast.created" xml:space="preserve"><value>User linked to role successfully.</value></data>
+  <data name="userRole.form.title" xml:space="preserve"><value>Link User to Role</value></data>
+  <data name="userRole.form.userPlaceholder" xml:space="preserve"><value>Select a user</value></data>
+  <data name="userRole.form.userSearchPlaceholder" xml:space="preserve"><value>Search user...</value></data>
+  <data name="userRole.form.rolePlaceholder" xml:space="preserve"><value>Select a role</value></data>
+  <data name="userRole.form.roleSearchPlaceholder" xml:space="preserve"><value>Search role...</value></data>
+  <data name="user.field.username" xml:space="preserve"><value>Username</value></data>
+  <data name="user.field.fullName" xml:space="preserve"><value>Full Name</value></data>
+  <data name="user.field.lastLoginAt" xml:space="preserve"><value>Last Login</value></data>
+  <data name="user.field.createdAt" xml:space="preserve"><value>Created Date</value></data>
+  <data name="user.field.createdAtLabel" xml:space="preserve"><value>Created On</value></data>
+  <data name="user.list.title" xml:space="preserve"><value>Users</value></data>
+  <data name="user.list.subtitle" xml:space="preserve"><value>Manage accounts, access status, and users' basic information.</value></data>
+  <data name="user.list.searchPlaceholder" xml:space="preserve"><value>Search by username, name or email</value></data>
+  <data name="user.list.filterLabel" xml:space="preserve"><value>Filter users</value></data>
+  <data name="user.list.toast.deleted" xml:space="preserve"><value>User deleted successfully.</value></data>
+  <data name="user.list.validation.selectOneToEdit" xml:space="preserve"><value>Select a user to edit.</value></data>
+  <data name="user.list.validation.selectOnlyOneToEdit" xml:space="preserve"><value>Select only one user to edit.</value></data>
+  <data name="user.list.validation.selectToDelete" xml:space="preserve"><value>Select one or more users to delete.</value></data>
+  <data name="user.list.confirmDeleteSingle" xml:space="preserve"><value>Do you want to delete user "{0}"?</value></data>
+  <data name="user.list.confirmDeleteMultiple" xml:space="preserve"><value>Do you want to delete {0} selected users?</value></data>
+  <data name="user.preview.description" xml:space="preserve"><value>Access and activity data for the selected user.</value></data>
+  <data name="user.preview.accessTitle" xml:space="preserve"><value>Access</value></data>
+  <data name="user.preview.accessDescription" xml:space="preserve"><value>User identification and status</value></data>
+  <data name="user.preview.activityTitle" xml:space="preserve"><value>Activity</value></data>
+  <data name="user.preview.activityDescription" xml:space="preserve"><value>Main usage and registration dates</value></data>
+  <data name="user.form.toast.updated" xml:space="preserve"><value>User updated successfully.</value></data>
+  <data name="user.form.toast.created" xml:space="preserve"><value>User created successfully.</value></data>
+  <data name="user.form.editTitle" xml:space="preserve"><value>Edit User</value></data>
+  <data name="user.form.createTitle" xml:space="preserve"><value>New User</value></data>
+  <data name="user.form.newPasswordLabel" xml:space="preserve"><value>New Password (leave blank to keep current password)</value></data>
+  <data name="user.form.activeLabel" xml:space="preserve"><value>Active User</value></data>
 </root>

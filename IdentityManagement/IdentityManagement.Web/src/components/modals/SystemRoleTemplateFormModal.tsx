@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, Switch, toast, useApi, useFormErrors } from 'archon-ui';
+import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, Switch, toast, useApi, useFormErrors, useI18n } from 'archon-ui';
 import { AccessResourceService } from '../../services/accessResourceService';
 import { SystemRoleTemplateService } from '../../services/systemRoleTemplateService';
 import { SystemApplicationService } from '../../services/systemApplicationService';
@@ -23,6 +23,7 @@ export default function SystemRoleTemplateFormModal({
   systemApplicationId,
   onSuccess,
 }: SystemRoleTemplateFormModalProps) {
+  const { t } = useI18n()
   const { getError, setErrors, clearErrors } = useFormErrors();
   const [sistemas, setSistemas] = useState<SystemApplication[]>([]);
   const [accessResources, setAccessResources] = useState<AccessResource[]>([]);
@@ -49,7 +50,7 @@ export default function SystemRoleTemplateFormModal({
     },
     onError: (error) => {
       toast({
-        title: 'Erro',
+        title: t('common.toast.errorTitle'),
         description: error.message,
         variant: 'destructive',
       });
@@ -60,8 +61,8 @@ export default function SystemRoleTemplateFormModal({
     onSuccess: () => {
       toast({
         variant: 'success',
-        title: 'Sucesso',
-        description: perfilPadrao ? 'Role padrão atualizado com sucesso' : 'Role padrão criado com sucesso',
+        title: t('common.toast.successTitle'),
+        description: perfilPadrao ? t('systemRoleTemplate.form.toast.updated') : t('systemRoleTemplate.form.toast.created'),
       });
       clearErrors();
       onSuccess();
@@ -71,7 +72,7 @@ export default function SystemRoleTemplateFormModal({
       setErrors(error);
       if (!error.errors) {
         toast({
-          title: 'Erro',
+          title: t('common.toast.errorTitle'),
           description: error.message,
           variant: 'destructive',
         });
@@ -167,13 +168,13 @@ export default function SystemRoleTemplateFormModal({
       <Modal open={isOpen} onOpenChange={onClose}>
         <ModalContent size="xl">
           <ModalHeader>
-            <ModalTitle>{perfilPadrao ? 'Editar Template de Role' : 'Novo Template de Role'}</ModalTitle>
+            <ModalTitle>{perfilPadrao ? t('systemRoleTemplate.form.editTitle') : t('systemRoleTemplate.form.createTitle')}</ModalTitle>
           </ModalHeader>
 
           <div className="flex flex-col gap-4 py-4">
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">
-                SystemApplication <span className="text-destructive">*</span>
+                {t('systemRoleTemplate.list.systemLabel')} <span className="text-destructive">*</span>
               </label>
               <SearchableSelect
                 options={sistemas.map((sistema) => ({
@@ -182,8 +183,8 @@ export default function SystemRoleTemplateFormModal({
                 }))}
                 value={formData.systemApplicationId > 0 ? formData.systemApplicationId.toString() : undefined}
                 onValueChange={(value) => handleInputChange('systemApplicationId', parseInt(value))}
-                placeholder="Selecione um sistema"
-                searchPlaceholder="Pesquisar sistema..."
+                placeholder={t('systemRoleTemplate.form.systemPlaceholder')}
+                searchPlaceholder={t('systemRoleTemplate.form.systemSearchPlaceholder')}
                 disabled={!!perfilPadrao || !!systemApplicationId}
               />
               {getError('systemApplicationId') ? (
@@ -194,7 +195,7 @@ export default function SystemRoleTemplateFormModal({
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium">
-                  Nome <span className="text-destructive">*</span>
+                  {t('common.column.name')} <span className="text-destructive">*</span>
                 </label>
                 <Input
                   value={formData.name}
@@ -206,7 +207,7 @@ export default function SystemRoleTemplateFormModal({
 
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium">
-                  Descrição <span className="text-destructive">*</span>
+                  {t('common.field.description')} <span className="text-destructive">*</span>
                 </label>
                 <Input
                   value={formData.description}
@@ -220,30 +221,30 @@ export default function SystemRoleTemplateFormModal({
             <div className="flex gap-6 pt-2">
               <div className="flex items-center gap-2">
                 <Switch checked={formData.isRoot} onCheckedChange={(checked) => handleInputChange('isRoot', checked)} />
-                <label className="cursor-pointer text-sm font-medium">Super Usuário</label>
+                <label className="cursor-pointer text-sm font-medium">{t('role.field.isRoot')}</label>
               </div>
 
               <div className="flex items-center gap-2">
                 <Switch checked={formData.isDefault} onCheckedChange={(checked) => handleInputChange('isDefault', checked)} />
-                  <label className="cursor-pointer text-sm font-medium">Template Padrão</label>
+                  <label className="cursor-pointer text-sm font-medium">{t('systemRoleTemplate.form.defaultLabel')}</label>
               </div>
 
               {perfilPadrao ? (
                 <div className="flex items-center gap-2">
                   <Switch checked={formData.isActive} onCheckedChange={(checked) => handleInputChange('isActive', checked)} />
-                  <label className="cursor-pointer text-sm font-medium">Ativo</label>
+                  <label className="cursor-pointer text-sm font-medium">{t('common.status.active')}</label>
                 </div>
               ) : null}
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Permissões</label>
+              <label className="text-sm font-medium">{t('common.field.permissions')}</label>
               <div className="rounded-lg border bg-muted/20 p-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1">
-                    <p className="text-sm font-medium">Seleção por recurso</p>
+                    <p className="text-sm font-medium">{t('systemRoleTemplate.form.permissionsTitle')}</p>
                     <p className="text-sm text-muted-foreground">
-                      Escolha as permissões padrão que serão copiadas para novos contratos desta aplicação.
+                      {t('systemRoleTemplate.form.permissionsDescription')}
                     </p>
                   </div>
                 </div>
@@ -254,7 +255,7 @@ export default function SystemRoleTemplateFormModal({
                     onClick={() => setIsPermissionsModalOpen(true)}
                     disabled={formData.systemApplicationId <= 0}
                   >
-                    Selecionar permissões
+                    {t('common.action.selectPermissions')}
                   </Button>
                 </div>
               </div>
@@ -263,10 +264,10 @@ export default function SystemRoleTemplateFormModal({
 
           <ModalFooter>
             <Button variant="outline" onClick={onClose} disabled={savePerfilPadraoApi.isLoading}>
-              Cancelar
+              {t('common.action.cancel')}
             </Button>
             <Button variant="primary" onClick={handleSave} loading={savePerfilPadraoApi.isLoading} disabled={!isValid}>
-              {perfilPadrao ? 'Atualizar' : 'Criar'}
+              {perfilPadrao ? t('common.action.update') : t('common.action.create')}
             </Button>
           </ModalFooter>
         </ModalContent>
