@@ -1,0 +1,77 @@
+import { httpClient, queryCollection } from 'archon-ui'
+import type { PaginationParams, PaginatedResult } from 'archon-ui'
+import type { SystemApplication, CreateSystemApplicationRequest, UpdateSystemApplicationRequest } from '../types/systemApplication'
+
+export class SystemApplicationService {
+  private static baseUrl = '/systemapplications'
+
+  static async getAll(params?: PaginationParams): Promise<PaginatedResult<SystemApplication>> {
+    const response = await httpClient.get<SystemApplication[]>(this.baseUrl)
+    const sistemas = response.data ?? []
+
+    return queryCollection(sistemas, params, ['name', 'description', 'audience'])
+  }
+
+  static async getById(id: number): Promise<SystemApplication> {
+    const sistemas = await this.getActive()
+    const sistema = sistemas.find((item) => item.id === id)
+
+    if (!sistema) {
+      throw new Error('SystemApplication não encontrado.')
+    }
+
+    return sistema
+  }
+
+  static async getActive(): Promise<SystemApplication[]> {
+    const response = await httpClient.get<SystemApplication[]>(this.baseUrl)
+    return response.data ?? []
+  }
+
+  static async create(sistema: CreateSystemApplicationRequest): Promise<SystemApplication> {
+    const response = await httpClient.post<SystemApplication>(this.baseUrl, {
+      name: sistema.name,
+      description: sistema.description ?? '',
+      redirectUris: sistema.redirectUris,
+      audience: sistema.audience,
+      type: sistema.type ?? 2,
+    })
+
+    if (!response.data) {
+      throw new Error('Resposta vazia ao criar sistema.')
+    }
+
+    return response.data
+  }
+
+  static async update(id: number, sistema: UpdateSystemApplicationRequest): Promise<SystemApplication> {
+    const response = await httpClient.put<SystemApplication>(`${this.baseUrl}/${id}`, {
+      id,
+      name: sistema.name,
+      description: sistema.description ?? '',
+      redirectUris: sistema.redirectUris,
+      audience: sistema.audience,
+      isActive: sistema.isActive,
+      type: sistema.type ?? 2,
+    })
+
+    if (!response.data) {
+      throw new Error('Resposta vazia ao atualizar sistema.')
+    }
+
+    return response.data
+  }
+
+  static async delete(id: number): Promise<void> {
+    const sistema = await this.getById(id)
+
+    await this.update(id, {
+      id,
+      name: sistema.name,
+      description: sistema.description,
+      redirectUris: sistema.redirectUris,
+      isActive: false,
+      audience: sistema.audience,
+    })
+  }
+}

@@ -4,48 +4,48 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-  tokenType: string;
-  expiresIn: number;
-  redirectUrl?: string;
-  user: UsuarioViewModel;
-  contrato?: ContratoViewModel;
+  accessToken: string
+  refreshToken: string
+  tokenType: string
+  expiresIn: number
+  redirectUrl?: string
+  user: UserViewModel
+  contract?: ContractViewModel
 }
 
-export interface UsuarioViewModel {
-  id: number;
-  username: string;
-  email: string;
-  name: string;
-  isActive: boolean;
-  lastLoginAt?: string;
+export interface UserViewModel {
+  id: number
+  username: string
+  email: string
+  name: string
+  isActive: boolean
+  lastLoginAt?: string
 }
 
-export interface ContratoSelectionResponse {
-  userId: number;
-  userName: string;
-  userEmail: string;
-  temporaryToken: string;
-  availableContratos: ContratoViewModel[];
+export interface ContractSelectionResponse {
+  userId: number
+  userName: string
+  userEmail: string
+  temporaryToken: string
+  availableContracts: ContractViewModel[]
 }
 
-export interface ContratoViewModel {
-  contratoId: number;
-  sistemaName: string;
-  empresaName: string;
-  redirectUris: string[];
-  perfilName?: string;
+export interface ContractViewModel {
+  contractId: number
+  systemApplicationName: string
+  companyName: string
+  redirectUris: string
+  roleName?: string
 }
 
-export interface LoginWithContratoRequest {
-  userId: number;
-  contratoId: number;
-  temporaryToken: string;
+export interface LoginWithContractRequest {
+  userId: number
+  contractId: number
+  temporaryToken: string
 }
 
 export interface ApiError {
-  message: string;
-  status: number;
-  errors?: Record<string, string[]>;
+  message: string
+  status: number
+  errors?: Record<string, string[]>
 }

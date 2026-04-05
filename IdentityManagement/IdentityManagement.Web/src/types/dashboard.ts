@@ -20,8 +20,8 @@ export interface ActiveSession {
   userId: number;
   userName: string;
   userEmail: string;
-  empresaName: string;
-  sistemaName: string;
+  companyName: string;
+  systemApplicationName: string;
   ipAddress: string;
   userAgent: string;
   createdAt: string;
