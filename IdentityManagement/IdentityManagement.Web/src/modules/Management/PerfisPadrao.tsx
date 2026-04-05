@@ -66,14 +66,6 @@ export default function PerfisPadrao() {
   }, []);
 
   useEffect(() => {
-    if (selectedSystemApplicationId || sistemas.length === 0) {
-      return;
-    }
-
-    setSelectedSystemApplicationId(sistemas[0].id);
-  }, [sistemas, selectedSystemApplicationId]);
-
-  useEffect(() => {
     if (!selectedSystemApplicationId) {
       setPerfisPadrao([]);
       return;
@@ -248,7 +240,11 @@ export default function PerfisPadrao() {
             onSelectionChange={setSelectedPerfisPadrao}
             onRowDoubleClick={setPreviewPerfilPadrao}
           />
-        ) : null}
+        ) : (
+          <div className="py-12 text-center text-muted-foreground">
+            <p>Selecione um sistema para visualizar os templates de perfis.</p>
+          </div>
+        )}
 
         <PerfilPadraoSistemaModal
           isOpen={isModalOpen}
