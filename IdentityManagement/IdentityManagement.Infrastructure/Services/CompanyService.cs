@@ -1,16 +1,21 @@
 using Archon.Infrastructure.Services;
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.Companies;
 using IdentityManagement.Application.Responses.Companies;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Infrastructure.Services
 {
     public sealed class CompanyService : CrudService<Company>, ICompanyService
     {
-        public CompanyService(DbContext dbContext) : base(dbContext)
+        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+
+        public CompanyService(DbContext dbContext, IStringLocalizer<IdentityManagementResource> Localizer) : base(dbContext)
         {
+            this.Localizer = Localizer;
         }
 
         public async Task<CompanyResponse> CreateCompany(CreateCompanyRequest request, CancellationToken cancellationToken = default)
@@ -31,7 +36,7 @@ namespace IdentityManagement.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException("Route id does not match body id.");
+                throw new InvalidOperationException(Localizer["request.route.idMismatch"]);
             }
 
             Company? company = await (
@@ -42,7 +47,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (company is null)
             {
-                throw new InvalidOperationException("Company not found.");
+                throw new InvalidOperationException(Localizer["company.notFound"]);
             }
 
             await EnsureUniqueCompany(request.Document, request.Email, id, cancellationToken);
@@ -91,7 +96,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (documentExists)
             {
-                throw new InvalidOperationException("Document already exists.");
+                throw new InvalidOperationException(Localizer["company.document.alreadyExists"]);
             }
 
             bool emailExists = await (
@@ -102,7 +107,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (emailExists)
             {
-                throw new InvalidOperationException("Email already exists.");
+                throw new InvalidOperationException(Localizer["email.alreadyExists"]);
             }
         }
 

@@ -1,18 +1,22 @@
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.Contracts;
 using IdentityManagement.Application.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Api.Controllers
 {
     public sealed class ContractsController : ApiControllerBase
     {
         private readonly IContractService contractService;
+        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
-        public ContractsController(IContractService contractService)
+        public ContractsController(IContractService contractService, IStringLocalizer<IdentityManagementResource> Localizer)
         {
             this.contractService = contractService;
+            this.Localizer = Localizer;
         }
 
         [RequireAccess]
@@ -26,7 +30,7 @@ namespace IdentityManagement.Api.Controllers
             }
 
             var response = await contractService.CreateContract(request, cancellationToken);
-            return Http201(response, "Contract created successfully.");
+            return Http201(response, Localizer["contract.created"]);
         }
 
         [RequireAccess]
@@ -40,7 +44,7 @@ namespace IdentityManagement.Api.Controllers
             }
 
             var response = await contractService.UpdateContract(id, request, cancellationToken);
-            return Http200(response, "Contract updated successfully.");
+            return Http200(response, Localizer["contract.updated"]);
         }
 
         [RequireAccess]
@@ -74,7 +78,7 @@ namespace IdentityManagement.Api.Controllers
             var secrets = await contractService.GetContractSecrets(id, cancellationToken);
             if (secrets is null)
             {
-                return Http404("Contract not found.");
+                return Http404(Localizer["contract.notFound"]);
             }
 
             return Http200(secrets);

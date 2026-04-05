@@ -1,15 +1,20 @@
 using Archon.Infrastructure.Services;
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Responses.UserRoles;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Infrastructure.Services
 {
     public sealed class UserRoleService : CrudService<UserRole>, IUserRoleService
     {
-        public UserRoleService(DbContext dbContext) : base(dbContext)
+        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+
+        public UserRoleService(DbContext dbContext, IStringLocalizer<IdentityManagementResource> Localizer) : base(dbContext)
         {
+            this.Localizer = Localizer;
         }
 
         public async Task<object> AssignUserToRole(long userId, long roleId, CancellationToken cancellationToken = default)
@@ -19,7 +24,7 @@ namespace IdentityManagement.Infrastructure.Services
             UserRole? existingUserRole = await GetCurrentUserRole(userId, roleId, cancellationToken);
             if (existingUserRole is not null)
             {
-                throw new InvalidOperationException("User is already assigned to this role.");
+                throw new InvalidOperationException(Localizer["userRole.alreadyAssigned"]);
             }
 
             UserRole userRole = new UserRole(userId, roleId);
@@ -31,7 +36,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             return new
             {
-                Message = "User role assigned successfully.",
+                Message = Localizer["userRole.assigned"].Value,
                 UserId = userId,
                 RoleId = roleId
             };
@@ -42,7 +47,7 @@ namespace IdentityManagement.Infrastructure.Services
             UserRole? userRole = await GetCurrentUserRole(userId, roleId, cancellationToken);
             if (userRole is null)
             {
-                throw new InvalidOperationException("User role assignment was not found.");
+                throw new InvalidOperationException(Localizer["userRole.assignment.notFound"]);
             }
 
             userRole.Revoke();
@@ -54,7 +59,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             return new
             {
-                Message = "User role revoked successfully.",
+                Message = Localizer["userRole.revoked"].Value,
                 UserId = userId,
                 RoleId = roleId
             };
@@ -70,7 +75,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (userRole is null)
             {
-                throw new InvalidOperationException("Inactive user role assignment was not found.");
+                throw new InvalidOperationException(Localizer["userRole.inactiveAssignment.notFound"]);
             }
 
             userRole.Reactivate();
@@ -82,7 +87,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             return new
             {
-                Message = "User role reactivated successfully.",
+                Message = Localizer["userRole.reactivated"].Value,
                 UserId = userId,
                 RoleId = roleId
             };
@@ -129,13 +134,13 @@ namespace IdentityManagement.Infrastructure.Services
             bool userExists = await DbContext.Set<User>().AnyAsync(item => item.Id == userId && item.IsActive, cancellationToken);
             if (!userExists)
             {
-                throw new InvalidOperationException("User not found or inactive.");
+                throw new InvalidOperationException(Localizer["user.notFoundOrInactive"]);
             }
 
             bool roleExists = await DbContext.Set<Role>().AnyAsync(item => item.Id == roleId, cancellationToken);
             if (!roleExists)
             {
-                throw new InvalidOperationException("Role not found.");
+                throw new InvalidOperationException(Localizer["role.notFound"]);
             }
         }
 

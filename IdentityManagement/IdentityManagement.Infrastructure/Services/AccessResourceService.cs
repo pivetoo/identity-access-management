@@ -1,18 +1,22 @@
 using Archon.Core.Access;
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Responses.AccessResources;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Infrastructure.Services
 {
     public sealed class AccessResourceService : IAccessResourceService
     {
         private readonly DbContext dbContext;
+        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
-        public AccessResourceService(DbContext dbContext)
+        public AccessResourceService(DbContext dbContext, IStringLocalizer<IdentityManagementResource> Localizer)
         {
             this.dbContext = dbContext;
+            this.Localizer = Localizer;
         }
 
         public async Task<IReadOnlyCollection<AccessResourceResponse>> GetActiveResources(CancellationToken cancellationToken = default)
@@ -82,7 +86,7 @@ namespace IdentityManagement.Infrastructure.Services
             {
                 if (!systemApplicationIdsByAudience.TryGetValue(resource.SystemAudience.Trim(), out long systemApplicationId))
                 {
-                    throw new InvalidOperationException($"System application with audience '{resource.SystemAudience}' was not found.");
+                    throw new InvalidOperationException(Localizer["systemApplication.audience.notFound", resource.SystemAudience]);
                 }
 
                 string resourceKey = CreateResourceKey(resource.SystemAudience, resource.Name);

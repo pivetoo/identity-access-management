@@ -1,3 +1,4 @@
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.Auth;
 using IdentityManagement.Application.Responses.Auth;
 using IdentityManagement.Application.Responses.Contracts;
@@ -5,6 +6,7 @@ using IdentityManagement.Application.Responses.Users;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
 using IdentityManagement.Domain.ValueObjects;
+using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Infrastructure.Services
 {
@@ -16,8 +18,9 @@ namespace IdentityManagement.Infrastructure.Services
         private readonly ITemporaryTokenService temporaryTokenService;
         private readonly ILoginSessionService loginSessionService;
         private readonly IRefreshTokenService refreshTokenService;
+        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
-        public AuthService(IUserService userService, IJwtService jwtService, IContractService contractService, ITemporaryTokenService temporaryTokenService, ILoginSessionService loginSessionService, IRefreshTokenService refreshTokenService)
+        public AuthService(IUserService userService, IJwtService jwtService, IContractService contractService, ITemporaryTokenService temporaryTokenService, ILoginSessionService loginSessionService, IRefreshTokenService refreshTokenService, IStringLocalizer<IdentityManagementResource> Localizer)
         {
             this.userService = userService;
             this.jwtService = jwtService;
@@ -25,6 +28,7 @@ namespace IdentityManagement.Infrastructure.Services
             this.temporaryTokenService = temporaryTokenService;
             this.loginSessionService = loginSessionService;
             this.refreshTokenService = refreshTokenService;
+            this.Localizer = Localizer;
         }
 
         public async Task<object> IdentifyUser(IdentifyUserRequest request, string ipAddress, string userAgent, CancellationToken cancellationToken = default)
@@ -32,13 +36,13 @@ namespace IdentityManagement.Infrastructure.Services
             var user = await userService.Authenticate(request.Username, request.Password, cancellationToken);
             if (user is null)
             {
-                throw new UnauthorizedAccessException("Invalid credentials.");
+                throw new UnauthorizedAccessException(Localizer["auth.invalidCredentials"]);
             }
 
             IReadOnlyCollection<ContractSelectionResponseItem> availableContracts = await contractService.GetActiveContractSelectionsByUserId(user.Id, cancellationToken);
             if (availableContracts.Count == 0)
             {
-                throw new UnauthorizedAccessException("User does not have active contracts.");
+                throw new UnauthorizedAccessException(Localizer["auth.user.noActiveContracts"]);
             }
 
             if (availableContracts.Count == 1)
@@ -47,7 +51,7 @@ namespace IdentityManagement.Infrastructure.Services
                 var contract = await contractService.GetByIdWithRelations(selectedContract.ContractId, cancellationToken);
                 if (contract is null)
                 {
-                    throw new UnauthorizedAccessException("Contract not found.");
+                    throw new UnauthorizedAccessException(Localizer["contract.notFound"]);
                 }
 
                 var session = await loginSessionService.CreateSession(user, contract, ipAddress, userAgent, contract.AccessTokenLifetime, cancellationToken);
@@ -82,27 +86,27 @@ namespace IdentityManagement.Infrastructure.Services
         {
             if (!temporaryTokenService.ValidateTemporaryTokenForUser(request.TemporaryToken, request.UserId))
             {
-                throw new UnauthorizedAccessException("Temporary token is invalid or expired.");
+                throw new UnauthorizedAccessException(Localizer["auth.temporaryToken.invalidOrExpired"]);
             }
 
             var user = await userService.GetById(request.UserId, cancellationToken);
 
             if (user is null || !user.IsActive)
             {
-                throw new UnauthorizedAccessException("User not found or inactive.");
+                throw new UnauthorizedAccessException(Localizer["user.notFoundOrInactive"]);
             }
 
             IReadOnlyCollection<ContractSelectionResponseItem> availableContracts = await contractService.GetActiveContractSelectionsByUserId(request.UserId, cancellationToken);
             ContractSelectionResponseItem? selectedContract = availableContracts.FirstOrDefault(item => item.ContractId == request.ContractId);
             if (selectedContract is null)
             {
-                throw new UnauthorizedAccessException("User does not have access to this contract.");
+                throw new UnauthorizedAccessException(Localizer["auth.user.noAccessToContract"]);
             }
 
             var contract = await contractService.GetByIdWithRelations(request.ContractId, cancellationToken);
             if (contract is null || !contract.IsValid())
             {
-                throw new UnauthorizedAccessException("Contract is invalid.");
+                throw new UnauthorizedAccessException(Localizer["auth.contract.invalid"]);
             }
 
             var session = await loginSessionService.CreateSession(user, contract, ipAddress, userAgent, contract.AccessTokenLifetime, cancellationToken);

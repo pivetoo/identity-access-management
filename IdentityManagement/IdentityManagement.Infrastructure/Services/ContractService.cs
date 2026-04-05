@@ -1,17 +1,22 @@
 using Archon.Infrastructure.Services;
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.Contracts;
 using IdentityManagement.Application.Responses.Contracts;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using System.Security.Cryptography;
 
 namespace IdentityManagement.Infrastructure.Services
 {
     public sealed class ContractService : CrudService<Contract>, IContractService
     {
-        public ContractService(DbContext dbContext) : base(dbContext)
+        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+
+        public ContractService(DbContext dbContext, IStringLocalizer<IdentityManagementResource> Localizer) : base(dbContext)
         {
+            this.Localizer = Localizer;
         }
 
         public async Task<ContractSummaryResponse> CreateContract(CreateContractRequest request, CancellationToken cancellationToken = default)
@@ -22,7 +27,7 @@ namespace IdentityManagement.Infrastructure.Services
             Contract? existingContract = await GetByCompanyAndSystemApplication(request.CompanyId, request.SystemApplicationId, cancellationToken);
             if (existingContract is not null && existingContract.IsActive)
             {
-                throw new InvalidOperationException("An active contract already exists for this company and system application.");
+                throw new InvalidOperationException(Localizer["contract.activeDuplicate"]);
             }
 
             Contract contract = new Contract(
@@ -50,7 +55,7 @@ namespace IdentityManagement.Infrastructure.Services
             await ApplySystemRoleTemplates(contract.Id, contract.SystemApplicationId, cancellationToken);
 
             Contract hydratedContract = await GetByIdWithRelations(contract.Id, cancellationToken)
-                ?? throw new InvalidOperationException("Contract could not be loaded after creation.");
+                ?? throw new InvalidOperationException(Localizer["contract.loadAfterCreate.failed"]);
 
             return ToSummaryResponse(hydratedContract);
         }
@@ -59,7 +64,7 @@ namespace IdentityManagement.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException("Route id does not match body id.");
+                throw new InvalidOperationException(Localizer["request.route.idMismatch"]);
             }
 
             ValidateDateRange(request.StartDate, request.EndDate);
@@ -72,7 +77,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (contract is null)
             {
-                throw new InvalidOperationException("Contract not found.");
+                throw new InvalidOperationException(Localizer["contract.notFound"]);
             }
 
             await EnsureSystemApplicationChangeAllowed(contract, request.SystemApplicationId, cancellationToken);
@@ -81,7 +86,7 @@ namespace IdentityManagement.Infrastructure.Services
             Contract? existingContract = await GetByCompanyAndSystemApplication(request.CompanyId, request.SystemApplicationId, cancellationToken);
             if (existingContract is not null && existingContract.Id != id && existingContract.IsActive)
             {
-                throw new InvalidOperationException("An active contract already exists for this company and system application.");
+                throw new InvalidOperationException(Localizer["contract.activeDuplicate"]);
             }
 
             contract.Update(
@@ -100,7 +105,7 @@ namespace IdentityManagement.Infrastructure.Services
             }
 
             Contract hydratedContract = await GetByIdWithRelations(result.Id, cancellationToken)
-                ?? throw new InvalidOperationException("Contract could not be loaded after update.");
+                ?? throw new InvalidOperationException(Localizer["contract.loadAfterUpdate.failed"]);
 
             return ToSummaryResponse(hydratedContract);
         }
@@ -353,13 +358,13 @@ namespace IdentityManagement.Infrastructure.Services
             bool companyExists = await DbContext.Set<Company>().AnyAsync(item => item.Id == companyId && item.IsActive, cancellationToken);
             if (!companyExists)
             {
-                throw new InvalidOperationException("Company not found or inactive.");
+                throw new InvalidOperationException(Localizer["company.notFoundOrInactive"]);
             }
 
             bool systemApplicationExists = await DbContext.Set<SystemApplication>().AnyAsync(item => item.Id == systemApplicationId && item.IsActive, cancellationToken);
             if (!systemApplicationExists)
             {
-                throw new InvalidOperationException("System application not found or inactive.");
+                throw new InvalidOperationException(Localizer["systemApplication.notFoundOrInactive"]);
             }
         }
 
@@ -428,15 +433,15 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (hasRoles)
             {
-                throw new InvalidOperationException("System application cannot be changed after roles have been created for the contract.");
+                throw new InvalidOperationException(Localizer["contract.systemApplication.changeNotAllowedAfterRoles"]);
             }
         }
 
-        private static void ValidateDateRange(DateTimeOffset startDate, DateTimeOffset? endDate)
+        private void ValidateDateRange(DateTimeOffset startDate, DateTimeOffset? endDate)
         {
             if (endDate.HasValue && endDate.Value <= startDate)
             {
-                throw new InvalidOperationException("End date must be greater than start date.");
+                throw new InvalidOperationException(Localizer["date.endMustBeGreaterThanStart"]);
             }
         }
     }

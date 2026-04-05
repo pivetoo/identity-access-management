@@ -1,10 +1,12 @@
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
 using IdentityManagement.Api.Attributes;
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.Auth;
 using IdentityManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Api.Controllers
 {
@@ -15,14 +17,16 @@ namespace IdentityManagement.Api.Controllers
         private readonly IRefreshTokenService refreshTokenService;
         private readonly IJwtService jwtService;
         private readonly ILoginSessionService loginSessionService;
+        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
-        public AuthController(IAuthService authService, IContractService contractService, IRefreshTokenService refreshTokenService, IJwtService jwtService, ILoginSessionService loginSessionService)
+        public AuthController(IAuthService authService, IContractService contractService, IRefreshTokenService refreshTokenService, IJwtService jwtService, ILoginSessionService loginSessionService, IStringLocalizer<IdentityManagementResource> Localizer)
         {
             this.authService = authService;
             this.contractService = contractService;
             this.refreshTokenService = refreshTokenService;
             this.jwtService = jwtService;
             this.loginSessionService = loginSessionService;
+            this.Localizer = Localizer;
         }
 
         [AllowAnonymous]
@@ -66,7 +70,7 @@ namespace IdentityManagement.Api.Controllers
             var result = await refreshTokenService.RefreshAccessToken(request.RefreshToken, cancellationToken);
             if (result.RefreshToken is null)
             {
-                return Http401("Refresh token is invalid or expired.");
+                return Http401(Localizer["auth.refreshToken.invalidOrExpired"]);
             }
 
             DateTimeOffset expiration = jwtService.GetTokenExpiration(result.NewAccessToken);
@@ -90,7 +94,7 @@ namespace IdentityManagement.Api.Controllers
             var contract = await contractService.GetByClientId(clientId, cancellationToken);
             if (contract is null)
             {
-                return Http404("Contract not found.");
+                return Http404(Localizer["contract.notFound"]);
             }
 
             return Http200(new
@@ -117,7 +121,7 @@ namespace IdentityManagement.Api.Controllers
             }
 
             await refreshTokenService.RevokeRefreshToken(request.RefreshToken, cancellationToken);
-            return Http200(message: "Logout completed successfully.");
+            return Http200(message: Localizer["auth.logout.completed"]);
         }
 
         [RequireAccess]
@@ -126,7 +130,7 @@ namespace IdentityManagement.Api.Controllers
         public async Task<IActionResult> RevokeSession(string sessionId, CancellationToken cancellationToken)
         {
             await loginSessionService.RevokeSession(sessionId, cancellationToken);
-            return Http200(message: "Session revoked successfully.");
+            return Http200(message: Localizer["auth.session.revoked"]);
         }
 
         [RequireAccess]
@@ -135,7 +139,7 @@ namespace IdentityManagement.Api.Controllers
         public async Task<IActionResult> RevokeAllSessions(CancellationToken cancellationToken)
         {
             int count = await loginSessionService.RevokeAllActiveSessions(cancellationToken);
-            return Http200(new { Count = count }, "All active sessions revoked successfully.");
+            return Http200(new { Count = count }, Localizer["auth.sessions.revokedAll"]);
         }
 
         [RequireAccess]
@@ -157,10 +161,10 @@ namespace IdentityManagement.Api.Controllers
             bool changed = await authService.ChangePassword(request, cancellationToken);
             if (!changed)
             {
-                return Http400("Current password is invalid.");
+                return Http400(Localizer["auth.password.currentInvalid"]);
             }
 
-            return Http200(message: "Password changed successfully.");
+            return Http200(message: Localizer["auth.password.changed"]);
         }
 
         [RequireAccess]
@@ -171,7 +175,7 @@ namespace IdentityManagement.Api.Controllers
             var user = await authService.GetUserByUsername(username, cancellationToken);
             if (user is null)
             {
-                return Http404("User not found.");
+                return Http404(Localizer["user.notFound"]);
             }
 
             return Http200(user);

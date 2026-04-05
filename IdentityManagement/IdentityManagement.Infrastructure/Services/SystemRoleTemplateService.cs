@@ -1,16 +1,21 @@
 using Archon.Infrastructure.Services;
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.SystemRoleTemplates;
 using IdentityManagement.Application.Responses.SystemRoleTemplates;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Infrastructure.Services
 {
     public sealed class SystemRoleTemplateService : CrudService<SystemRoleTemplate>, ISystemRoleTemplateService
     {
-        public SystemRoleTemplateService(DbContext dbContext) : base(dbContext)
+        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+
+        public SystemRoleTemplateService(DbContext dbContext, IStringLocalizer<IdentityManagementResource> Localizer) : base(dbContext)
         {
+            this.Localizer = Localizer;
         }
 
         public async Task<SystemRoleTemplateResponse> CreateSystemRoleTemplate(CreateSystemRoleTemplateRequest request, CancellationToken cancellationToken = default)
@@ -45,7 +50,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (template is null)
             {
-                throw new InvalidOperationException("System role template not found.");
+                throw new InvalidOperationException(Localizer["systemRoleTemplate.notFound"]);
             }
 
             await EnsureUniqueTemplateName(template.SystemApplicationId, request.Name, id, cancellationToken);
@@ -124,7 +129,7 @@ namespace IdentityManagement.Infrastructure.Services
         private async Task<SystemRoleTemplateResponse> GetRequiredResponse(long id, CancellationToken cancellationToken)
         {
             return await GetById(id, cancellationToken)
-                ?? throw new InvalidOperationException("System role template could not be loaded.");
+                ?? throw new InvalidOperationException(Localizer["systemRoleTemplate.load.failed"]);
         }
 
         private async Task EnsureSystemApplication(long systemApplicationId, CancellationToken cancellationToken)
@@ -134,7 +139,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (!exists)
             {
-                throw new InvalidOperationException("System application not found or inactive.");
+                throw new InvalidOperationException(Localizer["systemApplication.notFoundOrInactive"]);
             }
         }
 
@@ -150,7 +155,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (exists)
             {
-                throw new InvalidOperationException("System role template name already exists for this application.");
+                throw new InvalidOperationException(Localizer["systemRoleTemplate.name.alreadyExists"]);
             }
         }
 
@@ -192,7 +197,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (validResourceIds.Count != normalizedIds.Count)
             {
-                throw new InvalidOperationException("One or more access resources are invalid for this system application.");
+                throw new InvalidOperationException(Localizer["systemRoleTemplate.accessResource.invalid"]);
             }
 
             List<SystemRoleTemplateAccessResource> existingLinks = await (

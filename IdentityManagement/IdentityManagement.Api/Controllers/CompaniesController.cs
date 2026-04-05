@@ -1,18 +1,22 @@
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.Companies;
 using IdentityManagement.Application.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Api.Controllers
 {
     public sealed class CompaniesController : ApiControllerBase
     {
         private readonly ICompanyService companyService;
+        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
-        public CompaniesController(ICompanyService companyService)
+        public CompaniesController(ICompanyService companyService, IStringLocalizer<IdentityManagementResource> Localizer)
         {
             this.companyService = companyService;
+            this.Localizer = Localizer;
         }
 
         [RequireAccess]
@@ -26,7 +30,7 @@ namespace IdentityManagement.Api.Controllers
             }
 
             var response = await companyService.CreateCompany(request, cancellationToken);
-            return Http201(response, "Company created successfully.");
+            return Http201(response, Localizer["company.created"]);
         }
 
         [RequireAccess]
@@ -40,7 +44,7 @@ namespace IdentityManagement.Api.Controllers
             }
 
             var response = await companyService.UpdateCompany(id, request, cancellationToken);
-            return Http200(response, "Company updated successfully.");
+            return Http200(response, Localizer["company.updated"]);
         }
 
         [RequireAccess]

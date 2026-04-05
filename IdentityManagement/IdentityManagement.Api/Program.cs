@@ -1,6 +1,7 @@
 using Archon.Api.DependencyInjection;
 using Archon.Api.MultiTenancy;
 using Archon.Infrastructure.DependencyInjection;
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Infrastructure.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -46,7 +47,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 builder.Services.AddAuthorization();
-builder.Services.AddArchonApi(builder.Configuration);
+builder.Services.AddArchonApi(builder.Configuration, typeof(IdentityManagementResource));
 builder.Services.AddIdentityManagementInfrastructure(builder.Configuration);
 builder.Services.AddServicesFromAssembly(typeof(Program).Assembly);
 

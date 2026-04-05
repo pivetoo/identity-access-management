@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="request.route.idMismatch" xml:space="preserve">
+    <value>O id da rota não corresponde ao id do corpo da requisição.</value>
+  </data>
+  <data name="company.created" xml:space="preserve">
+    <value>Empresa criada com sucesso.</value>
+  </data>
+  <data name="company.updated" xml:space="preserve">
+    <value>Empresa atualizada com sucesso.</value>
+  </data>
+  <data name="company.notFound" xml:space="preserve">
+    <value>Empresa não encontrada.</value>
+  </data>
+  <data name="company.notFoundOrInactive" xml:space="preserve">
+    <value>Empresa não encontrada ou inativa.</value>
+  </data>
+  <data name="company.document.alreadyExists" xml:space="preserve">
+    <value>Já existe uma empresa com este documento.</value>
+  </data>
+  <data name="email.alreadyExists" xml:space="preserve">
+    <value>Já existe um registro com este e-mail.</value>
+  </data>
+  <data name="contract.created" xml:space="preserve">
+    <value>Contrato criado com sucesso.</value>
+  </data>
+  <data name="contract.updated" xml:space="preserve">
+    <value>Contrato atualizado com sucesso.</value>
+  </data>
+  <data name="contract.notFound" xml:space="preserve">
+    <value>Contrato não encontrado.</value>
+  </data>
+  <data name="contract.notFoundOrInactive" xml:space="preserve">
+    <value>Contrato não encontrado ou inativo.</value>
+  </data>
+  <data name="contract.activeDuplicate" xml:space="preserve">
+    <value>Já existe um contrato ativo para esta empresa e aplicação.</value>
+  </data>
+  <data name="contract.loadAfterCreate.failed" xml:space="preserve">
+    <value>Não foi possível carregar o contrato após a criação.</value>
+  </data>
+  <data name="contract.loadAfterUpdate.failed" xml:space="preserve">
+    <value>Não foi possível carregar o contrato após a atualização.</value>
+  </data>
+  <data name="contract.systemApplication.changeNotAllowedAfterRoles" xml:space="preserve">
+    <value>A aplicação do sistema não pode ser alterada após a criação de perfis para o contrato.</value>
+  </data>
+  <data name="date.endMustBeGreaterThanStart" xml:space="preserve">
+    <value>A data final deve ser maior que a data inicial.</value>
+  </data>
+  <data name="systemApplication.created" xml:space="preserve">
+    <value>Aplicação do sistema criada com sucesso.</value>
+  </data>
+  <data name="systemApplication.updated" xml:space="preserve">
+    <value>Aplicação do sistema atualizada com sucesso.</value>
+  </data>
+  <data name="systemApplication.notFound" xml:space="preserve">
+    <value>Aplicação do sistema não encontrada.</value>
+  </data>
+  <data name="systemApplication.notFoundOrInactive" xml:space="preserve">
+    <value>Aplicação do sistema não encontrada ou inativa.</value>
+  </data>
+  <data name="systemApplication.name.alreadyExists" xml:space="preserve">
+    <value>Já existe uma aplicação do sistema com este nome.</value>
+  </data>
+  <data name="systemApplication.audience.alreadyExists" xml:space="preserve">
+    <value>Já existe uma aplicação do sistema com esta audience.</value>
+  </data>
+  <data name="systemApplication.audience.notFound" xml:space="preserve">
+    <value>A aplicação do sistema com audience '{0}' não foi encontrada.</value>
+  </data>
+  <data name="role.created" xml:space="preserve">
+    <value>Perfil criado com sucesso.</value>
+  </data>
+  <data name="role.updated" xml:space="preserve">
+    <value>Perfil atualizado com sucesso.</value>
+  </data>
+  <data name="role.notFound" xml:space="preserve">
+    <value>Perfil não encontrado.</value>
+  </data>
+  <data name="role.default.notFound" xml:space="preserve">
+    <value>Perfil padrão não encontrado.</value>
+  </data>
+  <data name="role.contract.systemApplication.notFound" xml:space="preserve">
+    <value>A aplicação do sistema do contrato do perfil não foi encontrada.</value>
+  </data>
+  <data name="accessResource.invalid" xml:space="preserve">
+    <value>Um ou mais recursos de acesso são inválidos.</value>
+  </data>
+  <data name="accessResources.sync.completed" xml:space="preserve">
+    <value>Recursos de acesso sincronizados com sucesso.</value>
+  </data>
+  <data name="user.created" xml:space="preserve">
+    <value>Usuário criado com sucesso.</value>
+  </data>
+  <data name="user.first.created" xml:space="preserve">
+    <value>Primeiro usuário criado com sucesso.</value>
+  </data>
+  <data name="user.updated" xml:space="preserve">
+    <value>Usuário atualizado com sucesso.</value>
+  </data>
+  <data name="user.notFound" xml:space="preserve">
+    <value>Usuário não encontrado.</value>
+  </data>
+  <data name="user.notFoundOrInactive" xml:space="preserve">
+    <value>Usuário não encontrado ou inativo.</value>
+  </data>
+  <data name="user.firstRegistration.notAllowed" xml:space="preserve">
+    <value>O cadastro do primeiro usuário não é permitido porque já existem usuários ativos.</value>
+  </data>
+  <data name="user.username.alreadyExists" xml:space="preserve">
+    <value>Já existe um usuário com este nome de usuário.</value>
+  </data>
+  <data name="user.avatar.updated" xml:space="preserve">
+    <value>Avatar do usuário atualizado com sucesso.</value>
+  </data>
+  <data name="user.avatar.deleted" xml:space="preserve">
+    <value>Avatar do usuário removido com sucesso.</value>
+  </data>
+  <data name="userRole.assigned" xml:space="preserve">
+    <value>Vínculo de usuário com perfil criado com sucesso.</value>
+  </data>
+  <data name="userRole.revoked" xml:space="preserve">
+    <value>Vínculo de usuário com perfil revogado com sucesso.</value>
+  </data>
+  <data name="userRole.reactivated" xml:space="preserve">
+    <value>Vínculo de usuário com perfil reativado com sucesso.</value>
+  </data>
+  <data name="userRole.alreadyAssigned" xml:space="preserve">
+    <value>O usuário já está vinculado a este perfil.</value>
+  </data>
+  <data name="userRole.assignment.notFound" xml:space="preserve">
+    <value>O vínculo de usuário com perfil não foi encontrado.</value>
+  </data>
+  <data name="userRole.inactiveAssignment.notFound" xml:space="preserve">
+    <value>O vínculo inativo de usuário com perfil não foi encontrado.</value>
+  </data>
+  <data name="systemRoleTemplate.created" xml:space="preserve">
+    <value>Perfil padrão de sistema criado com sucesso.</value>
+  </data>
+  <data name="systemRoleTemplate.updated" xml:space="preserve">
+    <value>Perfil padrão de sistema atualizado com sucesso.</value>
+  </data>
+  <data name="systemRoleTemplate.notFound" xml:space="preserve">
+    <value>Perfil padrão de sistema não encontrado.</value>
+  </data>
+  <data name="systemRoleTemplate.load.failed" xml:space="preserve">
+    <value>Não foi possível carregar o perfil padrão de sistema.</value>
+  </data>
+  <data name="systemRoleTemplate.name.alreadyExists" xml:space="preserve">
+    <value>Já existe um perfil padrão de sistema com este nome para esta aplicação.</value>
+  </data>
+  <data name="systemRoleTemplate.accessResource.invalid" xml:space="preserve">
+    <value>Um ou mais recursos de acesso são inválidos para esta aplicação.</value>
+  </data>
+  <data name="auth.invalidCredentials" xml:space="preserve">
+    <value>Credenciais inválidas.</value>
+  </data>
+  <data name="auth.user.noActiveContracts" xml:space="preserve">
+    <value>O usuário não possui contratos ativos.</value>
+  </data>
+  <data name="auth.temporaryToken.invalidOrExpired" xml:space="preserve">
+    <value>O token temporário é inválido ou expirou.</value>
+  </data>
+  <data name="auth.user.noAccessToContract" xml:space="preserve">
+    <value>O usuário não possui acesso a este contrato.</value>
+  </data>
+  <data name="auth.contract.invalid" xml:space="preserve">
+    <value>O contrato é inválido.</value>
+  </data>
+  <data name="auth.refreshToken.invalidOrExpired" xml:space="preserve">
+    <value>O refresh token é inválido ou expirou.</value>
+  </data>
+  <data name="auth.logout.completed" xml:space="preserve">
+    <value>Logout realizado com sucesso.</value>
+  </data>
+  <data name="auth.session.revoked" xml:space="preserve">
+    <value>Sessão revogada com sucesso.</value>
+  </data>
+  <data name="auth.sessions.revokedAll" xml:space="preserve">
+    <value>Todas as sessões ativas foram revogadas com sucesso.</value>
+  </data>
+  <data name="auth.password.currentInvalid" xml:space="preserve">
+    <value>A senha atual é inválida.</value>
+  </data>
+  <data name="auth.password.changed" xml:space="preserve">
+    <value>Senha alterada com sucesso.</value>
+  </data>
+</root>

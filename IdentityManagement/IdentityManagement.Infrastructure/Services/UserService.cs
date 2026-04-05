@@ -1,16 +1,21 @@
 using Archon.Infrastructure.Services;
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.Users;
 using IdentityManagement.Application.Responses.Users;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Infrastructure.Services
 {
     public sealed class UserService : CrudService<User>, IUserService
     {
-        public UserService(DbContext dbContext) : base(dbContext)
+        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+
+        public UserService(DbContext dbContext, IStringLocalizer<IdentityManagementResource> Localizer) : base(dbContext)
         {
+            this.Localizer = Localizer;
         }
 
         public async Task<UserResponse> CreateUser(RegisterUserRequest request, CancellationToken cancellationToken = default)
@@ -23,7 +28,7 @@ namespace IdentityManagement.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException("Route id does not match body id.");
+                throw new InvalidOperationException(Localizer["request.route.idMismatch"]);
             }
 
             User? user = await (
@@ -34,7 +39,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (user is null)
             {
-                throw new InvalidOperationException("User not found.");
+                throw new InvalidOperationException(Localizer["user.notFound"]);
             }
 
             await EnsureUniqueUser(request.Username, request.Email, id, cancellationToken);
@@ -65,7 +70,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (user is null)
             {
-                throw new InvalidOperationException("User not found.");
+                throw new InvalidOperationException(Localizer["user.notFound"]);
             }
 
             string? previousAvatarUrl = user.AvatarUrl;
@@ -205,7 +210,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (usernameExists)
             {
-                throw new InvalidOperationException("Username already exists.");
+                throw new InvalidOperationException(Localizer["user.username.alreadyExists"]);
             }
 
             bool emailExists = await (
@@ -216,7 +221,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (emailExists)
             {
-                throw new InvalidOperationException("Email already exists.");
+                throw new InvalidOperationException(Localizer["email.alreadyExists"]);
             }
         }
 

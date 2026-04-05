@@ -1,19 +1,23 @@
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.Users;
 using IdentityManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Api.Controllers
 {
     public sealed class UsersController : ApiControllerBase
     {
         private readonly IUserService userService;
+        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
-        public UsersController(IUserService userService)
+        public UsersController(IUserService userService, IStringLocalizer<IdentityManagementResource> Localizer)
         {
             this.userService = userService;
+            this.Localizer = Localizer;
         }
 
         [AllowAnonymous]
@@ -29,11 +33,11 @@ namespace IdentityManagement.Api.Controllers
             IReadOnlyCollection<IdentityManagement.Application.Responses.Users.UserResponse> existingUsers = await userService.GetActiveUsers(cancellationToken);
             if (existingUsers.Count > 0)
             {
-                return Http403("First user registration is not allowed because active users already exist.");
+                return Http403(Localizer["user.firstRegistration.notAllowed"]);
             }
 
             var response = await userService.CreateUser(request, cancellationToken);
-            return Http201(response, "First user created successfully.");
+            return Http201(response, Localizer["user.first.created"]);
         }
 
         [RequireAccess]
@@ -47,7 +51,7 @@ namespace IdentityManagement.Api.Controllers
             }
 
             var response = await userService.CreateUser(request, cancellationToken);
-            return Http201(response, "User created successfully.");
+            return Http201(response, Localizer["user.created"]);
         }
 
         [RequireAccess]
@@ -61,7 +65,7 @@ namespace IdentityManagement.Api.Controllers
             }
 
             var response = await userService.UpdateUser(id, request, cancellationToken);
-            return Http200(response, "User updated successfully.");
+            return Http200(response, Localizer["user.updated"]);
         }
 
         [RequireAccess]
@@ -79,7 +83,7 @@ namespace IdentityManagement.Api.Controllers
             var user = await userService.GetById(id, cancellationToken);
             if (user is null)
             {
-                return Http404("User not found.");
+                return Http404(Localizer["user.notFound"]);
             }
 
             return Http200(new
@@ -105,7 +109,7 @@ namespace IdentityManagement.Api.Controllers
             {
                 AvatarUrl = avatarUrl,
                 PreviousAvatarUrl = previousAvatarUrl
-            }, "User avatar updated successfully.");
+            }, Localizer["user.avatar.updated"]);
         }
 
         [RequireAccess]
@@ -116,7 +120,7 @@ namespace IdentityManagement.Api.Controllers
             return Http200(new
             {
                 PreviousAvatarUrl = previousAvatarUrl
-            }, "User avatar deleted successfully.");
+            }, Localizer["user.avatar.deleted"]);
         }
     }
 }

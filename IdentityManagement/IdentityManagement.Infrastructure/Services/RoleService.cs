@@ -1,16 +1,21 @@
 using Archon.Infrastructure.Services;
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.Roles;
 using IdentityManagement.Application.Responses.Roles;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Infrastructure.Services
 {
     public sealed class RoleService : CrudService<Role>, IRoleService
     {
-        public RoleService(DbContext dbContext) : base(dbContext)
+        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+
+        public RoleService(DbContext dbContext, IStringLocalizer<IdentityManagementResource> Localizer) : base(dbContext)
         {
+            this.Localizer = Localizer;
         }
 
         public async Task<RoleResponse> CreateRole(CreateRoleRequest request, CancellationToken cancellationToken = default)
@@ -44,7 +49,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (role is null)
             {
-                throw new InvalidOperationException("Role not found.");
+                throw new InvalidOperationException(Localizer["role.notFound"]);
             }
 
             if (request.IsDefault)
@@ -149,7 +154,7 @@ namespace IdentityManagement.Infrastructure.Services
             bool contractExists = await DbContext.Set<Contract>().AnyAsync(item => item.Id == contractId && item.IsActive, cancellationToken);
             if (!contractExists)
             {
-                throw new InvalidOperationException("Contract not found or inactive.");
+                throw new InvalidOperationException(Localizer["contract.notFoundOrInactive"]);
             }
         }
 
@@ -213,7 +218,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (role is null)
             {
-                throw new InvalidOperationException("Role not found.");
+                throw new InvalidOperationException(Localizer["role.notFound"]);
             }
 
             return role;
@@ -230,7 +235,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (systemApplicationId <= 0)
             {
-                throw new InvalidOperationException("Role contract system application was not found.");
+                throw new InvalidOperationException(Localizer["role.contract.systemApplication.notFound"]);
             }
 
             List<long> normalizedIds = accessResourceIds
@@ -248,7 +253,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (validResourceIds.Count != normalizedIds.Count)
             {
-                throw new InvalidOperationException("One or more access resources are invalid.");
+                throw new InvalidOperationException(Localizer["accessResource.invalid"]);
             }
 
             List<RoleAccessResource> existingLinks = await (

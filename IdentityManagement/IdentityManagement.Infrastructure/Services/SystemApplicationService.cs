@@ -1,16 +1,21 @@
 using Archon.Infrastructure.Services;
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.SystemApplications;
 using IdentityManagement.Application.Responses.SystemApplications;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Infrastructure.Services
 {
     public sealed class SystemApplicationService : CrudService<SystemApplication>, ISystemApplicationService
     {
-        public SystemApplicationService(DbContext dbContext) : base(dbContext)
+        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+
+        public SystemApplicationService(DbContext dbContext, IStringLocalizer<IdentityManagementResource> Localizer) : base(dbContext)
         {
+            this.Localizer = Localizer;
         }
 
         public async Task<SystemApplicationResponse> CreateSystemApplication(CreateSystemApplicationRequest request, CancellationToken cancellationToken = default)
@@ -31,7 +36,7 @@ namespace IdentityManagement.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException("Route id does not match body id.");
+                throw new InvalidOperationException(Localizer["request.route.idMismatch"]);
             }
 
             SystemApplication? systemApplication = await (
@@ -42,7 +47,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (systemApplication is null)
             {
-                throw new InvalidOperationException("System application not found.");
+                throw new InvalidOperationException(Localizer["systemApplication.notFound"]);
             }
 
             await EnsureUniqueSystemApplication(request.Name, request.Audience, id, cancellationToken);
@@ -91,7 +96,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (nameExists)
             {
-                throw new InvalidOperationException("System application name already exists.");
+                throw new InvalidOperationException(Localizer["systemApplication.name.alreadyExists"]);
             }
 
             bool audienceExists = await (
@@ -102,7 +107,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (audienceExists)
             {
-                throw new InvalidOperationException("System application audience already exists.");
+                throw new InvalidOperationException(Localizer["systemApplication.audience.alreadyExists"]);
             }
         }
 

@@ -1,18 +1,22 @@
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.UserRoles;
 using IdentityManagement.Application.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Api.Controllers
 {
     public sealed class UserRolesController : ApiControllerBase
     {
         private readonly IUserRoleService userRoleService;
+        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
-        public UserRolesController(IUserRoleService userRoleService)
+        public UserRolesController(IUserRoleService userRoleService, IStringLocalizer<IdentityManagementResource> Localizer)
         {
             this.userRoleService = userRoleService;
+            this.Localizer = Localizer;
         }
 
         [RequireAccess]
@@ -26,7 +30,7 @@ namespace IdentityManagement.Api.Controllers
             }
 
             object response = await userRoleService.AssignUserToRole(request.UserId, request.RoleId, cancellationToken);
-            return Http201(response, "User role assigned successfully.");
+            return Http201(response, Localizer["userRole.assigned"]);
         }
 
         [RequireAccess]
@@ -40,7 +44,7 @@ namespace IdentityManagement.Api.Controllers
             }
 
             object response = await userRoleService.RevokeUserFromRole(request.UserId, request.RoleId, cancellationToken);
-            return Http200(response, "User role revoked successfully.");
+            return Http200(response, Localizer["userRole.revoked"]);
         }
 
         [RequireAccess]
@@ -54,7 +58,7 @@ namespace IdentityManagement.Api.Controllers
             }
 
             object response = await userRoleService.ReactivateUserRole(request.UserId, request.RoleId, cancellationToken);
-            return Http200(response, "User role reactivated successfully.");
+            return Http200(response, Localizer["userRole.reactivated"]);
         }
 
         [RequireAccess]

@@ -1,18 +1,22 @@
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.Roles;
 using IdentityManagement.Application.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Api.Controllers
 {
     public sealed class RolesController : ApiControllerBase
     {
         private readonly IRoleService roleService;
+        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
-        public RolesController(IRoleService roleService)
+        public RolesController(IRoleService roleService, IStringLocalizer<IdentityManagementResource> Localizer)
         {
             this.roleService = roleService;
+            this.Localizer = Localizer;
         }
 
         [RequireAccess]
@@ -26,7 +30,7 @@ namespace IdentityManagement.Api.Controllers
             }
 
             var response = await roleService.CreateRole(request, cancellationToken);
-            return Http201(response, "Role created successfully.");
+            return Http201(response, Localizer["role.created"]);
         }
 
         [RequireAccess]
@@ -40,7 +44,7 @@ namespace IdentityManagement.Api.Controllers
             }
 
             var response = await roleService.UpdateRole(id, request, cancellationToken);
-            return Http200(response, "Role updated successfully.");
+            return Http200(response, Localizer["role.updated"]);
         }
 
         [RequireAccess]
@@ -66,7 +70,7 @@ namespace IdentityManagement.Api.Controllers
             var role = await roleService.GetDefaultRoleByContract(contractId, cancellationToken);
             if (role is null)
             {
-                return Http404("Default role not found.");
+                return Http404(Localizer["role.default.notFound"]);
             }
 
             return Http200(role);

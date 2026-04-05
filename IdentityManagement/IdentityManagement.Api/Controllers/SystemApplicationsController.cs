@@ -1,18 +1,22 @@
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.SystemApplications;
 using IdentityManagement.Application.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Api.Controllers
 {
     public sealed class SystemApplicationsController : ApiControllerBase
     {
         private readonly ISystemApplicationService systemApplicationService;
+        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
-        public SystemApplicationsController(ISystemApplicationService systemApplicationService)
+        public SystemApplicationsController(ISystemApplicationService systemApplicationService, IStringLocalizer<IdentityManagementResource> Localizer)
         {
             this.systemApplicationService = systemApplicationService;
+            this.Localizer = Localizer;
         }
 
         [RequireAccess]
@@ -26,7 +30,7 @@ namespace IdentityManagement.Api.Controllers
             }
 
             var response = await systemApplicationService.CreateSystemApplication(request, cancellationToken);
-            return Http201(response, "System application created successfully.");
+            return Http201(response, Localizer["systemApplication.created"]);
         }
 
         [RequireAccess]
@@ -40,7 +44,7 @@ namespace IdentityManagement.Api.Controllers
             }
 
             var response = await systemApplicationService.UpdateSystemApplication(id, request, cancellationToken);
-            return Http200(response, "System application updated successfully.");
+            return Http200(response, Localizer["systemApplication.updated"]);
         }
 
         [RequireAccess]
