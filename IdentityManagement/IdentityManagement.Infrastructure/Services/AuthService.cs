@@ -18,7 +18,7 @@ namespace IdentityManagement.Infrastructure.Services
         private readonly ITemporaryTokenService temporaryTokenService;
         private readonly ILoginSessionService loginSessionService;
         private readonly IRefreshTokenService refreshTokenService;
-        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+        private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
         public AuthService(IUserService userService, IJwtService jwtService, IContractService contractService, ITemporaryTokenService temporaryTokenService, ILoginSessionService loginSessionService, IRefreshTokenService refreshTokenService, IStringLocalizer<IdentityManagementResource> Localizer)
         {

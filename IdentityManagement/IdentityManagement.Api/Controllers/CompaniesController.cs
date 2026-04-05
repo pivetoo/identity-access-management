@@ -11,7 +11,7 @@ namespace IdentityManagement.Api.Controllers
     public sealed class CompaniesController : ApiControllerBase
     {
         private readonly ICompanyService companyService;
-        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+        private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
         public CompaniesController(ICompanyService companyService, IStringLocalizer<IdentityManagementResource> Localizer)
         {
@@ -20,7 +20,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [PostEndpoint("")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCompanyRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -48,7 +48,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint("")]
+        [GetEndpoint]
         public async Task<IActionResult> GetActive(CancellationToken cancellationToken)
         {
             var companies = await companyService.GetActiveCompanies(cancellationToken);

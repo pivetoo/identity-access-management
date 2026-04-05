@@ -17,7 +17,7 @@ namespace IdentityManagement.Api.Controllers
         private readonly IRefreshTokenService refreshTokenService;
         private readonly IJwtService jwtService;
         private readonly ILoginSessionService loginSessionService;
-        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+        private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
         public AuthController(IAuthService authService, IContractService contractService, IRefreshTokenService refreshTokenService, IJwtService jwtService, ILoginSessionService loginSessionService, IStringLocalizer<IdentityManagementResource> Localizer)
         {
@@ -30,7 +30,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [AllowAnonymous]
-        [PostEndpoint]
+        [PostEndpoint("[action]")]
         public async Task<IActionResult> Identify([FromBody] IdentifyUserRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -44,7 +44,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [AllowAnonymous]
-        [PostEndpoint]
+        [PostEndpoint("[action]")]
         public async Task<IActionResult> LoginWithContract([FromBody] LoginWithContractRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -58,7 +58,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [AllowAnonymous]
-        [PostEndpoint]
+        [PostEndpoint("[action]")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -111,7 +111,7 @@ namespace IdentityManagement.Api.Controllers
 
         [RequireAccess]
         [Authorize]
-        [PostEndpoint]
+        [PostEndpoint("[action]")]
         public async Task<IActionResult> Logout([FromBody] LogoutRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -144,7 +144,7 @@ namespace IdentityManagement.Api.Controllers
 
         [RequireAccess]
         [Authorize]
-        [PostEndpoint]
+        [PostEndpoint("[action]")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

@@ -11,7 +11,7 @@ namespace IdentityManagement.Infrastructure.Services
     public sealed class AccessResourceService : IAccessResourceService
     {
         private readonly DbContext dbContext;
-        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+        private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
         public AccessResourceService(DbContext dbContext, IStringLocalizer<IdentityManagementResource> Localizer)
         {

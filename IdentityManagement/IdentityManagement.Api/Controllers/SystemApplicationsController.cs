@@ -11,7 +11,7 @@ namespace IdentityManagement.Api.Controllers
     public sealed class SystemApplicationsController : ApiControllerBase
     {
         private readonly ISystemApplicationService systemApplicationService;
-        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+        private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
         public SystemApplicationsController(ISystemApplicationService systemApplicationService, IStringLocalizer<IdentityManagementResource> Localizer)
         {
@@ -20,7 +20,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [PostEndpoint("")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateSystemApplicationRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -48,7 +48,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint("")]
+        [GetEndpoint]
         public async Task<IActionResult> GetActive(CancellationToken cancellationToken)
         {
             var systemApplications = await systemApplicationService.GetActiveSystemApplications(cancellationToken);

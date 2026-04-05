@@ -11,7 +11,7 @@ namespace IdentityManagement.Infrastructure.Services
 {
     public sealed class SystemApplicationService : CrudService<SystemApplication>, ISystemApplicationService
     {
-        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+        private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
         public SystemApplicationService(DbContext dbContext, IStringLocalizer<IdentityManagementResource> Localizer) : base(dbContext)
         {

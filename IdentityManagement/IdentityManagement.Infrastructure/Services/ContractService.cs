@@ -12,7 +12,7 @@ namespace IdentityManagement.Infrastructure.Services
 {
     public sealed class ContractService : CrudService<Contract>, IContractService
     {
-        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+        private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
         public ContractService(DbContext dbContext, IStringLocalizer<IdentityManagementResource> Localizer) : base(dbContext)
         {

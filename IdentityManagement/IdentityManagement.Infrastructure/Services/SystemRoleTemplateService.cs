@@ -11,7 +11,7 @@ namespace IdentityManagement.Infrastructure.Services
 {
     public sealed class SystemRoleTemplateService : CrudService<SystemRoleTemplate>, ISystemRoleTemplateService
     {
-        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+        private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
         public SystemRoleTemplateService(DbContext dbContext, IStringLocalizer<IdentityManagementResource> Localizer) : base(dbContext)
         {

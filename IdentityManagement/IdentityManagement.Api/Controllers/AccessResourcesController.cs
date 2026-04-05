@@ -13,7 +13,7 @@ namespace IdentityManagement.Api.Controllers
     public sealed class AccessResourcesController : ApiControllerBase
     {
         private readonly IAccessResourceService accessResourceService;
-        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+        private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
         public AccessResourcesController(IAccessResourceService accessResourceService, IStringLocalizer<IdentityManagementResource> Localizer)
         {
@@ -22,7 +22,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint("")]
+        [GetEndpoint]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
             var response = await accessResourceService.GetActiveResources(cancellationToken);

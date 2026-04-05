@@ -11,7 +11,7 @@ namespace IdentityManagement.Api.Controllers
     public sealed class SystemRoleTemplatesController : ApiControllerBase
     {
         private readonly ISystemRoleTemplateService systemRoleTemplateService;
-        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+        private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
         public SystemRoleTemplatesController(ISystemRoleTemplateService systemRoleTemplateService, IStringLocalizer<IdentityManagementResource> Localizer)
         {
@@ -20,7 +20,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess("Permite cadastrar um perfil padrão para uma aplicação do sistema.")]
-        [PostEndpoint("")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateSystemRoleTemplateRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

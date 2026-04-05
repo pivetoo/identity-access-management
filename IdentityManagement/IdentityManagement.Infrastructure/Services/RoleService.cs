@@ -11,7 +11,7 @@ namespace IdentityManagement.Infrastructure.Services
 {
     public sealed class RoleService : CrudService<Role>, IRoleService
     {
-        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+        private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
         public RoleService(DbContext dbContext, IStringLocalizer<IdentityManagementResource> Localizer) : base(dbContext)
         {

@@ -11,7 +11,7 @@ namespace IdentityManagement.Api.Controllers
     public sealed class UserRolesController : ApiControllerBase
     {
         private readonly IUserRoleService userRoleService;
-        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+        private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
         public UserRolesController(IUserRoleService userRoleService, IStringLocalizer<IdentityManagementResource> Localizer)
         {
@@ -20,7 +20,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [PostEndpoint("")]
+        [PostEndpoint]
         public async Task<IActionResult> Assign([FromBody] AssignUserRoleRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

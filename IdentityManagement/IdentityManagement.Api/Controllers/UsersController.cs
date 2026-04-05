@@ -12,7 +12,7 @@ namespace IdentityManagement.Api.Controllers
     public sealed class UsersController : ApiControllerBase
     {
         private readonly IUserService userService;
-        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+        private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
         public UsersController(IUserService userService, IStringLocalizer<IdentityManagementResource> Localizer)
         {
@@ -41,7 +41,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [PostEndpoint("")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] RegisterUserRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -69,7 +69,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint("")]
+        [GetEndpoint]
         public async Task<IActionResult> GetActive(CancellationToken cancellationToken)
         {
             var users = await userService.GetActiveUsers(cancellationToken);
