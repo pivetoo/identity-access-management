@@ -54,7 +54,15 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: system/identity-access-management/IdentityManagement/IdentityManagement.Web/package-lock.json
+          cache-dependency-path: |
+            frameworks/archon-ui/package-lock.json
+            system/identity-access-management/IdentityManagement/IdentityManagement.Web/package-lock.json
+
+      - name: Install Archon UI dependencies
+        run: npm --prefix "frameworks/archon-ui" ci
+
+      - name: Build Archon UI
+        run: npm --prefix "frameworks/archon-ui" run build
 
       - name: Install frontend dependencies
         run: npm --prefix "system/identity-access-management/IdentityManagement/IdentityManagement.Web" ci
