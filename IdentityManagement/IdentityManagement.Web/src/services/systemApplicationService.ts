@@ -6,7 +6,7 @@ export class SystemApplicationService {
   private static baseUrl = '/systemapplications'
 
   static async getAll(params?: PaginationParams): Promise<PaginatedResult<SystemApplication>> {
-    const response = await httpClient.get<SystemApplication[]>(this.baseUrl)
+    const response = await httpClient.get<SystemApplication[]>(`${this.baseUrl}/getactive`)
     const sistemas = response.data ?? []
 
     return queryCollection(sistemas, params, ['name', 'description', 'audience'])
@@ -24,12 +24,12 @@ export class SystemApplicationService {
   }
 
   static async getActive(): Promise<SystemApplication[]> {
-    const response = await httpClient.get<SystemApplication[]>(this.baseUrl)
+    const response = await httpClient.get<SystemApplication[]>(`${this.baseUrl}/getactive`)
     return response.data ?? []
   }
 
   static async create(sistema: CreateSystemApplicationRequest): Promise<SystemApplication> {
-    const response = await httpClient.post<SystemApplication>(this.baseUrl, {
+    const response = await httpClient.post<SystemApplication>(`${this.baseUrl}/create`, {
       name: sistema.name,
       description: sistema.description ?? '',
       redirectUris: sistema.redirectUris,
@@ -45,7 +45,7 @@ export class SystemApplicationService {
   }
 
   static async update(id: number, sistema: UpdateSystemApplicationRequest): Promise<SystemApplication> {
-    const response = await httpClient.put<SystemApplication>(`${this.baseUrl}/${id}`, {
+    const response = await httpClient.put<SystemApplication>(`${this.baseUrl}/update/${id}`, {
       id,
       name: sistema.name,
       description: sistema.description ?? '',

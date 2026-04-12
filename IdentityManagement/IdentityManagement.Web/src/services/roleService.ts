@@ -7,14 +7,14 @@ export class RoleService {
   private static baseUrl = '/roles'
 
   static async getAll(params?: PaginationParams): Promise<PaginatedResult<Role>> {
-    const response = await httpClient.get<Role[]>(this.baseUrl)
+    const response = await httpClient.get<Role[]>(`${this.baseUrl}/getactive`)
     const roles = sortByPriority(response.data ?? [])
 
     return queryCollection(roles, params, ['name', 'description'])
   }
 
   static async getById(id: number): Promise<Role> {
-    const response = await httpClient.get<Role[]>(this.baseUrl)
+    const response = await httpClient.get<Role[]>(`${this.baseUrl}/getactive`)
     const role = (response.data ?? []).find((item) => item.id === id)
 
     if (!role) {
@@ -25,24 +25,24 @@ export class RoleService {
   }
 
   static async getActive(): Promise<Role[]> {
-    const response = await httpClient.get<Role[]>(this.baseUrl)
+    const response = await httpClient.get<Role[]>(`${this.baseUrl}/getactive`)
     return sortByPriority(response.data ?? [])
   }
 
   static async getByContract(contractId: number, params?: PaginationParams): Promise<PaginatedResult<Role>> {
-    const response = await httpClient.get<Role[]>(`${this.baseUrl}/contract/${contractId}`)
+    const response = await httpClient.get<Role[]>(`${this.baseUrl}/getbycontract/${contractId}`)
     const roles = sortByPriority(response.data ?? [])
 
     return queryCollection(roles, params, ['name', 'description'])
   }
 
   static async getByContractSummary(contractId: number): Promise<Role[]> {
-    const response = await httpClient.get<Role[]>(`${this.baseUrl}/contract/${contractId}`)
+    const response = await httpClient.get<Role[]>(`${this.baseUrl}/getbycontract/${contractId}`)
     return sortByPriority(response.data ?? [])
   }
 
   static async getDefaultRole(contractId: number): Promise<Role> {
-    const response = await httpClient.get<Role>(`${this.baseUrl}/contract/${contractId}/default`)
+    const response = await httpClient.get<Role>(`${this.baseUrl}/getdefaultbycontract/${contractId}`)
 
     if (!response.data) {
       throw new Error('Role padrão não encontrado.')
@@ -52,7 +52,7 @@ export class RoleService {
   }
 
   static async create(role: CreateRoleRequest): Promise<Role> {
-    const response = await httpClient.post<Role>(this.baseUrl, {
+    const response = await httpClient.post<Role>(`${this.baseUrl}/create`, {
       name: role.name,
       description: role.description ?? '',
       contractId: role.contractId,
@@ -69,7 +69,7 @@ export class RoleService {
   }
 
   static async update(id: number, role: UpdateRoleRequest): Promise<Role> {
-    const response = await httpClient.put<Role>(`${this.baseUrl}/${id}`, {
+    const response = await httpClient.put<Role>(`${this.baseUrl}/update/${id}`, {
       name: role.name,
       description: role.description ?? '',
       isRoot: role.isRoot,

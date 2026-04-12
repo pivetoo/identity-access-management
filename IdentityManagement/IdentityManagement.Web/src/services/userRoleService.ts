@@ -5,27 +5,27 @@ export class UserRoleService {
   private static baseUrl = '/userroles'
 
   static async getByContract(contractId: number): Promise<UserRole[]> {
-    const response = await httpClient.get<UserRole[]>(`${this.baseUrl}/contract/${contractId}`)
+    const response = await httpClient.get<UserRole[]>(`${this.baseUrl}/getbycontract/${contractId}`)
     return response.data ?? []
   }
 
   static async getByUser(userId: number): Promise<UserRole[]> {
-    const response = await httpClient.get<UserRole[]>(`${this.baseUrl}/user/${userId}`)
+    const response = await httpClient.get<UserRole[]>(`${this.baseUrl}/getbyuser/${userId}`)
     return response.data ?? []
   }
 
   static async getActiveByUser(userId: number): Promise<UserRole[]> {
-    const response = await httpClient.get<UserRole[]>(`${this.baseUrl}/user/${userId}/active`)
+    const response = await httpClient.get<UserRole[]>(`${this.baseUrl}/getactivebyuser/${userId}`)
     return response.data ?? []
   }
 
   static async getByRole(roleId: number): Promise<UserRole[]> {
-    const response = await httpClient.get<UserRole[]>(`${this.baseUrl}/role/${roleId}`)
+    const response = await httpClient.get<UserRole[]>(`${this.baseUrl}/getbyrole/${roleId}`)
     return response.data ?? []
   }
 
   static async checkAccess(userId: number, roleId: number): Promise<{ userId: number; roleId: number; hasAccess: boolean }> {
-    const response = await httpClient.get<{ hasAccess: boolean }>(`${this.baseUrl}/user/${userId}/role/${roleId}/has-access`)
+    const response = await httpClient.get<{ hasAccess: boolean }>(`${this.baseUrl}/hasaccess/${userId}/${roleId}`)
     return {
       userId,
       roleId,
@@ -45,7 +45,7 @@ export class UserRoleService {
   }
 
   static async assign(request: AssignUserToRoleRequest): Promise<{ message: string; userId: number; roleId: number }> {
-    const response = await httpClient.post<{ message?: string }>(this.baseUrl, {
+    const response = await httpClient.post<{ message?: string }>(`${this.baseUrl}/assign`, {
       userId: request.userId,
       roleId: request.roleId,
     })
@@ -58,7 +58,7 @@ export class UserRoleService {
   }
 
   static async revoke(userId: number, roleId: number): Promise<{ message: string; userId: number; roleId: number }> {
-    const response = await httpClient.delete(`${this.baseUrl}`, {
+    const response = await httpClient.delete(`${this.baseUrl}/revoke`, {
       data: {
         userId: userId,
         roleId: roleId,

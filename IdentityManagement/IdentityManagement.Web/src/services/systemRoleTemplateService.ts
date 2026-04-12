@@ -11,7 +11,7 @@ export class SystemRoleTemplateService {
     params?: PaginationParams
   ): Promise<PaginatedResult<SystemRoleTemplate>> {
     const response = await httpClient.get<SystemRoleTemplate[]>(
-      `${this.baseUrl}/system-application/${systemApplicationId}`
+      `${this.baseUrl}/getbysystemapplicationid/${systemApplicationId}`
     )
 
     const templates = sortByPriority(response.data ?? [])
@@ -19,7 +19,7 @@ export class SystemRoleTemplateService {
   }
 
   static async getById(id: number): Promise<SystemRoleTemplate> {
-    const response = await httpClient.get<SystemRoleTemplate>(`${this.baseUrl}/${id}`)
+    const response = await httpClient.get<SystemRoleTemplate>(`${this.baseUrl}/getbyid/${id}`)
 
     if (!response.data) {
       throw new Error('Role padrão não encontrado.')
@@ -29,7 +29,7 @@ export class SystemRoleTemplateService {
   }
 
   static async create(request: CreateSystemRoleTemplateRequest): Promise<SystemRoleTemplate> {
-    const response = await httpClient.post<SystemRoleTemplate>(this.baseUrl, request)
+    const response = await httpClient.post<SystemRoleTemplate>(`${this.baseUrl}/create`, request)
 
     if (!response.data) {
       throw new Error('Resposta vazia ao criar perfil padrão.')
@@ -39,7 +39,7 @@ export class SystemRoleTemplateService {
   }
 
   static async update(id: number, request: UpdateSystemRoleTemplateRequest): Promise<SystemRoleTemplate> {
-    const response = await httpClient.put<SystemRoleTemplate>(`${this.baseUrl}/${id}`, request)
+    const response = await httpClient.put<SystemRoleTemplate>(`${this.baseUrl}/update/${id}`, request)
 
     if (!response.data) {
       throw new Error('Resposta vazia ao atualizar perfil padrão.')

@@ -3,7 +3,7 @@ import type { KPIs, UsersByEmpresa, TopSistema, ActiveSession, PagedResult } fro
 
 const dashboardService = {
   getKPIs: async (): Promise<KPIs> => {
-    const response = await httpClient.get<KPIs>('/dashboard/kpis');
+    const response = await httpClient.get<KPIs>('/dashboard/getkpis');
     if (!response.data) {
       throw new Error('Resposta vazia ao carregar os KPIs.')
     }
@@ -12,17 +12,17 @@ const dashboardService = {
   },
 
   getUsersByEmpresa: async (): Promise<UsersByEmpresa[]> => {
-    const response = await httpClient.get<UsersByEmpresa[]>('/dashboard/users-by-company');
+    const response = await httpClient.get<UsersByEmpresa[]>('/dashboard/getusersbycompany');
     return response.data ?? [];
   },
 
   getTopSistemas: async (limit: number = 4): Promise<TopSistema[]> => {
-    const response = await httpClient.get<TopSistema[]>(`/dashboard/top-systems?limit=${limit}`);
+    const response = await httpClient.get<TopSistema[]>(`/dashboard/gettopsystems?limit=${limit}`);
     return response.data ?? [];
   },
 
   getActiveSessions: async (page: number = 1, pageSize: number = 20): Promise<PagedResult<ActiveSession>> => {
-    const response = await httpClient.get<ActiveSession[]>(`/dashboard/active-sessions?page=${page}&pageSize=${pageSize}`);
+    const response = await httpClient.get<ActiveSession[]>(`/dashboard/getactivesessions?page=${page}&pageSize=${pageSize}`);
 
     return {
       items: response.data ?? [],
@@ -36,11 +36,11 @@ const dashboardService = {
   },
 
   revokeSession: async (sessionId: string): Promise<void> => {
-    await httpClient.post(`/auth/revoke-session/${sessionId}`);
+    await httpClient.post(`/auth/revokesession/${sessionId}`);
   },
 
   revokeAllSessions: async (): Promise<void> => {
-    await httpClient.post('/auth/revoke-all-sessions');
+    await httpClient.post('/auth/revokeallsessions');
   }
 };
 

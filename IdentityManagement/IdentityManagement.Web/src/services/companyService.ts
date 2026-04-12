@@ -6,7 +6,7 @@ export class CompanyService {
   private static baseUrl = '/companies'
 
   static async getAll(params?: PaginationParams): Promise<PaginatedResult<Company>> {
-    const response = await httpClient.get<Company[]>(this.baseUrl)
+    const response = await httpClient.get<Company[]>(`${this.baseUrl}/getactive`)
     const companies = response.data ?? []
 
     return queryCollection(companies, params, ['legalName', 'tradeName', 'document', 'email'])
@@ -24,12 +24,12 @@ export class CompanyService {
   }
 
   static async getActive(): Promise<Company[]> {
-    const response = await httpClient.get<Company[]>(this.baseUrl)
+    const response = await httpClient.get<Company[]>(`${this.baseUrl}/getactive`)
     return response.data ?? []
   }
 
   static async create(company: CreateCompanyRequest): Promise<Company> {
-    const response = await httpClient.post<Company>(this.baseUrl, company)
+    const response = await httpClient.post<Company>(`${this.baseUrl}/create`, company)
 
     if (!response.data) {
       throw new Error('Resposta vazia ao criar empresa.')
@@ -39,7 +39,7 @@ export class CompanyService {
   }
 
   static async update(id: number, company: UpdateCompanyRequest): Promise<Company> {
-    const response = await httpClient.put<Company>(`${this.baseUrl}/${id}`, company)
+    const response = await httpClient.put<Company>(`${this.baseUrl}/update/${id}`, company)
 
     if (!response.data) {
       throw new Error('Resposta vazia ao atualizar empresa.')
