@@ -1,6 +1,6 @@
-import { httpClient, queryCollection } from 'archon-ui'
-import type { Role, CreateRoleRequest, UpdateRoleRequest } from '../types/role'
+import { httpClient, queryCollection, translate } from 'archon-ui'
 import type { PaginationParams, PaginatedResult } from 'archon-ui'
+import type { Role, CreateRoleRequest, UpdateRoleRequest } from '../types/role'
 import { sortByPriority } from '../utils/sort'
 
 export class RoleService {
@@ -18,7 +18,7 @@ export class RoleService {
     const role = (response.data ?? []).find((item) => item.id === id)
 
     if (!role) {
-      throw new Error('Role não encontrado.')
+      throw new Error(translate('role.notFound'))
     }
 
     return role
@@ -45,7 +45,7 @@ export class RoleService {
     const response = await httpClient.get<Role>(`${this.baseUrl}/getdefaultbycontract/${contractId}`)
 
     if (!response.data) {
-      throw new Error('Role padrão não encontrado.')
+      throw new Error(translate('role.default.notFound'))
     }
 
     return response.data
@@ -62,7 +62,7 @@ export class RoleService {
     })
 
     if (!response.data) {
-      throw new Error('Resposta vazia ao criar perfil.')
+      throw new Error(translate('role.service.create.emptyResponse'))
     }
 
     return response.data
@@ -78,26 +78,26 @@ export class RoleService {
     })
 
     if (!response.data) {
-      throw new Error('Resposta vazia ao atualizar perfil.')
+      throw new Error(translate('role.service.update.emptyResponse'))
     }
 
     return response.data
   }
 
   static async updatePermissions(): Promise<void> {
-    throw new Error('O gerenciamento de permissões por recurso ainda não foi exposto no backend.')
+    throw new Error(translate('role.service.permissions.notAvailable'))
   }
 
   static async setAsDefault(): Promise<void> {
-    throw new Error('A definição de perfil padrão ainda não foi exposta no backend.')
+    throw new Error(translate('role.service.default.notAvailable'))
   }
 
   static async checkPermission(): Promise<boolean> {
-    throw new Error('A validação direta de permissão ainda não foi exposta no backend.')
+    throw new Error(translate('role.service.permissionCheck.notAvailable'))
   }
 
   static async delete(_id?: number): Promise<void> {
-    throw new Error('A exclusão de perfis ainda não foi exposta no backend.')
+    throw new Error(translate('role.service.delete.notAvailable'))
   }
 
   static async getByContrato(contractId: number, params?: PaginationParams): Promise<PaginatedResult<Role>> {

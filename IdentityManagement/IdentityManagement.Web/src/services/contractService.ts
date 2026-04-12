@@ -1,6 +1,6 @@
-import { httpClient, queryCollection } from 'archon-ui'
-import type { Contract, CreateContractRequest, UpdateContractRequest, ContractSecrets } from '../types/contract'
+import { httpClient, queryCollection, translate } from 'archon-ui'
 import type { PaginationParams, PaginatedResult } from 'archon-ui'
+import type { Contract, CreateContractRequest, UpdateContractRequest, ContractSecrets } from '../types/contract'
 
 export class ContractService {
   private static baseUrl = '/contracts'
@@ -17,7 +17,7 @@ export class ContractService {
     const contract = contracts.find((item) => item.id === id)
 
     if (!contract) {
-      throw new Error('Contract não encontrado.')
+      throw new Error(translate('contract.notFound'))
     }
 
     return contract
@@ -46,7 +46,7 @@ export class ContractService {
     })
 
     if (!response.data) {
-      throw new Error('Resposta vazia ao criar contrato.')
+      throw new Error(translate('contract.service.create.emptyResponse'))
     }
 
     return response.data
@@ -56,7 +56,7 @@ export class ContractService {
     const response = await httpClient.put<Contract>(`${this.baseUrl}/update/${id}`, contract)
 
     if (!response.data) {
-      throw new Error('Resposta vazia ao atualizar contrato.')
+      throw new Error(translate('contract.service.update.emptyResponse'))
     }
 
     return response.data
@@ -79,7 +79,7 @@ export class ContractService {
     const response = await httpClient.get<ContractSecrets>(`${this.baseUrl}/getsecrets/${id}`)
 
     if (!response.data) {
-      throw new Error('Contract não encontrado.')
+      throw new Error(translate('contract.notFound'))
     }
 
     return response.data

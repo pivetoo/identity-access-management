@@ -1,4 +1,4 @@
-import { httpClient, queryCollection } from 'archon-ui'
+import { httpClient, queryCollection, translate } from 'archon-ui'
 import type { PaginationParams, PaginatedResult } from 'archon-ui'
 import type { SystemApplication, CreateSystemApplicationRequest, UpdateSystemApplicationRequest } from '../types/systemApplication'
 
@@ -17,7 +17,7 @@ export class SystemApplicationService {
     const sistema = sistemas.find((item) => item.id === id)
 
     if (!sistema) {
-      throw new Error('SystemApplication não encontrado.')
+      throw new Error(translate('systemApplication.notFound'))
     }
 
     return sistema
@@ -38,7 +38,7 @@ export class SystemApplicationService {
     })
 
     if (!response.data) {
-      throw new Error('Resposta vazia ao criar sistema.')
+      throw new Error(translate('systemApplication.service.create.emptyResponse'))
     }
 
     return response.data
@@ -56,7 +56,7 @@ export class SystemApplicationService {
     })
 
     if (!response.data) {
-      throw new Error('Resposta vazia ao atualizar sistema.')
+      throw new Error(translate('systemApplication.service.update.emptyResponse'))
     }
 
     return response.data

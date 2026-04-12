@@ -1,4 +1,4 @@
-import { httpClient } from 'archon-ui'
+import { httpClient, translate } from 'archon-ui'
 import type { UserRole, AssignUserToRoleRequest, RevokeUserFromRoleRequest } from '../types/userRole'
 
 export class UserRoleService {
@@ -38,7 +38,7 @@ export class UserRoleService {
     const userRole = userRoles.find((item) => item.id === id)
 
     if (!userRole) {
-      throw new Error('Vinculação não encontrada.')
+      throw new Error(translate('userRole.service.notFound'))
     }
 
     return userRole
@@ -60,8 +60,8 @@ export class UserRoleService {
   static async revoke(userId: number, roleId: number): Promise<{ message: string; userId: number; roleId: number }> {
     const response = await httpClient.delete(`${this.baseUrl}/revoke`, {
       data: {
-        userId: userId,
-        roleId: roleId,
+        userId,
+        roleId,
       } as RevokeUserRoleRequestBackend,
     })
 
@@ -74,8 +74,8 @@ export class UserRoleService {
 
   static async reactivate(userId: number, roleId: number): Promise<{ message: string; userId: number; roleId: number }> {
     const response = await httpClient.post(`${this.baseUrl}/reactivate`, {
-      userId: userId,
-      roleId: roleId,
+      userId,
+      roleId,
     } as RevokeUserRoleRequestBackend)
 
     return {

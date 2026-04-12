@@ -1,6 +1,6 @@
-import { httpClient, queryCollection } from 'archon-ui'
-import type { Company, CreateCompanyRequest, UpdateCompanyRequest } from '../types/company'
+import { httpClient, queryCollection, translate } from 'archon-ui'
 import type { PaginationParams, PaginatedResult } from 'archon-ui'
+import type { Company, CreateCompanyRequest, UpdateCompanyRequest } from '../types/company'
 
 export class CompanyService {
   private static baseUrl = '/companies'
@@ -17,7 +17,7 @@ export class CompanyService {
     const company = companies.find((item) => item.id === id)
 
     if (!company) {
-      throw new Error('Company não encontrada.')
+      throw new Error(translate('company.notFound'))
     }
 
     return company
@@ -32,7 +32,7 @@ export class CompanyService {
     const response = await httpClient.post<Company>(`${this.baseUrl}/create`, company)
 
     if (!response.data) {
-      throw new Error('Resposta vazia ao criar empresa.')
+      throw new Error(translate('company.service.create.emptyResponse'))
     }
 
     return response.data
@@ -42,7 +42,7 @@ export class CompanyService {
     const response = await httpClient.put<Company>(`${this.baseUrl}/update/${id}`, company)
 
     if (!response.data) {
-      throw new Error('Resposta vazia ao atualizar empresa.')
+      throw new Error(translate('company.service.update.emptyResponse'))
     }
 
     return response.data

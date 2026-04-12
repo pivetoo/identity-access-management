@@ -74,6 +74,24 @@
   <data name="auth.sessions.revokedAll" xml:space="preserve"><value>All active sessions revoked successfully.</value></data>
   <data name="auth.password.currentInvalid" xml:space="preserve"><value>Current password is invalid.</value></data>
   <data name="auth.password.changed" xml:space="preserve"><value>Password changed successfully.</value></data>
+  <data name="company.service.create.emptyResponse" xml:space="preserve"><value>Empty response while creating company.</value></data>
+  <data name="company.service.update.emptyResponse" xml:space="preserve"><value>Empty response while updating company.</value></data>
+  <data name="contract.service.create.emptyResponse" xml:space="preserve"><value>Empty response while creating contract.</value></data>
+  <data name="contract.service.update.emptyResponse" xml:space="preserve"><value>Empty response while updating contract.</value></data>
+  <data name="dashboard.service.kpis.emptyResponse" xml:space="preserve"><value>Empty response while loading KPIs.</value></data>
+  <data name="role.service.create.emptyResponse" xml:space="preserve"><value>Empty response while creating role.</value></data>
+  <data name="role.service.update.emptyResponse" xml:space="preserve"><value>Empty response while updating role.</value></data>
+  <data name="role.service.permissions.notAvailable" xml:space="preserve"><value>Resource permission management has not been exposed by the backend yet.</value></data>
+  <data name="role.service.default.notAvailable" xml:space="preserve"><value>Default role definition has not been exposed by the backend yet.</value></data>
+  <data name="role.service.permissionCheck.notAvailable" xml:space="preserve"><value>Direct permission validation has not been exposed by the backend yet.</value></data>
+  <data name="role.service.delete.notAvailable" xml:space="preserve"><value>Role deletion has not been exposed by the backend yet.</value></data>
+  <data name="systemApplication.service.create.emptyResponse" xml:space="preserve"><value>Empty response while creating system application.</value></data>
+  <data name="systemApplication.service.update.emptyResponse" xml:space="preserve"><value>Empty response while updating system application.</value></data>
+  <data name="systemRoleTemplate.service.create.emptyResponse" xml:space="preserve"><value>Empty response while creating system role template.</value></data>
+  <data name="systemRoleTemplate.service.update.emptyResponse" xml:space="preserve"><value>Empty response while updating system role template.</value></data>
+  <data name="userRole.service.notFound" xml:space="preserve"><value>Assignment not found.</value></data>
+  <data name="user.service.create.emptyResponse" xml:space="preserve"><value>Empty response while creating user.</value></data>
+  <data name="user.service.update.emptyResponse" xml:space="preserve"><value>Empty response while updating user.</value></data>
   <data name="layout.title" xml:space="preserve"><value>Identity Management</value></data>
   <data name="layout.menu.dashboard" xml:space="preserve"><value>Dashboard</value></data>
   <data name="layout.menu.management" xml:space="preserve"><value>Management</value></data>

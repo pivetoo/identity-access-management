@@ -198,6 +198,60 @@
   <data name="auth.password.changed" xml:space="preserve">
     <value>Senha alterada com sucesso.</value>
   </data>
+  <data name="company.service.create.emptyResponse" xml:space="preserve">
+    <value>Resposta vazia ao criar empresa.</value>
+  </data>
+  <data name="company.service.update.emptyResponse" xml:space="preserve">
+    <value>Resposta vazia ao atualizar empresa.</value>
+  </data>
+  <data name="contract.service.create.emptyResponse" xml:space="preserve">
+    <value>Resposta vazia ao criar contrato.</value>
+  </data>
+  <data name="contract.service.update.emptyResponse" xml:space="preserve">
+    <value>Resposta vazia ao atualizar contrato.</value>
+  </data>
+  <data name="dashboard.service.kpis.emptyResponse" xml:space="preserve">
+    <value>Resposta vazia ao carregar os KPIs.</value>
+  </data>
+  <data name="role.service.create.emptyResponse" xml:space="preserve">
+    <value>Resposta vazia ao criar perfil.</value>
+  </data>
+  <data name="role.service.update.emptyResponse" xml:space="preserve">
+    <value>Resposta vazia ao atualizar perfil.</value>
+  </data>
+  <data name="role.service.permissions.notAvailable" xml:space="preserve">
+    <value>O gerenciamento de permissões por recurso ainda não foi exposto no backend.</value>
+  </data>
+  <data name="role.service.default.notAvailable" xml:space="preserve">
+    <value>A definição de perfil padrão ainda não foi exposta no backend.</value>
+  </data>
+  <data name="role.service.permissionCheck.notAvailable" xml:space="preserve">
+    <value>A validação direta de permissão ainda não foi exposta no backend.</value>
+  </data>
+  <data name="role.service.delete.notAvailable" xml:space="preserve">
+    <value>A exclusão de perfis ainda não foi exposta no backend.</value>
+  </data>
+  <data name="systemApplication.service.create.emptyResponse" xml:space="preserve">
+    <value>Resposta vazia ao criar sistema.</value>
+  </data>
+  <data name="systemApplication.service.update.emptyResponse" xml:space="preserve">
+    <value>Resposta vazia ao atualizar sistema.</value>
+  </data>
+  <data name="systemRoleTemplate.service.create.emptyResponse" xml:space="preserve">
+    <value>Resposta vazia ao criar perfil padrão.</value>
+  </data>
+  <data name="systemRoleTemplate.service.update.emptyResponse" xml:space="preserve">
+    <value>Resposta vazia ao atualizar perfil padrão.</value>
+  </data>
+  <data name="userRole.service.notFound" xml:space="preserve">
+    <value>Vinculação não encontrada.</value>
+  </data>
+  <data name="user.service.create.emptyResponse" xml:space="preserve">
+    <value>Resposta vazia ao criar usuário.</value>
+  </data>
+  <data name="user.service.update.emptyResponse" xml:space="preserve">
+    <value>Resposta vazia ao atualizar usuário.</value>
+  </data>
   <data name="layout.title" xml:space="preserve"><value>Identity Management</value></data>
   <data name="layout.menu.dashboard" xml:space="preserve"><value>Dashboard</value></data>
   <data name="layout.menu.management" xml:space="preserve"><value>Gestão</value></data>

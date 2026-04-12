@@ -1,4 +1,4 @@
-import { httpClient, queryCollection } from 'archon-ui'
+import { httpClient, queryCollection, translate } from 'archon-ui'
 import type { PaginationParams, PaginatedResult } from 'archon-ui'
 import type { CreateSystemRoleTemplateRequest, SystemRoleTemplate, UpdateSystemRoleTemplateRequest } from '../types/systemRoleTemplate'
 import { sortByPriority } from '../utils/sort'
@@ -22,7 +22,7 @@ export class SystemRoleTemplateService {
     const response = await httpClient.get<SystemRoleTemplate>(`${this.baseUrl}/getbyid/${id}`)
 
     if (!response.data) {
-      throw new Error('Role padrão não encontrado.')
+      throw new Error(translate('systemRoleTemplate.notFound'))
     }
 
     return response.data
@@ -32,7 +32,7 @@ export class SystemRoleTemplateService {
     const response = await httpClient.post<SystemRoleTemplate>(`${this.baseUrl}/create`, request)
 
     if (!response.data) {
-      throw new Error('Resposta vazia ao criar perfil padrão.')
+      throw new Error(translate('systemRoleTemplate.service.create.emptyResponse'))
     }
 
     return response.data
@@ -42,7 +42,7 @@ export class SystemRoleTemplateService {
     const response = await httpClient.put<SystemRoleTemplate>(`${this.baseUrl}/update/${id}`, request)
 
     if (!response.data) {
-      throw new Error('Resposta vazia ao atualizar perfil padrão.')
+      throw new Error(translate('systemRoleTemplate.service.update.emptyResponse'))
     }
 
     return response.data

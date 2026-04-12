@@ -1,4 +1,4 @@
-import { httpClient, queryCollection } from 'archon-ui'
+import { httpClient, queryCollection, translate } from 'archon-ui'
 import type { PaginationParams, PaginatedResult } from 'archon-ui'
 import type { User, CreateUserRequest, UpdateUserRequest } from '../types/user'
 
@@ -16,7 +16,7 @@ export class UserService {
     const response = await httpClient.get<User>(`${this.baseUrl}/getbyid/${id}`)
 
     if (!response.data) {
-      throw new Error('Usuário não encontrado.')
+      throw new Error(translate('user.notFound'))
     }
 
     return response.data
@@ -31,7 +31,7 @@ export class UserService {
     const response = await httpClient.post<User>(`${this.baseUrl}/create`, usuario)
 
     if (!response.data) {
-      throw new Error('Resposta vazia ao criar usuário.')
+      throw new Error(translate('user.service.create.emptyResponse'))
     }
 
     return response.data
@@ -41,7 +41,7 @@ export class UserService {
     const response = await httpClient.put<User>(`${this.baseUrl}/update/${id}`, usuario)
 
     if (!response.data) {
-      throw new Error('Resposta vazia ao atualizar usuário.')
+      throw new Error(translate('user.service.update.emptyResponse'))
     }
 
     return response.data
