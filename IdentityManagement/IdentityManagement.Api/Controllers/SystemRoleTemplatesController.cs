@@ -20,7 +20,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess("Permite listar os perfis padrão de uma aplicação específica.")]
-        [GetEndpoint("system-application/{systemApplicationId:long}")]
+        [GetEndpoint("{systemApplicationId:long}")]
         public async Task<IActionResult> GetBySystemApplicationId(long systemApplicationId, CancellationToken cancellationToken)
         {
             var response = await systemRoleTemplateService.GetBySystemApplicationId(systemApplicationId, cancellationToken);

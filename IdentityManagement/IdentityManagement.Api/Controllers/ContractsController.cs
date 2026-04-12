@@ -28,7 +28,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint("company/{companyId:long}")]
+        [GetEndpoint("{companyId:long}")]
         public async Task<IActionResult> GetByCompanyId(long companyId, CancellationToken cancellationToken)
         {
             var contracts = await contractService.GetByCompanyId(companyId, cancellationToken);
@@ -36,7 +36,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint("system-application/{systemApplicationId:long}")]
+        [GetEndpoint("{systemApplicationId:long}")]
         public async Task<IActionResult> GetBySystemApplicationId(long systemApplicationId, CancellationToken cancellationToken)
         {
             var contracts = await contractService.GetBySystemApplicationId(systemApplicationId, cancellationToken);
@@ -44,7 +44,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint("{id:long}/secrets")]
+        [GetEndpoint("{id:long}")]
         public async Task<IActionResult> GetSecrets(long id, CancellationToken cancellationToken)
         {
             var secrets = await contractService.GetContractSecrets(id, cancellationToken);

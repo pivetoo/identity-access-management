@@ -20,7 +20,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint("user/{userId:long}")]
+        [GetEndpoint("{userId:long}")]
         public async Task<IActionResult> GetByUser(long userId, CancellationToken cancellationToken)
         {
             var roles = await userRoleService.GetUserRoles(userId, cancellationToken);
@@ -28,7 +28,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint("user/{userId:long}/active")]
+        [GetEndpoint("{userId:long}")]
         public async Task<IActionResult> GetActiveByUser(long userId, CancellationToken cancellationToken)
         {
             var roles = await userRoleService.GetActiveUserRoles(userId, cancellationToken);
@@ -36,7 +36,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint("role/{roleId:long}")]
+        [GetEndpoint("{roleId:long}")]
         public async Task<IActionResult> GetByRole(long roleId, CancellationToken cancellationToken)
         {
             var users = await userRoleService.GetRoleUsers(roleId, cancellationToken);
@@ -44,7 +44,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint("contract/{contractId:long}")]
+        [GetEndpoint("{contractId:long}")]
         public async Task<IActionResult> GetByContract(long contractId, CancellationToken cancellationToken)
         {
             var userRoles = await userRoleService.GetUserRolesByContract(contractId, cancellationToken);
@@ -52,7 +52,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint("user/{userId:long}/role/{roleId:long}/has-access")]
+        [GetEndpoint("{userId:long}/{roleId:long}")]
         public async Task<IActionResult> HasAccess(long userId, long roleId, CancellationToken cancellationToken)
         {
             bool hasAccess = await userRoleService.HasUserAccess(userId, roleId, cancellationToken);
@@ -68,7 +68,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [PostEndpoint("reactivate")]
+        [PostEndpoint]
         public async Task<IActionResult> Reactivate([FromBody] AssignUserRoleRequest request, CancellationToken cancellationToken)
         {
             object response = await userRoleService.ReactivateUserRole(request.UserId, request.RoleId, cancellationToken);

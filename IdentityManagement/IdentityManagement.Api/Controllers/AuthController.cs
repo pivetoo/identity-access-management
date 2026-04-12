@@ -79,7 +79,7 @@ namespace IdentityManagement.Api.Controllers
 
         [RequireAccess]
         [Authorize]
-        [PostEndpoint("revoke-session/{sessionId}")]
+        [PostEndpoint("{sessionId}")]
         public async Task<IActionResult> RevokeSession(string sessionId, CancellationToken cancellationToken)
         {
             await loginSessionService.RevokeSession(sessionId, cancellationToken);
@@ -88,7 +88,7 @@ namespace IdentityManagement.Api.Controllers
 
         [RequireAccess]
         [Authorize]
-        [PostEndpoint("revoke-all-sessions")]
+        [PostEndpoint]
         public async Task<IActionResult> RevokeAllSessions(CancellationToken cancellationToken)
         {
             int count = await loginSessionService.RevokeAllActiveSessions(cancellationToken);
@@ -116,7 +116,7 @@ namespace IdentityManagement.Api.Controllers
 
         [RequireIntegrationSecret]
         [AllowAnonymous]
-        [GetEndpoint("contract/{clientId}")]
+        [GetEndpoint("{clientId}")]
         public async Task<IActionResult> GetContractByClientId(string clientId, CancellationToken cancellationToken)
         {
             var contract = await contractService.GetByClientId(clientId, cancellationToken);

@@ -28,7 +28,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint("contract/{contractId:long}")]
+        [GetEndpoint("{contractId:long}")]
         public async Task<IActionResult> GetByContract(long contractId, CancellationToken cancellationToken)
         {
             var roles = await roleService.GetRolesByContract(contractId, cancellationToken);
@@ -36,7 +36,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint("contract/{contractId:long}/default")]
+        [GetEndpoint("{contractId:long}")]
         public async Task<IActionResult> GetDefaultByContract(long contractId, CancellationToken cancellationToken)
         {
             var role = await roleService.GetDefaultRoleByContract(contractId, cancellationToken);

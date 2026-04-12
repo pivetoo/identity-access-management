@@ -53,7 +53,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [AllowAnonymous]
-        [PostEndpoint("register-first")]
+        [PostEndpoint]
         public async Task<IActionResult> RegisterFirst([FromBody] RegisterUserRequest request, CancellationToken cancellationToken)
         {
             IReadOnlyCollection<IdentityManagement.Application.Responses.Users.UserResponse> existingUsers = await userService.GetActiveUsers(cancellationToken);
