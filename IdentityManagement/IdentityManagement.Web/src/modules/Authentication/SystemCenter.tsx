@@ -25,9 +25,11 @@ export default function SystemCenter({
 
   const filteredContracts = useMemo(() => {
     if (!contracts || !Array.isArray(contracts)) return [];
-    if (!searchTerm.trim()) return contracts;
 
-    return contracts.filter(contract =>
+    const orderedContracts = [...contracts].sort((left, right) => left.contractId - right.contractId);
+    if (!searchTerm.trim()) return orderedContracts;
+
+    return orderedContracts.filter(contract =>
       contract.systemApplicationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       contract.companyName.toLowerCase().includes(searchTerm.toLowerCase())
     );
