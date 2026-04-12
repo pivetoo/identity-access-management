@@ -30,23 +30,23 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [AllowAnonymous]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Identify([FromBody] IdentifyUserRequest request, CancellationToken cancellationToken)
         {
-            object response = await authService.IdentifyUser(request, GetIpAddress(), GetUserAgent(), cancellationToken);
+            object response = await authService.IdentifyUser(request, RequestIpAddress, RequestUserAgent, cancellationToken);
             return Http200(response);
         }
 
         [AllowAnonymous]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> LoginWithContract([FromBody] LoginWithContractRequest request, CancellationToken cancellationToken)
         {
-            var response = await authService.LoginWithContract(request, GetIpAddress(), GetUserAgent(), cancellationToken);
+            var response = await authService.LoginWithContract(request, RequestIpAddress, RequestUserAgent, cancellationToken);
             return Http200(response);
         }
 
         [AllowAnonymous]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
         {
             var result = await refreshTokenService.RefreshAccessToken(request.RefreshToken, cancellationToken);
@@ -93,7 +93,7 @@ namespace IdentityManagement.Api.Controllers
 
         [RequireAccess]
         [Authorize]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Logout([FromBody] LogoutRequest request, CancellationToken cancellationToken)
         {
             await refreshTokenService.RevokeRefreshToken(request.RefreshToken, cancellationToken);
@@ -120,7 +120,7 @@ namespace IdentityManagement.Api.Controllers
 
         [RequireAccess]
         [Authorize]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken cancellationToken)
         {
             if (CurrentUserId != request.UserId && !User.HasClaim("root", "true"))
@@ -151,14 +151,5 @@ namespace IdentityManagement.Api.Controllers
             return Http200(user);
         }
 
-        private string GetIpAddress()
-        {
-            return HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
-        }
-
-        private string GetUserAgent()
-        {
-            return Request.Headers.UserAgent.FirstOrDefault() ?? "unknown";
-        }
     }
 }

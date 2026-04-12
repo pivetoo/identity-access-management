@@ -31,7 +31,7 @@ namespace IdentityManagement.Api.Controllers
 
         [AllowAnonymous]
         [RequireIntegrationSecret]
-        [PostEndpoint("/api/access-resources/sync")]
+        [PostEndpoint]
         public async Task<IActionResult> Sync([FromBody] List<AccessResourceModel> resources, CancellationToken cancellationToken)
         {
             var response = await accessResourceService.SyncResources(resources, cancellationToken);

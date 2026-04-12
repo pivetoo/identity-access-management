@@ -28,7 +28,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [DeleteEndpoint("")]
+        [DeleteEndpoint]
         public async Task<IActionResult> Revoke([FromBody] RevokeUserRoleRequest request, CancellationToken cancellationToken)
         {
             object response = await userRoleService.RevokeUserFromRole(request.UserId, request.RoleId, cancellationToken);
