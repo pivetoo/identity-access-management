@@ -1,0 +1,18 @@
+services:
+  api:
+    image: ghcr.io/pivetoo/identity-management-api:latest
+    container_name: identity-management-api
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./config/appsettings.Production.json:/app/appsettings.Production.json:ro
+
+  web:
+    image: ghcr.io/pivetoo/identity-management-web:latest
+    container_name: identity-management-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:8081:80"

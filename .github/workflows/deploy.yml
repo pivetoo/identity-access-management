@@ -1,0 +1,126 @@
+name: Deploy Identity Management
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: identity-management-production
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_OWNER: pivetoo
+  API_IMAGE: identity-management-api
+  WEB_IMAGE: identity-management-web
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout identity management
+        uses: actions/checkout@v4
+        with:
+          path: system/identity-access-management
+
+      - name: Checkout archon framework
+        uses: actions/checkout@v4
+        with:
+          repository: pivetoo/archon-framework
+          path: frameworks/archon-framework
+
+      - name: Checkout archon ui
+        uses: actions/checkout@v4
+        with:
+          repository: pivetoo/archon-ui
+          path: frameworks/archon-ui
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build backend
+        run: dotnet build "system/identity-access-management/IdentityManagement/IdentityManagement.Api/IdentityManagement.Api.csproj" -c Release
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: system/identity-access-management/IdentityManagement/IdentityManagement.Web/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm --prefix "system/identity-access-management/IdentityManagement/IdentityManagement.Web" ci
+
+      - name: Build frontend
+        run: npm --prefix "system/identity-access-management/IdentityManagement/IdentityManagement.Web" run build
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push API image
+        uses: docker/build-push-action@v6
+        with:
+          context: system/identity-access-management
+          file: system/identity-access-management/deploy/docker/api.Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.API_IMAGE }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.API_IMAGE }}:${{ github.sha }}
+          build-contexts: |
+            archon-framework=frameworks/archon-framework
+
+      - name: Build and push Web image
+        uses: docker/build-push-action@v6
+        with:
+          context: system/identity-access-management
+          file: system/identity-access-management/deploy/docker/web.Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.WEB_IMAGE }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.WEB_IMAGE }}:${{ github.sha }}
+          build-args: |
+            VITE_API_BASE_URL=/api
+          build-contexts: |
+            archon-ui=frameworks/archon-ui
+
+      - name: Copy deploy assets to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          source: "system/identity-access-management/deploy/docker-compose.prod.yml"
+          target: "/var/www/identity-management"
+          strip_components: 3
+
+      - name: Deploy on VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            set -e
+            mkdir -p /var/www/identity-management/config
+            cd /var/www/identity-management
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker image prune -f
