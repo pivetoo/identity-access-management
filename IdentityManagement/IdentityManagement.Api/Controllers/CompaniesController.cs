@@ -20,6 +20,14 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
+        [GetEndpoint]
+        public async Task<IActionResult> GetActive(CancellationToken cancellationToken)
+        {
+            var companies = await companyService.GetActiveCompanies(cancellationToken);
+            return Http200(companies);
+        }
+
+        [RequireAccess]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCompanyRequest request, CancellationToken cancellationToken)
         {
@@ -33,14 +41,6 @@ namespace IdentityManagement.Api.Controllers
         {
             var response = await companyService.UpdateCompany(id, request, cancellationToken);
             return Http200(response, Localizer["company.updated"]);
-        }
-
-        [RequireAccess]
-        [GetEndpoint]
-        public async Task<IActionResult> GetActive(CancellationToken cancellationToken)
-        {
-            var companies = await companyService.GetActiveCompanies(cancellationToken);
-            return Http200(companies);
         }
     }
 }

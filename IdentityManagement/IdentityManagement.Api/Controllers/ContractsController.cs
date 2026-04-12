@@ -20,22 +20,6 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [PostEndpoint]
-        public async Task<IActionResult> Create([FromBody] CreateContractRequest request, CancellationToken cancellationToken)
-        {
-            var response = await contractService.CreateContract(request, cancellationToken);
-            return Http201(response, Localizer["contract.created"]);
-        }
-
-        [RequireAccess]
-        [PutEndpoint("{id:long}")]
-        public async Task<IActionResult> Update(long id, [FromBody] UpdateContractRequest request, CancellationToken cancellationToken)
-        {
-            var response = await contractService.UpdateContract(id, request, cancellationToken);
-            return Http200(response, Localizer["contract.updated"]);
-        }
-
-        [RequireAccess]
         [GetEndpoint]
         public async Task<IActionResult> GetActive(CancellationToken cancellationToken)
         {
@@ -70,6 +54,22 @@ namespace IdentityManagement.Api.Controllers
             }
 
             return Http200(secrets);
+        }
+
+        [RequireAccess]
+        [PostEndpoint]
+        public async Task<IActionResult> Create([FromBody] CreateContractRequest request, CancellationToken cancellationToken)
+        {
+            var response = await contractService.CreateContract(request, cancellationToken);
+            return Http201(response, Localizer["contract.created"]);
+        }
+
+        [RequireAccess]
+        [PutEndpoint("{id:long}")]
+        public async Task<IActionResult> Update(long id, [FromBody] UpdateContractRequest request, CancellationToken cancellationToken)
+        {
+            var response = await contractService.UpdateContract(id, request, cancellationToken);
+            return Http200(response, Localizer["contract.updated"]);
         }
     }
 }

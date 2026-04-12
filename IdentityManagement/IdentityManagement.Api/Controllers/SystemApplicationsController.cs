@@ -20,6 +20,14 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
+        [GetEndpoint]
+        public async Task<IActionResult> GetActive(CancellationToken cancellationToken)
+        {
+            var systemApplications = await systemApplicationService.GetActiveSystemApplications(cancellationToken);
+            return Http200(systemApplications);
+        }
+
+        [RequireAccess]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateSystemApplicationRequest request, CancellationToken cancellationToken)
         {
@@ -33,14 +41,6 @@ namespace IdentityManagement.Api.Controllers
         {
             var response = await systemApplicationService.UpdateSystemApplication(id, request, cancellationToken);
             return Http200(response, Localizer["systemApplication.updated"]);
-        }
-
-        [RequireAccess]
-        [GetEndpoint]
-        public async Task<IActionResult> GetActive(CancellationToken cancellationToken)
-        {
-            var systemApplications = await systemApplicationService.GetActiveSystemApplications(cancellationToken);
-            return Http200(systemApplications);
         }
     }
 }

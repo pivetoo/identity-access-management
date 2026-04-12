@@ -20,30 +20,6 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [PostEndpoint]
-        public async Task<IActionResult> Assign([FromBody] AssignUserRoleRequest request, CancellationToken cancellationToken)
-        {
-            object response = await userRoleService.AssignUserToRole(request.UserId, request.RoleId, cancellationToken);
-            return Http201(response, Localizer["userRole.assigned"]);
-        }
-
-        [RequireAccess]
-        [DeleteEndpoint]
-        public async Task<IActionResult> Revoke([FromBody] RevokeUserRoleRequest request, CancellationToken cancellationToken)
-        {
-            object response = await userRoleService.RevokeUserFromRole(request.UserId, request.RoleId, cancellationToken);
-            return Http200(response, Localizer["userRole.revoked"]);
-        }
-
-        [RequireAccess]
-        [PostEndpoint("reactivate")]
-        public async Task<IActionResult> Reactivate([FromBody] AssignUserRoleRequest request, CancellationToken cancellationToken)
-        {
-            object response = await userRoleService.ReactivateUserRole(request.UserId, request.RoleId, cancellationToken);
-            return Http200(response, Localizer["userRole.reactivated"]);
-        }
-
-        [RequireAccess]
         [GetEndpoint("user/{userId:long}")]
         public async Task<IActionResult> GetByUser(long userId, CancellationToken cancellationToken)
         {
@@ -81,6 +57,30 @@ namespace IdentityManagement.Api.Controllers
         {
             bool hasAccess = await userRoleService.HasUserAccess(userId, roleId, cancellationToken);
             return Http200(new { HasAccess = hasAccess });
+        }
+
+        [RequireAccess]
+        [PostEndpoint]
+        public async Task<IActionResult> Assign([FromBody] AssignUserRoleRequest request, CancellationToken cancellationToken)
+        {
+            object response = await userRoleService.AssignUserToRole(request.UserId, request.RoleId, cancellationToken);
+            return Http201(response, Localizer["userRole.assigned"]);
+        }
+
+        [RequireAccess]
+        [PostEndpoint("reactivate")]
+        public async Task<IActionResult> Reactivate([FromBody] AssignUserRoleRequest request, CancellationToken cancellationToken)
+        {
+            object response = await userRoleService.ReactivateUserRole(request.UserId, request.RoleId, cancellationToken);
+            return Http200(response, Localizer["userRole.reactivated"]);
+        }
+
+        [RequireAccess]
+        [DeleteEndpoint]
+        public async Task<IActionResult> Revoke([FromBody] RevokeUserRoleRequest request, CancellationToken cancellationToken)
+        {
+            object response = await userRoleService.RevokeUserFromRole(request.UserId, request.RoleId, cancellationToken);
+            return Http200(response, Localizer["userRole.revoked"]);
         }
     }
 }

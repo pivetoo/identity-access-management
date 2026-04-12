@@ -20,22 +20,6 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [PostEndpoint]
-        public async Task<IActionResult> Create([FromBody] CreateRoleRequest request, CancellationToken cancellationToken)
-        {
-            var response = await roleService.CreateRole(request, cancellationToken);
-            return Http201(response, Localizer["role.created"]);
-        }
-
-        [RequireAccess]
-        [PutEndpoint("{id:long}")]
-        public async Task<IActionResult> Update(long id, [FromBody] UpdateRoleRequest request, CancellationToken cancellationToken)
-        {
-            var response = await roleService.UpdateRole(id, request, cancellationToken);
-            return Http200(response, Localizer["role.updated"]);
-        }
-
-        [RequireAccess]
         [GetEndpoint]
         public async Task<IActionResult> GetActive(CancellationToken cancellationToken)
         {
@@ -62,6 +46,22 @@ namespace IdentityManagement.Api.Controllers
             }
 
             return Http200(role);
+        }
+
+        [RequireAccess]
+        [PostEndpoint]
+        public async Task<IActionResult> Create([FromBody] CreateRoleRequest request, CancellationToken cancellationToken)
+        {
+            var response = await roleService.CreateRole(request, cancellationToken);
+            return Http201(response, Localizer["role.created"]);
+        }
+
+        [RequireAccess]
+        [PutEndpoint("{id:long}")]
+        public async Task<IActionResult> Update(long id, [FromBody] UpdateRoleRequest request, CancellationToken cancellationToken)
+        {
+            var response = await roleService.UpdateRole(id, request, cancellationToken);
+            return Http200(response, Localizer["role.updated"]);
         }
     }
 }

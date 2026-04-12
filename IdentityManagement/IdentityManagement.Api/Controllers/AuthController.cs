@@ -68,29 +68,6 @@ namespace IdentityManagement.Api.Controllers
             });
         }
 
-        [RequireIntegrationSecret]
-        [AllowAnonymous]
-        [GetEndpoint("contract/{clientId}")]
-        public async Task<IActionResult> GetContractByClientId(string clientId, CancellationToken cancellationToken)
-        {
-            var contract = await contractService.GetByClientId(clientId, cancellationToken);
-            if (contract is null)
-            {
-                return Http404(Localizer["contract.notFound"]);
-            }
-
-            return Http200(new
-            {
-                Id = contract.Id,
-                ClientId = contract.ClientId,
-                Name = contract.SystemApplication.Name,
-                JwtSecretKey = contract.JwtSecretKey,
-                IsActive = contract.IsValid(),
-                AccessTokenLifetime = contract.AccessTokenLifetime,
-                RefreshTokenLifetime = contract.RefreshTokenLifetime
-            });
-        }
-
         [RequireAccess]
         [Authorize]
         [PostEndpoint]
@@ -137,6 +114,29 @@ namespace IdentityManagement.Api.Controllers
             return Http200(message: Localizer["auth.password.changed"]);
         }
 
+        [RequireIntegrationSecret]
+        [AllowAnonymous]
+        [GetEndpoint("contract/{clientId}")]
+        public async Task<IActionResult> GetContractByClientId(string clientId, CancellationToken cancellationToken)
+        {
+            var contract = await contractService.GetByClientId(clientId, cancellationToken);
+            if (contract is null)
+            {
+                return Http404(Localizer["contract.notFound"]);
+            }
+
+            return Http200(new
+            {
+                Id = contract.Id,
+                ClientId = contract.ClientId,
+                Name = contract.SystemApplication.Name,
+                JwtSecretKey = contract.JwtSecretKey,
+                IsActive = contract.IsValid(),
+                AccessTokenLifetime = contract.AccessTokenLifetime,
+                RefreshTokenLifetime = contract.RefreshTokenLifetime
+            });
+        }
+
         [RequireAccess]
         [Authorize]
         [GetEndpoint("{username}")]
@@ -150,6 +150,5 @@ namespace IdentityManagement.Api.Controllers
 
             return Http200(user);
         }
-
     }
 }

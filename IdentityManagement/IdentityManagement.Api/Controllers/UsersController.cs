@@ -20,36 +20,6 @@ namespace IdentityManagement.Api.Controllers
             this.Localizer = Localizer;
         }
 
-        [AllowAnonymous]
-        [PostEndpoint("register-first")]
-        public async Task<IActionResult> RegisterFirst([FromBody] RegisterUserRequest request, CancellationToken cancellationToken)
-        {
-            IReadOnlyCollection<IdentityManagement.Application.Responses.Users.UserResponse> existingUsers = await userService.GetActiveUsers(cancellationToken);
-            if (existingUsers.Count > 0)
-            {
-                return Http403(Localizer["user.firstRegistration.notAllowed"]);
-            }
-
-            var response = await userService.CreateUser(request, cancellationToken);
-            return Http201(response, Localizer["user.first.created"]);
-        }
-
-        [RequireAccess]
-        [PostEndpoint]
-        public async Task<IActionResult> Create([FromBody] RegisterUserRequest request, CancellationToken cancellationToken)
-        {
-            var response = await userService.CreateUser(request, cancellationToken);
-            return Http201(response, Localizer["user.created"]);
-        }
-
-        [RequireAccess]
-        [PutEndpoint("{id:long}")]
-        public async Task<IActionResult> Update(long id, [FromBody] UpdateUserRequest request, CancellationToken cancellationToken)
-        {
-            var response = await userService.UpdateUser(id, request, cancellationToken);
-            return Http200(response, Localizer["user.updated"]);
-        }
-
         [RequireAccess]
         [GetEndpoint]
         public async Task<IActionResult> GetActive(CancellationToken cancellationToken)
@@ -80,6 +50,36 @@ namespace IdentityManagement.Api.Controllers
                 user.CreatedAt,
                 user.UpdatedAt
             });
+        }
+
+        [AllowAnonymous]
+        [PostEndpoint("register-first")]
+        public async Task<IActionResult> RegisterFirst([FromBody] RegisterUserRequest request, CancellationToken cancellationToken)
+        {
+            IReadOnlyCollection<IdentityManagement.Application.Responses.Users.UserResponse> existingUsers = await userService.GetActiveUsers(cancellationToken);
+            if (existingUsers.Count > 0)
+            {
+                return Http403(Localizer["user.firstRegistration.notAllowed"]);
+            }
+
+            var response = await userService.CreateUser(request, cancellationToken);
+            return Http201(response, Localizer["user.first.created"]);
+        }
+
+        [RequireAccess]
+        [PostEndpoint]
+        public async Task<IActionResult> Create([FromBody] RegisterUserRequest request, CancellationToken cancellationToken)
+        {
+            var response = await userService.CreateUser(request, cancellationToken);
+            return Http201(response, Localizer["user.created"]);
+        }
+
+        [RequireAccess]
+        [PutEndpoint("{id:long}")]
+        public async Task<IActionResult> Update(long id, [FromBody] UpdateUserRequest request, CancellationToken cancellationToken)
+        {
+            var response = await userService.UpdateUser(id, request, cancellationToken);
+            return Http200(response, Localizer["user.updated"]);
         }
 
         [RequireAccess]

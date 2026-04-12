@@ -17,7 +17,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint("kpis")]
+        [GetEndpoint]
         public async Task<IActionResult> GetKpis(CancellationToken cancellationToken)
         {
             var response = await dashboardService.GetKpis(cancellationToken);
@@ -25,7 +25,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint("users-by-company")]
+        [GetEndpoint]
         public async Task<IActionResult> GetUsersByCompany(CancellationToken cancellationToken)
         {
             var response = await dashboardService.GetUsersByCompany(cancellationToken);
@@ -33,7 +33,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint("top-systems")]
+        [GetEndpoint]
         public async Task<IActionResult> GetTopSystems([FromQuery] int limit = 5, CancellationToken cancellationToken = default)
         {
             var response = await dashboardService.GetTopSystems(limit, cancellationToken);
@@ -41,7 +41,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint("active-sessions")]
+        [GetEndpoint]
         public async Task<IActionResult> GetActiveSessions([FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default)
         {
             var response = await dashboardService.GetActiveSessions(page, pageSize, cancellationToken);
