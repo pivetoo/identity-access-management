@@ -23,12 +23,6 @@ namespace IdentityManagement.Api.Controllers
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCompanyRequest request, CancellationToken cancellationToken)
         {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
             var response = await companyService.CreateCompany(request, cancellationToken);
             return Http201(response, Localizer["company.created"]);
         }
@@ -37,12 +31,6 @@ namespace IdentityManagement.Api.Controllers
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateCompanyRequest request, CancellationToken cancellationToken)
         {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
             var response = await companyService.UpdateCompany(id, request, cancellationToken);
             return Http200(response, Localizer["company.updated"]);
         }

@@ -23,12 +23,6 @@ namespace IdentityManagement.Api.Controllers
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateSystemApplicationRequest request, CancellationToken cancellationToken)
         {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
             var response = await systemApplicationService.CreateSystemApplication(request, cancellationToken);
             return Http201(response, Localizer["systemApplication.created"]);
         }
@@ -37,12 +31,6 @@ namespace IdentityManagement.Api.Controllers
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateSystemApplicationRequest request, CancellationToken cancellationToken)
         {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
             var response = await systemApplicationService.UpdateSystemApplication(id, request, cancellationToken);
             return Http200(response, Localizer["systemApplication.updated"]);
         }

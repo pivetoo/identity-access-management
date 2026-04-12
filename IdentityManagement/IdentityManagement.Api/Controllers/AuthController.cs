@@ -33,12 +33,6 @@ namespace IdentityManagement.Api.Controllers
         [PostEndpoint("[action]")]
         public async Task<IActionResult> Identify([FromBody] IdentifyUserRequest request, CancellationToken cancellationToken)
         {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
             object response = await authService.IdentifyUser(request, GetIpAddress(), GetUserAgent(), cancellationToken);
             return Http200(response);
         }
@@ -47,12 +41,6 @@ namespace IdentityManagement.Api.Controllers
         [PostEndpoint("[action]")]
         public async Task<IActionResult> LoginWithContract([FromBody] LoginWithContractRequest request, CancellationToken cancellationToken)
         {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
             var response = await authService.LoginWithContract(request, GetIpAddress(), GetUserAgent(), cancellationToken);
             return Http200(response);
         }
@@ -61,12 +49,6 @@ namespace IdentityManagement.Api.Controllers
         [PostEndpoint("[action]")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
         {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
             var result = await refreshTokenService.RefreshAccessToken(request.RefreshToken, cancellationToken);
             if (result.RefreshToken is null)
             {
@@ -114,12 +96,6 @@ namespace IdentityManagement.Api.Controllers
         [PostEndpoint("[action]")]
         public async Task<IActionResult> Logout([FromBody] LogoutRequest request, CancellationToken cancellationToken)
         {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
             await refreshTokenService.RevokeRefreshToken(request.RefreshToken, cancellationToken);
             return Http200(message: Localizer["auth.logout.completed"]);
         }
@@ -147,12 +123,6 @@ namespace IdentityManagement.Api.Controllers
         [PostEndpoint("[action]")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken cancellationToken)
         {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
             if (CurrentUserId != request.UserId && !User.HasClaim("root", "true"))
             {
                 return Http403();

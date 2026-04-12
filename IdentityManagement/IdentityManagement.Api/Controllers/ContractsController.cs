@@ -23,12 +23,6 @@ namespace IdentityManagement.Api.Controllers
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateContractRequest request, CancellationToken cancellationToken)
         {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
             var response = await contractService.CreateContract(request, cancellationToken);
             return Http201(response, Localizer["contract.created"]);
         }
@@ -37,12 +31,6 @@ namespace IdentityManagement.Api.Controllers
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateContractRequest request, CancellationToken cancellationToken)
         {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
             var response = await contractService.UpdateContract(id, request, cancellationToken);
             return Http200(response, Localizer["contract.updated"]);
         }

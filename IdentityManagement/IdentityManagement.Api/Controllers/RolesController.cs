@@ -23,12 +23,6 @@ namespace IdentityManagement.Api.Controllers
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateRoleRequest request, CancellationToken cancellationToken)
         {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
             var response = await roleService.CreateRole(request, cancellationToken);
             return Http201(response, Localizer["role.created"]);
         }
@@ -37,12 +31,6 @@ namespace IdentityManagement.Api.Controllers
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateRoleRequest request, CancellationToken cancellationToken)
         {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
             var response = await roleService.UpdateRole(id, request, cancellationToken);
             return Http200(response, Localizer["role.updated"]);
         }

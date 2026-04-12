@@ -34,12 +34,6 @@ namespace IdentityManagement.Api.Controllers
         [PostEndpoint("/api/access-resources/sync")]
         public async Task<IActionResult> Sync([FromBody] List<AccessResourceModel> resources, CancellationToken cancellationToken)
         {
-            IActionResult? validationResult = ValidateBody(resources);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
             var response = await accessResourceService.SyncResources(resources, cancellationToken);
             return Http200(response, Localizer["accessResources.sync.completed"]);
         }

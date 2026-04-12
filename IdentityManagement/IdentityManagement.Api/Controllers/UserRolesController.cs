@@ -23,12 +23,6 @@ namespace IdentityManagement.Api.Controllers
         [PostEndpoint]
         public async Task<IActionResult> Assign([FromBody] AssignUserRoleRequest request, CancellationToken cancellationToken)
         {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
             object response = await userRoleService.AssignUserToRole(request.UserId, request.RoleId, cancellationToken);
             return Http201(response, Localizer["userRole.assigned"]);
         }
@@ -37,12 +31,6 @@ namespace IdentityManagement.Api.Controllers
         [DeleteEndpoint("")]
         public async Task<IActionResult> Revoke([FromBody] RevokeUserRoleRequest request, CancellationToken cancellationToken)
         {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
             object response = await userRoleService.RevokeUserFromRole(request.UserId, request.RoleId, cancellationToken);
             return Http200(response, Localizer["userRole.revoked"]);
         }
@@ -51,12 +39,6 @@ namespace IdentityManagement.Api.Controllers
         [PostEndpoint("reactivate")]
         public async Task<IActionResult> Reactivate([FromBody] AssignUserRoleRequest request, CancellationToken cancellationToken)
         {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
             object response = await userRoleService.ReactivateUserRole(request.UserId, request.RoleId, cancellationToken);
             return Http200(response, Localizer["userRole.reactivated"]);
         }

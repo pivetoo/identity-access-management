@@ -24,12 +24,6 @@ namespace IdentityManagement.Api.Controllers
         [PostEndpoint("register-first")]
         public async Task<IActionResult> RegisterFirst([FromBody] RegisterUserRequest request, CancellationToken cancellationToken)
         {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
             IReadOnlyCollection<IdentityManagement.Application.Responses.Users.UserResponse> existingUsers = await userService.GetActiveUsers(cancellationToken);
             if (existingUsers.Count > 0)
             {
@@ -44,12 +38,6 @@ namespace IdentityManagement.Api.Controllers
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] RegisterUserRequest request, CancellationToken cancellationToken)
         {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
             var response = await userService.CreateUser(request, cancellationToken);
             return Http201(response, Localizer["user.created"]);
         }
@@ -58,12 +46,6 @@ namespace IdentityManagement.Api.Controllers
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateUserRequest request, CancellationToken cancellationToken)
         {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
             var response = await userService.UpdateUser(id, request, cancellationToken);
             return Http200(response, Localizer["user.updated"]);
         }
