@@ -34,6 +34,14 @@ export default function ContractFormModal({
     refreshTokenLifetime: 2592000
   });
 
+  const toSelectValue = (value?: number) =>
+    typeof value === 'number' && Number.isFinite(value) && value > 0 ? value.toString() : undefined;
+
+  const hasValidId = (value: unknown): value is number =>
+    typeof value === 'number' && Number.isFinite(value) && value > 0;
+
+  const defaultStartDate = new Date().toISOString().split('T')[0];
+
   const loadEmpresasApi = useApi({
     onSuccess: (data: Company[]) => {
       setEmpresas(data);
@@ -90,19 +98,19 @@ export default function ContractFormModal({
 
       if (contrato) {
         setFormData({
-          companyId: contrato.companyId,
-          systemApplicationId: contrato.systemApplicationId,
-          startDate: contrato.startDate.split('T')[0],
+          companyId: hasValidId(contrato.companyId) ? contrato.companyId : 0,
+          systemApplicationId: hasValidId(contrato.systemApplicationId) ? contrato.systemApplicationId : 0,
+          startDate: contrato.startDate?.split('T')[0] || defaultStartDate,
           endDate: contrato.endDate?.split('T')[0] || '',
           isActive: contrato.isActive,
-          accessTokenLifetime: contrato.accessTokenLifetime,
-          refreshTokenLifetime: contrato.refreshTokenLifetime
+          accessTokenLifetime: contrato.accessTokenLifetime ?? 3600,
+          refreshTokenLifetime: contrato.refreshTokenLifetime ?? 2592000
         });
       } else {
         setFormData({
           companyId: 0,
           systemApplicationId: 0,
-          startDate: new Date().toISOString().split('T')[0],
+          startDate: defaultStartDate,
           endDate: '',
           isActive: true,
           accessTokenLifetime: 3600,
@@ -148,7 +156,7 @@ export default function ContractFormModal({
   const isValid = formData.companyId > 0 && formData.systemApplicationId > 0 && formData.startDate;
 
   return (
-    <Modal open={isOpen} onOpenChange={onClose}>
+    <Modal open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <ModalContent size="2xl">
         <ModalHeader>
           <ModalTitle>{contrato ? t('contract.form.editTitle') : t('contract.form.createTitle')}</ModalTitle>
@@ -161,12 +169,14 @@ export default function ContractFormModal({
                 {t('contract.field.company')} <span className="text-destructive">*</span>
               </label>
               <SearchableSelect
-                options={empresas.map((empresa) => ({
-                  label: empresa.legalName,
-                  value: empresa.id.toString()
-                }))}
-                value={formData.companyId.toString()}
-                onValueChange={(value) => handleInputChange('companyId', parseInt(value))}
+                options={empresas
+                  .filter((empresa) => hasValidId(empresa.id))
+                  .map((empresa) => ({
+                    label: empresa.legalName,
+                    value: empresa.id.toString()
+                  }))}
+                value={toSelectValue(formData.companyId)}
+                onValueChange={(value) => handleInputChange('companyId', Number(value))}
                 placeholder={t('contract.form.companyPlaceholder')}
                 searchPlaceholder={t('contract.form.companySearchPlaceholder')}
                 disabled={!!contrato || loadEmpresasApi.isLoading}
@@ -177,12 +187,14 @@ export default function ContractFormModal({
                 {t('contract.field.systemApplication')} <span className="text-destructive">*</span>
               </label>
               <SearchableSelect
-                options={sistemas.map((sistema) => ({
-                  label: sistema.name,
-                  value: sistema.id.toString()
-                }))}
-                value={formData.systemApplicationId.toString()}
-                onValueChange={(value) => handleInputChange('systemApplicationId', parseInt(value))}
+                options={sistemas
+                  .filter((sistema) => hasValidId(sistema.id))
+                  .map((sistema) => ({
+                    label: sistema.name,
+                    value: sistema.id.toString()
+                  }))}
+                value={toSelectValue(formData.systemApplicationId)}
+                onValueChange={(value) => handleInputChange('systemApplicationId', Number(value))}
                 placeholder={t('contract.form.systemPlaceholder')}
                 searchPlaceholder={t('contract.form.systemSearchPlaceholder')}
                 disabled={!!contrato || loadSistemasApi.isLoading}
