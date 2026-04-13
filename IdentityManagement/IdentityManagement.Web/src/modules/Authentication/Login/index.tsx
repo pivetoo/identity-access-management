@@ -31,13 +31,13 @@ export default function Login() {
   }, []);
 
   const redirectAfterLogin = (redirectUrl?: string) => {
-    if (redirectUrl) {
-      window.location.href = redirectUrl;
+    if (returnUrl) {
+      window.location.href = returnUrl;
       return;
     }
 
-    if (returnUrl) {
-      window.location.href = returnUrl;
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
       return;
     }
 
