@@ -7,32 +7,69 @@ import SystemCenter from '../SystemCenter';
 import logoEmpresa from '../../../assets/logo-empresa.svg';
 import { validateEmail } from '../../../utils/validation';
 
+const normalizeUrl = (value: string) => {
+  const parsedUrl = new URL(value);
+  const normalizedPath = parsedUrl.pathname.replace(/\/+$/, '') || '/';
+  return `${parsedUrl.origin}${normalizedPath}`;
+};
+
+const getReturnUrl = () => {
+  if (typeof window === 'undefined') {
+    return undefined;
+  }
+
+  const rawReturnUrl = new URLSearchParams(window.location.search).get('returnUrl');
+  if (!rawReturnUrl) {
+    return undefined;
+  }
+
+  try {
+    const parsedUrl = new URL(rawReturnUrl);
+    return parsedUrl.origin === window.location.origin ? undefined : parsedUrl.toString();
+  } catch {
+    return undefined;
+  }
+};
+
+const matchesReturnUrl = (returnUrl?: string, redirectUris?: string) => {
+  if (!returnUrl || !redirectUris) {
+    return false;
+  }
+
+  const normalizedReturnUrl = normalizeUrl(returnUrl);
+
+  return redirectUris
+    .split(',')
+    .map((uri) => uri.trim())
+    .filter(Boolean)
+    .flatMap((uri) => {
+      const normalizedUri = uri.replace(/\/+$/, '');
+      return [normalizedUri, `${normalizedUri}/callback`];
+    })
+    .some((uri) => {
+      try {
+        return normalizeUrl(uri) === normalizedReturnUrl;
+      } catch {
+        return false;
+      }
+    });
+};
+
 export default function Login() {
   const { t } = useI18n()
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const returnUrl = useMemo(() => {
-    if (typeof window === 'undefined') {
-      return undefined;
-    }
+  const returnUrl = useMemo(() => getReturnUrl(), []);
 
-    const rawReturnUrl = new URLSearchParams(window.location.search).get('returnUrl');
-    if (!rawReturnUrl) {
-      return undefined;
-    }
-
-    try {
-      const parsedUrl = new URL(rawReturnUrl);
-      return parsedUrl.origin === window.location.origin ? undefined : parsedUrl.toString();
-    } catch {
-      return undefined;
-    }
-  }, []);
-
-  const redirectAfterLogin = (redirectUrl?: string) => {
+  const redirectAfterLogin = (redirectUrl?: string, redirectUris?: string) => {
     if (returnUrl) {
-      window.location.href = returnUrl;
+      if (matchesReturnUrl(returnUrl, redirectUris) && redirectUrl) {
+        window.location.href = redirectUrl;
+        return;
+      }
+
+      navigate('/management');
       return;
     }
 
@@ -42,6 +79,53 @@ export default function Login() {
     }
 
     navigate('/management');
+  };
+
+  const getContractsForOrigin = (contracts: ContractType[]) => {
+    if (!returnUrl) {
+      return contracts;
+    }
+
+    const matchingContracts = contracts.filter((contract) => matchesReturnUrl(returnUrl, contract.redirectUris));
+    return matchingContracts.length > 0 ? matchingContracts : contracts;
+  };
+
+  const completeContractLogin = async (identifyData: IdentifyResult, contract: ContractType) => {
+    setContractLoading(true);
+
+    try {
+      const data = await AuthService.loginWithContract({
+        userId: identifyData.userId,
+        contractId: contract.contractId,
+        temporaryToken: identifyData.temporaryToken
+      });
+
+      login(data);
+      redirectAfterLogin(data.redirectUrl, data.contract?.redirectUris);
+    } finally {
+      setContractLoading(false);
+    }
+  };
+
+  const handleIdentifyResult = async (data: IdentifyResult | ({ accessToken: string } & any)) => {
+    if ('accessToken' in data) {
+      login(data);
+      redirectAfterLogin(data.redirectUrl, data.contract?.redirectUris);
+      return;
+    }
+
+    const contractsForOrigin = getContractsForOrigin(data.availableContracts);
+
+    if (returnUrl && contractsForOrigin.length === 1) {
+      await completeContractLogin(data, contractsForOrigin[0]);
+      return;
+    }
+
+    setContractData({
+      ...data,
+      availableContracts: contractsForOrigin
+    });
+    setShowContractSelection(true);
   };
 
   const [email, setEmail] = useState('');
@@ -98,13 +182,7 @@ export default function Login() {
         return;
       }
 
-      if ('accessToken' in data) {
-        login(data);
-        redirectAfterLogin(data.redirectUrl);
-      } else {
-        setContractData(data);
-        setShowContractSelection(true);
-      }
+      await handleIdentifyResult(data);
     } catch (error: any) {
       setPasswordError(error.message);
     } finally {
@@ -115,18 +193,7 @@ export default function Login() {
   const handleSelectContract = async (contract: ContractType) => {
     if (!contractData) return;
 
-    setContractLoading(true);
-
-    const data = await AuthService.loginWithContract({
-      userId: contractData.userId,
-      contractId: contract.contractId,
-      temporaryToken: contractData.temporaryToken
-    });
-
-    login(data);
-    redirectAfterLogin(data.redirectUrl);
-
-    setContractLoading(false);
+    await completeContractLogin(contractData, contract);
   };
 
   const handleBackToLogin = () => {
@@ -137,6 +204,7 @@ export default function Login() {
   const handleForgotPassword = () => {
     navigate('/forgot-password');
   };
+
 
   if (showContractSelection && contractData) {
     return (

@@ -13,6 +13,12 @@ import UserRoles from '../modules/Administration/UserRoles';
 import ForgotPassword from '../modules/Authentication/ForgotPassword';
 import Login from '../modules/Authentication/Login';
 
+const normalizeUrl = (value: string) => {
+  const parsedUrl = new URL(value);
+  const normalizedPath = parsedUrl.pathname.replace(/\/+$/, '') || '/';
+  return `${parsedUrl.origin}${normalizedPath}`;
+};
+
 const getReturnUrl = (search: string) => {
   if (typeof window === 'undefined') {
     return undefined;
@@ -31,8 +37,39 @@ const getReturnUrl = (search: string) => {
   }
 };
 
+const matchesReturnUrl = (returnUrl?: string, redirectUris?: string) => {
+  if (!returnUrl || !redirectUris) {
+    return false;
+  }
+
+  const normalizedReturnUrl = normalizeUrl(returnUrl);
+
+  return redirectUris
+    .split(',')
+    .map((uri) => uri.trim())
+    .filter(Boolean)
+    .flatMap((uri) => {
+      const normalizedUri = uri.replace(/\/+$/, '');
+      return [normalizedUri, `${normalizedUri}/callback`];
+    })
+    .some((uri) => {
+      try {
+        return normalizeUrl(uri) === normalizedReturnUrl;
+      } catch {
+        return false;
+      }
+    });
+};
+
+const buildCallbackRedirectUrl = (returnUrl: string, accessToken: string, refreshToken: string) => {
+  const callbackUrl = new URL(returnUrl);
+  callbackUrl.searchParams.set('accessToken', accessToken);
+  callbackUrl.searchParams.set('refreshToken', refreshToken);
+  return callbackUrl.toString();
+};
+
 function LoginEntry() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, contract, accessToken, refreshToken } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const returnUrl = useMemo(() => getReturnUrl(location.search), [location.search]);
@@ -42,13 +79,13 @@ function LoginEntry() {
       return;
     }
 
-    if (returnUrl) {
-      window.location.href = returnUrl;
+    if (returnUrl && accessToken && refreshToken && matchesReturnUrl(returnUrl, contract?.redirectUris)) {
+      window.location.href = buildCallbackRedirectUrl(returnUrl, accessToken, refreshToken);
       return;
     }
 
     navigate('/management', { replace: true });
-  }, [isAuthenticated, navigate, returnUrl]);
+  }, [accessToken, contract?.redirectUris, isAuthenticated, navigate, refreshToken, returnUrl]);
 
   if (isAuthenticated) {
     return null;
