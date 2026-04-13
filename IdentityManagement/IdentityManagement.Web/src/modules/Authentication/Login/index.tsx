@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Card, CardContent, Input, useAuth, AuthService, useI18n } from 'archon-ui';
 import { User, Lock } from 'lucide-react';
@@ -11,6 +11,38 @@ export default function Login() {
   const { t } = useI18n()
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  const returnUrl = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const rawReturnUrl = new URLSearchParams(window.location.search).get('returnUrl');
+    if (!rawReturnUrl) {
+      return undefined;
+    }
+
+    try {
+      const parsedUrl = new URL(rawReturnUrl);
+      return parsedUrl.origin === window.location.origin ? undefined : parsedUrl.toString();
+    } catch {
+      return undefined;
+    }
+  }, []);
+
+  const redirectAfterLogin = (redirectUrl?: string) => {
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
+      return;
+    }
+
+    if (returnUrl) {
+      window.location.href = returnUrl;
+      return;
+    }
+
+    navigate('/management');
+  };
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -68,11 +100,7 @@ export default function Login() {
 
       if ('accessToken' in data) {
         login(data);
-        if (data.redirectUrl) {
-          window.location.href = data.redirectUrl;
-        } else {
-          navigate('/management');
-        }
+        redirectAfterLogin(data.redirectUrl);
       } else {
         setContractData(data);
         setShowContractSelection(true);
@@ -96,11 +124,7 @@ export default function Login() {
     });
 
     login(data);
-    if (data.redirectUrl) {
-      window.location.href = data.redirectUrl;
-    } else {
-      navigate('/management');
-    }
+    redirectAfterLogin(data.redirectUrl);
 
     setContractLoading(false);
   };
