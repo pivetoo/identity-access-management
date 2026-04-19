@@ -75,11 +75,11 @@ function LoginEntry() {
   const returnUrl = useMemo(() => getReturnUrl(location.search), [location.search]);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !accessToken || !refreshToken) {
       return;
     }
 
-    if (returnUrl && accessToken && refreshToken && matchesReturnUrl(returnUrl, contract?.redirectUris)) {
+    if (returnUrl && matchesReturnUrl(returnUrl, contract?.redirectUris)) {
       window.location.href = buildCallbackRedirectUrl(returnUrl, accessToken, refreshToken);
       return;
     }
