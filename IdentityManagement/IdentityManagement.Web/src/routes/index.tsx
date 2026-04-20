@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { BrowserRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { Callback, ProtectedRoute, useAuth } from 'archon-ui';
+import { Callback, ProtectedRoute, useAuth, AuthService } from 'archon-ui';
 import AdministrationLayout from '../layouts/AdministrationLayout';
 import Dashboard from '../modules/Dashboard';
 import Users from '../modules/Administration/Users';
@@ -94,6 +94,15 @@ function LoginEntry() {
   return <Login />;
 }
 
+function LogoutEntry() {
+  useEffect(() => {
+    AuthService.logout();
+    window.location.href = '/';
+  }, []);
+
+  return null;
+}
+
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
 
@@ -102,6 +111,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<LoginEntry />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/logout" element={<LogoutEntry />} />
         <Route path="/callback" element={<Callback redirectTo="/management" />} />
         <Route
           path="/management"

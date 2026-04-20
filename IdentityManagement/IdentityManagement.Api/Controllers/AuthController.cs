@@ -68,8 +68,7 @@ namespace IdentityManagement.Api.Controllers
             });
         }
 
-        [RequireAccess]
-        [Authorize]
+        [AllowAnonymous]
         [PostEndpoint]
         public async Task<IActionResult> Logout([FromBody] LogoutRequest request, CancellationToken cancellationToken)
         {
