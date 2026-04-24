@@ -4,7 +4,7 @@ import { Home, Users, MapPin, FileText, Layers, UserCheck, Link, ShieldCheck } f
 import { AppLayout, useAuth, AuthService, useAppNavigation, useI18n } from 'archon-ui';
 import type { BreadcrumbItem } from 'archon-ui';
 import logoIdentityProvider from '../assets/logo-identity-provider.svg';
-import logoempresa from '../assets/logo-empresa.svg';
+import logoempresa from '../assets/Mainstay/logo-login.png';
 import { getNameInitials, resolveAvatarUrl } from '../utils/user';
 
 export default function AdministrationLayout() {

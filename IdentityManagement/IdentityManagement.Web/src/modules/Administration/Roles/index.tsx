@@ -68,7 +68,8 @@ export default function Roles() {
     await loadPerfisApi.execute(async () => {
       const data = await RoleService.getByContrato(targetContratoId!, {
         page: 1,
-        pageSize: 1000
+        pageSize: 1000,
+        orderBy: 'id'
       });
       return data;
     });

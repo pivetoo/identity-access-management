@@ -57,7 +57,7 @@ export default function Users() {
       UserService.getAll({
         page: 1,
         pageSize: pageSize,
-        orderBy: 'username'
+        orderBy: 'id'
       })
     );
   };
@@ -68,7 +68,7 @@ export default function Users() {
       UserService.getAll({
         page: currentPage + 1,
         pageSize: pageSize,
-        orderBy: 'username'
+        orderBy: 'id'
       })
     );
   };

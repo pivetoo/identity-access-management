@@ -54,7 +54,7 @@ export default function SystemApplications() {
       SystemApplicationService.getAll({
         page: 1,
         pageSize: pageSize,
-        orderBy: 'name'
+        orderBy: 'id'
       })
     );
   };
@@ -65,7 +65,7 @@ export default function SystemApplications() {
       SystemApplicationService.getAll({
         page: currentPage + 1,
         pageSize: pageSize,
-        orderBy: 'name'
+        orderBy: 'id'
       })
     );
   };

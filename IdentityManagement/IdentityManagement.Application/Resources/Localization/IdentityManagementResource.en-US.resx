@@ -150,8 +150,10 @@
   <data name="common.duration.hours" xml:space="preserve"><value>{0} hours</value></data>
   <data name="common.duration.minute" xml:space="preserve"><value>{0} minute</value></data>
   <data name="common.duration.minutes" xml:space="preserve"><value>{0} minutes</value></data>
-  <data name="authentication.footer.copyright" xml:space="preserve"><value>© {0} Test Company. All rights reserved</value></data>
-  <data name="authentication.login.companyLogoAlt" xml:space="preserve"><value>Test Company</value></data>
+  <data name="authentication.footer.copyright" xml:space="preserve"><value>© {0} Mainstay. All rights reserved</value></data>
+  <data name="authentication.login.companyLogoAlt" xml:space="preserve"><value>Mainstay</value></data>
+  <data name="authentication.login.title" xml:space="preserve"><value>I-AM [Authentication Service]</value></data>
+  <data name="authentication.login.subtitle" xml:space="preserve"><value>Sign in to continue</value></data>
   <data name="authentication.login.accessing" xml:space="preserve"><value>You are accessing</value></data>
   <data name="authentication.login.providerName" xml:space="preserve"><value>[Identity Provider]</value></data>
   <data name="authentication.login.submit" xml:space="preserve"><value>Sign In</value></data>

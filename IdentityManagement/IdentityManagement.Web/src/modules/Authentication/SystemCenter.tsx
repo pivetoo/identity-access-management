@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Briefcase, ArrowLeft, Search } from 'lucide-react';
 import { Button, Card, CardContent, Input, useI18n } from 'archon-ui';
 import type { ContractType } from 'archon-ui';
-import logoEmpresa from '../../assets/logo-empresa.svg';
+import logoEmpresa from '../../assets/Mainstay/logo-login.png';
 
 interface SystemCenterProps {
   userName: string;
@@ -123,7 +123,7 @@ export default function SystemCenter({
     </div>
 
     <a
-      href="https://empresadetestes.com.br/"
+      href="https://mainstay.com.br/"
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-8 left-8 hidden md:block"
@@ -131,7 +131,7 @@ export default function SystemCenter({
       <img
         src={logoEmpresa}
         alt={t('authentication.login.companyLogoAlt')}
-        className="h-14 opacity-80 hover:opacity-100 transition-opacity cursor-pointer object-contain"
+                  className="h-16 opacity-80 hover:opacity-100 transition-opacity cursor-pointer object-contain"
       />
     </a>
   </>

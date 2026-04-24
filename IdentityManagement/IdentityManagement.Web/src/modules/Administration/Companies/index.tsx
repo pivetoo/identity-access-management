@@ -56,7 +56,7 @@ export default function Companies() {
       CompanyService.getAll({
         page: 1,
         pageSize: pageSize,
-        orderBy: 'legalName'
+        orderBy: 'id'
       })
     );
   };
@@ -67,7 +67,7 @@ export default function Companies() {
       CompanyService.getAll({
         page: currentPage + 1,
         pageSize: pageSize,
-        orderBy: 'legalName'
+        orderBy: 'id'
       })
     );
   };

@@ -62,7 +62,7 @@ export default function Contracts() {
       ContractService.getAll({
         page: 1,
         pageSize: pageSize,
-        orderBy: 'startDate'
+        orderBy: 'id'
       })
     );
   };
@@ -73,7 +73,7 @@ export default function Contracts() {
       ContractService.getAll({
         page: currentPage + 1,
         pageSize: pageSize,
-        orderBy: 'startDate'
+        orderBy: 'id'
       })
     );
   };

@@ -62,7 +62,7 @@ export default function SystemRoleTemplates() {
       SystemRoleTemplateService.getBySystemApplicationId(selectedSystemApplicationId, {
         page: 1,
         pageSize,
-        orderBy: 'name',
+        orderBy: 'id',
       })
     );
   }, [selectedSystemApplicationId]);
@@ -113,7 +113,7 @@ export default function SystemRoleTemplates() {
       SystemRoleTemplateService.getBySystemApplicationId(selectedSystemApplicationId, {
         page: 1,
         pageSize,
-        orderBy: 'name',
+        orderBy: 'id',
       })
     );
   };

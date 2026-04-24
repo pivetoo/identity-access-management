@@ -4,7 +4,7 @@ import { Button, Card, CardContent, Input, useAuth, AuthService, useI18n } from 
 import { User, Lock } from 'lucide-react';
 import type { IdentifyResult, ContractType } from 'archon-ui';
 import SystemCenter from '../SystemCenter';
-import logoEmpresa from '../../../assets/logo-empresa.svg';
+import logoEmpresa from '../../../assets/Mainstay/logo-login.png';
 import { validateEmail } from '../../../utils/validation';
 
 const normalizeUrl = (value: string) => {
@@ -232,17 +232,18 @@ export default function Login() {
           <Card className="relative border border-border/50 shadow-2xl rounded-2xl overflow-hidden bg-background/95 backdrop-blur-sm">
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary/80 to-primary" />
             <CardContent className="pt-8 pb-10 px-8">
-              <div className="flex justify-center mb-2">
+              <div className="flex justify-center mb-6">
                 <img
                   src={logoEmpresa}
                   alt={t('authentication.login.companyLogoAlt')}
-                  className="h-40"
+                  className="h-36 object-contain"
                 />
               </div>
 
               <p className="text-center text-sm text-muted-foreground mb-10">
-                {t('authentication.login.accessing')}<br />
-                <strong>{t('authentication.login.providerName')}</strong>
+                <strong>{t('authentication.login.title')}</strong>
+                <br />
+                {t('authentication.login.subtitle')}
               </p>
 
               <form onSubmit={handleSubmit} className="flex flex-col">

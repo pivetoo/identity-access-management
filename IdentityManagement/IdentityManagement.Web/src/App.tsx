@@ -3,7 +3,7 @@ import { AuthProvider, GlobalLoaderProvider, I18nProvider, useGlobalLoader, Toas
 import AppRoutes from './routes';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-const identityManagementUrl = import.meta.env.VITE_IDENTITY_MANAGEMENT_URL || apiBaseUrl?.replace(/\/api$/, '');
+const identityManagementUrl = import.meta.env.VITE_IDENTITY_MANAGEMENT_URL || apiBaseUrl;
 if (apiBaseUrl) {
   setApiBaseURL(apiBaseUrl);
 }
