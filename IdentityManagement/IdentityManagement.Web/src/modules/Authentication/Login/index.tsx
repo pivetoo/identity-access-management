@@ -13,6 +13,26 @@ const normalizeUrl = (value: string) => {
   return `${parsedUrl.origin}${normalizedPath}`;
 };
 
+const resolveRedirectUrl = (redirectUrl?: string): string | undefined => {
+  if (!redirectUrl) {
+    return undefined;
+  }
+
+  const overrideUrl = import.meta.env.VITE_OVERRIDE_REDIRECT_URL;
+  if (!overrideUrl) {
+    return redirectUrl;
+  }
+
+  try {
+    const parsedRedirect = new URL(redirectUrl);
+    const parsedOverride = new URL(overrideUrl);
+
+    return `${parsedOverride.origin}${parsedRedirect.pathname}${parsedRedirect.search}${parsedRedirect.hash}`;
+  } catch {
+    return redirectUrl;
+  }
+};
+
 const getReturnUrl = () => {
   if (typeof window === 'undefined') {
     return undefined;
@@ -63,9 +83,11 @@ export default function Login() {
   const returnUrl = useMemo(() => getReturnUrl(), []);
 
   const redirectAfterLogin = (redirectUrl?: string, redirectUris?: string) => {
+    const resolvedUrl = resolveRedirectUrl(redirectUrl);
+
     if (returnUrl) {
-      if (matchesReturnUrl(returnUrl, redirectUris) && redirectUrl) {
-        window.location.href = redirectUrl;
+      if (matchesReturnUrl(returnUrl, redirectUris) && resolvedUrl) {
+        window.location.href = resolvedUrl;
         return;
       }
 
@@ -73,8 +95,8 @@ export default function Login() {
       return;
     }
 
-    if (redirectUrl) {
-      window.location.href = redirectUrl;
+    if (resolvedUrl) {
+      window.location.href = resolvedUrl;
       return;
     }
 
