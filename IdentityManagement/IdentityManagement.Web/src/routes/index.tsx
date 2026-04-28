@@ -1,6 +1,6 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BrowserRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { Callback, ProtectedRoute, useAuth, AuthService } from 'archon-ui';
+import { Callback, ProtectedRoute, useAuth, AuthService, GlobalLoader } from 'archon-ui';
 import AdministrationLayout from '../layouts/AdministrationLayout';
 import Dashboard from '../modules/Dashboard';
 import Users from '../modules/Administration/Users';
@@ -73,9 +73,17 @@ function LoginEntry() {
   const location = useLocation();
   const navigate = useNavigate();
   const returnUrl = useMemo(() => getReturnUrl(location.search), [location.search]);
+  const [validating, setValidating] = useState(true);
 
   useEffect(() => {
     if (!isAuthenticated || !accessToken || !refreshToken) {
+      setValidating(false);
+      return;
+    }
+
+    const tokenValid = !AuthService.isTokenExpiringSoon(accessToken, 0);
+    if (!tokenValid) {
+      setValidating(false);
       return;
     }
 
@@ -87,8 +95,8 @@ function LoginEntry() {
     navigate('/management', { replace: true });
   }, [accessToken, contract?.redirectUris, isAuthenticated, navigate, refreshToken, returnUrl]);
 
-  if (isAuthenticated) {
-    return null;
+  if (validating) {
+    return <GlobalLoader isVisible={true} className="bg-background" />;
   }
 
   return <Login />;
