@@ -112,7 +112,7 @@ namespace IdentityManagement.Api.Controllers
             return Http200(message: Localizer["auth.password.changed"]);
         }
 
-        [RequireAccess]
+        [AllowAnonymous]
         [GetEndpoint("{clientId}")]
         public async Task<IActionResult> GetContractByClientId(string clientId, CancellationToken cancellationToken)
         {
