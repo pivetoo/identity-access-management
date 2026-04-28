@@ -1,10 +1,8 @@
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
 using Archon.Core.Access;
-using IdentityManagement.Api.Attributes;
 using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
@@ -29,8 +27,7 @@ namespace IdentityManagement.Api.Controllers
             return Http200(response);
         }
 
-        [AllowAnonymous]
-        [RequireIntegrationSecret]
+        [RequireAccess]
         [PostEndpoint]
         public async Task<IActionResult> Sync([FromBody] List<AccessResourceModel> resources, CancellationToken cancellationToken)
         {

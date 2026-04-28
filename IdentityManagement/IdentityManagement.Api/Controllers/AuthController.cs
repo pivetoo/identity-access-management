@@ -1,6 +1,5 @@
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
-using IdentityManagement.Api.Attributes;
 using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.Auth;
 using IdentityManagement.Application.Services;
@@ -113,8 +112,7 @@ namespace IdentityManagement.Api.Controllers
             return Http200(message: Localizer["auth.password.changed"]);
         }
 
-        [RequireIntegrationSecret]
-        [AllowAnonymous]
+        [RequireAccess]
         [GetEndpoint("{clientId}")]
         public async Task<IActionResult> GetContractByClientId(string clientId, CancellationToken cancellationToken)
         {
