@@ -169,14 +169,14 @@ namespace IdentityManagement.Infrastructure.Services
                 return null;
             }
 
-            string? baseUrl = null;
+            string? redirectUrl = null;
 
             if (!string.IsNullOrWhiteSpace(returnUrl))
             {
                 try
                 {
                     var returnUri = new Uri(returnUrl);
-                    var matchingUri = allowedUris.FirstOrDefault(uri =>
+                    var isAllowed = allowedUris.Any(uri =>
                     {
                         try
                         {
@@ -190,9 +190,9 @@ namespace IdentityManagement.Infrastructure.Services
                         }
                     });
 
-                    if (matchingUri != null)
+                    if (isAllowed)
                     {
-                        baseUrl = matchingUri.TrimEnd('/');
+                        redirectUrl = returnUrl;
                     }
                 }
                 catch
@@ -200,9 +200,13 @@ namespace IdentityManagement.Infrastructure.Services
                 }
             }
 
-            baseUrl ??= allowedUris.First().TrimEnd('/');
+            if (redirectUrl == null)
+            {
+                redirectUrl = $"{allowedUris.First().TrimEnd('/')}/callback";
+            }
 
-            return $"{baseUrl}/callback?accessToken={Uri.EscapeDataString(accessToken)}&refreshToken={Uri.EscapeDataString(refreshToken)}";
+            var separator = redirectUrl.Contains('?') ? '&' : '?';
+            return $"{redirectUrl}{separator}accessToken={Uri.EscapeDataString(accessToken)}&refreshToken={Uri.EscapeDataString(refreshToken)}";
         }
     }
 }
