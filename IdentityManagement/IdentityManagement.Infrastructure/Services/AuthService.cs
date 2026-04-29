@@ -120,7 +120,7 @@ namespace IdentityManagement.Infrastructure.Services
                 RefreshToken = refreshToken.Token,
                 TokenType = "Bearer",
                 ExpiresIn = contract.AccessTokenLifetime,
-                RedirectUrl = BuildRedirectUrl(contract.SystemApplication, accessToken, refreshToken.Token, request.ReturnUrl),
+                RedirectUrl = BuildRedirectUrl(contract.SystemApplication, accessToken, refreshToken.Token),
                 User = ToUserResponse(user),
                 Contract = selectedContract
             };
