@@ -87,7 +87,7 @@ function LoginEntry() {
       return;
     }
 
-    if (returnUrl && matchesReturnUrl(returnUrl, contract?.redirectUris)) {
+    if (returnUrl) {
       window.location.href = buildCallbackRedirectUrl(returnUrl, accessToken, refreshToken);
       return;
     }
