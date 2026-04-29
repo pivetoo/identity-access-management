@@ -37,30 +37,6 @@ const getReturnUrl = (search: string) => {
   }
 };
 
-const matchesReturnUrl = (returnUrl?: string, redirectUris?: string) => {
-  if (!returnUrl || !redirectUris) {
-    return false;
-  }
-
-  const normalizedReturnUrl = normalizeUrl(returnUrl);
-
-  return redirectUris
-    .split(',')
-    .map((uri) => uri.trim())
-    .filter(Boolean)
-    .flatMap((uri) => {
-      const normalizedUri = uri.replace(/\/+$/, '');
-      return [normalizedUri, `${normalizedUri}/callback`];
-    })
-    .some((uri) => {
-      try {
-        return normalizeUrl(uri) === normalizedReturnUrl;
-      } catch {
-        return false;
-      }
-    });
-};
-
 const buildCallbackRedirectUrl = (returnUrl: string, accessToken: string, refreshToken: string) => {
   const callbackUrl = new URL(returnUrl);
   callbackUrl.searchParams.set('accessToken', accessToken);
