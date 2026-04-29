@@ -102,7 +102,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.WEB_IMAGE }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.WEB_IMAGE }}:${{ github.sha }}
           build-args: |
-            VITE_API_BASE_URL=/api
+            VITE_API_BASE_URL=https://auth.mainstay.com.br/api
           build-contexts: |
             archon-ui=frameworks/archon-ui
 
