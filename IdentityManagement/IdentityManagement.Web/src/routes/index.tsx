@@ -13,12 +13,6 @@ import UserRoles from '../modules/Administration/UserRoles';
 import ForgotPassword from '../modules/Authentication/ForgotPassword';
 import Login from '../modules/Authentication/Login';
 
-const normalizeUrl = (value: string) => {
-  const parsedUrl = new URL(value);
-  const normalizedPath = parsedUrl.pathname.replace(/\/+$/, '') || '/';
-  return `${parsedUrl.origin}${normalizedPath}`;
-};
-
 const getReturnUrl = (search: string) => {
   if (typeof window === 'undefined') {
     return undefined;
