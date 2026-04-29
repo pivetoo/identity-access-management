@@ -100,7 +100,7 @@ export default function Login() {
       return;
     }
 
-    navigate('/management');
+    //navigate('/management');
   };
 
   const getContractsForOrigin = (contracts: ContractType[]) => {
