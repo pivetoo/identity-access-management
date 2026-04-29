@@ -197,13 +197,12 @@ namespace IdentityManagement.Infrastructure.Services
                 }
                 catch
                 {
-                    // ignore invalid returnUrl
                 }
             }
 
             baseUrl ??= allowedUris.First().TrimEnd('/');
 
-            return $"{baseUrl}/callback?accessToken={accessToken}&refreshToken={refreshToken}";
+            return $"{baseUrl}/callback?accessToken={Uri.EscapeDataString(accessToken)}&refreshToken={Uri.EscapeDataString(refreshToken)}";
         }
     }
 }
