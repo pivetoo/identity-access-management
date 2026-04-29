@@ -1,8 +1,8 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Card, CardContent, Input, useAuth, AuthService, useI18n } from 'archon-ui';
+import { Button, Card, CardContent, GlobalLoader, Input, useAuth, AuthService, useI18n } from 'archon-ui';
 import { User, Lock } from 'lucide-react';
-import type { IdentifyResult, ContractType } from 'archon-ui';
+import type { IdentifyResult, ContractType, LoginResult } from 'archon-ui';
 import SystemCenter from '../SystemCenter';
 import logoEmpresa from '../../../assets/Mainstay/logo-login.png';
 import { validateEmail } from '../../../utils/validation';
@@ -82,25 +82,36 @@ export default function Login() {
 
   const returnUrl = useMemo(() => getReturnUrl(), []);
 
-  const redirectAfterLogin = (redirectUrl?: string, redirectUris?: string) => {
+  const getRedirectTargetUrl = (redirectUrl?: string, redirectUris?: string) => {
     const resolvedUrl = resolveRedirectUrl(redirectUrl);
 
     if (resolvedUrl) {
-      window.location.href = resolvedUrl;
-      return;
+      return resolvedUrl;
     }
 
     if (returnUrl && matchesReturnUrl(returnUrl, redirectUris)) {
-      window.location.href = returnUrl;
-      return;
+      return returnUrl;
     }
 
     if (returnUrl) {
-      window.location.href = returnUrl;
+      return returnUrl;
+    }
+
+    return undefined;
+  };
+
+  const completeLogin = (data: LoginResult) => {
+    const targetUrl = getRedirectTargetUrl(data.redirectUrl, data.contract?.redirectUris);
+
+    if (targetUrl) {
+      setRedirecting(true);
+      AuthService.logout();
+      window.location.replace(targetUrl);
       return;
     }
 
-    //navigate('/management');
+    login(data);
+    navigate('/management');
   };
 
   const getContractsForOrigin = (contracts: ContractType[]) => {
@@ -122,17 +133,15 @@ export default function Login() {
         temporaryToken: identifyData.temporaryToken
       });
 
-      redirectAfterLogin(data.redirectUrl, data.contract?.redirectUris);
-      login(data);
+      completeLogin(data);
     } finally {
       setContractLoading(false);
     }
   };
 
-  const handleIdentifyResult = async (data: IdentifyResult | ({ accessToken: string } & any)) => {
+  const handleIdentifyResult = async (data: IdentifyResult | LoginResult) => {
     if ('accessToken' in data) {
-      redirectAfterLogin(data.redirectUrl, data.contract?.redirectUris);
-      login(data);
+      completeLogin(data);
       return;
     }
 
@@ -156,6 +165,7 @@ export default function Login() {
   const [passwordError, setPasswordError] = useState('');
   const [loading, setLoading] = useState(false);
   const [contractLoading, setContractLoading] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const [showContractSelection, setShowContractSelection] = useState(false);
   const [contractData, setContractData] = useState<IdentifyResult | null>(null);
 
@@ -227,6 +237,10 @@ export default function Login() {
     navigate('/forgot-password');
   };
 
+
+  if (redirecting) {
+    return <GlobalLoader isVisible={true} className="bg-background" />;
+  }
 
   if (showContractSelection && contractData) {
     return (
