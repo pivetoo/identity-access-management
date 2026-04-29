@@ -39,7 +39,7 @@ const buildCallbackRedirectUrl = (returnUrl: string, accessToken: string, refres
 };
 
 function LoginEntry() {
-  const { isAuthenticated, contract, accessToken, refreshToken } = useAuth();
+  const { isAuthenticated, accessToken, refreshToken } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const returnUrl = useMemo(() => getReturnUrl(location.search), [location.search]);
@@ -63,7 +63,7 @@ function LoginEntry() {
     }
 
     navigate('/management', { replace: true });
-  }, [accessToken, contract?.redirectUris, isAuthenticated, navigate, refreshToken, returnUrl]);
+  }, [accessToken, isAuthenticated, navigate, refreshToken, returnUrl]);
 
   if (validating) {
     return <GlobalLoader isVisible={true} className="bg-background" />;
