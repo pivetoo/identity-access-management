@@ -85,18 +85,13 @@ export default function Login() {
   const redirectAfterLogin = (redirectUrl?: string, redirectUris?: string) => {
     const resolvedUrl = resolveRedirectUrl(redirectUrl);
 
-    if (returnUrl) {
-      if (matchesReturnUrl(returnUrl, redirectUris) && resolvedUrl) {
-        window.location.href = resolvedUrl;
-        return;
-      }
-
-      navigate('/management');
+    if (resolvedUrl) {
+      window.location.href = resolvedUrl;
       return;
     }
 
-    if (resolvedUrl) {
-      window.location.href = resolvedUrl;
+    if (returnUrl && matchesReturnUrl(returnUrl, redirectUris)) {
+      window.location.href = returnUrl;
       return;
     }
 

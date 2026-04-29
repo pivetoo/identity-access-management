@@ -65,7 +65,7 @@ namespace IdentityManagement.Infrastructure.Services
                     RefreshToken = refreshToken.Token,
                     TokenType = "Bearer",
                     ExpiresIn = contract.AccessTokenLifetime,
-                    RedirectUrl = BuildRedirectUrl(contract.SystemApplication, accessToken, refreshToken.Token),
+                    RedirectUrl = BuildRedirectUrl(contract.SystemApplication, accessToken, refreshToken.Token, request.ReturnUrl),
                     User = ToUserResponse(user),
                     Contract = selectedContract
                 };
@@ -120,7 +120,7 @@ namespace IdentityManagement.Infrastructure.Services
                 RefreshToken = refreshToken.Token,
                 TokenType = "Bearer",
                 ExpiresIn = contract.AccessTokenLifetime,
-                RedirectUrl = BuildRedirectUrl(contract.SystemApplication, accessToken, refreshToken.Token),
+                RedirectUrl = BuildRedirectUrl(contract.SystemApplication, accessToken, refreshToken.Token, request.ReturnUrl),
                 User = ToUserResponse(user),
                 Contract = selectedContract
             };
@@ -153,21 +153,55 @@ namespace IdentityManagement.Infrastructure.Services
             };
         }
 
-        private static string? BuildRedirectUrl(SystemApplication systemApplication, string accessToken, string refreshToken)
+        private static string? BuildRedirectUrl(SystemApplication systemApplication, string accessToken, string refreshToken, string? returnUrl = null)
         {
             if (systemApplication.Type != ApplicationType.External)
             {
                 return null;
             }
 
-            string? baseUrl = systemApplication.RedirectUris
+            var allowedUris = systemApplication.RedirectUris
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .FirstOrDefault();
+                .ToList();
 
-            if (string.IsNullOrWhiteSpace(baseUrl))
+            if (allowedUris.Count == 0)
             {
                 return null;
             }
+
+            string? baseUrl = null;
+
+            if (!string.IsNullOrWhiteSpace(returnUrl))
+            {
+                try
+                {
+                    var returnUri = new Uri(returnUrl);
+                    var matchingUri = allowedUris.FirstOrDefault(uri =>
+                    {
+                        try
+                        {
+                            var allowedUri = new Uri(uri);
+                            return allowedUri.Host.Equals(returnUri.Host, StringComparison.OrdinalIgnoreCase)
+                                && allowedUri.Scheme.Equals(returnUri.Scheme, StringComparison.OrdinalIgnoreCase);
+                        }
+                        catch
+                        {
+                            return false;
+                        }
+                    });
+
+                    if (matchingUri != null)
+                    {
+                        baseUrl = matchingUri.TrimEnd('/');
+                    }
+                }
+                catch
+                {
+                    // ignore invalid returnUrl
+                }
+            }
+
+            baseUrl ??= allowedUris.First().TrimEnd('/');
 
             return $"{baseUrl}/callback?accessToken={accessToken}&refreshToken={refreshToken}";
         }
