@@ -122,8 +122,8 @@ export default function Login() {
         temporaryToken: identifyData.temporaryToken
       });
 
-      login(data);
       redirectAfterLogin(data.redirectUrl, data.contract?.redirectUris);
+      login(data);
     } finally {
       setContractLoading(false);
     }
@@ -131,8 +131,8 @@ export default function Login() {
 
   const handleIdentifyResult = async (data: IdentifyResult | ({ accessToken: string } & any)) => {
     if ('accessToken' in data) {
-      login(data);
       redirectAfterLogin(data.redirectUrl, data.contract?.redirectUris);
+      login(data);
       return;
     }
 
