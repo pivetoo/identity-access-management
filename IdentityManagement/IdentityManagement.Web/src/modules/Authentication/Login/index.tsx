@@ -95,6 +95,11 @@ export default function Login() {
       return;
     }
 
+    if (returnUrl) {
+      window.location.href = returnUrl;
+      return;
+    }
+
     navigate('/management');
   };
 
