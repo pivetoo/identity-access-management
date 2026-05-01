@@ -22,7 +22,7 @@ namespace IdentityManagement.Infrastructure.Services
         {
             await EnsureUniqueSystemApplication(request.Name, request.Audience, null, cancellationToken);
 
-            SystemApplication systemApplication = new SystemApplication(request.Name, request.Description, request.RedirectUris, request.Audience, request.Type);
+            SystemApplication systemApplication = new SystemApplication(request.Name, request.Description, request.Audience, request.Type);
             bool success = await Insert(cancellationToken, systemApplication);
             if (!success)
             {
@@ -52,7 +52,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             await EnsureUniqueSystemApplication(request.Name, request.Audience, id, cancellationToken);
 
-            systemApplication.Update(request.Name, request.Description, request.RedirectUris, request.Audience, request.Type, request.IsActive);
+            systemApplication.Update(request.Name, request.Description, request.Audience, request.Type, request.IsActive);
 
             SystemApplication? result = await Update(systemApplication, cancellationToken);
             if (result is null)
@@ -74,7 +74,6 @@ namespace IdentityManagement.Infrastructure.Services
                     Id = systemApplication.Id,
                     Name = systemApplication.Name,
                     Description = systemApplication.Description,
-                    RedirectUris = systemApplication.RedirectUris,
                     IsActive = systemApplication.IsActive,
                     Audience = systemApplication.Audience,
                     Type = systemApplication.Type,
@@ -118,7 +117,6 @@ namespace IdentityManagement.Infrastructure.Services
                 Id = systemApplication.Id,
                 Name = systemApplication.Name,
                 Description = systemApplication.Description,
-                RedirectUris = systemApplication.RedirectUris,
                 IsActive = systemApplication.IsActive,
                 Audience = systemApplication.Audience,
                 Type = systemApplication.Type,

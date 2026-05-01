@@ -21,7 +21,6 @@ export default function SystemApplicationFormModal({
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    redirectUris: '',
     isActive: true,
     audience: ''
   });
@@ -55,7 +54,6 @@ export default function SystemApplicationFormModal({
         setFormData({
           name: sistema.name,
           description: sistema.description || '',
-          redirectUris: sistema.redirectUris,
           isActive: sistema.isActive,
           audience: sistema.audience
         });
@@ -63,7 +61,6 @@ export default function SystemApplicationFormModal({
         setFormData({
           name: '',
           description: '',
-          redirectUris: '',
           isActive: true,
           audience: ''
         });
@@ -89,14 +86,13 @@ export default function SystemApplicationFormModal({
       const createData: CreateSystemApplicationRequest = {
         name: formData.name,
         description: formData.description,
-        redirectUris: formData.redirectUris,
         audience: formData.audience
       };
       await saveSistemaApi.execute(() => SystemApplicationService.create(createData));
     }
   };
 
-  const isValid = formData.name && formData.redirectUris && formData.audience;
+  const isValid = formData.name && formData.audience;
 
   return (
     <Modal open={isOpen} onOpenChange={onClose}>
@@ -138,18 +134,6 @@ export default function SystemApplicationFormModal({
               onChange={(e) => handleInputChange('description', e.target.value)}
               error={!!getError('description')}
               helperText={getError('description')}
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">
-              {t('systemApplication.field.redirectUris')} <span className="text-destructive">*</span>
-            </label>
-            <Input
-              value={formData.redirectUris}
-              onChange={(e) => handleInputChange('redirectUris', e.target.value)}
-              error={!!getError('redirectUris')}
-              helperText={getError('redirectUris')}
             />
           </div>
 

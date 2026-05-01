@@ -26,13 +26,5 @@ namespace IdentityManagement.Application.Services
         Task<Contract?> GetByIdWithRelations(long id, CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<Contract>> GetActiveContractsByUserId(long userId, CancellationToken cancellationToken = default);
-
-        Task<Contract?> GetByClientId(string clientId, CancellationToken cancellationToken = default);
-
-        Task<ContractSecretsResponse?> GetContractSecrets(long id, CancellationToken cancellationToken = default);
-
-        string GenerateClientId();
-
-        string GenerateClientSecret();
     }
 }

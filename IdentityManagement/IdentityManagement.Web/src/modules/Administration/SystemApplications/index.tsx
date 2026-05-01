@@ -257,10 +257,6 @@ export default function SystemApplications() {
                     <SheetPreviewField className="sm:col-span-2" label={t('common.field.description')} value={previewSistema.description || t('common.value.notAvailable')} />
                   </SheetPreviewGrid>
                 </SheetPreviewSection>
-
-                <SheetPreviewSection title={t('systemApplication.preview.endpointsTitle')} description={t('systemApplication.preview.endpointsDescription')}>
-                  <SheetPreviewField label={t('systemApplication.field.redirectUris')} value={previewSistema.redirectUris || t('common.value.notAvailable')} />
-                </SheetPreviewSection>
               </div>
 
             </div>

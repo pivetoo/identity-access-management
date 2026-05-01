@@ -44,19 +44,6 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint("{id:long}")]
-        public async Task<IActionResult> GetSecrets(long id, CancellationToken cancellationToken)
-        {
-            var secrets = await contractService.GetContractSecrets(id, cancellationToken);
-            if (secrets is null)
-            {
-                return Http404(Localizer["contract.notFound"]);
-            }
-
-            return Http200(secrets);
-        }
-
-        [RequireAccess]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateContractRequest request, CancellationToken cancellationToken)
         {

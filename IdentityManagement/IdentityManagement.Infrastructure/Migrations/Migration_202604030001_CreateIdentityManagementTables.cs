@@ -55,7 +55,6 @@ namespace IdentityManagement.Infrastructure.Migrations
                 .WithColumn("id").AsInt64().PrimaryKey().Identity()
                 .WithColumn("name").AsString(150).NotNullable()
                 .WithColumn("description").AsString(500).NotNullable()
-                .WithColumn("redirecturis").AsString(2000).NotNullable()
                 .WithColumn("isactive").AsBoolean().NotNullable().WithDefaultValue(true)
                 .WithColumn("audience").AsString(200).NotNullable()
                 .WithColumn("type").AsInt32().NotNullable().WithDefaultValue(2)

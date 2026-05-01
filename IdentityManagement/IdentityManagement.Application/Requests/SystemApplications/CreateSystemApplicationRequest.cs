@@ -13,9 +13,6 @@ namespace IdentityManagement.Application.Requests.SystemApplications
         public string Description { get; set; } = string.Empty;
 
         [Required]
-        public string RedirectUris { get; set; } = string.Empty;
-
-        [Required]
         [StringLength(200, MinimumLength = 5)]
         public string Audience { get; set; } = string.Empty;
 

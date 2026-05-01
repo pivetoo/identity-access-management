@@ -32,7 +32,6 @@ export class SystemApplicationService {
     const response = await httpClient.post<SystemApplication>(`${this.baseUrl}/create`, {
       name: sistema.name,
       description: sistema.description ?? '',
-      redirectUris: sistema.redirectUris,
       audience: sistema.audience,
       type: sistema.type ?? 2,
     })
@@ -49,7 +48,6 @@ export class SystemApplicationService {
       id,
       name: sistema.name,
       description: sistema.description ?? '',
-      redirectUris: sistema.redirectUris,
       audience: sistema.audience,
       isActive: sistema.isActive,
       type: sistema.type ?? 2,
@@ -69,7 +67,6 @@ export class SystemApplicationService {
       id,
       name: sistema.name,
       description: sistema.description,
-      redirectUris: sistema.redirectUris,
       isActive: false,
       audience: sistema.audience,
     })

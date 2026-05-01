@@ -1,6 +1,6 @@
 import { httpClient, queryCollection, translate } from 'archon-ui'
 import type { PaginationParams, PaginatedResult } from 'archon-ui'
-import type { Contract, CreateContractRequest, UpdateContractRequest, ContractSecrets } from '../types/contract'
+import type { Contract, CreateContractRequest, UpdateContractRequest } from '../types/contract'
 
 export class ContractService {
   private static baseUrl = '/contracts'
@@ -9,7 +9,7 @@ export class ContractService {
     const response = await httpClient.get<Contract[]>(`${this.baseUrl}/getactive`)
     const contracts = response.data ?? []
 
-    return queryCollection(contracts, params, ['companyName', 'systemApplicationName', 'clientId'])
+    return queryCollection(contracts, params, ['companyName', 'systemApplicationName'])
   }
 
   static async getById(id: number): Promise<Contract> {
@@ -75,13 +75,4 @@ export class ContractService {
     })
   }
 
-  static async getSecrets(id: number): Promise<ContractSecrets> {
-    const response = await httpClient.get<ContractSecrets>(`${this.baseUrl}/getsecrets/${id}`)
-
-    if (!response.data) {
-      throw new Error(translate('contract.notFound'))
-    }
-
-    return response.data
-  }
 }

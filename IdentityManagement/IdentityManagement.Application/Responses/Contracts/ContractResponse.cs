@@ -18,8 +18,6 @@ namespace IdentityManagement.Application.Responses.Contracts
 
         public bool IsActive { get; set; }
 
-        public string ClientId { get; set; } = string.Empty;
-
         public int AccessTokenLifetime { get; set; }
 
         public int RefreshTokenLifetime { get; set; }

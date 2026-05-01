@@ -12,8 +12,6 @@ namespace IdentityManagement.Application.Responses.Contracts
 
         public string SystemApplicationName { get; set; } = string.Empty;
 
-        public string ClientId { get; set; } = string.Empty;
-
         public DateTimeOffset StartDate { get; set; }
 
         public DateTimeOffset? EndDate { get; set; }

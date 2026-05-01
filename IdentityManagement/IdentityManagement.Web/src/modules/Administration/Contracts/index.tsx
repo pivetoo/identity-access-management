@@ -194,8 +194,7 @@ export default function Contracts() {
     const search = searchTerm.trim().toLowerCase();
     const matchesSearch = !search || [
       contrato.companyName ?? '',
-      contrato.systemApplicationName ?? '',
-      contrato.clientId ?? ''
+      contrato.systemApplicationName ?? ''
     ].some((value) => value.toLowerCase().includes(search));
     const matchesStatus =
       statusFilter === 'all' ||
@@ -277,19 +276,7 @@ export default function Contracts() {
                 </p>
               </div>
 
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                      {t('contract.preview.clientId')}
-                    </div>
-                    <div
-                      className="mt-1 truncate text-sm font-medium text-foreground"
-                      title={record.clientId || t('common.value.notAvailable')}
-                    >
-                      {record.clientId || t('common.value.notAvailable')}
-                    </div>
-                  </div>
-
+              <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                     {t('common.field.situation')}

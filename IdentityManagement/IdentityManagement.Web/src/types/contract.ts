@@ -8,7 +8,6 @@ export interface Contract {
   endDate?: string
   isActive: boolean
   isValid?: boolean
-  clientId?: string
   accessTokenLifetime: number
   refreshTokenLifetime: number
   createdAt?: string
@@ -33,10 +32,4 @@ export interface UpdateContractRequest {
   isActive: boolean
   accessTokenLifetime: number
   refreshTokenLifetime: number
-}
-
-export interface ContractSecrets {
-  clientId: string
-  clientSecret: string
-  jwtSecretKey: string
 }

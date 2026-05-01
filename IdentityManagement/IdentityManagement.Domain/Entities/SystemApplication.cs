@@ -11,8 +11,6 @@ namespace IdentityManagement.Domain.Entities
 
         public string Description { get; private set; } = string.Empty;
 
-        public string RedirectUris { get; private set; } = string.Empty;
-
         public bool IsActive { get; private set; } = true;
 
         public string Audience { get; private set; } = string.Empty;
@@ -25,35 +23,21 @@ namespace IdentityManagement.Domain.Entities
         {
         }
 
-        public SystemApplication(string name, string description, string redirectUris, string audience, ApplicationType type = ApplicationType.External)
+        public SystemApplication(string name, string description, string audience, ApplicationType type = ApplicationType.External)
         {
             SetName(name);
             Description = description.Trim();
-            RedirectUris = redirectUris.Trim();
             Audience = audience.Trim();
             Type = type;
         }
 
-        public void Update(string name, string description, string redirectUris, string audience, ApplicationType type, bool isActive)
+        public void Update(string name, string description, string audience, ApplicationType type, bool isActive)
         {
             SetName(name);
             Description = description.Trim();
-            RedirectUris = redirectUris.Trim();
             Audience = audience.Trim();
             Type = type;
             IsActive = isActive;
-        }
-
-        public bool IsRedirectUriValid(string redirectUri)
-        {
-            if (string.IsNullOrWhiteSpace(RedirectUris))
-            {
-                return false;
-            }
-
-            return RedirectUris
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Any(uri => string.Equals(uri, redirectUri, StringComparison.OrdinalIgnoreCase));
         }
 
         private void SetName(string name)

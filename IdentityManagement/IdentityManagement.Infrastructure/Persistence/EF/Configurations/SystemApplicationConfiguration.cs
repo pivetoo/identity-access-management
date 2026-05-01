@@ -17,9 +17,6 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.Description)
                 .HasMaxLength(500);
 
-            builder.Property(entity => entity.RedirectUris)
-                .HasMaxLength(2000);
-
             builder.Property(entity => entity.Audience)
                 .IsRequired()
                 .HasMaxLength(200);

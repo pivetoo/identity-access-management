@@ -296,7 +296,6 @@
   <data name="rolePermissions.selectGroup" xml:space="preserve"><value>Select group</value></data>
   <data name="rolePermissions.groupDescription" xml:space="preserve"><value>Protected resources from controller {0}.</value></data>
   <data name="systemApplication.field.audience" xml:space="preserve"><value>Audience</value></data>
-  <data name="systemApplication.field.redirectUris" xml:space="preserve"><value>Redirect URIs</value></data>
   <data name="systemApplication.list.title" xml:space="preserve"><value>Systems</value></data>
   <data name="systemApplication.list.subtitle" xml:space="preserve"><value>Manage integrated applications and their authentication settings.</value></data>
   <data name="systemApplication.list.toast.deleted" xml:space="preserve"><value>System deleted successfully.</value></data>

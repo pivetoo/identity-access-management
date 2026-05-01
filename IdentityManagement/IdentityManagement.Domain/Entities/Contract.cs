@@ -22,15 +22,9 @@ namespace IdentityManagement.Domain.Entities
 
         public bool IsActive { get; private set; } = true;
 
-        public string ClientId { get; private set; } = string.Empty;
-
-        public string ClientSecret { get; private set; } = string.Empty;
-
         public int AccessTokenLifetime { get; private set; } = 3600;
 
         public int RefreshTokenLifetime { get; private set; } = 2592000;
-
-        public string JwtSecretKey { get; private set; } = string.Empty;
 
         public IReadOnlyCollection<Role> Roles => roles.AsReadOnly();
 
@@ -42,7 +36,7 @@ namespace IdentityManagement.Domain.Entities
         {
         }
 
-        public Contract(long companyId, long systemApplicationId, string clientId, string clientSecret, string jwtSecretKey)
+        public Contract(long companyId, long systemApplicationId)
         {
             if (companyId <= 0)
             {
@@ -54,15 +48,8 @@ namespace IdentityManagement.Domain.Entities
                 throw new ArgumentOutOfRangeException(nameof(systemApplicationId));
             }
 
-            ArgumentException.ThrowIfNullOrWhiteSpace(clientId);
-            ArgumentException.ThrowIfNullOrWhiteSpace(clientSecret);
-            ArgumentException.ThrowIfNullOrWhiteSpace(jwtSecretKey);
-
             CompanyId = companyId;
             SystemApplicationId = systemApplicationId;
-            ClientId = clientId.Trim();
-            ClientSecret = clientSecret.Trim();
-            JwtSecretKey = jwtSecretKey.Trim();
         }
 
         public bool IsValid()

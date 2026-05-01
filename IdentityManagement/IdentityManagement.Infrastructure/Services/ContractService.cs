@@ -6,7 +6,6 @@ using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
-using System.Security.Cryptography;
 
 namespace IdentityManagement.Infrastructure.Services
 {
@@ -32,10 +31,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             Contract contract = new Contract(
                 request.CompanyId,
-                request.SystemApplicationId,
-                GenerateClientId(),
-                GenerateClientSecret(),
-                GenerateRandomString(64));
+                request.SystemApplicationId);
 
             contract.Update(
                 request.CompanyId,
@@ -125,7 +121,6 @@ namespace IdentityManagement.Infrastructure.Services
                     SystemApplicationId = contract.SystemApplicationId,
                     CompanyName = company.LegalName,
                     SystemApplicationName = systemApplication.Name,
-                    ClientId = contract.ClientId,
                     StartDate = contract.StartDate,
                     EndDate = contract.EndDate,
                     IsActive = contract.IsActive,
@@ -153,7 +148,6 @@ namespace IdentityManagement.Infrastructure.Services
                     SystemApplicationId = contract.SystemApplicationId,
                     CompanyName = company.LegalName,
                     SystemApplicationName = systemApplication.Name,
-                    ClientId = contract.ClientId,
                     StartDate = contract.StartDate,
                     EndDate = contract.EndDate,
                     IsActive = contract.IsActive,
@@ -182,7 +176,6 @@ namespace IdentityManagement.Infrastructure.Services
                     SystemApplicationId = contract.SystemApplicationId,
                     CompanyName = company.LegalName,
                     SystemApplicationName = systemApplication.Name,
-                    ClientId = contract.ClientId,
                     StartDate = contract.StartDate,
                     EndDate = contract.EndDate,
                     IsActive = contract.IsActive,
@@ -236,7 +229,6 @@ namespace IdentityManagement.Infrastructure.Services
                     ContractId = contract.Id,
                     SystemApplicationName = systemApplication.Name,
                     CompanyName = company.LegalName,
-                    RedirectUris = systemApplication.RedirectUris,
                     RoleName = role.Name
                 })
                 .ToListAsync(cancellationToken);
@@ -246,15 +238,13 @@ namespace IdentityManagement.Infrastructure.Services
                 {
                     item.ContractId,
                     item.SystemApplicationName,
-                    item.CompanyName,
-                    item.RedirectUris
+                    item.CompanyName
                 })
                 .Select(group => new ContractSelectionResponseItem
                 {
                     ContractId = group.Key.ContractId,
                     SystemApplicationName = group.Key.SystemApplicationName,
                     CompanyName = group.Key.CompanyName,
-                    RedirectUris = group.Key.RedirectUris,
                     RoleName = group.Select(item => item.RoleName).FirstOrDefault() ?? string.Empty
                 })
                 .ToList();
@@ -295,39 +285,6 @@ namespace IdentityManagement.Infrastructure.Services
             return contracts;
         }
 
-        public Task<Contract?> GetByClientId(string clientId, CancellationToken cancellationToken = default)
-        {
-            return DbContext.Set<Contract>()
-                .AsNoTracking()
-                .Include(item => item.Company)
-                .Include(item => item.SystemApplication)
-                .FirstOrDefaultAsync(item => item.ClientId == clientId, cancellationToken);
-        }
-
-        public Task<ContractSecretsResponse?> GetContractSecrets(long id, CancellationToken cancellationToken = default)
-        {
-            return (
-                from contract in DbContext.Set<Contract>().AsNoTracking()
-                where contract.Id == id
-                select new ContractSecretsResponse
-                {
-                    ClientId = contract.ClientId,
-                    ClientSecret = contract.ClientSecret,
-                    JwtSecretKey = contract.JwtSecretKey
-                })
-                .FirstOrDefaultAsync(cancellationToken);
-        }
-
-        public string GenerateClientId()
-        {
-            return $"client_{Guid.NewGuid():N}";
-        }
-
-        public string GenerateClientSecret()
-        {
-            return GenerateRandomString(64);
-        }
-
         private static ContractSummaryResponse ToSummaryResponse(Contract contract)
         {
             return new ContractSummaryResponse
@@ -337,7 +294,6 @@ namespace IdentityManagement.Infrastructure.Services
                 SystemApplicationId = contract.SystemApplicationId,
                 CompanyName = contract.Company.LegalName,
                 SystemApplicationName = contract.SystemApplication.Name,
-                ClientId = contract.ClientId,
                 StartDate = contract.StartDate,
                 EndDate = contract.EndDate,
                 IsActive = contract.IsActive,
@@ -345,15 +301,6 @@ namespace IdentityManagement.Infrastructure.Services
                 AccessTokenLifetime = contract.AccessTokenLifetime,
                 RefreshTokenLifetime = contract.RefreshTokenLifetime
             };
-        }
-
-        private static string GenerateRandomString(int length)
-        {
-            byte[] buffer = RandomNumberGenerator.GetBytes(length);
-            return Convert.ToBase64String(buffer)
-                .Replace("/", string.Empty, StringComparison.Ordinal)
-                .Replace("+", string.Empty, StringComparison.Ordinal)
-                .Replace("=", string.Empty, StringComparison.Ordinal)[..length];
         }
 
         private async Task EnsureDependencies(long companyId, long systemApplicationId, CancellationToken cancellationToken)
