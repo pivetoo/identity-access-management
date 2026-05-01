@@ -2,13 +2,11 @@ using Archon.Api.Attributes;
 using Archon.Api.Controllers;
 using IdentityManagement.Application.Requests.Oidc;
 using IdentityManagement.Application.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 
 namespace IdentityManagement.Api.Controllers
 {
-    [AllowAnonymous]
     public sealed class OidcController : ApiControllerBase
     {
         private readonly IOidcAuthorizationService oidcAuthorizationService;
@@ -18,7 +16,7 @@ namespace IdentityManagement.Api.Controllers
             this.oidcAuthorizationService = oidcAuthorizationService;
         }
 
-        [HttpGet("/connect/authorize")]
+        [GetEndpoint("/connect/authorize")]
         public async Task<IActionResult> Authorize(CancellationToken cancellationToken)
         {
             OidcAuthorizeRequest request = new()
@@ -49,7 +47,7 @@ namespace IdentityManagement.Api.Controllers
             });
         }
 
-        [HttpPost("/connect/token")]
+        [PostEndpoint("/connect/token")]
         public async Task<IActionResult> Token(CancellationToken cancellationToken)
         {
             IFormCollection form = await Request.ReadFormAsync(cancellationToken);
@@ -87,8 +85,8 @@ namespace IdentityManagement.Api.Controllers
             }
         }
 
-        [HttpGet("/connect/userinfo")]
-        [HttpPost("/connect/userinfo")]
+        [GetEndpoint("/connect/userinfo")]
+        [PostEndpoint("/connect/userinfo")]
         public async Task<IActionResult> UserInfo(CancellationToken cancellationToken)
         {
             string accessToken = GetBearerToken();
@@ -108,7 +106,7 @@ namespace IdentityManagement.Api.Controllers
             }
         }
 
-        [HttpPost("/connect/revocation")]
+        [PostEndpoint("/connect/revocation")]
         public async Task<IActionResult> Revocation(CancellationToken cancellationToken)
         {
             IFormCollection form = await Request.ReadFormAsync(cancellationToken);
@@ -133,7 +131,7 @@ namespace IdentityManagement.Api.Controllers
             }
         }
 
-        [HttpGet("/connect/logout")]
+        [GetEndpoint("/connect/logout")]
         public async Task<IActionResult> Logout(CancellationToken cancellationToken)
         {
             OidcEndSessionRequest request = new()
@@ -147,7 +145,7 @@ namespace IdentityManagement.Api.Controllers
             return await EndSession(request, cancellationToken);
         }
 
-        [HttpPost("/connect/logout")]
+        [PostEndpoint("/connect/logout")]
         public async Task<IActionResult> LogoutPost(CancellationToken cancellationToken)
         {
             IFormCollection form = await Request.ReadFormAsync(cancellationToken);
@@ -186,7 +184,7 @@ namespace IdentityManagement.Api.Controllers
             }
         }
 
-        [HttpPost("/api/oidc/complete-authorize")]
+        [PostEndpoint("complete-authorize")]
         public async Task<IActionResult> AuthorizeWithCredentials([FromBody] OidcAuthorizeWithCredentialsRequest request, CancellationToken cancellationToken)
         {
             try

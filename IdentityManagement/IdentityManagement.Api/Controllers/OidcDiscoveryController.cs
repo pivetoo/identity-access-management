@@ -1,11 +1,10 @@
+using Archon.Api.Attributes;
 using Archon.Api.Controllers;
 using IdentityManagement.Application.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IdentityManagement.Api.Controllers
 {
-    [AllowAnonymous]
     public sealed class OidcDiscoveryController : ApiControllerBase
     {
         private readonly IOidcDiscoveryService oidcDiscoveryService;
@@ -17,7 +16,7 @@ namespace IdentityManagement.Api.Controllers
             this.configuration = configuration;
         }
 
-        [HttpGet("/.well-known/openid-configuration")]
+        [GetEndpoint("/.well-known/openid-configuration")]
         public async Task<IActionResult> GetOpenIdConfiguration(CancellationToken cancellationToken)
         {
             string issuer = configuration["Oidc:Issuer"] ?? $"{Request.Scheme}://{Request.Host}";
@@ -25,7 +24,7 @@ namespace IdentityManagement.Api.Controllers
             return Ok(response);
         }
 
-        [HttpGet("/.well-known/jwks.json")]
+        [GetEndpoint("/.well-known/jwks.json")]
         public async Task<IActionResult> GetJsonWebKeySet(CancellationToken cancellationToken)
         {
             var response = await oidcDiscoveryService.GetJsonWebKeySet(cancellationToken);
