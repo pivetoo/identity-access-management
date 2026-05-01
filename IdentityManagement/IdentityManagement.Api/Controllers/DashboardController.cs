@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IdentityManagement.Api.Controllers
 {
-    [Authorize]
     public sealed class DashboardController : ApiControllerBase
     {
         private readonly IDashboardService dashboardService;
