@@ -10,11 +10,19 @@ namespace IdentityManagement.Domain.Entities
 
         public long? ContractId { get; private set; }
 
+        public string ClientId { get; private set; } = string.Empty;
+
         public User User { get; private set; } = null!;
 
         public Contract? Contract { get; private set; }
 
         public string Scopes { get; private set; } = string.Empty;
+
+        public string Nonce { get; private set; } = string.Empty;
+
+        public string CodeChallenge { get; private set; } = string.Empty;
+
+        public string CodeChallengeMethod { get; private set; } = string.Empty;
 
         public string RedirectUri { get; private set; } = string.Empty;
 
@@ -36,9 +44,21 @@ namespace IdentityManagement.Domain.Entities
         {
         }
 
-        public AuthorizationCode(string code, long userId, string scopes, string redirectUri, string sessionId, int expirationMinutes, long? contractId = null)
+        public AuthorizationCode(
+            string code,
+            long userId,
+            string clientId,
+            string scopes,
+            string redirectUri,
+            string sessionId,
+            int expirationMinutes,
+            long? contractId = null,
+            string nonce = "",
+            string codeChallenge = "",
+            string codeChallengeMethod = "")
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(code);
+            ArgumentException.ThrowIfNullOrWhiteSpace(clientId);
             ArgumentException.ThrowIfNullOrWhiteSpace(scopes);
             ArgumentException.ThrowIfNullOrWhiteSpace(redirectUri);
             ArgumentException.ThrowIfNullOrWhiteSpace(sessionId);
@@ -51,9 +71,13 @@ namespace IdentityManagement.Domain.Entities
             Code = code.Trim();
             UserId = userId;
             ContractId = contractId;
+            ClientId = clientId.Trim();
             Scopes = scopes.Trim();
             RedirectUri = redirectUri.Trim();
             SessionId = sessionId.Trim();
+            Nonce = nonce.Trim();
+            CodeChallenge = codeChallenge.Trim();
+            CodeChallengeMethod = codeChallengeMethod.Trim();
             ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(expirationMinutes);
         }
 

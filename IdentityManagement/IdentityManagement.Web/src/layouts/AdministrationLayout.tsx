@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
-import { Home, Users, MapPin, FileText, Layers, UserCheck, Link, ShieldCheck } from 'lucide-react';
+import { Home, Users, MapPin, FileText, Layers, UserCheck, Link, ShieldCheck, KeyRound } from 'lucide-react';
 import { AppLayout, useAuth, AuthService, useAppNavigation, useI18n } from 'archon-ui';
 import type { BreadcrumbItem } from 'archon-ui';
 import logoIdentityProvider from '../assets/logo-identity-provider.png';
@@ -53,6 +53,7 @@ export default function AdministrationLayout() {
     { key: 'users', label: t('layout.menu.users'), path: '/users', icon: <Users size={20} /> },
     { key: 'companies', label: t('layout.menu.companies'), path: '/companies', icon: <MapPin size={20} /> },
     { key: 'system-applications', label: t('layout.menu.systemApplications'), path: '/system-applications', icon: <Layers size={20} /> },
+    { key: 'oauth-clients', label: 'OAuth Clients', path: '/oauth-clients', icon: <KeyRound size={20} /> },
     { key: 'contracts', label: t('layout.menu.contracts'), path: '/contracts', icon: <FileText size={20} /> }
   ]);
 
@@ -75,6 +76,7 @@ export default function AdministrationLayout() {
       '/management/companies': t('layout.menu.companies'),
       '/management/contracts': t('layout.menu.contracts'),
       '/management/system-applications': t('layout.menu.systemApplications'),
+      '/management/oauth-clients': 'OAuth Clients',
       '/management/system-role-templates': t('layout.menu.systemRoleTemplates'),
       '/management/roles': t('layout.menu.roles'),
       '/management/user-roles': t('layout.menu.userRoles')

@@ -105,7 +105,6 @@ Exemplo mínimo de `appsettings.Development.json`:
   "Jwt": {
     "Issuer": "IdentityManagement",
     "Audience": "IdentityManagement",
-    "JwtSecretKey": "SUA_CHAVE_LOCAL_DE_64_CARACTERES",
     "TemporarySecretKey": "SUA_CHAVE_TEMPORARIA_DE_64_CARACTERES"
   },
   "IntegrationSecret": "SUA_CHAVE_DE_INTEGRACAO",
@@ -116,7 +115,7 @@ Exemplo mínimo de `appsettings.Development.json`:
 Observações:
 
 - `Schema` é usado tanto pelo runtime quanto pelas migrations;
-- `JwtSecretKey` valida os tokens da própria API;
+- tokens de API são validados por chaves RSA publicadas no JWKS do próprio IdentityManagement;
 - `TemporarySecretKey` assina o token temporário de seleção de contrato;
 - não versionar credenciais reais no repositório.
 

@@ -14,8 +14,21 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
                 .IsRequired()
                 .HasMaxLength(512);
 
+            builder.Property(entity => entity.ClientId)
+                .IsRequired()
+                .HasMaxLength(120);
+
             builder.Property(entity => entity.Scopes)
                 .HasMaxLength(2000);
+
+            builder.Property(entity => entity.Nonce)
+                .HasMaxLength(512);
+
+            builder.Property(entity => entity.CodeChallenge)
+                .HasMaxLength(256);
+
+            builder.Property(entity => entity.CodeChallengeMethod)
+                .HasMaxLength(20);
 
             builder.Property(entity => entity.RedirectUri)
                 .HasMaxLength(2000);

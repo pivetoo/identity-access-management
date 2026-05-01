@@ -1,0 +1,37 @@
+using IdentityManagement.Domain.ValueObjects;
+
+namespace IdentityManagement.Application.Requests.OAuthClients
+{
+    public sealed class UpdateOAuthClientRequest
+    {
+        public long Id { get; set; }
+
+        public string ClientName { get; set; } = string.Empty;
+
+        public OAuthClientType ClientType { get; set; } = OAuthClientType.Public;
+
+        public string ClientSecret { get; set; } = string.Empty;
+
+        public bool RotateClientSecret { get; set; }
+
+        public bool RequirePkce { get; set; } = true;
+
+        public bool RequireConsent { get; set; }
+
+        public bool AllowOfflineAccess { get; set; } = true;
+
+        public bool IsActive { get; set; } = true;
+
+        public int AccessTokenLifetime { get; set; } = 900;
+
+        public int IdentityTokenLifetime { get; set; } = 900;
+
+        public int RefreshTokenLifetime { get; set; } = 2592000;
+
+        public bool RefreshTokenRotationEnabled { get; set; } = true;
+
+        public List<OAuthClientRedirectUriRequest> RedirectUris { get; set; } = [];
+
+        public List<string> Scopes { get; set; } = ["openid", "profile", "email", "offline_access"];
+    }
+}

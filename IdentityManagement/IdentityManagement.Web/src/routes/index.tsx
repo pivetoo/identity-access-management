@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { BrowserRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import { Callback, ProtectedRoute, useAuth, AuthService, GlobalLoader } from 'archon-ui';
 import AdministrationLayout from '../layouts/AdministrationLayout';
 import Dashboard from '../modules/Dashboard';
@@ -7,46 +7,31 @@ import Users from '../modules/Administration/Users';
 import Companies from '../modules/Administration/Companies';
 import Contracts from '../modules/Administration/Contracts';
 import SystemApplications from '../modules/Administration/SystemApplications';
+import OAuthClients from '../modules/Administration/OAuthClients';
 import Roles from '../modules/Administration/Roles';
 import SystemRoleTemplates from '../modules/Administration/SystemRoleTemplates';
 import UserRoles from '../modules/Administration/UserRoles';
 import ForgotPassword from '../modules/Authentication/ForgotPassword';
 import Login from '../modules/Authentication/Login';
 
-const getReturnUrl = (search: string) => {
-  if (typeof window === 'undefined') {
-    return undefined;
-  }
-
-  const rawReturnUrl = new URLSearchParams(search).get('returnUrl');
-  if (!rawReturnUrl) {
-    return undefined;
-  }
-
-  try {
-    const parsedUrl = new URL(rawReturnUrl);
-    return parsedUrl.origin === window.location.origin ? undefined : parsedUrl.toString();
-  } catch {
-    return undefined;
-  }
-};
-
-const buildCallbackRedirectUrl = (returnUrl: string, accessToken: string, refreshToken: string) => {
-  const callbackUrl = new URL(returnUrl);
-  callbackUrl.searchParams.set('accessToken', accessToken);
-  callbackUrl.searchParams.set('refreshToken', refreshToken);
-  return callbackUrl.toString();
-};
+const identityManagementUrl = (import.meta.env.VITE_IDENTITY_MANAGEMENT_URL || import.meta.env.VITE_API_BASE_URL?.replace(/\/api\/?$/, '') || '').replace(/\/+$/, '');
+const oidcClientId = import.meta.env.VITE_OIDC_CLIENT_ID || 'identity-management-web';
 
 function LoginEntry() {
-  const { isAuthenticated, accessToken, refreshToken } = useAuth();
-  const location = useLocation();
+  const { isAuthenticated, accessToken } = useAuth();
   const navigate = useNavigate();
-  const returnUrl = useMemo(() => getReturnUrl(location.search), [location.search]);
   const [validating, setValidating] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated || !accessToken || !refreshToken) {
+    const storedAccessToken = localStorage.getItem('@Archon:accessToken');
+    const storedRefreshToken = localStorage.getItem('@Archon:refreshToken');
+    const hasStoredTokens = !!storedAccessToken && !!storedRefreshToken;
+
+    if (!isAuthenticated || !accessToken) {
+      if (hasStoredTokens) {
+        return;
+      }
+
       setValidating(false);
       return;
     }
@@ -57,13 +42,8 @@ function LoginEntry() {
       return;
     }
 
-    if (returnUrl) {
-      window.location.href = buildCallbackRedirectUrl(returnUrl, accessToken, refreshToken);
-      return;
-    }
-
     navigate('/management', { replace: true });
-  }, [accessToken, isAuthenticated, navigate, refreshToken, returnUrl]);
+  }, [accessToken, isAuthenticated, navigate]);
 
   if (validating) {
     return <GlobalLoader isVisible={true} className="bg-background" />;
@@ -90,11 +70,25 @@ function AppRoutes() {
         <Route path="/" element={<LoginEntry />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/logout" element={<LogoutEntry />} />
-        <Route path="/callback" element={<Callback redirectTo="/management" />} />
+        <Route
+          path="/callback"
+          element={
+            <Callback
+              redirectTo="/management"
+              identityManagementUrl={identityManagementUrl}
+              oidcClientId={oidcClientId}
+            />
+          }
+        />
         <Route
           path="/management"
           element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <ProtectedRoute
+              isAuthenticated={isAuthenticated}
+              externalRedirect
+              redirectTo={identityManagementUrl}
+              oidcClientId={oidcClientId}
+            >
               <AdministrationLayout />
             </ProtectedRoute>
           }
@@ -105,6 +99,7 @@ function AppRoutes() {
           <Route path="companies" element={<Companies />} />
           <Route path="contracts" element={<Contracts />} />
           <Route path="system-applications" element={<SystemApplications />} />
+          <Route path="oauth-clients" element={<OAuthClients />} />
           <Route path="system-role-templates" element={<SystemRoleTemplates />} />
           <Route path="roles" element={<Roles />} />
           <Route path="user-roles" element={<UserRoles />} />

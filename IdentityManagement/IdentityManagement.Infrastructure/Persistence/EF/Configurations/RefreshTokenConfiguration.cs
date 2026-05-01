@@ -14,6 +14,10 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
                 .IsRequired()
                 .HasMaxLength(512);
 
+            builder.Property(entity => entity.ClientId)
+                .IsRequired()
+                .HasMaxLength(120);
+
             builder.Property(entity => entity.SessionId)
                 .IsRequired()
                 .HasMaxLength(64);

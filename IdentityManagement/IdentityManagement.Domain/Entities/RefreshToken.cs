@@ -10,6 +10,8 @@ namespace IdentityManagement.Domain.Entities
 
         public long? ContractId { get; private set; }
 
+        public string ClientId { get; private set; } = string.Empty;
+
         public User User { get; private set; } = null!;
 
         public Contract? Contract { get; private set; }
@@ -30,10 +32,11 @@ namespace IdentityManagement.Domain.Entities
         {
         }
 
-        public RefreshToken(string token, long userId, string sessionId, string scopes, int expirationDays, long? contractId = null)
+        public RefreshToken(string token, long userId, string sessionId, string scopes, int expirationDays, long? contractId, string clientId)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(token);
             ArgumentException.ThrowIfNullOrWhiteSpace(sessionId);
+            ArgumentException.ThrowIfNullOrWhiteSpace(clientId);
 
             if (userId <= 0)
             {
@@ -43,6 +46,7 @@ namespace IdentityManagement.Domain.Entities
             Token = token.Trim();
             UserId = userId;
             ContractId = contractId;
+            ClientId = clientId.Trim();
             SessionId = sessionId.Trim();
             Scopes = scopes.Trim();
             ExpiresAt = DateTimeOffset.UtcNow.AddDays(expirationDays);

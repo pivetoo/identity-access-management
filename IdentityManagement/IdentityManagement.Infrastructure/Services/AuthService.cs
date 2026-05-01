@@ -4,8 +4,6 @@ using IdentityManagement.Application.Responses.Auth;
 using IdentityManagement.Application.Responses.Contracts;
 using IdentityManagement.Application.Responses.Users;
 using IdentityManagement.Application.Services;
-using IdentityManagement.Domain.Entities;
-using IdentityManagement.Domain.ValueObjects;
 using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Infrastructure.Services
@@ -13,25 +11,19 @@ namespace IdentityManagement.Infrastructure.Services
     public sealed class AuthService : IAuthService
     {
         private readonly IUserService userService;
-        private readonly IJwtService jwtService;
         private readonly IContractService contractService;
         private readonly ITemporaryTokenService temporaryTokenService;
-        private readonly ILoginSessionService loginSessionService;
-        private readonly IRefreshTokenService refreshTokenService;
         private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
-        public AuthService(IUserService userService, IJwtService jwtService, IContractService contractService, ITemporaryTokenService temporaryTokenService, ILoginSessionService loginSessionService, IRefreshTokenService refreshTokenService, IStringLocalizer<IdentityManagementResource> Localizer)
+        public AuthService(IUserService userService, IContractService contractService, ITemporaryTokenService temporaryTokenService, IStringLocalizer<IdentityManagementResource> Localizer)
         {
             this.userService = userService;
-            this.jwtService = jwtService;
             this.contractService = contractService;
             this.temporaryTokenService = temporaryTokenService;
-            this.loginSessionService = loginSessionService;
-            this.refreshTokenService = refreshTokenService;
             this.Localizer = Localizer;
         }
 
-        public async Task<object> IdentifyUser(IdentifyUserRequest request, string ipAddress, string userAgent, CancellationToken cancellationToken = default)
+        public async Task<ContractSelectionResponse> IdentifyUser(IdentifyUserRequest request, CancellationToken cancellationToken = default)
         {
             var user = await userService.Authenticate(request.Username, request.Password, cancellationToken);
             if (user is null)
@@ -45,32 +37,6 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new UnauthorizedAccessException(Localizer["auth.user.noActiveContracts"]);
             }
 
-            if (availableContracts.Count == 1)
-            {
-                ContractSelectionResponseItem selectedContract = availableContracts.First();
-                var contract = await contractService.GetByIdWithRelations(selectedContract.ContractId, cancellationToken);
-                if (contract is null)
-                {
-                    throw new UnauthorizedAccessException(Localizer["contract.notFound"]);
-                }
-
-                var session = await loginSessionService.CreateSession(user, contract, ipAddress, userAgent, contract.AccessTokenLifetime, cancellationToken);
-                string accessToken = await jwtService.GenerateAccessToken(user, contract, session.SessionId, cancellationToken);
-                var refreshToken = await refreshTokenService.CreateRefreshToken(user, contract, session.SessionId, cancellationToken: cancellationToken);
-
-                return new LoginResponse
-                {
-                    AuthenticationStep = "completed",
-                    AccessToken = accessToken,
-                    RefreshToken = refreshToken.Token,
-                    TokenType = "Bearer",
-                    ExpiresIn = contract.AccessTokenLifetime,
-                    RedirectUrl = BuildRedirectUrl(contract.SystemApplication, accessToken, refreshToken.Token, request.ReturnUrl),
-                    User = ToUserResponse(user),
-                    Contract = selectedContract
-                };
-            }
-
             return new ContractSelectionResponse
             {
                 AuthenticationStep = "contractSelection",
@@ -79,50 +45,6 @@ namespace IdentityManagement.Infrastructure.Services
                 UserEmail = user.Email,
                 TemporaryToken = temporaryTokenService.GenerateTemporaryToken(user.Id),
                 AvailableContracts = availableContracts.ToList()
-            };
-        }
-
-        public async Task<LoginResponse> LoginWithContract(LoginWithContractRequest request, string ipAddress, string userAgent, CancellationToken cancellationToken = default)
-        {
-            if (!temporaryTokenService.ValidateTemporaryTokenForUser(request.TemporaryToken, request.UserId))
-            {
-                throw new UnauthorizedAccessException(Localizer["auth.temporaryToken.invalidOrExpired"]);
-            }
-
-            var user = await userService.GetById(request.UserId, cancellationToken);
-
-            if (user is null || !user.IsActive)
-            {
-                throw new UnauthorizedAccessException(Localizer["user.notFoundOrInactive"]);
-            }
-
-            IReadOnlyCollection<ContractSelectionResponseItem> availableContracts = await contractService.GetActiveContractSelectionsByUserId(request.UserId, cancellationToken);
-            ContractSelectionResponseItem? selectedContract = availableContracts.FirstOrDefault(item => item.ContractId == request.ContractId);
-            if (selectedContract is null)
-            {
-                throw new UnauthorizedAccessException(Localizer["auth.user.noAccessToContract"]);
-            }
-
-            var contract = await contractService.GetByIdWithRelations(request.ContractId, cancellationToken);
-            if (contract is null || !contract.IsValid())
-            {
-                throw new UnauthorizedAccessException(Localizer["auth.contract.invalid"]);
-            }
-
-            var session = await loginSessionService.CreateSession(user, contract, ipAddress, userAgent, contract.AccessTokenLifetime, cancellationToken);
-            string accessToken = await jwtService.GenerateAccessToken(user, contract, session.SessionId, cancellationToken);
-            var refreshToken = await refreshTokenService.CreateRefreshToken(user, contract, session.SessionId, cancellationToken: cancellationToken);
-
-            return new LoginResponse
-            {
-                AuthenticationStep = "completed",
-                AccessToken = accessToken,
-                RefreshToken = refreshToken.Token,
-                TokenType = "Bearer",
-                ExpiresIn = contract.AccessTokenLifetime,
-                RedirectUrl = BuildRedirectUrl(contract.SystemApplication, accessToken, refreshToken.Token),
-                User = ToUserResponse(user),
-                Contract = selectedContract
             };
         }
 
@@ -153,60 +75,5 @@ namespace IdentityManagement.Infrastructure.Services
             };
         }
 
-        private static string? BuildRedirectUrl(SystemApplication systemApplication, string accessToken, string refreshToken, string? returnUrl = null)
-        {
-            if (systemApplication.Type != ApplicationType.External)
-            {
-                return null;
-            }
-
-            var allowedUris = systemApplication.RedirectUris
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .ToList();
-
-            if (allowedUris.Count == 0)
-            {
-                return null;
-            }
-
-            string? redirectUrl = null;
-
-            if (!string.IsNullOrWhiteSpace(returnUrl))
-            {
-                try
-                {
-                    var returnUri = new Uri(returnUrl);
-                    var isAllowed = allowedUris.Any(uri =>
-                    {
-                        try
-                        {
-                            var allowedUri = new Uri(uri);
-                            return allowedUri.Host.Equals(returnUri.Host, StringComparison.OrdinalIgnoreCase)
-                                && allowedUri.Scheme.Equals(returnUri.Scheme, StringComparison.OrdinalIgnoreCase);
-                        }
-                        catch
-                        {
-                            return false;
-                        }
-                    });
-
-                    if (isAllowed)
-                    {
-                        redirectUrl = returnUrl;
-                    }
-                }
-                catch
-                {
-                }
-            }
-
-            if (redirectUrl == null)
-            {
-                redirectUrl = $"{allowedUris.First().TrimEnd('/')}/callback";
-            }
-
-            var separator = redirectUrl.Contains('?') ? '&' : '?';
-            return $"{redirectUrl}{separator}accessToken={Uri.EscapeDataString(accessToken)}&refreshToken={Uri.EscapeDataString(refreshToken)}";
-        }
     }
 }

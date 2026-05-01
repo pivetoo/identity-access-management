@@ -1,39 +1,15 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Card, CardContent, GlobalLoader, Input, useAuth, AuthService, useI18n } from 'archon-ui';
+import { Button, Card, CardContent, GlobalLoader, Input, AuthService, useI18n } from 'archon-ui';
 import { User, Lock } from 'lucide-react';
-import type { IdentifyResult, ContractType, LoginResult } from 'archon-ui';
+import type { IdentifyResult, ContractType } from 'archon-ui';
 import SystemCenter from '../SystemCenter';
 import logoEmpresa from '../../../assets/Mainstay/logo-login.png';
 import { validateEmail } from '../../../utils/validation';
+import { OidcService } from '../../../services/oidcService';
+import { generatePkce } from '../../../utils/pkce';
 
-const normalizeUrl = (value: string) => {
-  const parsedUrl = new URL(value);
-  const normalizedPath = parsedUrl.pathname.replace(/\/+$/, '') || '/';
-  return `${parsedUrl.origin}${normalizedPath}`;
-};
-
-const resolveRedirectUrl = (redirectUrl?: string): string | undefined => {
-  if (!redirectUrl) {
-    return undefined;
-  }
-
-  const overrideUrl = import.meta.env.VITE_OVERRIDE_REDIRECT_URL;
-  if (!overrideUrl) {
-    return redirectUrl;
-  }
-
-  try {
-    const parsedRedirect = new URL(redirectUrl);
-    const parsedOverride = new URL(overrideUrl);
-
-    return `${parsedOverride.origin}${parsedRedirect.pathname}${parsedRedirect.search}${parsedRedirect.hash}`;
-  } catch {
-    return redirectUrl;
-  }
-};
-
-const getReturnUrl = () => {
+const getOidcAuthorizeUrl = () => {
   if (typeof window === 'undefined') {
     return undefined;
   }
@@ -45,110 +21,76 @@ const getReturnUrl = () => {
 
   try {
     const parsedUrl = new URL(rawReturnUrl);
-    return parsedUrl.origin === window.location.origin ? undefined : parsedUrl.toString();
+    if (parsedUrl.origin !== window.location.origin || parsedUrl.pathname !== '/connect/authorize') {
+      return undefined;
+    }
+
+    return parsedUrl.toString();
   } catch {
     return undefined;
   }
 };
 
-const matchesReturnUrl = (returnUrl?: string, redirectUris?: string) => {
-  if (!returnUrl || !redirectUris) {
-    return false;
-  }
-
-  const normalizedReturnUrl = normalizeUrl(returnUrl);
-
-  return redirectUris
-    .split(',')
-    .map((uri) => uri.trim())
-    .filter(Boolean)
-    .flatMap((uri) => {
-      const normalizedUri = uri.replace(/\/+$/, '');
-      return [normalizedUri, `${normalizedUri}/callback`];
-    })
-    .some((uri) => {
-      try {
-        return normalizeUrl(uri) === normalizedReturnUrl;
-      } catch {
-        return false;
-      }
-    });
-};
-
 export default function Login() {
   const { t } = useI18n()
   const navigate = useNavigate();
-  const { login } = useAuth();
 
-  const returnUrl = useMemo(() => getReturnUrl(), []);
+  const oidcAuthorizeUrl = useMemo(() => getOidcAuthorizeUrl(), []);
 
-  const getRedirectTargetUrl = (redirectUrl?: string, redirectUris?: string) => {
-    const resolvedUrl = resolveRedirectUrl(redirectUrl);
+  const buildAuthorizeUrl = async (contractId: number): Promise<string> => {
+    const identityManagementUrl = import.meta.env.VITE_IDENTITY_MANAGEMENT_URL;
+    const clientId = import.meta.env.VITE_OIDC_CLIENT_ID;
+    const currentOrigin = window.location.origin;
+    const callbackPath = '/callback';
 
-    if (resolvedUrl) {
-      return resolvedUrl;
-    }
+    const pkce = await generatePkce();
+    const redirectUri = `${currentOrigin}${callbackPath}`;
 
-    if (returnUrl && matchesReturnUrl(returnUrl, redirectUris)) {
-      return returnUrl;
-    }
+    sessionStorage.setItem('@Archon:oidc:state', pkce.state);
+    sessionStorage.setItem('@Archon:oidc:nonce', pkce.nonce);
+    sessionStorage.setItem('@Archon:oidc:codeVerifier', pkce.codeVerifier);
+    sessionStorage.setItem('@Archon:oidc:redirectUri', redirectUri);
 
-    if (returnUrl) {
-      return returnUrl;
-    }
+    const authorizeUrl = new URL('/connect/authorize', identityManagementUrl);
+    authorizeUrl.searchParams.set('client_id', clientId);
+    authorizeUrl.searchParams.set('redirect_uri', redirectUri);
+    authorizeUrl.searchParams.set('response_type', 'code');
+    authorizeUrl.searchParams.set('scope', 'openid profile email offline_access');
+    authorizeUrl.searchParams.set('state', pkce.state);
+    authorizeUrl.searchParams.set('nonce', pkce.nonce);
+    authorizeUrl.searchParams.set('code_challenge', pkce.codeChallenge);
+    authorizeUrl.searchParams.set('code_challenge_method', 'S256');
+    authorizeUrl.searchParams.set('contract_id', contractId.toString());
 
-    return undefined;
+    return authorizeUrl.toString();
   };
 
-  const completeLogin = (data: LoginResult) => {
-    const targetUrl = getRedirectTargetUrl(data.redirectUrl, data.contract?.redirectUris);
-
-    if (targetUrl) {
-      setRedirecting(true);
-      AuthService.logout();
-      window.location.replace(targetUrl);
-      return;
-    }
-
-    login(data);
-    navigate('/management');
-  };
-
-  const getContractsForOrigin = (contracts: ContractType[]) => {
-    if (!returnUrl) {
-      return contracts;
-    }
-
-    const matchingContracts = contracts.filter((contract) => matchesReturnUrl(returnUrl, contract.redirectUris));
-    return matchingContracts.length > 0 ? matchingContracts : contracts;
-  };
-
-  const completeContractLogin = async (identifyData: IdentifyResult, contract: ContractType) => {
+  const completeContractLogin = async (contract: ContractType) => {
     setContractLoading(true);
 
     try {
-      const data = await AuthService.loginWithContract({
-        userId: identifyData.userId,
+      const authorizeUrl = oidcAuthorizeUrl ?? await buildAuthorizeUrl(contract.contractId);
+
+      setRedirecting(true);
+      const response = await OidcService.authorizeWithCredentials({
+        username: email,
+        password: password,
         contractId: contract.contractId,
-        temporaryToken: identifyData.temporaryToken
+        authorizeUrl
       });
 
-      completeLogin(data);
+      AuthService.logout();
+      window.location.replace(response.redirectUrl);
     } finally {
       setContractLoading(false);
     }
   };
 
-  const handleIdentifyResult = async (data: IdentifyResult | LoginResult) => {
-    if ('accessToken' in data) {
-      completeLogin(data);
-      return;
-    }
+  const handleIdentifyResult = async (data: IdentifyResult) => {
+    const contractsForOrigin = data.availableContracts;
 
-    const contractsForOrigin = getContractsForOrigin(data.availableContracts);
-
-    if (returnUrl && contractsForOrigin.length === 1) {
-      await completeContractLogin(data, contractsForOrigin[0]);
+    if (contractsForOrigin.length === 1) {
+      await completeContractLogin(contractsForOrigin[0]);
       return;
     }
 
@@ -225,7 +167,7 @@ export default function Login() {
   const handleSelectContract = async (contract: ContractType) => {
     if (!contractData) return;
 
-    await completeContractLogin(contractData, contract);
+    await completeContractLogin(contract);
   };
 
   const handleBackToLogin = () => {

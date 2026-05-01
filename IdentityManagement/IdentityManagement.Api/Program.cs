@@ -2,13 +2,16 @@ using Archon.Api.DependencyInjection;
 using Archon.Api.MultiTenancy;
 using Archon.Infrastructure.DependencyInjection;
 using IdentityManagement.Application.Localization;
+using IdentityManagement.Domain.Entities;
 using IdentityManagement.Infrastructure.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
-using System.Text;
+using System.Security.Cryptography;
 
 var builder = WebApplication.CreateBuilder(args);
+IServiceProvider? rootServiceProvider = null;
 
 builder.Services.AddControllers();
 builder.Services.AddCors(options =>
@@ -23,9 +26,6 @@ builder.Services.AddCors(options =>
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        string jwtSecretKey = builder.Configuration["Jwt:JwtSecretKey"]
-            ?? throw new InvalidOperationException("Jwt:JwtSecretKey is not configured.");
-
         string issuer = builder.Configuration["Jwt:Issuer"]
             ?? throw new InvalidOperationException("Jwt:Issuer is not configured.");
 
@@ -35,7 +35,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey)),
+            IssuerSigningKeyResolver = (_, _, _, _) => ResolveSigningKeys(rootServiceProvider),
             ValidateIssuer = true,
             ValidIssuer = issuer,
             ValidateAudience = true,
@@ -52,6 +52,7 @@ builder.Services.AddIdentityManagementInfrastructure(builder.Configuration);
 builder.Services.AddServicesFromAssembly(typeof(Program).Assembly);
 
 var app = builder.Build();
+rootServiceProvider = app.Services;
 
 if (app.Environment.IsDevelopment())
 {
@@ -69,3 +70,44 @@ app.UseSessionValidation();
 app.MapControllers();
 
 app.Run();
+
+static IEnumerable<SecurityKey> ResolveSigningKeys(IServiceProvider? serviceProvider)
+{
+    List<SecurityKey> keys = [];
+    if (serviceProvider is null)
+    {
+        return keys;
+    }
+
+    try
+    {
+        using IServiceScope scope = serviceProvider.CreateScope();
+        DbContext dbContext = scope.ServiceProvider.GetRequiredService<DbContext>();
+
+        List<SigningKey> signingKeys = dbContext.Set<SigningKey>()
+            .AsNoTracking()
+            .Where(item => item.IsActive &&
+                           !item.RevokedAt.HasValue &&
+                           item.Algorithm == SecurityAlgorithms.RsaSha256 &&
+                           DateTimeOffset.UtcNow >= item.NotBefore &&
+                           (!item.ExpiresAt.HasValue || DateTimeOffset.UtcNow < item.ExpiresAt.Value))
+            .OrderByDescending(item => item.NotBefore)
+            .ToList();
+
+        foreach (SigningKey signingKey in signingKeys)
+        {
+            RSA rsa = RSA.Create();
+            rsa.ImportFromPem(signingKey.PublicKeyPem);
+            keys.Add(new RsaSecurityKey(rsa)
+            {
+                KeyId = signingKey.KeyId
+            });
+        }
+    }
+    catch
+    {
+        return keys;
+    }
+
+    return keys;
+}
