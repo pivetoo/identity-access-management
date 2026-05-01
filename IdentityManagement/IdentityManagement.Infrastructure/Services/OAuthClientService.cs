@@ -1,17 +1,22 @@
 using Archon.Infrastructure.Services;
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.OAuthClients;
 using IdentityManagement.Application.Responses.OAuthClients;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
 using IdentityManagement.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Infrastructure.Services
 {
     public sealed class OAuthClientService : CrudService<OAuthClient>, IOAuthClientService
     {
-        public OAuthClientService(DbContext dbContext) : base(dbContext)
+        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
+
+        public OAuthClientService(DbContext dbContext, IStringLocalizer<IdentityManagementResource> localizer) : base(dbContext)
         {
+            Localizer = localizer;
         }
 
         public async Task<IReadOnlyCollection<OAuthClientResponse>> GetOAuthClients(CancellationToken cancellationToken = default)
@@ -63,7 +68,7 @@ namespace IdentityManagement.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException("Route id does not match request id.");
+                throw new InvalidOperationException(Localizer["request.route.idMismatch"]);
             }
 
             OAuthClient? client = await DbContext.Set<OAuthClient>()
@@ -72,7 +77,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (client is null)
             {
-                throw new InvalidOperationException("OAuth client not found.");
+                throw new InvalidOperationException(Localizer["oauthClient.notFound"]);
             }
 
             await ValidateClient(client.SystemApplicationId, client.ClientId, request.ClientType, request.ClientSecret, id, cancellationToken, request.RotateClientSecret);
@@ -127,7 +132,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (!systemExists)
             {
-                throw new InvalidOperationException("System application is invalid or inactive.");
+                throw new InvalidOperationException(Localizer["systemApplication.notFoundOrInactive"]);
             }
 
             bool clientIdExists = await DbContext.Set<OAuthClient>()
@@ -136,12 +141,12 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (clientIdExists)
             {
-                throw new InvalidOperationException("OAuth client_id already exists.");
+                throw new InvalidOperationException(Localizer["oauthClient.clientId.alreadyExists"]);
             }
 
             if (clientType == OAuthClientType.Confidential && requireSecret && string.IsNullOrWhiteSpace(clientSecret))
             {
-                throw new InvalidOperationException("Client secret is required for confidential clients.");
+                throw new InvalidOperationException(Localizer["oauthClient.clientSecret.requiredForConfidential"]);
             }
         }
 
@@ -149,7 +154,7 @@ namespace IdentityManagement.Infrastructure.Services
         {
             if (redirectUris.Count == 0)
             {
-                throw new InvalidOperationException("At least one redirect URI is required.");
+                throw new InvalidOperationException(Localizer["oauthClient.redirectUris.required"]);
             }
 
             foreach (OAuthClientRedirectUriRequest redirectUri in redirectUris)
@@ -157,7 +162,7 @@ namespace IdentityManagement.Infrastructure.Services
                 if (!Uri.TryCreate(redirectUri.Uri, UriKind.Absolute, out Uri? uri) ||
                     (uri.Scheme != Uri.UriSchemeHttps && uri.Host != "localhost" && uri.Host != "127.0.0.1"))
                 {
-                    throw new InvalidOperationException("Redirect URIs must be absolute HTTPS URLs, except localhost for development.");
+                    throw new InvalidOperationException(Localizer["oauthClient.redirectUris.invalid"]);
                 }
             }
 
@@ -183,7 +188,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (normalizedScopes.Count == 0 || !normalizedScopes.Contains("openid", StringComparer.Ordinal))
             {
-                throw new InvalidOperationException("OAuth clients must include the openid scope.");
+                throw new InvalidOperationException(Localizer["oauthClient.scopes.openidRequired"]);
             }
 
             List<OAuthClientScope> existing = await DbContext.Set<OAuthClientScope>()
@@ -198,7 +203,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (scopes.Count != normalizedScopes.Count)
             {
-                throw new InvalidOperationException("One or more OAuth scopes are invalid or inactive.");
+                throw new InvalidOperationException(Localizer["oauthClient.scopes.invalidOrInactive"]);
             }
 
             foreach (OAuthScope scope in scopes)

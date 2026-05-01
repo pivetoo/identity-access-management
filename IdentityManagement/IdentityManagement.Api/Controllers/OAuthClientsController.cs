@@ -1,18 +1,22 @@
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.OAuthClients;
 using IdentityManagement.Application.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Api.Controllers
 {
     public sealed class OAuthClientsController : ApiControllerBase
     {
         private readonly IOAuthClientService oauthClientService;
+        private readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
-        public OAuthClientsController(IOAuthClientService oauthClientService)
+        public OAuthClientsController(IOAuthClientService oauthClientService, IStringLocalizer<IdentityManagementResource> localizer)
         {
             this.oauthClientService = oauthClientService;
+            Localizer = localizer;
         }
 
         [RequireAccess]
@@ -30,7 +34,7 @@ namespace IdentityManagement.Api.Controllers
             var response = await oauthClientService.GetOAuthClient(id, cancellationToken);
             if (response is null)
             {
-                return Http404("OAuth client not found.");
+                return Http404(Localizer["oauthClient.notFound"]);
             }
 
             return Http200(response);
@@ -41,7 +45,7 @@ namespace IdentityManagement.Api.Controllers
         public async Task<IActionResult> Create([FromBody] CreateOAuthClientRequest request, CancellationToken cancellationToken)
         {
             var response = await oauthClientService.CreateOAuthClient(request, cancellationToken);
-            return Http201(response, "OAuth client created.");
+            return Http201(response, Localizer["oauthClient.created"]);
         }
 
         [RequireAccess]
@@ -49,7 +53,7 @@ namespace IdentityManagement.Api.Controllers
         public async Task<IActionResult> Update(long id, [FromBody] UpdateOAuthClientRequest request, CancellationToken cancellationToken)
         {
             var response = await oauthClientService.UpdateOAuthClient(id, request, cancellationToken);
-            return Http200(response, "OAuth client updated.");
+            return Http200(response, Localizer["oauthClient.updated"]);
         }
     }
 }

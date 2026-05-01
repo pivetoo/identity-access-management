@@ -244,6 +244,15 @@
   <data name="contract.preview.title" xml:space="preserve"><value>Contract Preview</value></data>
   <data name="contract.preview.subtitle" xml:space="preserve"><value>Quick view of the selected contract, including identification and validity.</value></data>
   <data name="contract.preview.clientId" xml:space="preserve"><value>Client ID</value></data>
+  <data name="oauthClient.notFound" xml:space="preserve"><value>OAuth client not found.</value></data>
+  <data name="oauthClient.created" xml:space="preserve"><value>OAuth client created.</value></data>
+  <data name="oauthClient.updated" xml:space="preserve"><value>OAuth client updated.</value></data>
+  <data name="oauthClient.clientId.alreadyExists" xml:space="preserve"><value>OAuth client_id already exists.</value></data>
+  <data name="oauthClient.clientSecret.requiredForConfidential" xml:space="preserve"><value>Client secret is required for confidential clients.</value></data>
+  <data name="oauthClient.redirectUris.required" xml:space="preserve"><value>At least one redirect URI is required.</value></data>
+  <data name="oauthClient.redirectUris.invalid" xml:space="preserve"><value>Redirect URIs must be absolute HTTPS URLs, except localhost for development.</value></data>
+  <data name="oauthClient.scopes.openidRequired" xml:space="preserve"><value>OAuth clients must include the openid scope.</value></data>
+  <data name="oauthClient.scopes.invalidOrInactive" xml:space="preserve"><value>One or more OAuth scopes are invalid or inactive.</value></data>
   <data name="contract.preview.accessToken" xml:space="preserve"><value>Access Token</value></data>
   <data name="contract.preview.refreshToken" xml:space="preserve"><value>Refresh Token</value></data>
   <data name="contract.form.toast.loadCompaniesError" xml:space="preserve"><value>Failed to load companies.</value></data>
