@@ -7,14 +7,20 @@ namespace IdentityManagement.Infrastructure.Migrations
     {
         public override void Up()
         {
-            Alter.Table("accessresources")
-                .AddColumn("description").AsString(500).NotNullable().WithDefaultValue(string.Empty);
+            if (!Schema.Table("accessresources").Column("description").Exists())
+            {
+                Alter.Table("accessresources")
+                    .AddColumn("description").AsString(500).NotNullable().WithDefaultValue(string.Empty);
+            }
         }
 
         public override void Down()
         {
-            Delete.Column("description")
-                .FromTable("accessresources");
+            if (Schema.Table("accessresources").Column("description").Exists())
+            {
+                Delete.Column("description")
+                    .FromTable("accessresources");
+            }
         }
     }
 }

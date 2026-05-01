@@ -19,18 +19,16 @@ namespace IdentityManagement.Infrastructure.Services
         private readonly IJwtService jwtService;
         private readonly ILoginSessionService loginSessionService;
         private readonly IRefreshTokenService refreshTokenService;
-        private readonly ITemporaryTokenService temporaryTokenService;
         private readonly IConfiguration configuration;
         private readonly IUserService userService;
         private readonly IContractService contractService;
 
-        public OidcAuthorizationService(DbContext dbContext, IJwtService jwtService, ILoginSessionService loginSessionService, IRefreshTokenService refreshTokenService, ITemporaryTokenService temporaryTokenService, IConfiguration configuration, IUserService userService, IContractService contractService)
+        public OidcAuthorizationService(DbContext dbContext, IJwtService jwtService, ILoginSessionService loginSessionService, IRefreshTokenService refreshTokenService, IConfiguration configuration, IUserService userService, IContractService contractService)
         {
             this.dbContext = dbContext;
             this.jwtService = jwtService;
             this.loginSessionService = loginSessionService;
             this.refreshTokenService = refreshTokenService;
-            this.temporaryTokenService = temporaryTokenService;
             this.configuration = configuration;
             this.userService = userService;
             this.contractService = contractService;
@@ -309,39 +307,6 @@ namespace IdentityManagement.Infrastructure.Services
                 TokenType = "Bearer",
                 ExpiresIn = Math.Max(0, Convert.ToInt32((tokenExpiration - DateTimeOffset.UtcNow).TotalSeconds)),
                 Scope = existingRefreshToken.Scopes
-            };
-        }
-
-        public async Task<OidcAuthorizeCompleteResponse> CompleteAuthorize(
-            OidcAuthorizeCompleteRequest request,
-            string ipAddress,
-            string userAgent,
-            CancellationToken cancellationToken = default)
-        {
-            if (!temporaryTokenService.ValidateTemporaryTokenForUser(request.TemporaryToken, request.UserId))
-            {
-                throw new UnauthorizedAccessException("invalid_grant");
-            }
-
-            OidcAuthorizeRequest authorizeRequest = ParseAuthorizeUrl(request.AuthorizeUrl);
-            authorizeRequest.ContractId = request.ContractId;
-
-            OidcAuthorizeResult result = await Authorize(
-                authorizeRequest,
-                request.AuthorizeUrl,
-                request.UserId,
-                ipAddress,
-                userAgent,
-                cancellationToken);
-
-            if (!result.IsRedirect || string.IsNullOrWhiteSpace(result.RedirectUrl))
-            {
-                throw new InvalidOperationException(result.Error ?? "invalid_request");
-            }
-
-            return new OidcAuthorizeCompleteResponse
-            {
-                RedirectUrl = result.RedirectUrl
             };
         }
 

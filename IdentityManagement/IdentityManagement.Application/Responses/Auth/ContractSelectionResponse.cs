@@ -12,8 +12,6 @@ namespace IdentityManagement.Application.Responses.Auth
 
         public string UserEmail { get; set; } = string.Empty;
 
-        public string TemporaryToken { get; set; } = string.Empty;
-
         public List<ContractSelectionResponseItem> AvailableContracts { get; set; } = [];
     }
 }

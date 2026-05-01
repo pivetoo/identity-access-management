@@ -12,14 +12,12 @@ namespace IdentityManagement.Infrastructure.Services
     {
         private readonly IUserService userService;
         private readonly IContractService contractService;
-        private readonly ITemporaryTokenService temporaryTokenService;
         private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
-        public AuthService(IUserService userService, IContractService contractService, ITemporaryTokenService temporaryTokenService, IStringLocalizer<IdentityManagementResource> Localizer)
+        public AuthService(IUserService userService, IContractService contractService, IStringLocalizer<IdentityManagementResource> Localizer)
         {
             this.userService = userService;
             this.contractService = contractService;
-            this.temporaryTokenService = temporaryTokenService;
             this.Localizer = Localizer;
         }
 
@@ -43,7 +41,6 @@ namespace IdentityManagement.Infrastructure.Services
                 UserId = user.Id,
                 UserName = user.Name,
                 UserEmail = user.Email,
-                TemporaryToken = temporaryTokenService.GenerateTemporaryToken(user.Id),
                 AvailableContracts = availableContracts.ToList()
             };
         }

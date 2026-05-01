@@ -46,7 +46,7 @@ namespace IdentityManagement.Infrastructure.Services
                 GrantTypesSupported = ["authorization_code", "refresh_token"],
                 SubjectTypesSupported = ["public"],
                 IdTokenSigningAlgValuesSupported = ["RS256"],
-                ScopesSupported = scopes.Count > 0 ? scopes : ["openid", "profile", "email", "offline_access"],
+                ScopesSupported = scopes,
                 TokenEndpointAuthMethodsSupported = ["none", "client_secret_basic", "client_secret_post"],
                 CodeChallengeMethodsSupported = ["S256"]
             };

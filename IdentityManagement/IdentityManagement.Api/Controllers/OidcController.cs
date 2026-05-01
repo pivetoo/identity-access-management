@@ -160,30 +160,6 @@ namespace IdentityManagement.Api.Controllers
             return await EndSession(request, cancellationToken);
         }
 
-        [PostEndpoint]
-        public async Task<IActionResult> CompleteAuthorize([FromBody] OidcAuthorizeCompleteRequest request, CancellationToken cancellationToken)
-        {
-            try
-            {
-                var response = await oidcAuthorizationService.CompleteAuthorize(request, RequestIpAddress, RequestUserAgent, cancellationToken);
-                return Ok(response);
-            }
-            catch (UnauthorizedAccessException error)
-            {
-                return Unauthorized(new
-                {
-                    error = error.Message
-                });
-            }
-            catch (InvalidOperationException error)
-            {
-                return BadRequest(new
-                {
-                    error = error.Message
-                });
-            }
-        }
-
         [PostEndpoint("complete-authorize")]
         public async Task<IActionResult> AuthorizeWithCredentials([FromBody] OidcAuthorizeWithCredentialsRequest request, CancellationToken cancellationToken)
         {

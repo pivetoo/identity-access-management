@@ -7,8 +7,11 @@ namespace IdentityManagement.Infrastructure.Migrations
     {
         public override void Up()
         {
-            Alter.Table("accessresources")
-                .AddColumn("systemapplicationid").AsInt64().Nullable();
+            if (!Schema.Table("accessresources").Column("systemapplicationid").Exists())
+            {
+                Alter.Table("accessresources")
+                    .AddColumn("systemapplicationid").AsInt64().Nullable();
+            }
 
             Execute.Sql("""
                 UPDATE accessresources
@@ -26,35 +29,61 @@ namespace IdentityManagement.Infrastructure.Migrations
                 .AsInt64()
                 .NotNullable();
 
-            Create.ForeignKey("fk_accessresources_systemapplications_systemapplicationid")
-                .FromTable("accessresources").ForeignColumn("systemapplicationid")
-                .ToTable("systemapplications").PrimaryColumn("id");
+            if (!Schema.Table("accessresources").Constraint("fk_accessresources_systemapplications_systemapplicationid").Exists())
+            {
+                Create.ForeignKey("fk_accessresources_systemapplications_systemapplicationid")
+                    .FromTable("accessresources").ForeignColumn("systemapplicationid")
+                    .ToTable("systemapplications").PrimaryColumn("id");
+            }
 
-            Delete.Index("ix_accessresources_name")
-                .OnTable("accessresources");
+            if (Schema.Table("accessresources").Index("ix_accessresources_name").Exists())
+            {
+                Delete.Index("ix_accessresources_name")
+                    .OnTable("accessresources");
+            }
 
-            Create.Index("ix_accessresources_systemapplicationid_name")
-                .OnTable("accessresources")
-                .OnColumn("systemapplicationid").Ascending()
-                .OnColumn("name").Ascending()
-                .WithOptions().Unique();
+            if (!Schema.Table("accessresources").Index("ix_accessresources_systemapplicationid_name").Exists())
+            {
+                Create.Index("ix_accessresources_systemapplicationid_name")
+                    .OnTable("accessresources")
+                    .OnColumn("systemapplicationid").Ascending()
+                    .OnColumn("name").Ascending()
+                    .WithOptions().Unique();
+            }
         }
 
         public override void Down()
         {
-            Delete.Index("ix_accessresources_systemapplicationid_name")
-                .OnTable("accessresources");
+            if (!Schema.Table("accessresources").Exists())
+            {
+                return;
+            }
 
-            Create.Index("ix_accessresources_name")
-                .OnTable("accessresources")
-                .OnColumn("name").Ascending()
-                .WithOptions().Unique();
+            if (Schema.Table("accessresources").Index("ix_accessresources_systemapplicationid_name").Exists())
+            {
+                Delete.Index("ix_accessresources_systemapplicationid_name")
+                    .OnTable("accessresources");
+            }
 
-            Delete.ForeignKey("fk_accessresources_systemapplications_systemapplicationid")
-                .OnTable("accessresources");
+            if (!Schema.Table("accessresources").Index("ix_accessresources_name").Exists())
+            {
+                Create.Index("ix_accessresources_name")
+                    .OnTable("accessresources")
+                    .OnColumn("name").Ascending()
+                    .WithOptions().Unique();
+            }
 
-            Delete.Column("systemapplicationid")
-                .FromTable("accessresources");
+            if (Schema.Table("accessresources").Constraint("fk_accessresources_systemapplications_systemapplicationid").Exists())
+            {
+                Delete.ForeignKey("fk_accessresources_systemapplications_systemapplicationid")
+                    .OnTable("accessresources");
+            }
+
+            if (Schema.Table("accessresources").Column("systemapplicationid").Exists())
+            {
+                Delete.Column("systemapplicationid")
+                    .FromTable("accessresources");
+            }
         }
     }
 }

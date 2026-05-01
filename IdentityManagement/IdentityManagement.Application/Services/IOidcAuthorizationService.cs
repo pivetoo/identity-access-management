@@ -13,12 +13,6 @@ namespace IdentityManagement.Application.Services
             string userAgent,
             CancellationToken cancellationToken = default);
 
-        Task<OidcAuthorizeCompleteResponse> CompleteAuthorize(
-            OidcAuthorizeCompleteRequest request,
-            string ipAddress,
-            string userAgent,
-            CancellationToken cancellationToken = default);
-
         Task<OidcAuthorizeCompleteResponse> AuthorizeWithCredentials(
             OidcAuthorizeWithCredentialsRequest request,
             string ipAddress,

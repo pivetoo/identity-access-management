@@ -26,11 +26,6 @@ namespace IdentityManagement.Api.Controllers
         [PostEndpoint]
         public async Task<IActionResult> Identify([FromBody] IdentifyUserRequest request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(request.ReturnUrl))
-            {
-                request.ReturnUrl = Request.Query["returnUrl"].FirstOrDefault();
-            }
-
             var response = await authService.IdentifyUser(request, cancellationToken);
             return Http200(response);
         }
