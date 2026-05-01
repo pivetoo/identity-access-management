@@ -18,10 +18,6 @@ namespace IdentityManagement.Application.Responses.Contracts
 
         public bool IsActive { get; set; }
 
-        public int AccessTokenLifetime { get; set; }
-
-        public int RefreshTokenLifetime { get; set; }
-
         public DateTimeOffset? CreatedAt { get; set; }
 
         public DateTimeOffset? UpdatedAt { get; set; }

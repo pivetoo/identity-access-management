@@ -29,7 +29,7 @@ namespace IdentityManagement.Infrastructure.Services
             this.configuration = configuration;
         }
 
-        public async Task<string> GenerateAccessToken(User user, Contract contract, string? sessionId = null, string? authorizedClientId = null, CancellationToken cancellationToken = default)
+        public async Task<string> GenerateAccessToken(User user, Contract contract, int lifetimeSeconds, string? sessionId = null, string? authorizedClientId = null, CancellationToken cancellationToken = default)
         {
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
 
@@ -113,7 +113,7 @@ namespace IdentityManagement.Infrastructure.Services
             SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddSeconds(contract.AccessTokenLifetime),
+                Expires = DateTime.UtcNow.AddSeconds(lifetimeSeconds),
                 Issuer = configuration["Jwt:Issuer"],
                 Audience = contract.SystemApplication.Audience,
                 SigningCredentials = await GetTokenSigningCredentials(cancellationToken)

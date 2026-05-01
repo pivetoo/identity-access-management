@@ -29,9 +29,7 @@ export default function ContractFormModal({
     systemApplicationId: 0,
     startDate: new Date().toISOString().split('T')[0],
     endDate: '',
-    isActive: true,
-    accessTokenLifetime: 3600,
-    refreshTokenLifetime: 2592000
+    isActive: true
   });
 
   const toSelectValue = (value?: number) =>
@@ -102,9 +100,7 @@ export default function ContractFormModal({
           systemApplicationId: hasValidId(contrato.systemApplicationId) ? contrato.systemApplicationId : 0,
           startDate: contrato.startDate?.split('T')[0] || defaultStartDate,
           endDate: contrato.endDate?.split('T')[0] || '',
-          isActive: contrato.isActive,
-          accessTokenLifetime: contrato.accessTokenLifetime ?? 3600,
-          refreshTokenLifetime: contrato.refreshTokenLifetime ?? 2592000
+          isActive: contrato.isActive
         });
       } else {
         setFormData({
@@ -112,9 +108,7 @@ export default function ContractFormModal({
           systemApplicationId: 0,
           startDate: defaultStartDate,
           endDate: '',
-          isActive: true,
-          accessTokenLifetime: 3600,
-          refreshTokenLifetime: 2592000
+          isActive: true
         });
       }
     }
@@ -135,9 +129,7 @@ export default function ContractFormModal({
         systemApplicationId: formData.systemApplicationId,
         startDate: formData.startDate,
         endDate: formData.endDate || undefined,
-        isActive: formData.isActive,
-        accessTokenLifetime: formData.accessTokenLifetime,
-        refreshTokenLifetime: formData.refreshTokenLifetime
+        isActive: formData.isActive
       };
       await saveContratoApi.execute(() => ContractService.update(contrato.id, updateData));
     } else {
@@ -145,9 +137,7 @@ export default function ContractFormModal({
         companyId: formData.companyId,
         systemApplicationId: formData.systemApplicationId,
         startDate: formData.startDate,
-        endDate: formData.endDate || undefined,
-        accessTokenLifetime: formData.accessTokenLifetime,
-        refreshTokenLifetime: formData.refreshTokenLifetime
+        endDate: formData.endDate || undefined
       };
       await saveContratoApi.execute(() => ContractService.create(createData));
     }
@@ -223,33 +213,6 @@ export default function ContractFormModal({
                 onChange={(e) => handleInputChange('endDate', e.target.value)}
                 error={!!getError('endDate')}
                 helperText={getError('endDate')}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">
-                {t('contract.form.accessTokenLifetime')} <span className="text-destructive">*</span>
-              </label>
-              <Input
-                type="number"
-                value={formData.accessTokenLifetime}
-                onChange={(e) => handleInputChange('accessTokenLifetime', parseInt(e.target.value) || 0)}
-                error={!!getError('accessTokenLifetime')}
-                helperText={getError('accessTokenLifetime')}
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">
-                {t('contract.form.refreshTokenLifetime')} <span className="text-destructive">*</span>
-              </label>
-              <Input
-                type="number"
-                value={formData.refreshTokenLifetime}
-                onChange={(e) => handleInputChange('refreshTokenLifetime', parseInt(e.target.value) || 0)}
-                error={!!getError('refreshTokenLifetime')}
-                helperText={getError('refreshTokenLifetime')}
               />
             </div>
           </div>

@@ -8,8 +8,6 @@ export interface Contract {
   endDate?: string
   isActive: boolean
   isValid?: boolean
-  accessTokenLifetime: number
-  refreshTokenLifetime: number
   createdAt?: string
   updatedAt?: string
 }
@@ -19,8 +17,6 @@ export interface CreateContractRequest {
   systemApplicationId: number
   startDate: string
   endDate?: string
-  accessTokenLifetime?: number
-  refreshTokenLifetime?: number
 }
 
 export interface UpdateContractRequest {
@@ -30,6 +26,4 @@ export interface UpdateContractRequest {
   startDate: string
   endDate?: string
   isActive: boolean
-  accessTokenLifetime: number
-  refreshTokenLifetime: number
 }

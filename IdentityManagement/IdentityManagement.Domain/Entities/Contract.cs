@@ -22,10 +22,6 @@ namespace IdentityManagement.Domain.Entities
 
         public bool IsActive { get; private set; } = true;
 
-        public int AccessTokenLifetime { get; private set; } = 3600;
-
-        public int RefreshTokenLifetime { get; private set; } = 2592000;
-
         public IReadOnlyCollection<Role> Roles => roles.AsReadOnly();
 
         public IReadOnlyCollection<AuthorizationCode> AuthorizationCodes => authorizationCodes.AsReadOnly();
@@ -58,7 +54,7 @@ namespace IdentityManagement.Domain.Entities
             return IsActive && now >= StartDate && (!EndDate.HasValue || now <= EndDate.Value);
         }
 
-        public void Update(long companyId, long systemApplicationId, DateTimeOffset startDate, DateTimeOffset? endDate, bool isActive, int accessTokenLifetime, int refreshTokenLifetime)
+        public void Update(long companyId, long systemApplicationId, DateTimeOffset startDate, DateTimeOffset? endDate, bool isActive)
         {
             if (companyId <= 0)
             {
@@ -75,8 +71,6 @@ namespace IdentityManagement.Domain.Entities
             StartDate = NormalizeUtc(startDate);
             EndDate = endDate.HasValue ? NormalizeUtc(endDate.Value) : null;
             IsActive = isActive;
-            AccessTokenLifetime = accessTokenLifetime;
-            RefreshTokenLifetime = refreshTokenLifetime;
         }
 
         private static DateTimeOffset NormalizeUtc(DateTimeOffset value)

@@ -39,11 +39,7 @@ export class ContractService {
   }
 
   static async create(contract: CreateContractRequest): Promise<Contract> {
-    const response = await httpClient.post<Contract>(`${this.baseUrl}/create`, {
-      ...contract,
-      accessTokenLifetime: contract.accessTokenLifetime ?? 60,
-      refreshTokenLifetime: contract.refreshTokenLifetime ?? 1440,
-    })
+    const response = await httpClient.post<Contract>(`${this.baseUrl}/create`, contract)
 
     if (!response.data) {
       throw new Error(translate('contract.service.create.emptyResponse'))
@@ -70,8 +66,6 @@ export class ContractService {
       startDate: contract.startDate,
       endDate: contract.endDate,
       isActive: !contract.isActive,
-      accessTokenLifetime: contract.accessTokenLifetime,
-      refreshTokenLifetime: contract.refreshTokenLifetime,
     })
   }
 

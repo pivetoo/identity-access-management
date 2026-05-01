@@ -14,10 +14,10 @@ namespace IdentityManagement.Infrastructure.Services
             this.jwtService = jwtService;
         }
 
-        public async Task<RefreshToken> CreateRefreshToken(User user, Contract contract, string sessionId, string scopes, string clientId, CancellationToken cancellationToken = default)
+        public async Task<RefreshToken> CreateRefreshToken(User user, Contract contract, int lifetimeSeconds, string sessionId, string scopes, string clientId, CancellationToken cancellationToken = default)
         {
             string token = jwtService.GenerateRefreshToken();
-            int expirationDays = Math.Max(1, contract.RefreshTokenLifetime / 86400);
+            int expirationDays = Math.Max(1, (int)Math.Ceiling(lifetimeSeconds / 86400d));
             RefreshToken refreshToken = new RefreshToken(token, user.Id, sessionId, scopes, expirationDays, contract.Id, clientId);
 
             bool success = await Insert(cancellationToken, refreshToken);

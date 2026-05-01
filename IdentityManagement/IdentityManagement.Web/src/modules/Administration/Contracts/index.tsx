@@ -122,29 +122,6 @@ export default function Contracts() {
     loadContratos(true);
   };
 
-  const formatLifetime = (seconds: number) => {
-    if (!seconds || seconds <= 0) {
-      return t('common.value.notAvailable');
-    }
-
-    const days = seconds / 86400;
-    if (Number.isInteger(days) && days >= 1) {
-      return t(days === 1 ? 'common.duration.day' : 'common.duration.days').replace('{0}', String(days));
-    }
-
-    const hours = seconds / 3600;
-    if (Number.isInteger(hours) && hours >= 1) {
-      return t(hours === 1 ? 'common.duration.hour' : 'common.duration.hours').replace('{0}', String(hours));
-    }
-
-    const minutes = seconds / 60;
-    if (Number.isInteger(minutes) && minutes >= 1) {
-      return t(minutes === 1 ? 'common.duration.minute' : 'common.duration.minutes').replace('{0}', String(minutes));
-    }
-
-    return `${seconds} s`;
-  };
-
   const columns: DataTablePreviewColumn<Contract>[] = [
     {
       key: 'companyName',
@@ -302,22 +279,6 @@ export default function Contracts() {
                     {t('common.field.endDate')}
                   </div>
                   <div className="mt-1 text-sm font-medium text-foreground">{formatDate(record.endDate)}</div>
-                </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    {t('contract.preview.accessToken')}
-                  </div>
-                  <div className="mt-1 text-sm font-medium text-foreground">{formatLifetime(record.accessTokenLifetime)}</div>
-                </div>
-
-                <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    {t('contract.preview.refreshToken')}
-                  </div>
-                  <div className="mt-1 text-sm font-medium text-foreground">{formatLifetime(record.refreshTokenLifetime)}</div>
                 </div>
               </div>
             </div>

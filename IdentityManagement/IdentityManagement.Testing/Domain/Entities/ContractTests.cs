@@ -13,8 +13,6 @@ namespace IdentityManagement.Testing.Domain.Entities
             Assert.That(contract.CompanyId, Is.EqualTo(1));
             Assert.That(contract.SystemApplicationId, Is.EqualTo(1));
             Assert.That(contract.IsActive, Is.True);
-            Assert.That(contract.AccessTokenLifetime, Is.EqualTo(3600));
-            Assert.That(contract.RefreshTokenLifetime, Is.EqualTo(2592000));
         }
 
         [TestCase(0)]
@@ -43,7 +41,7 @@ namespace IdentityManagement.Testing.Domain.Entities
         public void IsValid_WhenInactive_ShouldReturnFalse()
         {
             Contract contract = new(1, 1);
-            contract.Update(1, 1, DateTimeOffset.UtcNow.AddDays(-1), null, false, 3600, 2592000);
+            contract.Update(1, 1, DateTimeOffset.UtcNow.AddDays(-1), null, false);
 
             Assert.That(contract.IsValid(), Is.False);
         }
@@ -52,7 +50,7 @@ namespace IdentityManagement.Testing.Domain.Entities
         public void IsValid_WhenStartDateInFuture_ShouldReturnFalse()
         {
             Contract contract = new(1, 1);
-            contract.Update(1, 1, DateTimeOffset.UtcNow.AddDays(1), null, true, 3600, 2592000);
+            contract.Update(1, 1, DateTimeOffset.UtcNow.AddDays(1), null, true);
 
             Assert.That(contract.IsValid(), Is.False);
         }
@@ -61,7 +59,7 @@ namespace IdentityManagement.Testing.Domain.Entities
         public void IsValid_WhenEndDateInPast_ShouldReturnFalse()
         {
             Contract contract = new(1, 1);
-            contract.Update(1, 1, DateTimeOffset.UtcNow.AddDays(-2), DateTimeOffset.UtcNow.AddDays(-1), true, 3600, 2592000);
+            contract.Update(1, 1, DateTimeOffset.UtcNow.AddDays(-2), DateTimeOffset.UtcNow.AddDays(-1), true);
 
             Assert.That(contract.IsValid(), Is.False);
         }
@@ -70,7 +68,7 @@ namespace IdentityManagement.Testing.Domain.Entities
         public void IsValid_WhenEndDateInFuture_ShouldReturnTrue()
         {
             Contract contract = new(1, 1);
-            contract.Update(1, 1, DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(1), true, 3600, 2592000);
+            contract.Update(1, 1, DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(1), true);
 
             Assert.That(contract.IsValid(), Is.True);
         }
@@ -82,24 +80,22 @@ namespace IdentityManagement.Testing.Domain.Entities
             DateTimeOffset startDate = DateTimeOffset.UtcNow.AddDays(-1);
             DateTimeOffset endDate = DateTimeOffset.UtcNow.AddDays(30);
 
-            contract.Update(2, 3, startDate, endDate, false, 7200, 5184000);
+            contract.Update(2, 3, startDate, endDate, false);
 
             Assert.That(contract.CompanyId, Is.EqualTo(2));
             Assert.That(contract.SystemApplicationId, Is.EqualTo(3));
             Assert.That(contract.StartDate, Is.EqualTo(startDate.ToUniversalTime()));
             Assert.That(contract.EndDate, Is.EqualTo(endDate.ToUniversalTime()));
             Assert.That(contract.IsActive, Is.False);
-            Assert.That(contract.AccessTokenLifetime, Is.EqualTo(7200));
-            Assert.That(contract.RefreshTokenLifetime, Is.EqualTo(5184000));
         }
 
         [Test]
         public void Update_WithNullEndDate_ShouldSetEndDateToNull()
         {
             Contract contract = new(1, 1);
-            contract.Update(1, 1, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddDays(1), true, 3600, 2592000);
+            contract.Update(1, 1, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddDays(1), true);
 
-            contract.Update(1, 1, DateTimeOffset.UtcNow, null, true, 3600, 2592000);
+            contract.Update(1, 1, DateTimeOffset.UtcNow, null, true);
 
             Assert.That(contract.EndDate, Is.Null);
         }
@@ -110,7 +106,7 @@ namespace IdentityManagement.Testing.Domain.Entities
         {
             Contract contract = new(1, 1);
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => contract.Update(companyId, 1, DateTimeOffset.UtcNow, null, true, 3600, 2592000));
+            Assert.Throws<ArgumentOutOfRangeException>(() => contract.Update(companyId, 1, DateTimeOffset.UtcNow, null, true));
         }
 
         [TestCase(0)]
@@ -119,7 +115,7 @@ namespace IdentityManagement.Testing.Domain.Entities
         {
             Contract contract = new(1, 1);
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => contract.Update(1, systemApplicationId, DateTimeOffset.UtcNow, null, true, 3600, 2592000));
+            Assert.Throws<ArgumentOutOfRangeException>(() => contract.Update(1, systemApplicationId, DateTimeOffset.UtcNow, null, true));
         }
 
         [Test]

@@ -19,9 +19,5 @@ namespace IdentityManagement.Application.Requests.Contracts
         public DateTimeOffset? EndDate { get; set; }
 
         public bool IsActive { get; set; }
-
-        public int AccessTokenLifetime { get; set; }
-
-        public int RefreshTokenLifetime { get; set; }
     }
 }

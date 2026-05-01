@@ -38,9 +38,7 @@ namespace IdentityManagement.Infrastructure.Services
                 request.SystemApplicationId,
                 request.StartDate,
                 request.EndDate,
-                true,
-                request.AccessTokenLifetime > 0 ? request.AccessTokenLifetime : 3600,
-                request.RefreshTokenLifetime > 0 ? request.RefreshTokenLifetime : 2592000);
+                true);
 
             bool success = await Insert(cancellationToken, contract);
             if (!success)
@@ -90,9 +88,7 @@ namespace IdentityManagement.Infrastructure.Services
                 request.SystemApplicationId,
                 request.StartDate,
                 request.EndDate,
-                request.IsActive,
-                request.AccessTokenLifetime,
-                request.RefreshTokenLifetime);
+                request.IsActive);
 
             Contract? result = await Update(contract, cancellationToken);
             if (result is null)
@@ -124,9 +120,7 @@ namespace IdentityManagement.Infrastructure.Services
                     StartDate = contract.StartDate,
                     EndDate = contract.EndDate,
                     IsActive = contract.IsActive,
-                    IsValid = contract.IsActive && DateTimeOffset.UtcNow >= contract.StartDate && (!contract.EndDate.HasValue || DateTimeOffset.UtcNow <= contract.EndDate.Value),
-                    AccessTokenLifetime = contract.AccessTokenLifetime,
-                    RefreshTokenLifetime = contract.RefreshTokenLifetime
+                    IsValid = contract.IsActive && DateTimeOffset.UtcNow >= contract.StartDate && (!contract.EndDate.HasValue || DateTimeOffset.UtcNow <= contract.EndDate.Value)
                 })
                 .ToListAsync(cancellationToken);
 
@@ -151,9 +145,7 @@ namespace IdentityManagement.Infrastructure.Services
                     StartDate = contract.StartDate,
                     EndDate = contract.EndDate,
                     IsActive = contract.IsActive,
-                    IsValid = contract.IsActive && DateTimeOffset.UtcNow >= contract.StartDate && (!contract.EndDate.HasValue || DateTimeOffset.UtcNow <= contract.EndDate.Value),
-                    AccessTokenLifetime = contract.AccessTokenLifetime,
-                    RefreshTokenLifetime = contract.RefreshTokenLifetime
+                    IsValid = contract.IsActive && DateTimeOffset.UtcNow >= contract.StartDate && (!contract.EndDate.HasValue || DateTimeOffset.UtcNow <= contract.EndDate.Value)
                 })
                 .ToListAsync(cancellationToken);
 
@@ -179,9 +171,7 @@ namespace IdentityManagement.Infrastructure.Services
                     StartDate = contract.StartDate,
                     EndDate = contract.EndDate,
                     IsActive = contract.IsActive,
-                    IsValid = true,
-                    AccessTokenLifetime = contract.AccessTokenLifetime,
-                    RefreshTokenLifetime = contract.RefreshTokenLifetime
+                    IsValid = true
                 })
                 .ToListAsync(cancellationToken);
 
@@ -297,9 +287,7 @@ namespace IdentityManagement.Infrastructure.Services
                 StartDate = contract.StartDate,
                 EndDate = contract.EndDate,
                 IsActive = contract.IsActive,
-                IsValid = contract.IsValid(),
-                AccessTokenLifetime = contract.AccessTokenLifetime,
-                RefreshTokenLifetime = contract.RefreshTokenLifetime
+                IsValid = contract.IsValid()
             };
         }
 

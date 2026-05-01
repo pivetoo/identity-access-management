@@ -19,9 +19,5 @@ namespace IdentityManagement.Application.Responses.Contracts
         public bool IsActive { get; set; }
 
         public bool IsValid { get; set; }
-
-        public int AccessTokenLifetime { get; set; }
-
-        public int RefreshTokenLifetime { get; set; }
     }
 }

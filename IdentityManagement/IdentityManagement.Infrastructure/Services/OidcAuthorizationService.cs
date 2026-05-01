@@ -189,6 +189,7 @@ namespace IdentityManagement.Infrastructure.Services
             string accessToken = await jwtService.GenerateAccessToken(
                 authorizationCode.User,
                 authorizationCode.Contract,
+                client.AccessTokenLifetime,
                 authorizationCode.SessionId,
                 client.ClientId,
                 cancellationToken);
@@ -207,6 +208,7 @@ namespace IdentityManagement.Infrastructure.Services
                 refreshToken = await refreshTokenService.CreateRefreshToken(
                     authorizationCode.User,
                     authorizationCode.Contract,
+                    client.RefreshTokenLifetime,
                     authorizationCode.SessionId,
                     authorizationCode.Scopes,
                     client.ClientId,
@@ -271,6 +273,7 @@ namespace IdentityManagement.Infrastructure.Services
             string accessToken = await jwtService.GenerateAccessToken(
                 existingRefreshToken.User,
                 existingRefreshToken.Contract,
+                client.AccessTokenLifetime,
                 existingRefreshToken.SessionId,
                 client.ClientId,
                 cancellationToken);
@@ -289,6 +292,7 @@ namespace IdentityManagement.Infrastructure.Services
             RefreshToken newRefreshToken = await refreshTokenService.CreateRefreshToken(
                 existingRefreshToken.User,
                 existingRefreshToken.Contract,
+                client.RefreshTokenLifetime,
                 existingRefreshToken.SessionId,
                 existingRefreshToken.Scopes,
                 client.ClientId,
