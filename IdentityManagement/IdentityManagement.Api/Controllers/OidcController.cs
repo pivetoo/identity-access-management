@@ -161,11 +161,11 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [PostEndpoint("complete-authorize")]
-        public async Task<IActionResult> AuthorizeWithCredentials([FromBody] OidcAuthorizeWithCredentialsRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> CompleteAuthorize([FromBody] OidcCompleteAuthorizeRequest request, CancellationToken cancellationToken)
         {
             try
             {
-                var response = await oidcAuthorizationService.AuthorizeWithCredentials(request, RequestIpAddress, RequestUserAgent, cancellationToken);
+                var response = await oidcAuthorizationService.CompleteAuthorize(request, RequestIpAddress, RequestUserAgent, cancellationToken);
                 return Ok(response);
             }
             catch (UnauthorizedAccessException error)

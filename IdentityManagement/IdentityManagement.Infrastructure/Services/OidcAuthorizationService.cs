@@ -20,17 +20,15 @@ namespace IdentityManagement.Infrastructure.Services
         private readonly ILoginSessionService loginSessionService;
         private readonly IRefreshTokenService refreshTokenService;
         private readonly IConfiguration configuration;
-        private readonly IUserService userService;
         private readonly IContractService contractService;
 
-        public OidcAuthorizationService(DbContext dbContext, IJwtService jwtService, ILoginSessionService loginSessionService, IRefreshTokenService refreshTokenService, IConfiguration configuration, IUserService userService, IContractService contractService)
+        public OidcAuthorizationService(DbContext dbContext, IJwtService jwtService, ILoginSessionService loginSessionService, IRefreshTokenService refreshTokenService, IConfiguration configuration, IContractService contractService)
         {
             this.dbContext = dbContext;
             this.jwtService = jwtService;
             this.loginSessionService = loginSessionService;
             this.refreshTokenService = refreshTokenService;
             this.configuration = configuration;
-            this.userService = userService;
             this.contractService = contractService;
         }
 
@@ -310,25 +308,42 @@ namespace IdentityManagement.Infrastructure.Services
             };
         }
 
-        public async Task<OidcAuthorizeCompleteResponse> AuthorizeWithCredentials(
-            OidcAuthorizeWithCredentialsRequest request,
+        public async Task<OidcAuthorizeCompleteResponse> CompleteAuthorize(
+            OidcCompleteAuthorizeRequest request,
             string ipAddress,
             string userAgent,
             CancellationToken cancellationToken = default)
         {
-            User? user = await userService.Authenticate(request.Username, request.Password, cancellationToken);
-            if (user is null)
+            PendingAuthorizationSession? authorizationSession = await dbContext.Set<PendingAuthorizationSession>()
+                .AsTracking()
+                .Include(item => item.User)
+                .FirstOrDefaultAsync(item => item.Token == request.AuthorizationSessionToken, cancellationToken);
+
+            if (authorizationSession is null || !authorizationSession.IsValid() || !authorizationSession.User.IsActive)
             {
-                throw new UnauthorizedAccessException("invalid_credentials");
+                throw new UnauthorizedAccessException("invalid_authorization_session");
             }
 
-            var availableContracts = await contractService.GetActiveContractSelectionsByUserId(user.Id, cancellationToken);
+            if (!MatchesAuthorizeRequestContext(authorizationSession, request.AuthorizeUrl))
+            {
+                throw new UnauthorizedAccessException("invalid_authorization_session");
+            }
+
+            var availableContracts = await contractService.GetActiveContractSelectionsByUserId(authorizationSession.UserId, cancellationToken);
             if (!availableContracts.Any(item => item.ContractId == request.ContractId))
             {
                 throw new UnauthorizedAccessException("invalid_contract");
             }
 
-            Dictionary<string, string> parameters = ParseQuery(new Uri(request.AuthorizeUrl).Query);
+            Dictionary<string, string> parameters;
+            try
+            {
+                parameters = ParseQuery(new Uri(request.AuthorizeUrl).Query);
+            }
+            catch (UriFormatException)
+            {
+                throw new InvalidOperationException("invalid_authorize_url");
+            }
 
             OidcAuthorizeRequest authorizeRequest = new()
             {
@@ -340,13 +355,15 @@ namespace IdentityManagement.Infrastructure.Services
                 Nonce = parameters.GetValueOrDefault("nonce") ?? string.Empty,
                 CodeChallenge = parameters.GetValueOrDefault("code_challenge") ?? string.Empty,
                 CodeChallengeMethod = parameters.GetValueOrDefault("code_challenge_method") ?? string.Empty,
-                ContractId = long.TryParse(parameters.GetValueOrDefault("contract_id"), out long contractId) ? contractId : request.ContractId
+                ContractId = request.ContractId
             };
+
+            authorizationSession.MarkAsUsed();
 
             OidcAuthorizeResult result = await Authorize(
                 authorizeRequest,
                 request.AuthorizeUrl,
-                user.Id,
+                authorizationSession.UserId,
                 ipAddress,
                 userAgent,
                 cancellationToken);
@@ -355,6 +372,8 @@ namespace IdentityManagement.Infrastructure.Services
             {
                 throw new InvalidOperationException(result.Error ?? "invalid_request");
             }
+
+            await dbContext.SaveChangesAsync(cancellationToken);
 
             return new OidcAuthorizeCompleteResponse
             {
@@ -839,6 +858,46 @@ namespace IdentityManagement.Infrastructure.Services
                 })
                 .GroupBy(item => item.Key, StringComparer.Ordinal)
                 .ToDictionary(group => group.Key, group => group.Last().Value, StringComparer.Ordinal);
+        }
+
+        private static bool MatchesAuthorizeRequestContext(PendingAuthorizationSession authorizationSession, string authorizeUrl)
+        {
+            if (string.IsNullOrWhiteSpace(authorizationSession.AuthorizeRequestHash))
+            {
+                return true;
+            }
+
+            try
+            {
+                return string.Equals(
+                    authorizationSession.AuthorizeRequestHash,
+                    ComputeAuthorizeRequestHash(authorizeUrl),
+                    StringComparison.Ordinal);
+            }
+            catch (UriFormatException)
+            {
+                return false;
+            }
+        }
+
+        private static string ComputeAuthorizeRequestHash(string authorizeUrl)
+        {
+            Uri uri = new(authorizeUrl);
+            Dictionary<string, string> parameters = ParseQuery(uri.Query);
+            string normalizedRequest = string.Join("|", [
+                $"{uri.Scheme}://{uri.Authority}{uri.AbsolutePath}",
+                parameters.GetValueOrDefault("client_id") ?? string.Empty,
+                parameters.GetValueOrDefault("redirect_uri") ?? string.Empty,
+                parameters.GetValueOrDefault("response_type") ?? string.Empty,
+                parameters.GetValueOrDefault("scope") ?? string.Empty,
+                parameters.GetValueOrDefault("state") ?? string.Empty,
+                parameters.GetValueOrDefault("nonce") ?? string.Empty,
+                parameters.GetValueOrDefault("code_challenge") ?? string.Empty,
+                parameters.GetValueOrDefault("code_challenge_method") ?? string.Empty
+            ]);
+
+            byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(normalizedRequest));
+            return Base64UrlEncoder.Encode(hash);
         }
     }
 }

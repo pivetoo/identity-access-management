@@ -1,10 +1,8 @@
 namespace IdentityManagement.Application.Requests.Oidc
 {
-    public sealed class OidcAuthorizeWithCredentialsRequest
+    public sealed class OidcCompleteAuthorizeRequest
     {
-        public string Username { get; set; } = string.Empty;
-
-        public string Password { get; set; } = string.Empty;
+        public string AuthorizationSessionToken { get; set; } = string.Empty;
 
         public long ContractId { get; set; }
 

@@ -20,8 +20,14 @@ const getOidcAuthorizeUrl = () => {
   }
 
   try {
+    const identityManagementUrl = import.meta.env.VITE_IDENTITY_MANAGEMENT_URL;
+    if (!identityManagementUrl) {
+      return undefined;
+    }
+
     const parsedUrl = new URL(rawReturnUrl);
-    if (parsedUrl.origin !== window.location.origin || parsedUrl.pathname !== '/connect/authorize') {
+    const identityUrl = new URL(identityManagementUrl);
+    if (parsedUrl.origin !== identityUrl.origin || parsedUrl.pathname !== '/connect/authorize') {
       return undefined;
     }
 
@@ -36,8 +42,9 @@ export default function Login() {
   const navigate = useNavigate();
 
   const oidcAuthorizeUrl = useMemo(() => getOidcAuthorizeUrl(), []);
+  const [pendingAuthorizeUrl, setPendingAuthorizeUrl] = useState<string | null>(null);
 
-  const buildAuthorizeUrl = async (contractId: number): Promise<string> => {
+  const buildAuthorizeUrl = async (contractId?: number): Promise<string> => {
     const identityManagementUrl = import.meta.env.VITE_IDENTITY_MANAGEMENT_URL;
     const clientId = import.meta.env.VITE_OIDC_CLIENT_ID;
     const currentOrigin = window.location.origin;
@@ -60,21 +67,30 @@ export default function Login() {
     authorizeUrl.searchParams.set('nonce', pkce.nonce);
     authorizeUrl.searchParams.set('code_challenge', pkce.codeChallenge);
     authorizeUrl.searchParams.set('code_challenge_method', 'S256');
-    authorizeUrl.searchParams.set('contract_id', contractId.toString());
+
+    if (typeof contractId === 'number') {
+      authorizeUrl.searchParams.set('contract_id', contractId.toString());
+    }
 
     return authorizeUrl.toString();
   };
 
-  const completeContractLogin = async (contract: ContractType) => {
+  const withContractId = (authorizeUrl: string, contractId: number): string => {
+    const url = new URL(authorizeUrl);
+    url.searchParams.set('contract_id', contractId.toString());
+    return url.toString();
+  };
+
+  const completeContractLogin = async (contract: ContractType, authorizationSessionToken: string) => {
     setContractLoading(true);
 
     try {
-      const authorizeUrl = oidcAuthorizeUrl ?? await buildAuthorizeUrl(contract.contractId);
+      const baseAuthorizeUrl = oidcAuthorizeUrl ?? pendingAuthorizeUrl ?? await buildAuthorizeUrl();
+      const authorizeUrl = withContractId(baseAuthorizeUrl, contract.contractId);
 
       setRedirecting(true);
-      const response = await OidcService.authorizeWithCredentials({
-        username: email,
-        password: password,
+      const response = await OidcService.completeAuthorize({
+        authorizationSessionToken,
         contractId: contract.contractId,
         authorizeUrl
       });
@@ -90,7 +106,7 @@ export default function Login() {
     const contractsForOrigin = data.availableContracts;
 
     if (contractsForOrigin.length === 1) {
-      await completeContractLogin(contractsForOrigin[0]);
+      await completeContractLogin(contractsForOrigin[0], data.authorizationSessionToken);
       return;
     }
 
@@ -146,9 +162,13 @@ export default function Login() {
     setLoading(true);
 
     try {
+      const authorizeUrl = oidcAuthorizeUrl ?? await buildAuthorizeUrl();
+      setPendingAuthorizeUrl(authorizeUrl);
+
       const data = await AuthService.identify({
         username: email,
-        password: password
+        password: password,
+        authorizeUrl
       });
 
       if (!data) {
@@ -156,6 +176,7 @@ export default function Login() {
         return;
       }
 
+      setPassword('');
       await handleIdentifyResult(data);
     } catch (error: any) {
       setPasswordError(error.message);
@@ -167,7 +188,7 @@ export default function Login() {
   const handleSelectContract = async (contract: ContractType) => {
     if (!contractData) return;
 
-    await completeContractLogin(contract);
+    await completeContractLogin(contract, contractData.authorizationSessionToken);
   };
 
   const handleBackToLogin = () => {

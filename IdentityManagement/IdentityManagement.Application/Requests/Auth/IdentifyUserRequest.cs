@@ -9,5 +9,7 @@ namespace IdentityManagement.Application.Requests.Auth
 
         [Required]
         public string Password { get; set; } = string.Empty;
+
+        public string? AuthorizeUrl { get; set; }
     }
 }

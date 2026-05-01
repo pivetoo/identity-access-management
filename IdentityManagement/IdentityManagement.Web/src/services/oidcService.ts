@@ -1,8 +1,7 @@
 import { httpClient } from 'archon-ui';
 
-interface AuthorizeWithCredentialsRequest {
-  username: string;
-  password: string;
+interface CompleteAuthorizeRequest {
+  authorizationSessionToken: string;
   contractId: number;
   authorizeUrl: string;
 }
@@ -12,7 +11,7 @@ interface AuthorizeWithCredentialsResponse {
 }
 
 export class OidcService {
-  static async authorizeWithCredentials(request: AuthorizeWithCredentialsRequest): Promise<AuthorizeWithCredentialsResponse> {
+  static async completeAuthorize(request: CompleteAuthorizeRequest): Promise<AuthorizeWithCredentialsResponse> {
     const response = await httpClient.post<AuthorizeWithCredentialsResponse>('/oidc/complete-authorize', request);
 
     if (!response.data?.redirectUrl) {
