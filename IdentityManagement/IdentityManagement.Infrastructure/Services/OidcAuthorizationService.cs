@@ -345,10 +345,34 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException("invalid_authorize_url");
             }
 
+            Contract? contract = await dbContext.Set<Contract>()
+                .AsNoTracking()
+                .Include(item => item.SystemApplication)
+                .FirstOrDefaultAsync(item => item.Id == request.ContractId, cancellationToken);
+
+            if (contract is null || !contract.IsActive)
+            {
+                throw new UnauthorizedAccessException("invalid_contract");
+            }
+
+            OAuthClient? client = await dbContext.Set<OAuthClient>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item =>
+                    item.SystemApplicationId == contract.SystemApplicationId &&
+                    item.IsActive,
+                    cancellationToken);
+
+            if (client is null)
+            {
+                throw new InvalidOperationException("no_active_oauth_client_for_application");
+            }
+
+            string redirectUri = parameters.GetValueOrDefault("redirect_uri") ?? string.Empty;
+
             OidcAuthorizeRequest authorizeRequest = new()
             {
-                ClientId = parameters.GetValueOrDefault("client_id") ?? string.Empty,
-                RedirectUri = parameters.GetValueOrDefault("redirect_uri") ?? string.Empty,
+                ClientId = client.ClientId,
+                RedirectUri = redirectUri,
                 ResponseType = parameters.GetValueOrDefault("response_type") ?? string.Empty,
                 Scope = parameters.GetValueOrDefault("scope") ?? string.Empty,
                 State = parameters.GetValueOrDefault("state") ?? string.Empty,
