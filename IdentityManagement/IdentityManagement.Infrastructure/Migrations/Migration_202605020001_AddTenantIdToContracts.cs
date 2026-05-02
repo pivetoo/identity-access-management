@@ -10,8 +10,17 @@ namespace IdentityManagement.Infrastructure.Migrations
             if (!Schema.Table("contracts").Column("tenantid").Exists())
             {
                 Alter.Table("contracts")
-                    .AddColumn("tenantid").AsGuid().NotNullable().WithDefaultValue(SystemMethods.NewGuid);
+                    .AddColumn("tenantid").AsGuid().Nullable();
             }
+
+            Execute.Sql(@"
+                UPDATE contracts
+                SET tenantid = gen_random_uuid()
+                WHERE tenantid IS NULL;
+            ");
+
+            Alter.Table("contracts")
+                .AlterColumn("tenantid").AsGuid().NotNullable();
 
             if (!Schema.Table("contracts").Index("ix_contracts_tenantid").Exists())
             {
