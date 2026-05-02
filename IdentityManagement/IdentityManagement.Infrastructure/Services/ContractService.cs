@@ -200,7 +200,7 @@ namespace IdentityManagement.Infrastructure.Services
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<IReadOnlyCollection<ContractSelectionResponseItem>> GetActiveContractSelectionsByUserId(long userId, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyCollection<ContractSelectionResponseItem>> GetActiveContractSelectionsByUserId(long userId, long? systemApplicationId = null, CancellationToken cancellationToken = default)
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
 
@@ -214,6 +214,7 @@ namespace IdentityManagement.Infrastructure.Services
                       userRole.IsActive &&
                       !userRole.RevokedAt.HasValue &&
                       contract.IsActive &&
+                      (!systemApplicationId.HasValue || contract.SystemApplicationId == systemApplicationId.Value) &&
                       now >= contract.StartDate &&
                       (!contract.EndDate.HasValue || now <= contract.EndDate.Value)
                 orderby company.LegalName, systemApplication.Name, role.Name

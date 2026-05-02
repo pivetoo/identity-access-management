@@ -36,7 +36,8 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new UnauthorizedAccessException(Localizer["auth.invalidCredentials"]);
             }
 
-            IReadOnlyCollection<ContractSelectionResponseItem> availableContracts = await contractService.GetActiveContractSelectionsByUserId(user.Id, cancellationToken);
+            long? requestedSystemApplicationId = await GetRequestedSystemApplicationId(request.AuthorizeUrl, cancellationToken);
+            IReadOnlyCollection<ContractSelectionResponseItem> availableContracts = await contractService.GetActiveContractSelectionsByUserId(user.Id, requestedSystemApplicationId, cancellationToken);
             if (availableContracts.Count == 0)
             {
                 throw new UnauthorizedAccessException(Localizer["auth.user.noActiveContracts"]);
@@ -103,6 +104,40 @@ namespace IdentityManagement.Infrastructure.Services
             foreach (PendingAuthorizationSession session in sessions)
             {
                 session.Revoke();
+            }
+        }
+
+        private async Task<long?> GetRequestedSystemApplicationId(string? authorizeUrl, CancellationToken cancellationToken)
+        {
+            string clientId = GetAuthorizeClientId(authorizeUrl);
+            if (string.IsNullOrWhiteSpace(clientId))
+            {
+                return null;
+            }
+
+            return await dbContext.Set<OAuthClient>()
+                .AsNoTracking()
+                .Where(item => item.ClientId == clientId && item.IsActive)
+                .Select(item => (long?)item.SystemApplicationId)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        private static string GetAuthorizeClientId(string? authorizeUrl)
+        {
+            if (string.IsNullOrWhiteSpace(authorizeUrl))
+            {
+                return string.Empty;
+            }
+
+            try
+            {
+                Uri uri = new(authorizeUrl);
+                Dictionary<string, string> parameters = ParseQuery(uri.Query);
+                return parameters.GetValueOrDefault("client_id") ?? string.Empty;
+            }
+            catch (UriFormatException)
+            {
+                return string.Empty;
             }
         }
 

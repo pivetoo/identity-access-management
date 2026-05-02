@@ -329,7 +329,7 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new UnauthorizedAccessException("invalid_authorization_session");
             }
 
-            var availableContracts = await contractService.GetActiveContractSelectionsByUserId(authorizationSession.UserId, cancellationToken);
+            var availableContracts = await contractService.GetActiveContractSelectionsByUserId(authorizationSession.UserId, cancellationToken: cancellationToken);
             if (!availableContracts.Any(item => item.ContractId == request.ContractId))
             {
                 throw new UnauthorizedAccessException("invalid_contract");

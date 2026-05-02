@@ -21,7 +21,7 @@ namespace IdentityManagement.Application.Services
 
         Task<string?> GetUserRoleNameForContract(long userId, long contractId, CancellationToken cancellationToken = default);
 
-        Task<IReadOnlyCollection<ContractSelectionResponseItem>> GetActiveContractSelectionsByUserId(long userId, CancellationToken cancellationToken = default);
+        Task<IReadOnlyCollection<ContractSelectionResponseItem>> GetActiveContractSelectionsByUserId(long userId, long? systemApplicationId = null, CancellationToken cancellationToken = default);
 
         Task<Contract?> GetByIdWithRelations(long id, CancellationToken cancellationToken = default);
 
