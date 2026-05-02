@@ -355,16 +355,23 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new UnauthorizedAccessException("invalid_contract");
             }
 
+            string requestedClientId = parameters.GetValueOrDefault("client_id") ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(requestedClientId))
+            {
+                throw new InvalidOperationException("invalid_client");
+            }
+
             OAuthClient? client = await dbContext.Set<OAuthClient>()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(item =>
+                    item.ClientId == requestedClientId &&
                     item.SystemApplicationId == contract.SystemApplicationId &&
                     item.IsActive,
                     cancellationToken);
 
             if (client is null)
             {
-                throw new InvalidOperationException("no_active_oauth_client_for_application");
+                throw new InvalidOperationException("invalid_client_for_contract");
             }
 
             string urlRedirectUri = parameters.GetValueOrDefault("redirect_uri") ?? string.Empty;
@@ -378,9 +385,9 @@ namespace IdentityManagement.Infrastructure.Services
                 .Select(item => item.Uri)
                 .ToListAsync(cancellationToken);
 
-            string redirectUri = allowedRedirectUris.Any(u => string.Equals(u, urlRedirectUri, StringComparison.OrdinalIgnoreCase))
+            string redirectUri = allowedRedirectUris.Any(u => string.Equals(u, urlRedirectUri, StringComparison.Ordinal))
                 ? urlRedirectUri
-                : allowedRedirectUris.FirstOrDefault() ?? urlRedirectUri;
+                : string.Empty;
 
             OidcAuthorizeRequest authorizeRequest = new()
             {
