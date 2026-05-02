@@ -18,7 +18,13 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
                 .WithMany(entity => entity.Contracts)
                 .HasForeignKey(entity => entity.SystemApplicationId);
 
+            builder.Property(entity => entity.TenantId)
+                .IsRequired();
+
             builder.HasIndex(entity => new { entity.CompanyId, entity.SystemApplicationId })
+                .IsUnique();
+
+            builder.HasIndex(entity => entity.TenantId)
                 .IsUnique();
         }
     }

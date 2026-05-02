@@ -42,7 +42,7 @@ namespace IdentityManagement.Infrastructure.Services
                 new Claim("email", user.Email),
                 new Claim("preferred_username", user.Username),
                 new Claim("contract_id", contract.Id.ToString()),
-                new Claim("tenant_id", contract.Id.ToString()),
+                new Claim("tenant_id", contract.TenantId.ToString()),
                 new Claim("system_application_name", contract.SystemApplication.Name),
                 new Claim("company_name", contract.Company.LegalName)
             ];

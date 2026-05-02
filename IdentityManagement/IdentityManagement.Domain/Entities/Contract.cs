@@ -12,6 +12,8 @@ namespace IdentityManagement.Domain.Entities
 
         public long SystemApplicationId { get; private set; }
 
+        public Guid TenantId { get; private set; }
+
         public Company Company { get; private set; } = null!;
 
         public SystemApplication SystemApplication { get; private set; } = null!;
@@ -46,6 +48,7 @@ namespace IdentityManagement.Domain.Entities
 
             CompanyId = companyId;
             SystemApplicationId = systemApplicationId;
+            TenantId = Guid.NewGuid();
         }
 
         public bool IsValid()
