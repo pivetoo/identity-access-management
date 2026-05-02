@@ -96,7 +96,6 @@ export default function Login() {
         authorizeUrl
       });
 
-      AuthService.logout();
       window.location.replace(response.redirectUrl);
     } finally {
       setContractLoading(false);
