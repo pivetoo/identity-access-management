@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { Home, Users, MapPin, FileText, Layers, UserCheck, Link, ShieldCheck, KeyRound } from 'lucide-react';
-import { AppLayout, useAuth, AuthService, useAppNavigation, useI18n } from 'archon-ui';
+import { AppLayout, useAuth, useAppNavigation, useI18n } from 'archon-ui';
 import type { BreadcrumbItem } from 'archon-ui';
 import logoIdentityProvider from '../assets/logo-identity-provider.png';
 import logoempresa from '../assets/Mainstay/logo-login.png';
@@ -13,7 +13,7 @@ export default function AdministrationLayout() {
     basePath: '/management'
   });
 
-  const { user: authUser, contract, logout } = useAuth();
+  const { user: authUser, contract } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
