@@ -134,12 +134,6 @@ export default function Contracts() {
       dataIndex: 'systemApplicationName',
     },
     {
-      key: 'tenantId',
-      title: 'TenantId',
-      dataIndex: 'tenantId',
-      width: 300,
-    },
-    {
       key: 'startDate',
       title: t('common.field.startDate'),
       dataIndex: 'startDate',
@@ -269,6 +263,13 @@ export default function Contracts() {
                       {record.isActive ? t('common.status.active') : t('common.status.inactive')}
                     </Badge>
                   </div>
+                </div>
+
+                <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    TenantId
+                  </div>
+                  <div className="mt-1 text-xs font-mono text-muted-foreground">{record.tenantId}</div>
                 </div>
               </div>
 
