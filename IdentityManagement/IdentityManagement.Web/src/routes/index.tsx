@@ -55,7 +55,7 @@ function LoginEntry() {
 function LogoutEntry() {
   useEffect(() => {
     AuthService.logout();
-    window.location.href = '/';
+    window.location.href = '/login';
   }, []);
 
   return null;
@@ -68,6 +68,7 @@ function AppRoutes() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LoginEntry />} />
+        <Route path="/login" element={<LoginEntry />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/logout" element={<LogoutEntry />} />
         <Route

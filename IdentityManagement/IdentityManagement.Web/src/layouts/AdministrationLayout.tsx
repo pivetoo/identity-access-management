@@ -20,7 +20,7 @@ export default function AdministrationLayout() {
   const handleLogout = async () => {
     await AuthService.logoutFromServer();
     logout();
-    navigate('/login');
+    window.location.href = '/login';
   };
 
   const user = useMemo(() => {
