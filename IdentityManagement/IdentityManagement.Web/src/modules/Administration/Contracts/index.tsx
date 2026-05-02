@@ -138,7 +138,6 @@ export default function Contracts() {
       title: 'TenantId',
       dataIndex: 'tenantId',
       width: 300,
-      className: 'font-mono text-xs text-muted-foreground',
     },
     {
       key: 'startDate',
