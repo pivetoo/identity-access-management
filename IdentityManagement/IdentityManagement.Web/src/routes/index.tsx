@@ -54,8 +54,12 @@ function LoginEntry() {
 
 function LogoutEntry() {
   useEffect(() => {
-    AuthService.logout();
-    window.location.href = '/login';
+    AuthService.logoutFromServer()
+      .catch(() => {})
+      .finally(() => {
+        AuthService.logout();
+        window.location.href = '/login';
+      });
   }, []);
 
   return null;

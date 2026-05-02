@@ -17,10 +17,8 @@ export default function AdministrationLayout() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    await AuthService.logoutFromServer();
-    logout();
-    window.location.href = '/login';
+  const handleLogout = () => {
+    window.location.href = '/logout';
   };
 
   const user = useMemo(() => {
