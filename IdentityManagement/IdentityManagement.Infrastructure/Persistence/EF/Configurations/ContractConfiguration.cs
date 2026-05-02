@@ -19,7 +19,6 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
                 .HasForeignKey(entity => entity.SystemApplicationId);
 
             builder.Property(entity => entity.TenantId)
-                .HasColumnName("tenantid")
                 .IsRequired();
 
             builder.HasIndex(entity => new { entity.CompanyId, entity.SystemApplicationId })
