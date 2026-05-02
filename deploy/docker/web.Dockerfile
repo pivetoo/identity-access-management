@@ -7,7 +7,12 @@ COPY --from=archon-ui . /src/frameworks/archon-ui
 WORKDIR /src/system/identity-access-management/IdentityManagement/IdentityManagement.Web
 
 ARG VITE_API_BASE_URL=https://auth.mainstay.com.br/api
+ARG VITE_IDENTITY_MANAGEMENT_URL=https://auth.mainstay.com.br
+ARG VITE_OIDC_CLIENT_ID=identity-management-prod
+
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+ENV VITE_IDENTITY_MANAGEMENT_URL=${VITE_IDENTITY_MANAGEMENT_URL}
+ENV VITE_OIDC_CLIENT_ID=${VITE_OIDC_CLIENT_ID}
 
 RUN npm ci
 RUN npm run build
