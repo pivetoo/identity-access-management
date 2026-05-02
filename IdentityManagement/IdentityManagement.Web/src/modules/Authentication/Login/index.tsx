@@ -85,7 +85,8 @@ export default function Login() {
     setContractLoading(true);
 
     try {
-      const baseAuthorizeUrl = oidcAuthorizeUrl ?? pendingAuthorizeUrl ?? await buildAuthorizeUrl();
+      const storedAuthorizeUrl = sessionStorage.getItem('@Archon:login:authorizeUrl');
+      const baseAuthorizeUrl = oidcAuthorizeUrl ?? storedAuthorizeUrl ?? pendingAuthorizeUrl ?? await buildAuthorizeUrl();
       const authorizeUrl = withContractId(baseAuthorizeUrl, contract.contractId);
 
       setRedirecting(true);
@@ -164,6 +165,7 @@ export default function Login() {
     try {
       const authorizeUrl = oidcAuthorizeUrl ?? await buildAuthorizeUrl();
       setPendingAuthorizeUrl(authorizeUrl);
+      sessionStorage.setItem('@Archon:login:authorizeUrl', authorizeUrl);
 
       const data = await AuthService.identify({
         username: email,
