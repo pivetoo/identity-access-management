@@ -85,7 +85,7 @@ export default function Login() {
     setContractLoading(true);
 
     try {
-      const storedAuthorizeUrl = sessionStorage.getItem('@Archon:login:authorizeUrl');
+      const storedAuthorizeUrl = oidcAuthorizeUrl ? null : sessionStorage.getItem('@Archon:login:authorizeUrl');
       const baseAuthorizeUrl = oidcAuthorizeUrl ?? storedAuthorizeUrl ?? pendingAuthorizeUrl ?? await buildAuthorizeUrl();
       const authorizeUrl = withContractId(baseAuthorizeUrl, contract.contractId);
 
