@@ -134,6 +134,13 @@ export default function Contracts() {
       dataIndex: 'systemApplicationName',
     },
     {
+      key: 'tenantId',
+      title: 'TenantId',
+      dataIndex: 'tenantId',
+      width: 300,
+      className: 'font-mono text-xs text-muted-foreground',
+    },
+    {
       key: 'startDate',
       title: t('common.field.startDate'),
       dataIndex: 'startDate',

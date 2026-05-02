@@ -8,6 +8,8 @@ namespace IdentityManagement.Application.Responses.Contracts
 
         public long SystemApplicationId { get; set; }
 
+        public Guid TenantId { get; set; }
+
         public string CompanyName { get; set; } = string.Empty;
 
         public string SystemApplicationName { get; set; } = string.Empty;

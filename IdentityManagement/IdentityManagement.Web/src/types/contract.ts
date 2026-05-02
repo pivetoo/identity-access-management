@@ -2,6 +2,7 @@ export interface Contract {
   id: number
   companyId: number
   systemApplicationId: number
+  tenantId: string
   companyName: string
   systemApplicationName: string
   startDate: string
