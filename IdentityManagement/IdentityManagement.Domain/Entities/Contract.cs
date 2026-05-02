@@ -12,7 +12,7 @@ namespace IdentityManagement.Domain.Entities
 
         public long SystemApplicationId { get; private set; }
 
-        public Guid TenantId { get; private set; }
+        public Guid TenantId { get; set; }
 
         public Company Company { get; private set; } = null!;
 
