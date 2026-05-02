@@ -371,7 +371,28 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (client is null)
             {
-                throw new InvalidOperationException("invalid_client_for_contract");
+                client = await dbContext.Set<OAuthClient>()
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(item =>
+                        item.SystemApplicationId == contract.SystemApplicationId &&
+                        item.IsDefault &&
+                        item.IsActive,
+                        cancellationToken);
+            }
+
+            if (client is null)
+            {
+                client = await dbContext.Set<OAuthClient>()
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(item =>
+                        item.SystemApplicationId == contract.SystemApplicationId &&
+                        item.IsActive,
+                        cancellationToken);
+            }
+
+            if (client is null)
+            {
+                throw new InvalidOperationException("no_active_oauth_client_for_application");
             }
 
             string urlRedirectUri = parameters.GetValueOrDefault("redirect_uri") ?? string.Empty;

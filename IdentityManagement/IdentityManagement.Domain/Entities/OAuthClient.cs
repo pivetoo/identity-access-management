@@ -28,6 +28,8 @@ namespace IdentityManagement.Domain.Entities
 
         public bool IsActive { get; private set; } = true;
 
+        public bool IsDefault { get; private set; }
+
         public int AccessTokenLifetime { get; private set; } = 900;
 
         public int IdentityTokenLifetime { get; private set; } = 900;

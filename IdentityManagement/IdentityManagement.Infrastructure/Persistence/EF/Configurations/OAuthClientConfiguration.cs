@@ -25,6 +25,10 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
                 .WithMany()
                 .HasForeignKey(entity => entity.SystemApplicationId);
 
+            builder.Property(entity => entity.IsDefault)
+                .HasColumnName("isdefault")
+                .IsRequired();
+
             builder.HasIndex(entity => entity.ClientId)
                 .IsUnique();
         }
