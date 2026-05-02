@@ -445,6 +445,18 @@ namespace IdentityManagement.Infrastructure.Services
             }
 
             refreshToken.Revoke();
+
+            if (!string.IsNullOrWhiteSpace(refreshToken.SessionId))
+            {
+                LoginSession? session = await dbContext.Set<LoginSession>()
+                    .AsTracking()
+                    .FirstOrDefaultAsync(
+                        item => item.SessionId == refreshToken.SessionId && item.IsActive,
+                        cancellationToken);
+
+                session?.Revoke();
+            }
+
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 
