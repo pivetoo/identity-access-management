@@ -367,7 +367,17 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException("no_active_oauth_client_for_application");
             }
 
-            string redirectUri = parameters.GetValueOrDefault("redirect_uri") ?? string.Empty;
+            OAuthClientRedirectUri? clientRedirectUri = await dbContext.Set<OAuthClientRedirectUri>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item =>
+                    item.OAuthClientId == client.Id &&
+                    item.Type == OAuthRedirectUriType.SignIn &&
+                    item.IsActive,
+                    cancellationToken);
+
+            string redirectUri = clientRedirectUri?.Uri
+                ?? parameters.GetValueOrDefault("redirect_uri")
+                ?? string.Empty;
 
             OidcAuthorizeRequest authorizeRequest = new()
             {
