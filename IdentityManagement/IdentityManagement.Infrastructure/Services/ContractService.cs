@@ -168,6 +168,7 @@ namespace IdentityManagement.Infrastructure.Services
                 {
                     Id = contract.Id,
                     SystemApplicationId = contract.SystemApplicationId,
+                    TenantId = contract.TenantId,
                     CompanyName = company.LegalName,
                     SystemApplicationName = systemApplication.Name,
                     StartDate = contract.StartDate,
