@@ -20,6 +20,7 @@ export default function AdministrationLayout() {
   const handleLogout = async () => {
     await AuthService.logoutFromServer();
     logout();
+    navigate('/login');
   };
 
   const user = useMemo(() => {
