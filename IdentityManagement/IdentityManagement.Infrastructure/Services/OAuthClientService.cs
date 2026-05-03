@@ -40,6 +40,11 @@ namespace IdentityManagement.Infrastructure.Services
         {
             await ValidateClient(request.SystemApplicationId, request.ClientId, request.ClientType, request.ClientSecret, null, cancellationToken);
 
+            if (request.IsDefault)
+            {
+                await ClearDefaultClients(request.SystemApplicationId, null, cancellationToken);
+            }
+
             OAuthClient client = new(request.SystemApplicationId, request.ClientId, request.ClientName, request.ClientType);
             client.Update(
                 request.ClientName,
@@ -49,6 +54,7 @@ namespace IdentityManagement.Infrastructure.Services
                 request.RequireConsent,
                 request.AllowOfflineAccess,
                 true,
+                request.IsDefault,
                 request.AccessTokenLifetime,
                 request.IdentityTokenLifetime,
                 request.RefreshTokenLifetime,
@@ -82,6 +88,11 @@ namespace IdentityManagement.Infrastructure.Services
 
             await ValidateClient(client.SystemApplicationId, client.ClientId, request.ClientType, request.ClientSecret, id, cancellationToken, request.RotateClientSecret);
 
+            if (request.IsDefault)
+            {
+                await ClearDefaultClients(client.SystemApplicationId, client.Id, cancellationToken);
+            }
+
             string clientSecretHash = request.RotateClientSecret
                 ? HashSecret(request.ClientType, request.ClientSecret)
                 : client.ClientSecretHash;
@@ -94,6 +105,7 @@ namespace IdentityManagement.Infrastructure.Services
                 request.RequireConsent,
                 request.AllowOfflineAccess,
                 request.IsActive,
+                request.IsDefault,
                 request.AccessTokenLifetime,
                 request.IdentityTokenLifetime,
                 request.RefreshTokenLifetime,
@@ -233,6 +245,7 @@ namespace IdentityManagement.Infrastructure.Services
                 RequireConsent = client.RequireConsent,
                 AllowOfflineAccess = client.AllowOfflineAccess,
                 IsActive = client.IsActive,
+                IsDefault = client.IsDefault,
                 AccessTokenLifetime = client.AccessTokenLifetime,
                 IdentityTokenLifetime = client.IdentityTokenLifetime,
                 RefreshTokenLifetime = client.RefreshTokenLifetime,
@@ -254,6 +267,34 @@ namespace IdentityManagement.Infrastructure.Services
                     .OrderBy(item => item)
                     .ToList()
             };
+        }
+
+        private async Task ClearDefaultClients(long systemApplicationId, long? ignoredClientId, CancellationToken cancellationToken)
+        {
+            List<OAuthClient> clients = await DbContext.Set<OAuthClient>()
+                .AsTracking()
+                .Where(item =>
+                    item.SystemApplicationId == systemApplicationId &&
+                    item.IsDefault &&
+                    (!ignoredClientId.HasValue || item.Id != ignoredClientId.Value))
+                .ToListAsync(cancellationToken);
+
+            foreach (OAuthClient client in clients)
+            {
+                client.Update(
+                    client.ClientName,
+                    client.ClientType,
+                    client.ClientSecretHash,
+                    client.RequirePkce,
+                    client.RequireConsent,
+                    client.AllowOfflineAccess,
+                    client.IsActive,
+                    false,
+                    client.AccessTokenLifetime,
+                    client.IdentityTokenLifetime,
+                    client.RefreshTokenLifetime,
+                    client.RefreshTokenRotationEnabled);
+            }
         }
     }
 }

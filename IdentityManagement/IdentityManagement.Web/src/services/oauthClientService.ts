@@ -45,6 +45,7 @@ export class OAuthClientService {
       requireConsent: client.requireConsent,
       allowOfflineAccess: client.allowOfflineAccess,
       isActive: false,
+      isDefault: client.isDefault,
       accessTokenLifetime: client.accessTokenLifetime,
       identityTokenLifetime: client.identityTokenLifetime,
       refreshTokenLifetime: client.refreshTokenLifetime,

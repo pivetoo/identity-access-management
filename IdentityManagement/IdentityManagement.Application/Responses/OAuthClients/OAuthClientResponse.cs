@@ -24,6 +24,8 @@ namespace IdentityManagement.Application.Responses.OAuthClients
 
         public bool IsActive { get; set; }
 
+        public bool IsDefault { get; set; }
+
         public int AccessTokenLifetime { get; set; }
 
         public int IdentityTokenLifetime { get; set; }

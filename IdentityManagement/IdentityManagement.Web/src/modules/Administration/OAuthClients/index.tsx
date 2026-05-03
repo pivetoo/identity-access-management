@@ -146,6 +146,12 @@ export default function OAuthClients() {
       render: (value: number) => clientTypeLabel(value),
     },
     {
+      key: 'isDefault',
+      title: 'Padrão',
+      dataIndex: 'isDefault',
+      render: (value: boolean) => value ? <Badge variant="secondary">Padrão</Badge> : '-',
+    },
+    {
       key: 'isActive',
       title: 'Status',
       dataIndex: 'isActive',
@@ -223,6 +229,7 @@ export default function OAuthClients() {
                     <Badge variant={previewClient.isActive ? 'success' : 'destructive'}>
                       {previewClient.isActive ? 'Ativo' : 'Inativo'}
                     </Badge>
+                    {previewClient.isDefault ? <Badge variant="secondary">Padrão</Badge> : null}
                     <span className="text-xs font-medium text-muted-foreground">{previewClient.clientId}</span>
                   </>
                 }
@@ -234,6 +241,7 @@ export default function OAuthClients() {
                   <SheetPreviewGrid>
                     <SheetPreviewField label="Sistema" value={previewClient.systemApplicationName} />
                     <SheetPreviewField label="Tipo" value={clientTypeLabel(previewClient.clientType)} />
+                    <SheetPreviewField label="Padrão" value={previewClient.isDefault ? 'Sim' : 'Não'} />
                     <SheetPreviewField label="PKCE" value={previewClient.requirePkce ? 'Obrigatório' : 'Opcional'} />
                     <SheetPreviewField label="Offline access" value={previewClient.allowOfflineAccess ? 'Permitido' : 'Bloqueado'} />
                   </SheetPreviewGrid>

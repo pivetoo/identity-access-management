@@ -71,6 +71,7 @@ namespace IdentityManagement.Domain.Entities
             bool requireConsent,
             bool allowOfflineAccess,
             bool isActive,
+            bool isDefault,
             int accessTokenLifetime,
             int identityTokenLifetime,
             int refreshTokenLifetime,
@@ -85,6 +86,7 @@ namespace IdentityManagement.Domain.Entities
             RequireConsent = requireConsent;
             AllowOfflineAccess = allowOfflineAccess;
             IsActive = isActive;
+            IsDefault = isDefault;
             AccessTokenLifetime = accessTokenLifetime;
             IdentityTokenLifetime = identityTokenLifetime;
             RefreshTokenLifetime = refreshTokenLifetime;

@@ -20,6 +20,7 @@ export interface OAuthClient {
   requireConsent: boolean
   allowOfflineAccess: boolean
   isActive: boolean
+  isDefault: boolean
   accessTokenLifetime: number
   identityTokenLifetime: number
   refreshTokenLifetime: number
@@ -37,6 +38,7 @@ export interface CreateOAuthClientRequest {
   requirePkce: boolean
   requireConsent: boolean
   allowOfflineAccess: boolean
+  isDefault: boolean
   accessTokenLifetime: number
   identityTokenLifetime: number
   refreshTokenLifetime: number
@@ -55,6 +57,7 @@ export interface UpdateOAuthClientRequest {
   requireConsent: boolean
   allowOfflineAccess: boolean
   isActive: boolean
+  isDefault: boolean
   accessTokenLifetime: number
   identityTokenLifetime: number
   refreshTokenLifetime: number

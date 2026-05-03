@@ -20,6 +20,8 @@ namespace IdentityManagement.Application.Requests.OAuthClients
 
         public bool AllowOfflineAccess { get; set; } = true;
 
+        public bool IsDefault { get; set; }
+
         public int AccessTokenLifetime { get; set; } = 900;
 
         public int IdentityTokenLifetime { get; set; } = 900;
