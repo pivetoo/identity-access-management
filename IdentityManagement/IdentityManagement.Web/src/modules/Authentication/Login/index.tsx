@@ -90,8 +90,14 @@ export default function Login() {
           throw new Error('Aplicação padrão não configurada para este contrato.');
         }
 
+        const portalUrl = new URL(contract.portalUrl);
+        const launchParams = new URLSearchParams();
+        launchParams.set('authorizationSessionToken', authorizationSessionToken);
+        launchParams.set('contractId', contract.contractId.toString());
+        portalUrl.hash = launchParams.toString();
+
         setRedirecting(true);
-        window.location.replace(contract.portalUrl);
+        window.location.replace(portalUrl.toString());
         return;
       }
 
