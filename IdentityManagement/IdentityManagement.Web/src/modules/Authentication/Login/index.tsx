@@ -91,6 +91,23 @@ export default function Login() {
         }
 
         const portalUrl = new URL(contract.portalUrl);
+        const identityManagementUrl = new URL(import.meta.env.VITE_IDENTITY_MANAGEMENT_URL);
+        const isIdentityManagementPortal = portalUrl.origin === identityManagementUrl.origin;
+
+        if (isIdentityManagementPortal) {
+          const authorizeUrl = await buildAuthorizeUrl(contract.contractId);
+
+          setRedirecting(true);
+          const response = await OidcService.completeAuthorize({
+            authorizationSessionToken,
+            contractId: contract.contractId,
+            authorizeUrl
+          });
+
+          window.location.replace(response.redirectUrl);
+          return;
+        }
+
         const launchParams = new URLSearchParams();
         launchParams.set('authorizationSessionToken', authorizationSessionToken);
         launchParams.set('contractId', contract.contractId.toString());
