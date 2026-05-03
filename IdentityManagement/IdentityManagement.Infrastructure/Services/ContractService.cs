@@ -223,7 +223,17 @@ namespace IdentityManagement.Infrastructure.Services
                     ContractId = contract.Id,
                     SystemApplicationName = systemApplication.Name,
                     CompanyName = company.LegalName,
-                    RoleName = role.Name
+                    RoleName = role.Name,
+                    PortalUrl = (
+                        from client in DbContext.Set<OAuthClient>()
+                        join redirectUri in DbContext.Set<OAuthClientRedirectUri>() on client.Id equals redirectUri.OAuthClientId
+                        where client.SystemApplicationId == contract.SystemApplicationId &&
+                              client.IsDefault &&
+                              client.IsActive &&
+                              redirectUri.Type == Domain.ValueObjects.OAuthRedirectUriType.PostLogout &&
+                              redirectUri.IsActive
+                        select redirectUri.Uri)
+                        .FirstOrDefault() ?? string.Empty
                 })
                 .ToListAsync(cancellationToken);
 
@@ -239,7 +249,8 @@ namespace IdentityManagement.Infrastructure.Services
                     ContractId = group.Key.ContractId,
                     SystemApplicationName = group.Key.SystemApplicationName,
                     CompanyName = group.Key.CompanyName,
-                    RoleName = group.Select(item => item.RoleName).FirstOrDefault() ?? string.Empty
+                    RoleName = group.Select(item => item.RoleName).FirstOrDefault() ?? string.Empty,
+                    PortalUrl = group.Select(item => item.PortalUrl).FirstOrDefault(item => !string.IsNullOrWhiteSpace(item)) ?? string.Empty
                 })
                 .ToList();
 

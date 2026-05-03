@@ -9,5 +9,7 @@ namespace IdentityManagement.Application.Responses.Contracts
         public string CompanyName { get; set; } = string.Empty;
 
         public string RoleName { get; set; } = string.Empty;
+
+        public string PortalUrl { get; set; } = string.Empty;
     }
 }

@@ -85,6 +85,16 @@ export default function Login() {
     setContractLoading(true);
 
     try {
+      if (!oidcAuthorizeUrl) {
+        if (!contract.portalUrl) {
+          throw new Error('Aplicação padrão não configurada para este contrato.');
+        }
+
+        setRedirecting(true);
+        window.location.replace(contract.portalUrl);
+        return;
+      }
+
       const storedAuthorizeUrl = oidcAuthorizeUrl ? null : sessionStorage.getItem('@Archon:login:authorizeUrl');
       const baseAuthorizeUrl = oidcAuthorizeUrl ?? storedAuthorizeUrl ?? pendingAuthorizeUrl ?? await buildAuthorizeUrl();
       const authorizeUrl = withContractId(baseAuthorizeUrl, contract.contractId);
@@ -105,7 +115,7 @@ export default function Login() {
   const handleIdentifyResult = async (data: IdentifyResult) => {
     const contractsForOrigin = data.availableContracts;
 
-    if (contractsForOrigin.length === 1) {
+    if (oidcAuthorizeUrl && contractsForOrigin.length === 1) {
       await completeContractLogin(contractsForOrigin[0], data.authorizationSessionToken);
       return;
     }
@@ -162,9 +172,13 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const authorizeUrl = oidcAuthorizeUrl ?? await buildAuthorizeUrl();
-      setPendingAuthorizeUrl(authorizeUrl);
-      sessionStorage.setItem('@Archon:login:authorizeUrl', authorizeUrl);
+      const authorizeUrl = oidcAuthorizeUrl ?? undefined;
+      setPendingAuthorizeUrl(authorizeUrl ?? null);
+      if (authorizeUrl) {
+        sessionStorage.setItem('@Archon:login:authorizeUrl', authorizeUrl);
+      } else {
+        sessionStorage.removeItem('@Archon:login:authorizeUrl');
+      }
 
       const data = await AuthService.identify({
         username: email,
