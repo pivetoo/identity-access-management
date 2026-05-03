@@ -1,174 +1,237 @@
-# Identity Access Management
+# Identity Management
 
-Sistema de gerenciamento de identidade e acesso construído sobre o `Archon`.
+Identity Management é uma plataforma de identidade e acesso multi-tenant, criada para centralizar autenticação, autorização, gestão de usuários, contratos e clientes OAuth/OpenID Connect para aplicações corporativas.
 
-## Estrutura
+O projeto foi desenvolvido como parte de um ecossistema de aplicações baseado no framework Archon, com foco em arquitetura limpa, separação de responsabilidades, login federado, seleção de contrato e integração entre sistemas.
 
-O backend está organizado em:
+## Visão Geral
 
-- `IdentityManagement.Api`
-  host HTTP, controllers, autenticação local JWT e integração com `Archon.Api`.
-- `IdentityManagement.Application`
-  contratos, requests, responses e interfaces de services.
-- `IdentityManagement.Domain`
-  entidades e regras de negócio do domínio.
-- `IdentityManagement.Infrastructure`
-  persistência, mappings, migrations e implementações dos services.
-- `IdentityManagement.Testing`
-  projeto reservado para testes.
+Em ambientes corporativos, um mesmo usuário pode acessar mais de uma empresa, contrato ou sistema. Este projeto resolve esse fluxo oferecendo:
 
-## Principais capacidades
+- login centralizado por usuário e senha;
+- central de sistemas para escolha do contrato/aplicação;
+- emissão de tokens OAuth2/OIDC com PKCE;
+- suporte a access token, id token e refresh token;
+- descoberta OIDC via `/.well-known/openid-configuration`;
+- publicação de chaves públicas via JWKS;
+- administração de usuários, empresas, sistemas, contratos, roles e permissões;
+- integração com APIs que usam Archon para sincronização de recursos protegidos.
 
-- autenticação por usuário e senha;
-- seleção de contrato quando o usuário possui mais de um contrato ativo;
-- emissão de `access token`, `refresh token` e token temporário para seleção de contrato;
-- autorização por roles e recursos de acesso;
-- sincronização automática de recursos protegidos vindos das APIs que usam `Archon`;
-- auditoria automática via `Archon`;
-- migrations com `FluentMigrator`;
-- documentação OpenAPI com `Scalar`.
+## Principais Features
 
-## Fluxo de autenticação
+- **OpenID Connect Authorization Code + PKCE**
+  Fluxo padrão para SPAs e aplicações públicas, com validação de `client_id`, `redirect_uri`, `scope`, `state`, `nonce` e `code_challenge`.
 
-O fluxo principal funciona assim:
+- **Central de Sistemas**
+  Quando o usuário acessa diretamente o Identity Management, ele visualiza os contratos disponíveis e entra na aplicação vinculada ao OAuth Client padrão daquele sistema.
 
-1. o usuário informa `username` e `password`;
-2. se existir apenas um contrato ativo, a API conclui o login e retorna os tokens;
-3. se existir mais de um contrato ativo, a API retorna `authenticationStep = "contractSelection"` e um token temporário;
-4. o cliente escolhe o contrato e chama o endpoint de login com contrato;
-5. a API retorna o login final com `authenticationStep = "completed"`.
+- **Seleção de Contrato no Login**
+  Quando o login é iniciado por uma aplicação, o Identity Management filtra os contratos pelo sistema do `client_id` solicitante e completa o authorize com o contrato escolhido.
 
-`SystemApplication.Type` influencia o comportamento do redirect:
+- **OAuth Clients Administráveis**
+  Cadastro de clients públicos, confidenciais e machine-to-machine, com redirect URIs de login/logout, scopes, lifetimes, PKCE, rotação de refresh token e flag de client padrão.
 
-- `External`
-  permite montar `redirectUrl` para callback;
-- `Internal`
-  não gera redirect automático.
+- **JWT Assinado com RSA**
+  Tokens são assinados com chaves RSA gerenciadas pelo próprio Identity Management e publicadas via JWKS.
 
-## Autorização
+- **Autorização por Contrato e Role**
+  O token carrega contexto de usuário, contrato, tenant, sistema, empresa e role, permitindo autorização contextual nas APIs consumidoras.
 
-O sistema usa o padrão do `Archon`:
+- **Refresh Token com Rotação**
+  Suporte a renovação de sessão com revogação do token anterior.
 
-- claim `permission`
-- claim `root=true`
+- **Sincronização de Recursos**
+  APIs integradas podem enviar seus recursos protegidos para o Identity Management, mantendo a matriz de permissões centralizada.
 
-Os endpoints protegidos usam `[RequireAccess]`, que resolve o acesso no formato:
+## Fluxos de Autenticação
 
-- `controller.action`
+### 1. Login iniciado pela aplicação
 
-Exemplo:
+Este é o fluxo esperado quando uma aplicação protegida, por exemplo Integration Platform, redireciona o usuário para autenticar.
 
-- `UsersController.Create` -> `users.create`
+1. A aplicação monta uma URL `/connect/authorize` com seu próprio `client_id`.
+2. O usuário é enviado para `/login?returnUrl=...`.
+3. O Identity Management autentica usuário e senha.
+4. A tela exibe apenas os contratos ligados ao sistema do `client_id`.
+5. Ao selecionar o contrato, o frontend chama `/api/oidc/complete-authorize`.
+6. O Identity Management emite o authorization code.
+7. A aplicação recebe o callback e troca o code por tokens em `/connect/token`.
 
-## Sync de recursos de acesso
+### 2. Login iniciado pela central de sistemas
 
-As APIs construídas com `Archon` podem sincronizar automaticamente seus recursos com o IAM.
+Este fluxo acontece quando o usuário acessa diretamente a tela de login do Identity Management.
 
-Endpoint receptor:
+1. O usuário acessa `/login` sem `returnUrl`.
+2. O Identity Management autentica usuário e senha.
+3. A central de sistemas lista os contratos disponíveis.
+4. Ao selecionar um contrato, o usuário é enviado para a aplicação do OAuth Client padrão daquele sistema.
+5. A aplicação inicia o authorize com o próprio `client_id`.
+6. O Identity Management completa o authorize usando o contrato escolhido.
 
-- `POST /api/access-resources/sync`
+Esse desenho evita que o PKCE seja criado no domínio errado. O `code_verifier` precisa existir no storage da aplicação que receberá o callback.
 
-Proteção:
+## Arquitetura
 
-- header `X-Integration-Secret`
+O backend segue uma organização em camadas:
 
-Configuração necessária no IAM:
-
-```json
-{
-  "IntegrationSecret": "SUA_CHAVE_DE_INTEGRACAO"
-}
+```text
+IdentityManagement/
+  IdentityManagement.Api/             Host HTTP, controllers, CORS, auth e OpenAPI
+  IdentityManagement.Application/     Requests, responses, contratos e interfaces
+  IdentityManagement.Domain/          Entidades e regras do domínio
+  IdentityManagement.Infrastructure/  EF Core, migrations, services e persistência
+  IdentityManagement.Testing/         Projeto de testes
+  IdentityManagement.Web/             SPA administrativa e telas de autenticação
 ```
 
-O sync:
+## Stack
 
-- cria recursos novos;
-- atualiza recursos existentes;
-- reativa recursos que voltarem a existir;
-- inativa recursos que deixarem de ser enviados.
+Backend:
+
+- .NET
+- ASP.NET Core
+- Entity Framework Core
+- FluentMigrator
+- JWT Bearer Authentication
+- RSA/JWKS
+- BCrypt
+- Scalar/OpenAPI
+
+Frontend:
+
+- React
+- TypeScript
+- Vite
+- React Router
+- Tailwind CSS
+- Archon UI
+
+Infra:
+
+- PostgreSQL
+- Docker Compose para deploy
+- NGINX/reverse proxy em produção
+
+## Módulos Administrativos
+
+A interface web possui telas para:
+
+- dashboard;
+- usuários;
+- empresas;
+- sistemas;
+- contratos;
+- roles;
+- vínculo de usuários a roles;
+- templates de roles por sistema;
+- OAuth Clients;
+- recursos de acesso.
+
+## Endpoints OIDC
+
+Endpoints públicos principais:
+
+- `GET /.well-known/openid-configuration`
+- `GET /.well-known/jwks.json`
+- `GET /connect/authorize`
+- `POST /connect/token`
+- `GET|POST /connect/userinfo`
+- `POST /connect/revocation`
+- `GET /connect/logout`
+
+Endpoint usado pelo login centralizado:
+
+- `POST /api/oidc/complete-authorize`
 
 ## Configuração
 
-Exemplo mínimo de `appsettings.Development.json`:
+Exemplo simplificado de configuração local:
 
 ```json
 {
   "TenantDatabases": {
     "default": {
       "CompanyName": "Identity Management",
-      "ApplicationId": "identity-management",
+      "TenantId": "00000000-0000-0000-0000-000000000000",
       "ConnectionString": "Host=localhost;Port=5432;Database=identitymanagement;Username=postgres;Password=postgres;",
       "DatabaseType": "PostgreSql",
       "Schema": "public"
     }
   },
-  "Jwt": {
-    "Issuer": "IdentityManagement",
-    "Audience": "IdentityManagement",
-    "TemporarySecretKey": "SUA_CHAVE_TEMPORARIA_DE_64_CARACTERES"
+  "Oidc": {
+    "Issuer": "https://localhost:7211",
+    "LoginPageUrl": "http://localhost:5173/login"
   },
-  "IntegrationSecret": "SUA_CHAVE_DE_INTEGRACAO",
+  "Jwt": {
+    "Issuer": "identity-management",
+    "Audience": "identity-management"
+  },
+  "IntegrationSecret": "local-development-secret",
   "RunMigrations": true
 }
 ```
 
-Observações:
+Variáveis comuns do frontend:
 
-- `Schema` é usado tanto pelo runtime quanto pelas migrations;
-- tokens de API são validados por chaves RSA publicadas no JWKS do próprio IdentityManagement;
-- `TemporarySecretKey` assina o token temporário de seleção de contrato;
-- não versionar credenciais reais no repositório.
+```env
+VITE_API_BASE_URL=https://localhost:7211/api
+VITE_IDENTITY_MANAGEMENT_URL=https://localhost:7211
+VITE_OIDC_CLIENT_ID=identity-management-dev
+```
 
-## Migrations
+Não versionar credenciais reais, connection strings produtivas ou secrets.
 
-O projeto roda migrations de dois assemblies:
+## Como Rodar Localmente
 
-- `Archon.Infrastructure`
-  tabelas base do framework, incluindo auditoria;
-- `IdentityManagement.Infrastructure`
-  tabelas do domínio do IAM.
+Backend:
 
-As tabelas e colunas estão padronizadas em lowercase.
+```bash
+cd IdentityManagement
+dotnet restore
+dotnet run --project IdentityManagement.Api/IdentityManagement.Api.csproj
+```
 
-## Documentação da API
+Frontend:
 
-Em ambiente de desenvolvimento:
+```bash
+cd IdentityManagement/IdentityManagement.Web
+npm install
+npm run dev
+```
 
-- OpenAPI é exposto pela aplicação;
-- `Scalar` fica disponível em `/scalar`.
+Build:
 
-O `launchSettings.json` já está configurado para abrir o navegador diretamente nessa rota.
+```bash
+dotnet build IdentityManagement/IdentityManagement.Api/IdentityManagement.Api.csproj
+cd IdentityManagement/IdentityManagement.Web
+npm run build
+```
 
-## Endpoints principais
+## Deploy
 
-Auth:
+O diretório `deploy/` possui um `docker-compose.prod.yml` com dois serviços:
 
-- `POST /api/auth/identify`
-- `POST /api/auth/loginwithcontract`
-- `POST /api/auth/refreshtoken`
-- `POST /api/auth/logout`
-- `POST /api/auth/changepassword`
-- `GET /api/auth/getuserbyusername/{username}`
+- `api`, expondo a API internamente;
+- `web`, servindo a SPA.
 
-Administração:
+Em produção, o reverse proxy deve encaminhar:
 
-- `Users`
-- `Companies`
-- `SystemApplications`
-- `Contracts`
-- `Roles`
-- `UserRoles`
-- `AccessResources`
+- `/api/` para a API;
+- `/connect/` para a API;
+- `/.well-known/` para a API;
+- demais rotas para o frontend.
 
-## Status atual
+## Pontos de Destaque Técnico
 
-O backend está com a fundação principal montada:
+- Separação entre Identity Provider e aplicações clientes.
+- Suporte a múltiplos OAuth Clients por sistema.
+- Client padrão por sistema para entrada pela central.
+- Validação de redirect URI por client.
+- Tokens enriquecidos com contexto de contrato.
+- Discovery OIDC compatível com consumidores externos.
+- Integração com Archon Framework para validação de tokens e recursos.
+- Fluxo desenhado para evitar problemas de PKCE entre domínios diferentes.
 
-- domínio;
-- infraestrutura;
-- camada de API;
-- autenticação;
-- autorização;
-- migrations;
-- sync de recursos;
-- integração com `Archon`.
+## Status
+
+O projeto está funcional como provedor de identidade para o ecossistema Mainstay/Archon, incluindo login centralizado, central de sistemas, OIDC, administração de contratos e integração com aplicações consumidoras.
