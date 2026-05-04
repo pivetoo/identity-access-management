@@ -95,6 +95,20 @@ export default function Login() {
         const isIdentityManagementPortal = portalUrl.origin === identityManagementUrl.origin;
 
         if (isIdentityManagementPortal) {
+          const currentOrigin = window.location.origin;
+
+          if (currentOrigin !== identityManagementUrl.origin) {
+            const localUrl = new URL(currentOrigin);
+            const launchParams = new URLSearchParams();
+            launchParams.set('authorizationSessionToken', authorizationSessionToken);
+            launchParams.set('contractId', contract.contractId.toString());
+            localUrl.hash = launchParams.toString();
+
+            setRedirecting(true);
+            window.location.replace(localUrl.toString());
+            return;
+          }
+
           const authorizeUrl = await buildAuthorizeUrl(contract.contractId);
 
           setRedirecting(true);
