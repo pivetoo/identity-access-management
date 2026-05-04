@@ -230,7 +230,7 @@ namespace IdentityManagement.Infrastructure.Services
                         where client.SystemApplicationId == contract.SystemApplicationId &&
                               client.IsDefault &&
                               client.IsActive &&
-                              redirectUri.Type == Domain.ValueObjects.OAuthRedirectUriType.PostLogout &&
+                              redirectUri.Type == Domain.ValueObjects.OAuthRedirectUriType.SignIn &&
                               redirectUri.IsActive
                         select redirectUri.Uri)
                         .FirstOrDefault() ?? string.Empty
