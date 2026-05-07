@@ -1,104 +1,87 @@
-import { useEffect, useState } from 'react';
-import { Users, FileText, MapPin, Layers, Clock, ExternalLink, Search } from 'lucide-react';
-import { Button, Input, Modal, ModalContent, ModalHeader, ModalTitle, ConfirmModal, toast, Card, CardContent, CardHeader, CardTitle, ChartContainer, PieChart, useI18n } from 'archon-ui';
+import { useEffect, useMemo, useState } from 'react';
+import { Activity, BarChart3, LineChart as LineChartIcon, PieChart as PieChartIcon, ShieldCheck } from 'lucide-react';
+import { AreaChart, BarChart, Card, CardContent, CardHeader, CardTitle, ChartContainer, GlobalLoader, LineChart, PieChart, useI18n } from 'archon-ui';
 import dashboardService from '../../services/dashboardService';
-import type { KPIs, TopSistema, ActiveSession } from '../../types/dashboard';
-import { formatDateTime } from '../../utils/date';
+import type { DashboardOverview } from '../../types/dashboard';
+
+const chartColors = ['#6366f1', '#22c55e', '#f59e0b', '#ec4899', '#06b6d4', '#8b5cf6'];
+
+function formatSystemLabel(value: string) {
+  const parts = value.trim().split(/\s+/);
+  return parts.length > 1 ? `${parts[0]}...` : value;
+}
 
 export default function Dashboard() {
-  const { t } = useI18n()
-  const [kpis, setKpis] = useState<KPIs | null>(null);
-  const [topSistemas, setTopSistemas] = useState<TopSistema[]>([]);
-  const [activeSessions, setActiveSessions] = useState<ActiveSession[]>([]);
-  const [sessionsPage, setSessionsPage] = useState(1);
-  const [sessionsTotalPages, setSessionsTotalPages] = useState(1);
-  const [totalSessions, setTotalSessions] = useState(0);
-  const [isSessionsModalOpen, setIsSessionsModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [sessionToRevoke, setSessionToRevoke] = useState<string | null>(null);
-  const [isConfirmRevokeAllOpen, setIsConfirmRevokeAllOpen] = useState(false);
-
-  const loadDashboardData = async () => {
-    const [kpisData, sistemasData, sessionsData] = await Promise.all([
-      dashboardService.getKPIs(),
-      dashboardService.getTopSistemas(8),
-      dashboardService.getActiveSessions(1, 5)
-    ]);
-
-    setKpis(kpisData);
-    setTopSistemas(sistemasData);
-    setActiveSessions(sessionsData.items);
-    setTotalSessions(sessionsData.totalCount);
-  };
-
-  const loadSessionsForModal = async () => {
-    const sessionsData = await dashboardService.getActiveSessions(sessionsPage, 3);
-    setActiveSessions(sessionsData.items);
-    setSessionsTotalPages(sessionsData.totalPages);
-    setTotalSessions(sessionsData.totalCount);
-  };
+  const { t } = useI18n();
+  const [overview, setOverview] = useState<DashboardOverview | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    loadDashboardData();
+    let isMounted = true;
+
+    dashboardService
+      .getOverview()
+      .then((response) => {
+        if (isMounted) {
+          setOverview(response);
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  useEffect(() => {
-    if (isSessionsModalOpen) {
-      setSessionsPage(1);
-      setSearchTerm('');
-      loadSessionsForModal();
-    }
-  }, [isSessionsModalOpen]);
+  const loginTrendData = useMemo(
+    () => overview?.loginTrend.map((item) => ({ name: item.label, logins: item.logins, falhas: item.failures })) ?? [],
+    [overview]
+  );
 
-  useEffect(() => {
-    if (isSessionsModalOpen) {
-      loadSessionsForModal();
-    }
-  }, [sessionsPage]);
+  const contractHealthData = useMemo(
+    () => overview
+      ? [
+          { name: 'Ativos', value: overview.contractHealth.active },
+          { name: 'Expirando em breve', value: overview.contractHealth.expiringSoon },
+          { name: 'Suspensos', value: overview.contractHealth.suspended },
+          { name: 'Sem OAuth client', value: overview.contractHealth.withoutOAuthClient }
+        ]
+      : [],
+    [overview]
+  );
 
-  const handleRevokeSession = (sessionId: string) => {
-    setSessionToRevoke(sessionId);
-    setIsConfirmModalOpen(true);
-  };
+  const sessionFlowData = useMemo(
+    () => overview?.sessionsByHour.map((item) => ({ name: item.label, sessões: item.sessions })) ?? [],
+    [overview]
+  );
 
-  const confirmRevokeSession = async () => {
-    if (!sessionToRevoke) return;
+  const systemsData = useMemo(
+    () => overview?.topSystems.map((item) => ({ name: formatSystemLabel(item.name), acessos: item.accesses })) ?? [],
+    [overview]
+  );
 
-    await dashboardService.revokeSession(sessionToRevoke);
-    toast({ variant: 'success', title: t('common.toast.successTitle'), description: t('auth.session.revoked') });
-    isSessionsModalOpen ? loadSessionsForModal() : loadDashboardData();
-    setIsConfirmModalOpen(false);
-    setSessionToRevoke(null);
-  };
+  const securityPulseData = useMemo(
+    () => overview
+      ? [
+          { name: 'MFA', value: overview.securityPulse.mfaCoverage },
+          { name: 'Sessões válidas', value: overview.securityPulse.validSessions },
+          { name: 'Tokens rotacionados', value: overview.securityPulse.rotatedTokens },
+          { name: 'Acessos revisados', value: overview.securityPulse.reviewedAccesses }
+        ]
+      : [],
+    [overview]
+  );
 
-  const confirmRevokeAllSessions = async () => {
-    await dashboardService.revokeAllSessions();
-    toast({ variant: 'success', title: t('common.toast.successTitle'), description: t('auth.sessions.revokedAll') });
-    loadSessionsForModal();
-    setIsConfirmRevokeAllOpen(false);
-  };
-
-  const filterSessions = (session: ActiveSession) => {
-    if (!searchTerm) return true;
-    const search = searchTerm.toLowerCase();
-    return (
-      session.userName.toLowerCase().includes(search) ||
-      session.userEmail.toLowerCase().includes(search) ||
-      session.companyName.toLowerCase().includes(search) ||
-      session.systemApplicationName.toLowerCase().includes(search)
-    );
-  };
-
-  const kpiData = [
-    { icon: Users, color: 'text-primary', bgColor: 'bg-primary/10', value: kpis?.activeUsers || 0, label: t('dashboard.kpi.activeUsers') },
-    { icon: FileText, color: 'text-secondary', bgColor: 'bg-secondary/10', value: kpis?.activeContratos || 0, label: t('dashboard.kpi.activeContracts') },
-    { icon: MapPin, color: 'text-purple-600', bgColor: 'bg-purple-600/10', value: kpis?.empresas || 0, label: t('dashboard.kpi.companies') },
-    { icon: Layers, color: 'text-warning', bgColor: 'bg-warning/10', value: kpis?.sistemas || 0, label: t('dashboard.kpi.systems') }
-  ];
+  if (isLoading) {
+    return <GlobalLoader isVisible={true} className="bg-background" />;
+  }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       <div className="border-l-4 border-primary pl-5">
         <h1 className="text-3xl font-bold text-foreground tracking-tight">
           <strong className="text-primary">{t('dashboard.title')}</strong>
@@ -108,180 +91,116 @@ export default function Dashboard() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpiData.map((kpi, index) => {
-          const Icon = kpi.icon;
-          return (
-            <Card key={index} className="border border-border hover:shadow-md hover:-translate-y-0.5 transition-all">
-              <CardContent className="p-6 flex items-center gap-4">
-                <div className={`w-14 h-14 rounded-md ${kpi.bgColor} flex items-center justify-center ${kpi.color} flex-shrink-0`}>
-                  <Icon size={24} />
-                </div>
-                <div className="flex flex-col">
-                  <div className="text-3xl font-bold text-foreground leading-tight">{kpi.value}</div>
-                  <div className="text-sm text-muted-foreground mt-1">{kpi.label}</div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <ChartContainer
-          title={t('dashboard.topSystems.title')}
-
-          isEmpty={topSistemas.length === 0}
-          emptyMessage={t('dashboard.topSystems.empty')}
-        >
-          <PieChart
-            data={topSistemas.map(sistema => ({
-              name: sistema.name,
-              value: sistema.logins
-            }))}
-            dataKey="value"
-            labelFormatter={(entry: any) => `${entry.value}`}
-          />
-        </ChartContainer>
-
-        <Card className="border border-border">
-          <CardHeader className="pb-4 border-b">
-            <CardTitle className="flex items-center gap-2">
-              <Clock size={20} />
-              {t('dashboard.activeSessions.title')}
+      <div className="grid gap-4 xl:grid-cols-[1.4fr_0.9fr]">
+        <Card className="overflow-hidden border border-border/70 shadow-sm">
+          <CardHeader className="border-b bg-muted/20 pb-4">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <LineChartIcon className="h-5 w-5 text-primary" />
+              Logins da semana
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="flex flex-col items-center justify-center min-h-[400px]">
-              <div className="text-7xl font-bold text-secondary leading-none">{totalSessions}</div>
-              <div className="text-lg text-muted-foreground mt-4 text-center">
-                {t('dashboard.activeSessions.summary')}
-              </div>
-              <Button
-                variant="secondary"
-                onClick={() => setIsSessionsModalOpen(true)}
-                className="mt-5"
-              >
-                {t('dashboard.activeSessions.viewAll')}
-                <ExternalLink size={18} className="ml-2" />
-              </Button>
-            </div>
+          <CardContent className="p-5">
+            <ChartContainer title="Sucesso x falha" height={290}>
+              <AreaChart
+                data={loginTrendData}
+                dataKeys={['logins', 'falhas']}
+                colors={['#6366f1', '#ef4444']}
+                height={230}
+                showLegend={false}
+                fillOpacity={0.18}
+              />
+            </ChartContainer>
+          </CardContent>
+        </Card>
+
+        <Card className="overflow-hidden border border-border/70 shadow-sm">
+          <CardHeader className="border-b bg-muted/20 pb-4">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <PieChartIcon className="h-5 w-5 text-violet-600" />
+              Saúde dos contratos
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-5">
+            <ChartContainer title="Status operacional" height={290}>
+              <PieChart
+                data={contractHealthData}
+                colors={['#22c55e', '#f59e0b', '#ef4444', '#6366f1']}
+                height={230}
+                innerRadius={62}
+                showLabels={false}
+              />
+            </ChartContainer>
           </CardContent>
         </Card>
       </div>
 
-      <Modal open={isSessionsModalOpen} onOpenChange={setIsSessionsModalOpen}>
-        <ModalContent size="lg">
-          <ModalHeader>
-            <ModalTitle>{t('dashboard.activeSessions.title')}</ModalTitle>
-          </ModalHeader>
-          <div className="flex flex-col gap-4">
-          <div className="flex gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder={t('dashboard.activeSessions.searchPlaceholder')}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Button
-              variant="primary"
-              onClick={() => setIsConfirmRevokeAllOpen(true)}
-              disabled={totalSessions === 0}
-            >
-              {t('dashboard.activeSessions.revokeAll')}
-            </Button>
-          </div>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card className="border border-border/70 shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+              <Activity className="h-4 w-4 text-sky-600" />
+              Sessões por horário
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-4 pb-4">
+            <LineChart
+              data={sessionFlowData}
+              dataKeys={['sessões']}
+              colors={['#06b6d4']}
+              height={170}
+              showLegend={false}
+              showDots={false}
+              enableArea
+              areaOpacity={0.14}
+            />
+          </CardContent>
+        </Card>
 
-          <div className="flex flex-col gap-2 pt-2">
-            {activeSessions.filter(filterSessions).length > 0 ? (
-              activeSessions.filter(filterSessions).map((session) => (
-                <div
-                  key={session.sessionId}
-                  className="flex justify-between items-center p-4 bg-muted rounded-md hover:bg-muted/80 transition-colors"
-                >
-                  <div className="flex flex-col gap-1">
-                    <div className="text-base font-medium text-foreground">{session.userName}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {session.userEmail} - {session.companyName} - {session.systemApplicationName}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {t('dashboard.activeSessions.sessionMeta')
-                        .replace('{0}', session.ipAddress)
-                        .replace('{1}', formatDateTime(session.createdAt))
-                        .replace('{2}', formatDateTime(session.expiresAt))}
-                    </div>
-                  </div>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleRevokeSession(session.sessionId)}
-                    disabled={sessionToRevoke === session.sessionId}
-                  >
-                    {t('common.action.revoke')}
-                  </Button>
+        <Card className="border border-border/70 shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+              <BarChart3 className="h-4 w-4 text-amber-600" />
+              Sistemas mais acessados
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-4 pb-4">
+            <BarChart
+              data={systemsData}
+              dataKeys={['acessos']}
+              colors={['#f59e0b']}
+              height={170}
+              showLegend={false}
+              showGrid={false}
+              layout="horizontal"
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="border border-border/70 shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+              <ShieldCheck className="h-4 w-4 text-emerald-600" />
+              Pulso de segurança
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 px-4 pb-4">
+            {securityPulseData.map((item, index) => (
+              <div key={item.name} className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-medium text-foreground">{item.name}</span>
+                  <span className="font-semibold text-muted-foreground">{item.value}%</span>
                 </div>
-              ))
-            ) : (
-              <div className="p-8 text-center text-muted-foreground text-base">
-                {t('dashboard.activeSessions.empty')}
+                <div className="h-2 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full"
+                    style={{ width: `${item.value}%`, backgroundColor: chartColors[index % chartColors.length] }}
+                  />
+                </div>
               </div>
-            )}
-          </div>
-
-          {sessionsTotalPages > 1 && (
-            <div className="flex items-center justify-center gap-4 pt-4 mt-4 border-t">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSessionsPage(p => Math.max(1, p - 1))}
-                disabled={sessionsPage === 1}
-              >
-                {t('common.pagination.previous')}
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                {t('common.pagination.pageOf').replace('{0}', String(sessionsPage)).replace('{1}', String(sessionsTotalPages))}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSessionsPage(p => Math.min(sessionsTotalPages, p + 1))}
-                disabled={sessionsPage === sessionsTotalPages}
-              >
-                {t('common.pagination.next')}
-              </Button>
-            </div>
-          )}
-          </div>
-        </ModalContent>
-      </Modal>
-
-      <ConfirmModal
-        open={isConfirmModalOpen}
-        onOpenChange={(open) => {
-          setIsConfirmModalOpen(open);
-          if (!open) setSessionToRevoke(null);
-        }}
-        onConfirm={confirmRevokeSession}
-        title={t('dashboard.confirm.revokeSessionTitle')}
-        description={t('dashboard.confirm.revokeSessionDescription')}
-        confirmText={t('common.action.revoke')}
-        cancelText={t('common.action.cancel')}
-        variant="danger"
-      />
-
-      <ConfirmModal
-        open={isConfirmRevokeAllOpen}
-        onOpenChange={setIsConfirmRevokeAllOpen}
-        onConfirm={confirmRevokeAllSessions}
-        title={t('dashboard.confirm.revokeAllTitle')}
-        description={t('dashboard.confirm.revokeAllDescription')}
-        confirmText={t('dashboard.activeSessions.revokeAll')}
-        cancelText={t('common.action.cancel')}
-        variant="danger"
-      />
+            ))}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

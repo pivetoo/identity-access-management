@@ -79,6 +79,7 @@
   <data name="contract.service.create.emptyResponse" xml:space="preserve"><value>Empty response while creating contract.</value></data>
   <data name="contract.service.update.emptyResponse" xml:space="preserve"><value>Empty response while updating contract.</value></data>
   <data name="dashboard.service.kpis.emptyResponse" xml:space="preserve"><value>Empty response while loading KPIs.</value></data>
+  <data name="dashboard.service.overview.emptyResponse" xml:space="preserve"><value>Empty response while loading the dashboard overview.</value></data>
   <data name="role.service.create.emptyResponse" xml:space="preserve"><value>Empty response while creating role.</value></data>
   <data name="role.service.update.emptyResponse" xml:space="preserve"><value>Empty response while updating role.</value></data>
   <data name="role.service.permissions.notAvailable" xml:space="preserve"><value>Resource permission management has not been exposed by the backend yet.</value></data>
@@ -183,7 +184,7 @@
   <data name="authentication.systemCenter.searchPlaceholder" xml:space="preserve"><value>Search systems...</value></data>
   <data name="authentication.systemCenter.emptyFiltered" xml:space="preserve"><value>No system found for this term.</value></data>
   <data name="authentication.systemCenter.empty" xml:space="preserve"><value>No systems available.</value></data>
-  <data name="dashboard.title" xml:space="preserve"><value>Identity Access Management</value></data>
+  <data name="dashboard.title" xml:space="preserve"><value>Dashboard</value></data>
   <data name="dashboard.subtitle" xml:space="preserve"><value>Identity and access management system with authentication, authorization, and support for multi-tenant applications.</value></data>
   <data name="dashboard.kpi.activeUsers" xml:space="preserve"><value>Active Users</value></data>
   <data name="dashboard.kpi.activeContracts" xml:space="preserve"><value>Active Contracts</value></data>

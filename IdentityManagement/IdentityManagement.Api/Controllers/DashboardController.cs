@@ -46,5 +46,13 @@ namespace IdentityManagement.Api.Controllers
             var response = await dashboardService.GetActiveSessions(page, pageSize, cancellationToken);
             return Http200(response);
         }
+
+        [RequireAccess]
+        [GetEndpoint("overview")]
+        public async Task<IActionResult> GetOverview([FromQuery] DateTimeOffset? from = null, [FromQuery] DateTimeOffset? to = null, CancellationToken cancellationToken = default)
+        {
+            var response = await dashboardService.GetOverview(from, to, cancellationToken);
+            return Http200(response);
+        }
     }
 }

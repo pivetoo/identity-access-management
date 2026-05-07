@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import { Callback, ProtectedRoute, useAuth, AuthService, GlobalLoader } from 'archon-ui';
 import AdministrationLayout from '../layouts/AdministrationLayout';
@@ -20,36 +20,38 @@ const oidcClientId = import.meta.env.VITE_OIDC_CLIENT_ID || 'identity-management
 function LoginEntry() {
   const { isAuthenticated, accessToken } = useAuth();
   const navigate = useNavigate();
-  const [validating, setValidating] = useState(true);
+  const hashParams = useMemo(() => {
+    const hash = window.location.hash.startsWith('#')
+      ? window.location.hash.slice(1)
+      : window.location.hash;
 
-  useEffect(() => {
-    const storedAccessToken = localStorage.getItem('@Archon:accessToken');
-    const storedRefreshToken = localStorage.getItem('@Archon:refreshToken');
-    const hasStoredTokens = !!storedAccessToken && !!storedRefreshToken;
+    return new URLSearchParams(hash);
+  }, []);
 
-    if (!isAuthenticated || !accessToken) {
-      if (hasStoredTokens) {
-        return;
-      }
+  const hasAuthorizationSessionToken = hashParams.has('authorizationSessionToken');
+  const hasValidAccessToken = !!accessToken && !AuthService.isTokenExpiringSoon(accessToken, 0);
+  const shouldShowLogin = !hasAuthorizationSessionToken && (!isAuthenticated || !accessToken || !hasValidAccessToken);
 
-      setValidating(false);
-      return;
-    }
-
-    const tokenValid = !AuthService.isTokenExpiringSoon(accessToken, 0);
-    if (!tokenValid) {
-      setValidating(false);
-      return;
-    }
-
-    navigate('/management', { replace: true });
-  }, [accessToken, isAuthenticated, navigate]);
-
-  if (validating) {
-    return <GlobalLoader isVisible={true} className="bg-background" />;
+  if (!hasAuthorizationSessionToken && accessToken && !hasValidAccessToken) {
+    AuthService.logout();
   }
 
-  return <Login />;
+  useEffect(() => {
+    if (hasAuthorizationSessionToken) {
+      window.location.replace(`/management${window.location.hash}`);
+      return;
+    }
+
+    if (isAuthenticated && hasValidAccessToken) {
+      navigate('/management', { replace: true });
+    }
+  }, [hasAuthorizationSessionToken, hasValidAccessToken, isAuthenticated, navigate]);
+
+  if (shouldShowLogin) {
+    return <Login />;
+  }
+
+  return <GlobalLoader isVisible={true} className="bg-background" />;
 }
 
 function LogoutEntry() {

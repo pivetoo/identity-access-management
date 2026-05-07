@@ -71,6 +71,7 @@
   <data name="contract.service.create.emptyResponse" xml:space="preserve"><value>Respuesta vacía al crear el contrato.</value></data>
   <data name="contract.service.update.emptyResponse" xml:space="preserve"><value>Respuesta vacía al actualizar el contrato.</value></data>
   <data name="dashboard.service.kpis.emptyResponse" xml:space="preserve"><value>Respuesta vacía al cargar los KPIs.</value></data>
+  <data name="dashboard.service.overview.emptyResponse" xml:space="preserve"><value>Respuesta vacía al cargar la visión general del dashboard.</value></data>
   <data name="role.service.create.emptyResponse" xml:space="preserve"><value>Respuesta vacía al crear el perfil.</value></data>
   <data name="role.service.update.emptyResponse" xml:space="preserve"><value>Respuesta vacía al actualizar el perfil.</value></data>
   <data name="role.service.permissions.notAvailable" xml:space="preserve"><value>La gestión de permisos por recurso aún no fue expuesta por el backend.</value></data>
@@ -175,7 +176,7 @@
   <data name="authentication.systemCenter.searchPlaceholder" xml:space="preserve"><value>Buscar sistemas...</value></data>
   <data name="authentication.systemCenter.emptyFiltered" xml:space="preserve"><value>No se encontró ningún sistema con ese término.</value></data>
   <data name="authentication.systemCenter.empty" xml:space="preserve"><value>No hay sistemas disponibles.</value></data>
-  <data name="dashboard.title" xml:space="preserve"><value>Identity Access Management</value></data>
+  <data name="dashboard.title" xml:space="preserve"><value>Dashboard</value></data>
   <data name="dashboard.subtitle" xml:space="preserve"><value>Sistema de gestión de identidad y acceso con autenticación, autorización y soporte para aplicaciones multi-tenant.</value></data>
   <data name="dashboard.kpi.activeUsers" xml:space="preserve"><value>Usuarios Activos</value></data>
   <data name="dashboard.kpi.activeContracts" xml:space="preserve"><value>Contratos Activos</value></data>

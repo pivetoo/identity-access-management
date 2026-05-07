@@ -1,5 +1,5 @@
 import { httpClient, translate } from 'archon-ui'
-import type { KPIs, UsersByEmpresa, TopSistema, ActiveSession, PagedResult } from '../types/dashboard'
+import type { KPIs, UsersByEmpresa, TopSistema, ActiveSession, PagedResult, DashboardOverview } from '../types/dashboard'
 
 const dashboardService = {
   getKPIs: async (): Promise<KPIs> => {
@@ -33,6 +33,27 @@ const dashboardService = {
       hasPreviousPage: response.pagination?.hasPreviousPage ?? false,
       hasNextPage: response.pagination?.hasNextPage ?? false,
     }
+  },
+
+  getOverview: async (from?: string, to?: string): Promise<DashboardOverview> => {
+    const params = new URLSearchParams()
+
+    if (from) {
+      params.set('from', from)
+    }
+
+    if (to) {
+      params.set('to', to)
+    }
+
+    const query = params.toString()
+    const response = await httpClient.get<DashboardOverview>(`/dashboard/overview${query ? `?${query}` : ''}`)
+
+    if (!response.data) {
+      throw new Error(translate('dashboard.service.overview.emptyResponse'))
+    }
+
+    return response.data
   },
 
   revokeSession: async (sessionId: string): Promise<void> => {

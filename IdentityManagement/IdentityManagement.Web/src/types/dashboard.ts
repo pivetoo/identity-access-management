@@ -37,3 +37,42 @@ export interface PagedResult<T> {
   hasPreviousPage: boolean;
   hasNextPage: boolean;
 }
+
+export interface DashboardLoginTrend {
+  label: string;
+  logins: number;
+  failures: number;
+}
+
+export interface DashboardContractHealth {
+  active: number;
+  expiringSoon: number;
+  suspended: number;
+  withoutOAuthClient: number;
+}
+
+export interface DashboardSessionsByHour {
+  label: string;
+  sessions: number;
+}
+
+export interface DashboardTopSystem {
+  systemApplicationId: number;
+  name: string;
+  accesses: number;
+}
+
+export interface DashboardSecurityPulse {
+  mfaCoverage: number;
+  validSessions: number;
+  rotatedTokens: number;
+  reviewedAccesses: number;
+}
+
+export interface DashboardOverview {
+  loginTrend: DashboardLoginTrend[];
+  contractHealth: DashboardContractHealth;
+  sessionsByHour: DashboardSessionsByHour[];
+  topSystems: DashboardTopSystem[];
+  securityPulse: DashboardSecurityPulse;
+}
