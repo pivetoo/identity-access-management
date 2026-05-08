@@ -32,5 +32,13 @@ namespace IdentityManagement.Application.Services
         Task<User?> GetByUsername(string username, CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<UserResponse>> GetActiveUsers(CancellationToken cancellationToken = default);
+
+        Task<ContractUserResponse> CreateUserInContract(CreateUserInContractRequest request, long contractId, CancellationToken cancellationToken = default);
+
+        Task<IReadOnlyCollection<ContractUserResponse>> GetUsersByContract(long contractId, CancellationToken cancellationToken = default);
+
+        Task<ContractUserResponse> UpdateUserRoleInContract(long userId, long contractId, long newRoleId, CancellationToken cancellationToken = default);
+
+        Task<UserResponse> SetActive(long userId, bool isActive, CancellationToken cancellationToken = default);
     }
 }

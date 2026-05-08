@@ -71,6 +71,11 @@ namespace IdentityManagement.Domain.Entities
             IsActive = false;
         }
 
+        public void Activate()
+        {
+            IsActive = true;
+        }
+
         private void SetIdentity(string username, string email, string name)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(username);

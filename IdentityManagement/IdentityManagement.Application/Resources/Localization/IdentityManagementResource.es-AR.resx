@@ -30,6 +30,12 @@
   <data name="role.created" xml:space="preserve"><value>Perfil creado correctamente.</value></data>
   <data name="role.updated" xml:space="preserve"><value>Perfil actualizado correctamente.</value></data>
   <data name="role.notFound" xml:space="preserve"><value>Perfil no encontrado.</value></data>
+  <data name="role.notFoundInContract" xml:space="preserve"><value>Perfil no encontrado en el contrato activo.</value></data>
+  <data name="user.contract.created" xml:space="preserve"><value>Usuario creado y vinculado al contrato activo.</value></data>
+  <data name="user.contract.roleUpdated" xml:space="preserve"><value>Perfil del usuario actualizado en el contrato activo.</value></data>
+  <data name="user.activated" xml:space="preserve"><value>Usuario reactivado correctamente.</value></data>
+  <data name="user.deactivated" xml:space="preserve"><value>Usuario desactivado correctamente.</value></data>
+  <data name="contract.active.notIdentified" xml:space="preserve"><value>No se pudo identificar el contrato activo en la sesión.</value></data>
   <data name="role.default.notFound" xml:space="preserve"><value>Perfil predeterminado no encontrado.</value></data>
   <data name="role.contract.systemApplication.notFound" xml:space="preserve"><value>No se encontró la aplicación del sistema del contrato del perfil.</value></data>
   <data name="accessResource.invalid" xml:space="preserve"><value>Uno o más recursos de acceso son inválidos.</value></data>

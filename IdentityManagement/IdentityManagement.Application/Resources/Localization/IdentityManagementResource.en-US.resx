@@ -38,6 +38,12 @@
   <data name="role.created" xml:space="preserve"><value>Role created successfully.</value></data>
   <data name="role.updated" xml:space="preserve"><value>Role updated successfully.</value></data>
   <data name="role.notFound" xml:space="preserve"><value>Role not found.</value></data>
+  <data name="role.notFoundInContract" xml:space="preserve"><value>Role not found in the active contract.</value></data>
+  <data name="user.contract.created" xml:space="preserve"><value>User created and linked to the active contract.</value></data>
+  <data name="user.contract.roleUpdated" xml:space="preserve"><value>User role updated in the active contract.</value></data>
+  <data name="user.activated" xml:space="preserve"><value>User reactivated successfully.</value></data>
+  <data name="user.deactivated" xml:space="preserve"><value>User deactivated successfully.</value></data>
+  <data name="contract.active.notIdentified" xml:space="preserve"><value>Active contract could not be identified in the session.</value></data>
   <data name="role.default.notFound" xml:space="preserve"><value>Default role not found.</value></data>
   <data name="role.contract.systemApplication.notFound" xml:space="preserve"><value>Role contract system application was not found.</value></data>
   <data name="accessResource.invalid" xml:space="preserve"><value>One or more access resources are invalid.</value></data>

@@ -104,5 +104,61 @@ namespace IdentityManagement.Api.Controllers
                 PreviousAvatarUrl = previousAvatarUrl
             }, Localizer["user.avatar.deleted"]);
         }
+
+        [RequireAccess]
+        [GetEndpoint]
+        public async Task<IActionResult> GetByCurrentContract(CancellationToken cancellationToken)
+        {
+            long? contractId = ResolveCurrentContractId();
+            if (!contractId.HasValue)
+            {
+                return Http403(Localizer["contract.active.notIdentified"]);
+            }
+
+            var users = await userService.GetUsersByContract(contractId.Value, cancellationToken);
+            return Http200(users);
+        }
+
+        [RequireAccess]
+        [PostEndpoint]
+        public async Task<IActionResult> CreateInCurrentContract([FromBody] CreateUserInContractRequest request, CancellationToken cancellationToken)
+        {
+            long? contractId = ResolveCurrentContractId();
+            if (!contractId.HasValue)
+            {
+                return Http403(Localizer["contract.active.notIdentified"]);
+            }
+
+            var response = await userService.CreateUserInContract(request, contractId.Value, cancellationToken);
+            return Http201(response, Localizer["user.contract.created"]);
+        }
+
+        [RequireAccess]
+        [PutEndpoint("{id:long}/role-in-current-contract")]
+        public async Task<IActionResult> UpdateRoleInCurrentContract(long id, [FromBody] UpdateUserContractRoleRequest request, CancellationToken cancellationToken)
+        {
+            long? contractId = ResolveCurrentContractId();
+            if (!contractId.HasValue)
+            {
+                return Http403(Localizer["contract.active.notIdentified"]);
+            }
+
+            var response = await userService.UpdateUserRoleInContract(id, contractId.Value, request.RoleId, cancellationToken);
+            return Http200(response, Localizer["user.contract.roleUpdated"]);
+        }
+
+        [RequireAccess]
+        [PutEndpoint("{id:long}/active")]
+        public async Task<IActionResult> SetActive(long id, [FromBody] SetUserActiveRequest request, CancellationToken cancellationToken)
+        {
+            var response = await userService.SetActive(id, request.IsActive, cancellationToken);
+            return Http200(response, Localizer[request.IsActive ? "user.activated" : "user.deactivated"]);
+        }
+
+        private long? ResolveCurrentContractId()
+        {
+            string? value = User.FindFirst("contract_id")?.Value;
+            return long.TryParse(value, out long parsed) ? parsed : null;
+        }
     }
 }

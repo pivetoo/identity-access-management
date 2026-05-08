@@ -90,6 +90,24 @@
   <data name="role.notFound" xml:space="preserve">
     <value>Perfil não encontrado.</value>
   </data>
+  <data name="role.notFoundInContract" xml:space="preserve">
+    <value>Perfil não encontrado no contrato ativo.</value>
+  </data>
+  <data name="user.contract.created" xml:space="preserve">
+    <value>Usuário criado e vinculado ao contrato ativo.</value>
+  </data>
+  <data name="user.contract.roleUpdated" xml:space="preserve">
+    <value>Perfil do usuário atualizado no contrato ativo.</value>
+  </data>
+  <data name="user.activated" xml:space="preserve">
+    <value>Usuário reativado com sucesso.</value>
+  </data>
+  <data name="user.deactivated" xml:space="preserve">
+    <value>Usuário desativado com sucesso.</value>
+  </data>
+  <data name="contract.active.notIdentified" xml:space="preserve">
+    <value>Contrato ativo não identificado na sessão.</value>
+  </data>
   <data name="role.default.notFound" xml:space="preserve">
     <value>Perfil padrão não encontrado.</value>
   </data>

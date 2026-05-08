@@ -5,6 +5,7 @@ using IdentityManagement.Application.Responses.Users;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Infrastructure.Services
@@ -165,6 +166,187 @@ namespace IdentityManagement.Infrastructure.Services
                 where user.Username == username
                 select user)
                 .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public async Task<ContractUserResponse> CreateUserInContract(CreateUserInContractRequest request, long contractId, CancellationToken cancellationToken = default)
+        {
+            Role? role = await DbContext.Set<Role>()
+                .AsNoTracking()
+                .Where(item => item.Id == request.RoleId && item.ContractId == contractId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (role is null)
+            {
+                throw new InvalidOperationException(Localizer["role.notFoundInContract"]);
+            }
+
+            await EnsureUniqueUser(request.Username, request.Email, null, cancellationToken);
+
+            IDbContextTransaction transaction = await DbContext.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                User user = new User(request.Username, request.Email, HashPassword(request.Password), request.Name);
+                bool userInserted = await Insert(cancellationToken, user);
+                if (!userInserted)
+                {
+                    throw new InvalidOperationException(GetErrorMessages());
+                }
+
+                UserRole userRole = new UserRole(user.Id, role.Id);
+                DbContext.Set<UserRole>().Add(userRole);
+                await DbContext.SaveChangesAsync(cancellationToken);
+
+                await transaction.CommitAsync(cancellationToken);
+
+                return BuildContractUserResponse(user, role, userRole);
+            }
+            catch
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
+        }
+
+        public async Task<IReadOnlyCollection<ContractUserResponse>> GetUsersByContract(long contractId, CancellationToken cancellationToken = default)
+        {
+            List<ContractUserResponse> users = await (
+                from userRole in DbContext.Set<UserRole>().AsNoTracking()
+                join user in DbContext.Set<User>().AsNoTracking() on userRole.UserId equals user.Id
+                join role in DbContext.Set<Role>().AsNoTracking() on userRole.RoleId equals role.Id
+                where role.ContractId == contractId &&
+                      userRole.IsActive &&
+                      !userRole.RevokedAt.HasValue
+                orderby user.Name
+                select new ContractUserResponse
+                {
+                    UserId = user.Id,
+                    Username = user.Username,
+                    Email = user.Email,
+                    Name = user.Name,
+                    AvatarUrl = user.AvatarUrl,
+                    IsActive = user.IsActive,
+                    LastLoginAt = user.LastLoginAt,
+                    RoleId = role.Id,
+                    RoleName = role.Name,
+                    IsRoot = role.IsRoot,
+                    AssignedAt = userRole.AssignedAt
+                })
+                .ToListAsync(cancellationToken);
+
+            return users;
+        }
+
+        public async Task<ContractUserResponse> UpdateUserRoleInContract(long userId, long contractId, long newRoleId, CancellationToken cancellationToken = default)
+        {
+            Role? newRole = await DbContext.Set<Role>()
+                .AsNoTracking()
+                .Where(item => item.Id == newRoleId && item.ContractId == contractId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (newRole is null)
+            {
+                throw new InvalidOperationException(Localizer["role.notFoundInContract"]);
+            }
+
+            User? user = await DbContext.Set<User>()
+                .AsNoTracking()
+                .Where(item => item.Id == userId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (user is null)
+            {
+                throw new InvalidOperationException(Localizer["user.notFound"]);
+            }
+
+            IDbContextTransaction transaction = await DbContext.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                List<UserRole> currentAssignments = await (
+                    from userRole in DbContext.Set<UserRole>().AsTracking()
+                    join role in DbContext.Set<Role>().AsNoTracking() on userRole.RoleId equals role.Id
+                    where userRole.UserId == userId &&
+                          role.ContractId == contractId &&
+                          userRole.IsActive &&
+                          !userRole.RevokedAt.HasValue
+                    select userRole)
+                    .ToListAsync(cancellationToken);
+
+                UserRole? existing = currentAssignments.FirstOrDefault(item => item.RoleId == newRoleId);
+                foreach (UserRole assignment in currentAssignments.Where(item => item.RoleId != newRoleId))
+                {
+                    assignment.Revoke();
+                }
+
+                UserRole effectiveAssignment;
+                if (existing is null)
+                {
+                    effectiveAssignment = new UserRole(userId, newRoleId);
+                    DbContext.Set<UserRole>().Add(effectiveAssignment);
+                }
+                else
+                {
+                    effectiveAssignment = existing;
+                }
+
+                await DbContext.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+
+                return BuildContractUserResponse(user, newRole, effectiveAssignment);
+            }
+            catch
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
+        }
+
+        public async Task<UserResponse> SetActive(long userId, bool isActive, CancellationToken cancellationToken = default)
+        {
+            User? user = await (
+                from item in DbContext.Set<User>().AsTracking()
+                where item.Id == userId
+                select item)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (user is null)
+            {
+                throw new InvalidOperationException(Localizer["user.notFound"]);
+            }
+
+            if (isActive)
+            {
+                user.Activate();
+            }
+            else
+            {
+                user.Deactivate();
+            }
+
+            User? result = await Update(user, cancellationToken);
+            if (result is null)
+            {
+                throw new InvalidOperationException(GetErrorMessages());
+            }
+
+            return ToResponse(result);
+        }
+
+        private static ContractUserResponse BuildContractUserResponse(User user, Role role, UserRole userRole)
+        {
+            return new ContractUserResponse
+            {
+                UserId = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                Name = user.Name,
+                AvatarUrl = user.AvatarUrl,
+                IsActive = user.IsActive,
+                LastLoginAt = user.LastLoginAt,
+                RoleId = role.Id,
+                RoleName = role.Name,
+                IsRoot = role.IsRoot,
+                AssignedAt = userRole.AssignedAt
+            };
         }
 
         public async Task<IReadOnlyCollection<UserResponse>> GetActiveUsers(CancellationToken cancellationToken = default)
