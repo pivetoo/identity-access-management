@@ -134,7 +134,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [PutEndpoint("{id:long}/role-in-current-contract")]
+        [PutEndpoint("{id:long}")]
         public async Task<IActionResult> UpdateRoleInCurrentContract(long id, [FromBody] UpdateUserContractRoleRequest request, CancellationToken cancellationToken)
         {
             long? contractId = ResolveCurrentContractId();
@@ -148,7 +148,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [PutEndpoint("{id:long}/active")]
+        [PutEndpoint("{id:long}")]
         public async Task<IActionResult> SetActive(long id, [FromBody] SetUserActiveRequest request, CancellationToken cancellationToken)
         {
             var response = await userService.SetActive(id, request.IsActive, cancellationToken);
