@@ -7,5 +7,9 @@ namespace IdentityManagement.Application.Requests.Users
         [Required]
         [Range(1, long.MaxValue)]
         public long RoleId { get; set; }
+
+        [Required]
+        [Range(1, long.MaxValue)]
+        public long ContractId { get; set; }
     }
 }

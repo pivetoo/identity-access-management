@@ -106,44 +106,26 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
-        [GetEndpoint]
-        public async Task<IActionResult> GetByCurrentContract(CancellationToken cancellationToken)
+        [GetEndpoint("{contractId:long}")]
+        public async Task<IActionResult> GetByContract(long contractId, CancellationToken cancellationToken)
         {
-            long? contractId = ResolveCurrentContractId();
-            if (!contractId.HasValue)
-            {
-                return Http403(Localizer["contract.active.notIdentified"]);
-            }
-
-            var users = await userService.GetUsersByContract(contractId.Value, cancellationToken);
+            var users = await userService.GetUsersByContract(contractId, cancellationToken);
             return Http200(users);
         }
 
         [RequireAccess]
         [PostEndpoint]
-        public async Task<IActionResult> CreateInCurrentContract([FromBody] CreateUserInContractRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> CreateInContract([FromBody] CreateUserInContractRequest request, CancellationToken cancellationToken)
         {
-            long? contractId = ResolveCurrentContractId();
-            if (!contractId.HasValue)
-            {
-                return Http403(Localizer["contract.active.notIdentified"]);
-            }
-
-            var response = await userService.CreateUserInContract(request, contractId.Value, cancellationToken);
+            var response = await userService.CreateUserInContract(request, request.ContractId, cancellationToken);
             return Http201(response, Localizer["user.contract.created"]);
         }
 
         [RequireAccess]
         [PutEndpoint("{id:long}")]
-        public async Task<IActionResult> UpdateRoleInCurrentContract(long id, [FromBody] UpdateUserContractRoleRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdateRoleInContract(long id, [FromBody] UpdateUserContractRoleRequest request, CancellationToken cancellationToken)
         {
-            long? contractId = ResolveCurrentContractId();
-            if (!contractId.HasValue)
-            {
-                return Http403(Localizer["contract.active.notIdentified"]);
-            }
-
-            var response = await userService.UpdateUserRoleInContract(id, contractId.Value, request.RoleId, cancellationToken);
+            var response = await userService.UpdateUserRoleInContract(id, request.ContractId, request.RoleId, cancellationToken);
             return Http200(response, Localizer["user.contract.roleUpdated"]);
         }
 
@@ -153,12 +135,6 @@ namespace IdentityManagement.Api.Controllers
         {
             var response = await userService.SetActive(id, request.IsActive, cancellationToken);
             return Http200(response, Localizer[request.IsActive ? "user.activated" : "user.deactivated"]);
-        }
-
-        private long? ResolveCurrentContractId()
-        {
-            string? value = User.FindFirst("contract_id")?.Value;
-            return long.TryParse(value, out long parsed) ? parsed : null;
         }
     }
 }
