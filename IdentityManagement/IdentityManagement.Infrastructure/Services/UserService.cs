@@ -186,13 +186,12 @@ namespace IdentityManagement.Infrastructure.Services
             try
             {
                 User user = new User(request.Username, request.Email, HashPassword(request.Password), request.Name);
-                bool userInserted = await Insert(cancellationToken, user);
-                if (!userInserted)
-                {
-                    throw new InvalidOperationException(GetErrorMessages());
-                }
+                user.SetCreatedAt(DateTimeOffset.UtcNow);
+                DbContext.Set<User>().Add(user);
+                await DbContext.SaveChangesAsync(cancellationToken);
 
                 UserRole userRole = new UserRole(user.Id, role.Id);
+                userRole.SetCreatedAt(DateTimeOffset.UtcNow);
                 DbContext.Set<UserRole>().Add(userRole);
                 await DbContext.SaveChangesAsync(cancellationToken);
 
