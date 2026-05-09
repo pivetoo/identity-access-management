@@ -27,6 +27,8 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException(Localizer["userRole.alreadyAssigned"]);
             }
 
+            await EnsureNoOtherActiveRoleInContract(userId, roleId, cancellationToken);
+
             UserRole userRole = new UserRole(userId, roleId);
             bool success = await Insert(cancellationToken, userRole);
             if (!success)
@@ -78,6 +80,8 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException(Localizer["userRole.inactiveAssignment.notFound"]);
             }
 
+            await EnsureNoOtherActiveRoleInContract(userId, roleId, cancellationToken);
+
             userRole.Reactivate();
             UserRole? result = await Update(userRole, cancellationToken);
             if (result is null)
@@ -127,6 +131,36 @@ namespace IdentityManagement.Infrastructure.Services
                       !userRole.RevokedAt.HasValue
                 select userRole.Id)
                 .AnyAsync(cancellationToken);
+        }
+
+        private async Task EnsureNoOtherActiveRoleInContract(long userId, long roleId, CancellationToken cancellationToken)
+        {
+            long? targetContractId = await DbContext.Set<Role>()
+                .AsNoTracking()
+                .Where(item => item.Id == roleId)
+                .Select(item => (long?)item.ContractId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (!targetContractId.HasValue)
+            {
+                return;
+            }
+
+            bool hasOtherActiveRole = await (
+                from userRole in DbContext.Set<UserRole>().AsNoTracking()
+                join role in DbContext.Set<Role>().AsNoTracking() on userRole.RoleId equals role.Id
+                where userRole.UserId == userId &&
+                      role.ContractId == targetContractId.Value &&
+                      userRole.RoleId != roleId &&
+                      userRole.IsActive &&
+                      !userRole.RevokedAt.HasValue
+                select userRole.Id)
+                .AnyAsync(cancellationToken);
+
+            if (hasOtherActiveRole)
+            {
+                throw new InvalidOperationException(Localizer["userRole.alreadyHasRoleInContract"]);
+            }
         }
 
         private async Task EnsureDependencies(long userId, long roleId, CancellationToken cancellationToken)

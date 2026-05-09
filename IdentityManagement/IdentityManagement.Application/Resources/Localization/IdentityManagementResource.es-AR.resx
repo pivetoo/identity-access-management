@@ -53,6 +53,7 @@
   <data name="userRole.revoked" xml:space="preserve"><value>Vinculación de usuario y perfil revocada correctamente.</value></data>
   <data name="userRole.reactivated" xml:space="preserve"><value>Vinculación de usuario y perfil reactivada correctamente.</value></data>
   <data name="userRole.alreadyAssigned" xml:space="preserve"><value>El usuario ya está asignado a este perfil.</value></data>
+  <data name="userRole.alreadyHasRoleInContract" xml:space="preserve"><value>El usuario ya tiene un perfil activo en este contrato. Revoque el perfil actual antes de asignar uno nuevo.</value></data>
   <data name="userRole.assignment.notFound" xml:space="preserve"><value>No se encontró la vinculación de usuario y perfil.</value></data>
   <data name="userRole.inactiveAssignment.notFound" xml:space="preserve"><value>No se encontró la vinculación inactiva de usuario y perfil.</value></data>
   <data name="systemRoleTemplate.created" xml:space="preserve"><value>Perfil predeterminado del sistema creado correctamente.</value></data>

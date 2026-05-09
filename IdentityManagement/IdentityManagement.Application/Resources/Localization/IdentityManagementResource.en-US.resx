@@ -61,6 +61,7 @@
   <data name="userRole.revoked" xml:space="preserve"><value>User role revoked successfully.</value></data>
   <data name="userRole.reactivated" xml:space="preserve"><value>User role reactivated successfully.</value></data>
   <data name="userRole.alreadyAssigned" xml:space="preserve"><value>User is already assigned to this role.</value></data>
+  <data name="userRole.alreadyHasRoleInContract" xml:space="preserve"><value>User already has an active role in this contract. Revoke the current role before assigning a new one.</value></data>
   <data name="userRole.assignment.notFound" xml:space="preserve"><value>User role assignment was not found.</value></data>
   <data name="userRole.inactiveAssignment.notFound" xml:space="preserve"><value>Inactive user role assignment was not found.</value></data>
   <data name="systemRoleTemplate.created" xml:space="preserve"><value>System role template created successfully.</value></data>

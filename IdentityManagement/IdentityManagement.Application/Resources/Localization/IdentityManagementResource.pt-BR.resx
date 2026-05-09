@@ -159,6 +159,9 @@
   <data name="userRole.alreadyAssigned" xml:space="preserve">
     <value>O usuário já está vinculado a este perfil.</value>
   </data>
+  <data name="userRole.alreadyHasRoleInContract" xml:space="preserve">
+    <value>O usuário já possui um perfil ativo neste contrato. Revogue o perfil atual antes de atribuir outro.</value>
+  </data>
   <data name="userRole.assignment.notFound" xml:space="preserve">
     <value>O vínculo de usuário com perfil não foi encontrado.</value>
   </data>
