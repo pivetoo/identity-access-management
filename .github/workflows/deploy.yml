@@ -7,7 +7,7 @@ on:
 
 concurrency:
   group: identity-management-production
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: read
