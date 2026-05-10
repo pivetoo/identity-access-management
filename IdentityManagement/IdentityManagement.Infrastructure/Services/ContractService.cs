@@ -250,7 +250,7 @@ namespace IdentityManagement.Infrastructure.Services
                     SystemApplicationName = group.Key.SystemApplicationName,
                     CompanyName = group.Key.CompanyName,
                     RoleName = group.Select(item => item.RoleName).FirstOrDefault() ?? string.Empty,
-                    PortalUrl = group.Select(item => item.PortalUrl).FirstOrDefault(item => !string.IsNullOrWhiteSpace(item)) ?? string.Empty
+                    PortalUrl = ResolvePortalUrl(group.Select(item => item.PortalUrl).FirstOrDefault(item => !string.IsNullOrWhiteSpace(item)))
                 })
                 .ToList();
 
@@ -397,6 +397,21 @@ namespace IdentityManagement.Infrastructure.Services
             {
                 throw new InvalidOperationException(Localizer["date.endMustBeGreaterThanStart"]);
             }
+        }
+
+        private static string ResolvePortalUrl(string? signInRedirectUri)
+        {
+            if (string.IsNullOrWhiteSpace(signInRedirectUri))
+            {
+                return string.Empty;
+            }
+
+            if (!Uri.TryCreate(signInRedirectUri, UriKind.Absolute, out Uri? parsed))
+            {
+                return signInRedirectUri;
+            }
+
+            return $"{parsed.GetLeftPart(UriPartial.Authority)}/";
         }
     }
 }
