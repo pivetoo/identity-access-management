@@ -21,7 +21,9 @@ namespace IdentityManagement.Infrastructure.DependencyInjection
                 typeof(ServiceCollectionExtensions).Assembly);
             services.AddServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
 
-            services.AddResend(options => options.ApiToken = configuration["Resend:ApiKey"] ?? string.Empty);
+            services.AddOptions();
+            services.AddHttpClient<ResendClient>();
+            services.Configure<ResendClientOptions>(o => o.ApiToken = configuration["Resend:ApiKey"] ?? string.Empty);
             services.AddScoped<IEmailSender, ResendEmailSender>();
 
             return services;

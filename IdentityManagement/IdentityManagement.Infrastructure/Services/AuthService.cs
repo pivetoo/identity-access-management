@@ -5,7 +5,6 @@ using IdentityManagement.Application.Responses.Contracts;
 using IdentityManagement.Application.Responses.Users;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
-using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Microsoft.IdentityModel.Tokens;
@@ -105,7 +104,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (resetToken is null || !resetToken.IsValid()) return false;
 
-            string passwordHash = BCrypt.HashPassword(request.NewPassword);
+            string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
             resetToken.User.ChangePassword(passwordHash);
             resetToken.MarkAsUsed();
             await dbContext.SaveChangesAsync(cancellationToken);

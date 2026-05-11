@@ -3,7 +3,7 @@ using Resend;
 
 namespace IdentityManagement.Infrastructure.Services
 {
-    public sealed class ResendEmailSender(IResend resend) : IEmailSender
+    public sealed class ResendEmailSender(ResendClient resend) : IEmailSender
     {
         public async Task SendPasswordResetEmailAsync(string toEmail, string toName, string resetLink, CancellationToken cancellationToken = default)
         {
