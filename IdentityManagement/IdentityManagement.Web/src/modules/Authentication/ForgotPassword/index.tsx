@@ -40,6 +40,7 @@ export default function ForgotPassword() {
 
       setEmailSent(true);
       toast({
+        variant: 'success',
         title: t('common.toast.successTitle'),
         description: t('authentication.forgotPassword.toast.sent'),
       });
