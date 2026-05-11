@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, ArrowLeft, KeyRound } from 'lucide-react';
 import { Button, Card, CardContent, Input, useToast, useI18n } from 'archon-ui';
+import { passwordResetService } from '../../../services/passwordResetService';
 
 export default function ForgotPassword() {
   const { t } = useI18n()
@@ -36,19 +37,18 @@ export default function ForgotPassword() {
     setIsLoading(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
+      await passwordResetService.forgotPassword(email);
       setEmailSent(true);
       toast({
         variant: 'success',
         title: t('common.toast.successTitle'),
         description: t('authentication.forgotPassword.toast.sent'),
       });
-    } catch (error) {
+    } catch {
       toast({
+        variant: 'destructive',
         title: t('common.toast.errorTitle'),
         description: t('authentication.forgotPassword.toast.error'),
-        variant: 'destructive'
       });
     } finally {
       setIsLoading(false);

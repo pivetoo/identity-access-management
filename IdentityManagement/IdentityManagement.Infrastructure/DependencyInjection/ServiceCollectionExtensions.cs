@@ -1,8 +1,11 @@
 using Archon.Infrastructure.DependencyInjection;
 using Archon.Infrastructure.Migrations;
 using Archon.Infrastructure.MultiTenancy;
+using IdentityManagement.Application.Services;
+using IdentityManagement.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Resend;
 
 namespace IdentityManagement.Infrastructure.DependencyInjection
 {
@@ -17,6 +20,9 @@ namespace IdentityManagement.Infrastructure.DependencyInjection
                 typeof(DatabaseMigrator).Assembly,
                 typeof(ServiceCollectionExtensions).Assembly);
             services.AddServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
+
+            services.AddResend(options => options.ApiToken = configuration["Resend:ApiKey"] ?? string.Empty);
+            services.AddScoped<IEmailSender, ResendEmailSender>();
 
             return services;
         }

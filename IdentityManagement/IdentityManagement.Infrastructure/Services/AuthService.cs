@@ -5,6 +5,7 @@ using IdentityManagement.Application.Responses.Contracts;
 using IdentityManagement.Application.Responses.Users;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
+using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Microsoft.IdentityModel.Tokens;
@@ -18,13 +19,15 @@ namespace IdentityManagement.Infrastructure.Services
         private readonly DbContext dbContext;
         private readonly IUserService userService;
         private readonly IContractService contractService;
+        private readonly IEmailSender emailSender;
         private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
-        public AuthService(DbContext dbContext, IUserService userService, IContractService contractService, IStringLocalizer<IdentityManagementResource> Localizer)
+        public AuthService(DbContext dbContext, IUserService userService, IContractService contractService, IEmailSender emailSender, IStringLocalizer<IdentityManagementResource> Localizer)
         {
             this.dbContext = dbContext;
             this.userService = userService;
             this.contractService = contractService;
+            this.emailSender = emailSender;
             this.Localizer = Localizer;
         }
 
@@ -73,6 +76,41 @@ namespace IdentityManagement.Infrastructure.Services
         {
             var user = await userService.GetByUsername(username, cancellationToken);
             return user is null ? null : ToUserResponse(user);
+        }
+
+        public async Task ForgotPasswordAsync(ForgotPasswordRequest request, string resetBaseUrl, CancellationToken cancellationToken = default)
+        {
+            var user = await dbContext.Set<User>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Email == request.Email && u.IsActive, cancellationToken);
+
+            // Responde silenciosamente para não expor quais e-mails estão cadastrados
+            if (user is null) return;
+
+            string token = GenerateOpaqueToken();
+            var resetToken = new PasswordResetToken(user.Id, token, DateTimeOffset.UtcNow.AddHours(24));
+            dbContext.Set<PasswordResetToken>().Add(resetToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            string resetLink = $"{resetBaseUrl.TrimEnd('/')}/reset-password?token={token}";
+            await emailSender.SendPasswordResetEmailAsync(user.Email, user.Name, resetLink, cancellationToken);
+        }
+
+        public async Task<bool> ResetPasswordAsync(ResetPasswordRequest request, CancellationToken cancellationToken = default)
+        {
+            var resetToken = await dbContext.Set<PasswordResetToken>()
+                .AsTracking()
+                .Include(t => t.User)
+                .FirstOrDefaultAsync(t => t.Token == request.Token, cancellationToken);
+
+            if (resetToken is null || !resetToken.IsValid()) return false;
+
+            string passwordHash = BCrypt.HashPassword(request.NewPassword);
+            resetToken.User.ChangePassword(passwordHash);
+            resetToken.MarkAsUsed();
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            return true;
         }
 
         private static UserResponse ToUserResponse(IdentityManagement.Domain.Entities.User user)

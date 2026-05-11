@@ -81,6 +81,21 @@
   <data name="auth.sessions.revokedAll" xml:space="preserve"><value>All active sessions revoked successfully.</value></data>
   <data name="auth.password.currentInvalid" xml:space="preserve"><value>Current password is invalid.</value></data>
   <data name="auth.password.changed" xml:space="preserve"><value>Password changed successfully.</value></data>
+  <data name="auth.password.resetEmailSent" xml:space="preserve"><value>If the provided email is registered, you will receive recovery instructions shortly.</value></data>
+  <data name="auth.password.resetTokenInvalid" xml:space="preserve"><value>Recovery link is invalid or expired.</value></data>
+  <data name="auth.password.reset" xml:space="preserve"><value>Password reset successfully.</value></data>
+  <data name="auth.password.tooShort" xml:space="preserve"><value>Password must be at least 6 characters.</value></data>
+  <data name="authentication.resetPassword.title" xml:space="preserve"><value>Reset password</value></data>
+  <data name="authentication.resetPassword.subtitle" xml:space="preserve"><value>Enter and confirm your new password.</value></data>
+  <data name="authentication.resetPassword.newPassword" xml:space="preserve"><value>New password</value></data>
+  <data name="authentication.resetPassword.confirmPassword" xml:space="preserve"><value>Confirm new password</value></data>
+  <data name="authentication.resetPassword.submit" xml:space="preserve"><value>Reset password</value></data>
+  <data name="authentication.resetPassword.successTitle" xml:space="preserve"><value>Password reset!</value></data>
+  <data name="authentication.resetPassword.successDescription" xml:space="preserve"><value>Your password has been reset successfully. You can now sign in with your new password.</value></data>
+  <data name="authentication.resetPassword.invalidLink" xml:space="preserve"><value>Invalid recovery link. Please request a new one.</value></data>
+  <data name="authentication.resetPassword.validation.passwordMismatch" xml:space="preserve"><value>Passwords do not match.</value></data>
+  <data name="authentication.resetPassword.toast.success" xml:space="preserve"><value>Password reset successfully.</value></data>
+  <data name="authentication.resetPassword.toast.error" xml:space="preserve"><value>Failed to reset password.</value></data>
   <data name="company.service.create.emptyResponse" xml:space="preserve"><value>Empty response while creating company.</value></data>
   <data name="company.service.update.emptyResponse" xml:space="preserve"><value>Empty response while updating company.</value></data>
   <data name="contract.service.create.emptyResponse" xml:space="preserve"><value>Empty response while creating contract.</value></data>

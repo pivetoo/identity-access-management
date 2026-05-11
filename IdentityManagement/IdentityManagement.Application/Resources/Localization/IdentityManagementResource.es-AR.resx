@@ -73,6 +73,21 @@
   <data name="auth.sessions.revokedAll" xml:space="preserve"><value>Todas las sesiones activas fueron revocadas correctamente.</value></data>
   <data name="auth.password.currentInvalid" xml:space="preserve"><value>La contraseña actual es inválida.</value></data>
   <data name="auth.password.changed" xml:space="preserve"><value>Contraseña cambiada correctamente.</value></data>
+  <data name="auth.password.resetEmailSent" xml:space="preserve"><value>Si el correo ingresado está registrado, recibirá las instrucciones de recuperación en breve.</value></data>
+  <data name="auth.password.resetTokenInvalid" xml:space="preserve"><value>El enlace de recuperación es inválido o ha expirado.</value></data>
+  <data name="auth.password.reset" xml:space="preserve"><value>Contraseña restablecida correctamente.</value></data>
+  <data name="auth.password.tooShort" xml:space="preserve"><value>La contraseña debe tener al menos 6 caracteres.</value></data>
+  <data name="authentication.resetPassword.title" xml:space="preserve"><value>Restablecer contraseña</value></data>
+  <data name="authentication.resetPassword.subtitle" xml:space="preserve"><value>Ingrese y confirme su nueva contraseña.</value></data>
+  <data name="authentication.resetPassword.newPassword" xml:space="preserve"><value>Nueva contraseña</value></data>
+  <data name="authentication.resetPassword.confirmPassword" xml:space="preserve"><value>Confirmar nueva contraseña</value></data>
+  <data name="authentication.resetPassword.submit" xml:space="preserve"><value>Restablecer contraseña</value></data>
+  <data name="authentication.resetPassword.successTitle" xml:space="preserve"><value>¡Contraseña restablecida!</value></data>
+  <data name="authentication.resetPassword.successDescription" xml:space="preserve"><value>Su contraseña fue restablecida con éxito. Ya puede iniciar sesión con la nueva contraseña.</value></data>
+  <data name="authentication.resetPassword.invalidLink" xml:space="preserve"><value>Enlace de recuperación inválido. Solicite uno nuevo.</value></data>
+  <data name="authentication.resetPassword.validation.passwordMismatch" xml:space="preserve"><value>Las contraseñas no coinciden.</value></data>
+  <data name="authentication.resetPassword.toast.success" xml:space="preserve"><value>Contraseña restablecida correctamente.</value></data>
+  <data name="authentication.resetPassword.toast.error" xml:space="preserve"><value>Error al restablecer la contraseña.</value></data>
   <data name="company.service.create.emptyResponse" xml:space="preserve"><value>Respuesta vacía al crear la empresa.</value></data>
   <data name="company.service.update.emptyResponse" xml:space="preserve"><value>Respuesta vacía al actualizar la empresa.</value></data>
   <data name="contract.service.create.emptyResponse" xml:space="preserve"><value>Respuesta vacía al crear el contrato.</value></data>

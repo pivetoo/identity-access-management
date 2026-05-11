@@ -12,5 +12,9 @@ namespace IdentityManagement.Application.Services
         Task<bool> ChangePassword(ChangePasswordRequest request, CancellationToken cancellationToken = default);
 
         Task<UserResponse?> GetUserByUsername(string username, CancellationToken cancellationToken = default);
+
+        Task ForgotPasswordAsync(ForgotPasswordRequest request, string resetBaseUrl, CancellationToken cancellationToken = default);
+
+        Task<bool> ResetPasswordAsync(ResetPasswordRequest request, CancellationToken cancellationToken = default);
     }
 }

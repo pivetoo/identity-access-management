@@ -5,6 +5,7 @@ using IdentityManagement.Application.Requests.Auth;
 using IdentityManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Api.Controllers
@@ -13,12 +14,14 @@ namespace IdentityManagement.Api.Controllers
     {
         private readonly IAuthService authService;
         private readonly ILoginSessionService loginSessionService;
+        private readonly IConfiguration configuration;
         private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
-        public AuthController(IAuthService authService, ILoginSessionService loginSessionService, IStringLocalizer<IdentityManagementResource> Localizer)
+        public AuthController(IAuthService authService, ILoginSessionService loginSessionService, IConfiguration configuration, IStringLocalizer<IdentityManagementResource> Localizer)
         {
             this.authService = authService;
             this.loginSessionService = loginSessionService;
+            this.configuration = configuration;
             this.Localizer = Localizer;
         }
 
@@ -65,6 +68,29 @@ namespace IdentityManagement.Api.Controllers
             }
 
             return Http200(message: Localizer["auth.password.changed"]);
+        }
+
+        [AllowAnonymous]
+        [PostEndpoint]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request, CancellationToken cancellationToken)
+        {
+            string resetBaseUrl = configuration["Oidc:Issuer"] ?? string.Empty;
+            await authService.ForgotPasswordAsync(request, resetBaseUrl, cancellationToken);
+            return Http200(message: Localizer["auth.password.resetEmailSent"]);
+        }
+
+        [AllowAnonymous]
+        [PostEndpoint]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(request.NewPassword) || request.NewPassword.Length < 6)
+                return Http400(Localizer["auth.password.tooShort"]);
+
+            bool success = await authService.ResetPasswordAsync(request, cancellationToken);
+            if (!success)
+                return Http400(Localizer["auth.password.resetTokenInvalid"]);
+
+            return Http200(message: Localizer["auth.password.reset"]);
         }
 
         [RequireAccess]

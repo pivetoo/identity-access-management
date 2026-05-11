@@ -219,6 +219,51 @@
   <data name="auth.password.changed" xml:space="preserve">
     <value>Senha alterada com sucesso.</value>
   </data>
+  <data name="auth.password.resetEmailSent" xml:space="preserve">
+    <value>Se o e-mail informado estiver cadastrado, você receberá as instruções de recuperação em breve.</value>
+  </data>
+  <data name="auth.password.resetTokenInvalid" xml:space="preserve">
+    <value>Link de recuperação inválido ou expirado.</value>
+  </data>
+  <data name="auth.password.reset" xml:space="preserve">
+    <value>Senha redefinida com sucesso.</value>
+  </data>
+  <data name="auth.password.tooShort" xml:space="preserve">
+    <value>A senha deve ter no mínimo 6 caracteres.</value>
+  </data>
+  <data name="authentication.resetPassword.title" xml:space="preserve">
+    <value>Redefinir senha</value>
+  </data>
+  <data name="authentication.resetPassword.subtitle" xml:space="preserve">
+    <value>Digite e confirme sua nova senha.</value>
+  </data>
+  <data name="authentication.resetPassword.newPassword" xml:space="preserve">
+    <value>Nova senha</value>
+  </data>
+  <data name="authentication.resetPassword.confirmPassword" xml:space="preserve">
+    <value>Confirmar nova senha</value>
+  </data>
+  <data name="authentication.resetPassword.submit" xml:space="preserve">
+    <value>Redefinir senha</value>
+  </data>
+  <data name="authentication.resetPassword.successTitle" xml:space="preserve">
+    <value>Senha redefinida!</value>
+  </data>
+  <data name="authentication.resetPassword.successDescription" xml:space="preserve">
+    <value>Sua senha foi redefinida com sucesso. Você já pode fazer login com a nova senha.</value>
+  </data>
+  <data name="authentication.resetPassword.invalidLink" xml:space="preserve">
+    <value>Link de recuperação inválido. Solicite um novo link.</value>
+  </data>
+  <data name="authentication.resetPassword.validation.passwordMismatch" xml:space="preserve">
+    <value>As senhas não conferem.</value>
+  </data>
+  <data name="authentication.resetPassword.toast.success" xml:space="preserve">
+    <value>Senha redefinida com sucesso.</value>
+  </data>
+  <data name="authentication.resetPassword.toast.error" xml:space="preserve">
+    <value>Erro ao redefinir senha.</value>
+  </data>
   <data name="company.service.create.emptyResponse" xml:space="preserve">
     <value>Resposta vazia ao criar empresa.</value>
   </data>
