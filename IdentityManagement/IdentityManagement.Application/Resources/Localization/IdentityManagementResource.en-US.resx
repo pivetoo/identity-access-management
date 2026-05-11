@@ -113,6 +113,7 @@
   <data name="layout.menu.userRoles" xml:space="preserve"><value>User Role Assignments</value></data>
   <data name="layout.breadcrumb.home" xml:space="preserve"><value>Home</value></data>
   <data name="common.field.email" xml:space="preserve"><value>Email</value></data>
+  <data name="common.field.emailOrUsername" xml:space="preserve"><value>Email or username</value></data>
   <data name="common.field.password" xml:space="preserve"><value>Password</value></data>
   <data name="common.field.phoneNumber" xml:space="preserve"><value>Phone</value></data>
   <data name="common.field.description" xml:space="preserve"><value>Description</value></data>
@@ -166,7 +167,7 @@
   <data name="authentication.login.providerName" xml:space="preserve"><value>[Identity Provider]</value></data>
   <data name="authentication.login.submit" xml:space="preserve"><value>Sign In</value></data>
   <data name="authentication.login.forgotPassword" xml:space="preserve"><value>Forgot your password?</value></data>
-  <data name="authentication.login.validation.emailRequired" xml:space="preserve"><value>Email is required.</value></data>
+  <data name="authentication.login.validation.emailRequired" xml:space="preserve"><value>Email or username is required.</value></data>
   <data name="authentication.login.validation.emailInvalid" xml:space="preserve"><value>Invalid email.</value></data>
   <data name="authentication.login.validation.passwordRequired" xml:space="preserve"><value>Password is required.</value></data>
   <data name="authentication.login.validation.passwordMinLength" xml:space="preserve"><value>Password must be at least 6 characters long.</value></data>

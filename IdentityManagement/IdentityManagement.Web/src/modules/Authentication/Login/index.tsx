@@ -5,7 +5,6 @@ import { User, Lock } from 'lucide-react';
 import type { IdentifyResult, ContractType } from 'archon-ui';
 import SystemCenter from '../SystemCenter';
 import logoEmpresa from '../../../assets/Mainstay/logo-login.png';
-import { validateEmail } from '../../../utils/validation';
 import { OidcService } from '../../../services/oidcService';
 import { generatePkce } from '../../../utils/pkce';
 
@@ -164,7 +163,7 @@ export default function Login() {
     setShowContractSelection(true);
   };
 
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -178,13 +177,8 @@ export default function Login() {
     setEmailError('');
     setPasswordError('');
 
-    if (!email) {
+    if (!identifier) {
       setEmailError(t('authentication.login.validation.emailRequired'));
-      return false;
-    }
-
-    if (!validateEmail(email)) {
-      setEmailError(t('authentication.login.validation.emailInvalid'));
       return false;
     }
 
@@ -218,7 +212,7 @@ export default function Login() {
       }
 
       const data = await AuthService.identify({
-        username: email,
+        username: identifier,
         password: password,
         authorizeUrl
       });
@@ -299,14 +293,14 @@ export default function Login() {
 
               <form onSubmit={handleSubmit} className="flex flex-col">
                 <div className="mb-2">
-                  <label className="text-sm font-medium mb-1 block text-muted-foreground pl-1">{t('common.field.email')}</label>
+                  <label className="text-sm font-medium mb-1 block text-muted-foreground pl-1">{t('common.field.emailOrUsername')}</label>
                   <div className="relative w-full">
                     <User className="absolute left-3 top-3 h-4 w-4 text-foreground opacity-70 pointer-events-none z-10" />
                     <Input
-                      type="email"
-                      placeholder={t('common.field.email')}
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      type="text"
+                      placeholder={t('common.field.emailOrUsername')}
+                      value={identifier}
+                      onChange={(e) => setIdentifier(e.target.value)}
                       error={!!emailError}
                       helperText={emailError}
                       disabled={loading}

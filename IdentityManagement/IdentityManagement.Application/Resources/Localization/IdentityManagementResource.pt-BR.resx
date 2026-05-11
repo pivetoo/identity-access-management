@@ -289,6 +289,7 @@
   <data name="layout.menu.userRoles" xml:space="preserve"><value>Vincular Usuários</value></data>
   <data name="layout.breadcrumb.home" xml:space="preserve"><value>Início</value></data>
   <data name="common.field.email" xml:space="preserve"><value>E-mail</value></data>
+  <data name="common.field.emailOrUsername" xml:space="preserve"><value>E-mail ou usuário</value></data>
   <data name="common.field.password" xml:space="preserve"><value>Senha</value></data>
   <data name="common.field.phoneNumber" xml:space="preserve"><value>Telefone</value></data>
   <data name="common.field.description" xml:space="preserve"><value>Descrição</value></data>
@@ -342,7 +343,7 @@
   <data name="authentication.login.providerName" xml:space="preserve"><value>[Provedor de Identidade]</value></data>
   <data name="authentication.login.submit" xml:space="preserve"><value>Entrar</value></data>
   <data name="authentication.login.forgotPassword" xml:space="preserve"><value>Esqueceu a senha?</value></data>
-  <data name="authentication.login.validation.emailRequired" xml:space="preserve"><value>E-mail é obrigatório.</value></data>
+  <data name="authentication.login.validation.emailRequired" xml:space="preserve"><value>E-mail ou usuário é obrigatório.</value></data>
   <data name="authentication.login.validation.emailInvalid" xml:space="preserve"><value>E-mail inválido.</value></data>
   <data name="authentication.login.validation.passwordRequired" xml:space="preserve"><value>Senha é obrigatória.</value></data>
   <data name="authentication.login.validation.passwordMinLength" xml:space="preserve"><value>Senha deve ter no mínimo 6 caracteres.</value></data>
