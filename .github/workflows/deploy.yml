@@ -33,12 +33,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: pivetoo/archon-framework
+          token: ${{ secrets.GH_PAT }}
           path: frameworks/archon-framework
 
       - name: Checkout archon ui
         uses: actions/checkout@v4
         with:
           repository: pivetoo/archon-ui
+          token: ${{ secrets.GH_PAT }}
           path: frameworks/archon-ui
 
       - name: Setup .NET
