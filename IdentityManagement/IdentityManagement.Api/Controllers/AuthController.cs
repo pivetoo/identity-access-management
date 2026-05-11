@@ -90,7 +90,9 @@ namespace IdentityManagement.Api.Controllers
 
             bool success = await authService.ResetPasswordAsync(request, cancellationToken);
             if (!success)
+            {
                 return Http400(Localizer["auth.password.resetTokenInvalid"]);
+            }
 
             return Http200(message: Localizer["auth.password.reset"]);
         }
