@@ -84,7 +84,9 @@ namespace IdentityManagement.Api.Controllers
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(request.NewPassword) || request.NewPassword.Length < 6)
+            {
                 return Http400(Localizer["auth.password.tooShort"]);
+            }
 
             bool success = await authService.ResetPasswordAsync(request, cancellationToken);
             if (!success)
