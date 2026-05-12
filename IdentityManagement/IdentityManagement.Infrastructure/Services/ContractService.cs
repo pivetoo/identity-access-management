@@ -33,16 +33,9 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException(Localizer["contract.activeDuplicate"]);
             }
 
-            Guid tenantId = await (
-                from company in DbContext.Set<Company>().AsNoTracking()
-                where company.Id == request.CompanyId
-                select company.TenantId)
-                .FirstAsync(cancellationToken);
-
             Contract contract = new Contract(
                 request.CompanyId,
-                request.SystemApplicationId,
-                tenantId);
+                request.SystemApplicationId);
 
             contract.Update(
                 request.CompanyId,
@@ -150,7 +143,7 @@ namespace IdentityManagement.Infrastructure.Services
                     Id = contract.Id,
                     CompanyId = contract.CompanyId,
                     SystemApplicationId = contract.SystemApplicationId,
-                    TenantId = contract.TenantId,
+                    TenantId = company.TenantId,
                     CompanyName = company.LegalName,
                     SystemApplicationName = systemApplication.Name,
                     StartDate = contract.StartDate,
@@ -176,7 +169,7 @@ namespace IdentityManagement.Infrastructure.Services
                     Id = contract.Id,
                     CompanyId = contract.CompanyId,
                     SystemApplicationId = contract.SystemApplicationId,
-                    TenantId = contract.TenantId,
+                    TenantId = company.TenantId,
                     CompanyName = company.LegalName,
                     SystemApplicationName = systemApplication.Name,
                     StartDate = contract.StartDate,
@@ -203,7 +196,7 @@ namespace IdentityManagement.Infrastructure.Services
                 {
                     Id = contract.Id,
                     SystemApplicationId = contract.SystemApplicationId,
-                    TenantId = contract.TenantId,
+                    TenantId = company.TenantId,
                     CompanyName = company.LegalName,
                     SystemApplicationName = systemApplication.Name,
                     StartDate = contract.StartDate,
@@ -332,7 +325,7 @@ namespace IdentityManagement.Infrastructure.Services
                 Id = contract.Id,
                 CompanyId = contract.CompanyId,
                 SystemApplicationId = contract.SystemApplicationId,
-                TenantId = contract.TenantId,
+                TenantId = contract.Company.TenantId,
                 CompanyName = contract.Company.LegalName,
                 SystemApplicationName = contract.SystemApplication.Name,
                 StartDate = contract.StartDate,
