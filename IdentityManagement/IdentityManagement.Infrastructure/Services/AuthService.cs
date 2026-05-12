@@ -109,6 +109,8 @@ namespace IdentityManagement.Infrastructure.Services
             resetToken.MarkAsUsed();
             await dbContext.SaveChangesAsync(cancellationToken);
 
+            await emailSender.SendPasswordResetConfirmationEmailAsync(resetToken.User.Email, resetToken.User.Name, cancellationToken);
+
             return true;
         }
 

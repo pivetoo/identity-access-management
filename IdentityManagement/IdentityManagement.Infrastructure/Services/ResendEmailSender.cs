@@ -16,6 +16,89 @@ namespace IdentityManagement.Infrastructure.Services
             await resend.EmailSendAsync(message, cancellationToken);
         }
 
+        public async Task SendPasswordResetConfirmationEmailAsync(string toEmail, string toName, CancellationToken cancellationToken = default)
+        {
+            var message = new EmailMessage();
+            message.From = "no-reply@mainstay.com.br";
+            message.To.Add(toEmail);
+            message.Subject = "Sua senha foi redefinida — Mainstay";
+            message.HtmlBody = BuildSecurityAlertHtml(
+                toName,
+                "Senha redefinida com sucesso",
+                "Sua senha foi redefinida com sucesso.",
+                "Se você não realizou esta ação, sua conta pode estar comprometida. Entre em contato com o suporte imediatamente."
+            );
+
+            await resend.EmailSendAsync(message, cancellationToken);
+        }
+
+        public async Task SendPasswordChangedEmailAsync(string toEmail, string toName, CancellationToken cancellationToken = default)
+        {
+            var message = new EmailMessage();
+            message.From = "no-reply@mainstay.com.br";
+            message.To.Add(toEmail);
+            message.Subject = "Sua senha foi alterada — Mainstay";
+            message.HtmlBody = BuildSecurityAlertHtml(
+                toName,
+                "Senha alterada",
+                "Sua senha foi alterada com sucesso.",
+                "Se você não realizou esta alteração, sua conta pode estar comprometida. Entre em contato com o suporte imediatamente."
+            );
+
+            await resend.EmailSendAsync(message, cancellationToken);
+        }
+
+        public async Task SendAccountDeactivatedEmailAsync(string toEmail, string toName, CancellationToken cancellationToken = default)
+        {
+            var message = new EmailMessage();
+            message.From = "no-reply@mainstay.com.br";
+            message.To.Add(toEmail);
+            message.Subject = "Sua conta foi desativada — Mainstay";
+            message.HtmlBody = BuildSecurityAlertHtml(
+                toName,
+                "Conta desativada",
+                "Sua conta foi desativada e você não poderá mais acessar o sistema.",
+                "Se acredita que isso foi um engano, entre em contato com o administrador do sistema."
+            );
+
+            await resend.EmailSendAsync(message, cancellationToken);
+        }
+
+        private static string BuildSecurityAlertHtml(string name, string title, string body, string footer) => $"""
+            <!DOCTYPE html>
+            <html lang="pt-BR">
+            <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /></head>
+            <body style="margin:0;padding:0;background:#f4f4f5;font-family:sans-serif;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
+                <tr>
+                  <td align="center">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
+                      <tr>
+                        <td align="center" style="padding-bottom:24px;">
+                          <img src="https://auth.mainstay.com.br/logo-mainstay.png" alt="Mainstay" width="160" style="display:block;" />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="background:#ffffff;border-radius:10px;padding:40px 36px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+                          <h2 style="margin:0 0 8px;color:#1F3B61;font-size:22px;font-weight:700;">{title}</h2>
+                          <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">Olá, {name}.</p>
+                          <p style="margin:0 0 24px;color:#374151;font-size:15px;line-height:1.6;">{body}</p>
+                          <p style="margin:0;padding:16px;background:#fff7ed;border-left:4px solid #f97316;border-radius:4px;color:#9a3412;font-size:13px;line-height:1.6;">{footer}</p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td align="center" style="padding-top:24px;">
+                          <p style="margin:0;color:#9ca3af;font-size:12px;">© {DateTimeOffset.UtcNow.Year} Mainstay. Todos os direitos reservados.</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </body>
+            </html>
+            """;
+
         private static string BuildHtml(string name, string resetLink) => $"""
             <!DOCTYPE html>
             <html lang="pt-BR">

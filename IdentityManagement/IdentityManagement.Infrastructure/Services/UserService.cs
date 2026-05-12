@@ -13,10 +13,12 @@ namespace IdentityManagement.Infrastructure.Services
     public sealed class UserService : CrudService<User>, IUserService
     {
         private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
+        private readonly IEmailSender emailSender;
 
-        public UserService(DbContext dbContext, IStringLocalizer<IdentityManagementResource> Localizer) : base(dbContext)
+        public UserService(DbContext dbContext, IStringLocalizer<IdentityManagementResource> Localizer, IEmailSender emailSender) : base(dbContext)
         {
             this.Localizer = Localizer;
+            this.emailSender = emailSender;
         }
 
         public async Task<UserResponse> CreateUser(RegisterUserRequest request, CancellationToken cancellationToken = default)
@@ -147,7 +149,14 @@ namespace IdentityManagement.Infrastructure.Services
             }
 
             user.ChangePassword(HashPassword(newPassword));
-            return await Update(user, cancellationToken) is not null;
+            bool updated = await Update(user, cancellationToken) is not null;
+
+            if (updated)
+            {
+                await emailSender.SendPasswordChangedEmailAsync(user.Email, user.Name, cancellationToken);
+            }
+
+            return updated;
         }
 
         public Task<User?> GetByUsernameOrEmail(string usernameOrEmail, CancellationToken cancellationToken = default)
@@ -325,6 +334,11 @@ namespace IdentityManagement.Infrastructure.Services
             if (result is null)
             {
                 throw new InvalidOperationException(GetErrorMessages());
+            }
+
+            if (!isActive)
+            {
+                await emailSender.SendAccountDeactivatedEmailAsync(result.Email, result.Name, cancellationToken);
             }
 
             return ToResponse(result);
