@@ -2,6 +2,7 @@ using Archon.Api.Attributes;
 using Archon.Api.Controllers;
 using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.Auth;
+using IdentityManagement.Application.Responses.Auth;
 using IdentityManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -95,6 +96,37 @@ namespace IdentityManagement.Api.Controllers
             }
 
             return Http200(message: Localizer["auth.password.reset"]);
+        }
+
+        [AllowAnonymous]
+        [GetEndpoint("{token}")]
+        public async Task<IActionResult> GetAdminSetup(string token, CancellationToken cancellationToken)
+        {
+            var info = await authService.ValidateAdminInvitation(token, cancellationToken);
+            if (info is null)
+            {
+                return Http400(Localizer["auth.adminSetup.invalidToken"]);
+            }
+
+            return Http200(info);
+        }
+
+        [AllowAnonymous]
+        [PostEndpoint]
+        public async Task<IActionResult> SetupAdmin([FromBody] SetupAdminRequest request, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length < 6)
+            {
+                return Http400(Localizer["auth.password.tooShort"]);
+            }
+
+            bool success = await authService.SetupAdmin(request, cancellationToken);
+            if (!success)
+            {
+                return Http400(Localizer["auth.adminSetup.invalidToken"]);
+            }
+
+            return Http200(message: Localizer["auth.adminSetup.success"]);
         }
 
         [RequireAccess]

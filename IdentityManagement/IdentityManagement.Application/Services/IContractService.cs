@@ -7,7 +7,7 @@ namespace IdentityManagement.Application.Services
 {
     public interface IContractService : ICrudService<Contract>
     {
-        Task<ContractSummaryResponse> CreateContract(CreateContractRequest request, CancellationToken cancellationToken = default);
+        Task<ContractSummaryResponse> CreateContract(CreateContractRequest request, string setupBaseUrl, CancellationToken cancellationToken = default);
 
         Task<ContractSummaryResponse> UpdateContract(long id, UpdateContractRequest request, CancellationToken cancellationToken = default);
 
@@ -26,5 +26,7 @@ namespace IdentityManagement.Application.Services
         Task<Contract?> GetByIdWithRelations(long id, CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<Contract>> GetActiveContractsByUserId(long userId, CancellationToken cancellationToken = default);
+
+        Task ResendAdminInvitation(long contractId, string setupBaseUrl, CancellationToken cancellationToken = default);
     }
 }

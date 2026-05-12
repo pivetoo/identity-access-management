@@ -9,5 +9,7 @@ namespace IdentityManagement.Application.Services
         Task SendPasswordChangedEmailAsync(string toEmail, string toName, CancellationToken cancellationToken = default);
 
         Task SendAccountDeactivatedEmailAsync(string toEmail, string toName, CancellationToken cancellationToken = default);
+
+        Task SendAdminInvitationEmailAsync(string toEmail, string companyName, string systemApplicationName, string setupLink, CancellationToken cancellationToken = default);
     }
 }

@@ -4,6 +4,7 @@ using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.Contracts;
 using IdentityManagement.Application.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Api.Controllers
@@ -11,11 +12,13 @@ namespace IdentityManagement.Api.Controllers
     public sealed class ContractsController : ApiControllerBase
     {
         private readonly IContractService contractService;
+        private readonly IConfiguration configuration;
         private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
-        public ContractsController(IContractService contractService, IStringLocalizer<IdentityManagementResource> Localizer)
+        public ContractsController(IContractService contractService, IConfiguration configuration, IStringLocalizer<IdentityManagementResource> Localizer)
         {
             this.contractService = contractService;
+            this.configuration = configuration;
             this.Localizer = Localizer;
         }
 
@@ -47,8 +50,18 @@ namespace IdentityManagement.Api.Controllers
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateContractRequest request, CancellationToken cancellationToken)
         {
-            var response = await contractService.CreateContract(request, cancellationToken);
+            string setupBaseUrl = configuration["Oidc:Issuer"] ?? string.Empty;
+            var response = await contractService.CreateContract(request, setupBaseUrl, cancellationToken);
             return Http201(response, Localizer["contract.created"]);
+        }
+
+        [RequireAccess]
+        [PostEndpoint("{id:long}")]
+        public async Task<IActionResult> ResendInvitation(long id, CancellationToken cancellationToken)
+        {
+            string setupBaseUrl = configuration["Oidc:Issuer"] ?? string.Empty;
+            await contractService.ResendAdminInvitation(id, setupBaseUrl, cancellationToken);
+            return Http200(message: Localizer["contract.adminInvitation.resent"]);
         }
 
         [RequireAccess]

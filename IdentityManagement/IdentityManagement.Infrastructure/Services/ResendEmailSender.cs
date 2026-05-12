@@ -64,6 +64,17 @@ namespace IdentityManagement.Infrastructure.Services
             await resend.EmailSendAsync(message, cancellationToken);
         }
 
+        public async Task SendAdminInvitationEmailAsync(string toEmail, string companyName, string systemApplicationName, string setupLink, CancellationToken cancellationToken = default)
+        {
+            var message = new EmailMessage();
+            message.From = "no-reply@mainstay.com.br";
+            message.To.Add(toEmail);
+            message.Subject = $"Configure seu acesso — {systemApplicationName}";
+            message.HtmlBody = BuildAdminInvitationHtml(companyName, systemApplicationName, setupLink);
+
+            await resend.EmailSendAsync(message, cancellationToken);
+        }
+
         private static string BuildSecurityAlertHtml(string name, string title, string body, string footer) => $"""
             <!DOCTYPE html>
             <html lang="pt-BR">
@@ -84,6 +95,49 @@ namespace IdentityManagement.Infrastructure.Services
                           <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">Olá, {name}.</p>
                           <p style="margin:0 0 24px;color:#374151;font-size:15px;line-height:1.6;">{body}</p>
                           <p style="margin:0;padding:16px;background:#fff7ed;border-left:4px solid #f97316;border-radius:4px;color:#9a3412;font-size:13px;line-height:1.6;">{footer}</p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td align="center" style="padding-top:24px;">
+                          <p style="margin:0;color:#9ca3af;font-size:12px;">© {DateTimeOffset.UtcNow.Year} Mainstay. Todos os direitos reservados.</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </body>
+            </html>
+            """;
+
+        private static string BuildAdminInvitationHtml(string companyName, string systemApplicationName, string setupLink) => $"""
+            <!DOCTYPE html>
+            <html lang="pt-BR">
+            <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /></head>
+            <body style="margin:0;padding:0;background:#f4f4f5;font-family:sans-serif;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
+                <tr>
+                  <td align="center">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
+                      <tr>
+                        <td align="center" style="padding-bottom:24px;">
+                          <img src="https://auth.mainstay.com.br/logo-mainstay.png" alt="Mainstay" width="160" style="display:block;" />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="background:#ffffff;border-radius:10px;padding:40px 36px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+                          <h2 style="margin:0 0 8px;color:#1F3B61;font-size:22px;font-weight:700;">Configure seu acesso</h2>
+                          <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">Olá, <strong>{companyName}</strong>.</p>
+                          <p style="margin:0 0 8px;color:#374151;font-size:15px;line-height:1.6;">Um contrato com o sistema <strong>{systemApplicationName}</strong> foi criado para sua empresa.</p>
+                          <p style="margin:0 0 28px;color:#374151;font-size:15px;line-height:1.6;">Clique no botão abaixo para configurar o usuário <strong>Administrador</strong> e definir suas credenciais de acesso:</p>
+                          <table cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td style="border-radius:6px;background:#1F3B61;">
+                                <a href="{setupLink}" style="display:inline-block;padding:14px 32px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;border-radius:6px;">Configurar meu acesso</a>
+                              </td>
+                            </tr>
+                          </table>
+                          <p style="margin:28px 0 0;color:#6b7280;font-size:13px;line-height:1.6;">Este link expira em <strong>7 dias</strong>. Se não reconhece este convite, ignore este e-mail com segurança.</p>
                         </td>
                       </tr>
                       <tr>

@@ -76,6 +76,9 @@
   <data name="auth.password.resetEmailSent" xml:space="preserve"><value>Si el correo ingresado está registrado, recibirá las instrucciones de recuperación en breve.</value></data>
   <data name="auth.password.resetTokenInvalid" xml:space="preserve"><value>El enlace de recuperación es inválido o ha expirado.</value></data>
   <data name="auth.password.reset" xml:space="preserve"><value>Contraseña restablecida correctamente.</value></data>
+  <data name="auth.adminSetup.invalidToken" xml:space="preserve"><value>El enlace de configuración es inválido o ha expirado.</value></data>
+  <data name="auth.adminSetup.success" xml:space="preserve"><value>Administrador configurado exitosamente.</value></data>
+  <data name="contract.adminInvitation.resent" xml:space="preserve"><value>Invitación de configuración reenviada exitosamente.</value></data>
   <data name="auth.password.tooShort" xml:space="preserve"><value>La contraseña debe tener al menos 6 caracteres.</value></data>
   <data name="authentication.resetPassword.title" xml:space="preserve"><value>Restablecer contraseña</value></data>
   <data name="authentication.resetPassword.subtitle" xml:space="preserve"><value>Ingrese y confirme su nueva contraseña.</value></data>
@@ -88,6 +91,22 @@
   <data name="authentication.resetPassword.validation.passwordMismatch" xml:space="preserve"><value>Las contraseñas no coinciden.</value></data>
   <data name="authentication.resetPassword.toast.success" xml:space="preserve"><value>Contraseña restablecida correctamente.</value></data>
   <data name="authentication.resetPassword.toast.error" xml:space="preserve"><value>Error al restablecer la contraseña.</value></data>
+  <data name="authentication.setupAdmin.title" xml:space="preserve"><value>Configure su acceso</value></data>
+  <data name="authentication.setupAdmin.subtitle" xml:space="preserve"><value>Defina sus credenciales de Administrador para acceder al sistema.</value></data>
+  <data name="authentication.setupAdmin.field.name" xml:space="preserve"><value>Nombre completo</value></data>
+  <data name="authentication.setupAdmin.field.username" xml:space="preserve"><value>Nombre de usuario</value></data>
+  <data name="authentication.setupAdmin.field.email" xml:space="preserve"><value>Correo electrónico</value></data>
+  <data name="authentication.setupAdmin.field.password" xml:space="preserve"><value>Contraseña</value></data>
+  <data name="authentication.setupAdmin.field.confirmPassword" xml:space="preserve"><value>Confirmar contraseña</value></data>
+  <data name="authentication.setupAdmin.submit" xml:space="preserve"><value>Crear cuenta de Administrador</value></data>
+  <data name="authentication.setupAdmin.successTitle" xml:space="preserve"><value>¡Cuenta creada!</value></data>
+  <data name="authentication.setupAdmin.successDescription" xml:space="preserve"><value>Su cuenta de Administrador fue creada. Ya puede iniciar sesión en el sistema.</value></data>
+  <data name="authentication.setupAdmin.invalidLink" xml:space="preserve"><value>Este enlace de configuración es inválido o ha expirado.</value></data>
+  <data name="authentication.setupAdmin.validation.passwordMismatch" xml:space="preserve"><value>Las contraseñas no coinciden.</value></data>
+  <data name="authentication.setupAdmin.label.company" xml:space="preserve"><value>Empresa</value></data>
+  <data name="authentication.setupAdmin.label.system" xml:space="preserve"><value>Sistema</value></data>
+  <data name="authentication.setupAdmin.toast.success" xml:space="preserve"><value>Administrador configurado exitosamente.</value></data>
+  <data name="authentication.setupAdmin.toast.error" xml:space="preserve"><value>Error al configurar el administrador.</value></data>
   <data name="company.service.create.emptyResponse" xml:space="preserve"><value>Respuesta vacía al crear la empresa.</value></data>
   <data name="company.service.update.emptyResponse" xml:space="preserve"><value>Respuesta vacía al actualizar la empresa.</value></data>
   <data name="contract.service.create.emptyResponse" xml:space="preserve"><value>Respuesta vacía al crear el contrato.</value></data>

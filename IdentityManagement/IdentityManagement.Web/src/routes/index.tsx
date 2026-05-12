@@ -13,6 +13,7 @@ import SystemRoleTemplates from '../modules/Administration/SystemRoleTemplates';
 import UserRoles from '../modules/Administration/UserRoles';
 import ForgotPassword from '../modules/Authentication/ForgotPassword';
 import ResetPassword from '../modules/Authentication/ResetPassword';
+import SetupAdmin from '../modules/Authentication/SetupAdmin';
 import Login from '../modules/Authentication/Login';
 
 const identityManagementUrl = (import.meta.env.VITE_IDENTITY_MANAGEMENT_URL || import.meta.env.VITE_API_BASE_URL?.replace(/\/api\/?$/, '') || '').replace(/\/+$/, '');
@@ -78,6 +79,7 @@ function AppRoutes() {
         <Route path="/login" element={<LoginEntry />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/setup-admin" element={<SetupAdmin />} />
         <Route path="/logout" element={<LogoutEntry />} />
         <Route
           path="/callback"

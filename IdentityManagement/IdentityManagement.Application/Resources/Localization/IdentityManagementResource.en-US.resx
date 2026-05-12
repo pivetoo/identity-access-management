@@ -84,6 +84,9 @@
   <data name="auth.password.resetEmailSent" xml:space="preserve"><value>If the provided email is registered, you will receive recovery instructions shortly.</value></data>
   <data name="auth.password.resetTokenInvalid" xml:space="preserve"><value>Recovery link is invalid or expired.</value></data>
   <data name="auth.password.reset" xml:space="preserve"><value>Password reset successfully.</value></data>
+  <data name="auth.adminSetup.invalidToken" xml:space="preserve"><value>Setup link is invalid or expired.</value></data>
+  <data name="auth.adminSetup.success" xml:space="preserve"><value>Administrator configured successfully.</value></data>
+  <data name="contract.adminInvitation.resent" xml:space="preserve"><value>Setup invitation resent successfully.</value></data>
   <data name="auth.password.tooShort" xml:space="preserve"><value>Password must be at least 6 characters.</value></data>
   <data name="authentication.resetPassword.title" xml:space="preserve"><value>Reset password</value></data>
   <data name="authentication.resetPassword.subtitle" xml:space="preserve"><value>Enter and confirm your new password.</value></data>
@@ -96,6 +99,22 @@
   <data name="authentication.resetPassword.validation.passwordMismatch" xml:space="preserve"><value>Passwords do not match.</value></data>
   <data name="authentication.resetPassword.toast.success" xml:space="preserve"><value>Password reset successfully.</value></data>
   <data name="authentication.resetPassword.toast.error" xml:space="preserve"><value>Failed to reset password.</value></data>
+  <data name="authentication.setupAdmin.title" xml:space="preserve"><value>Set up your access</value></data>
+  <data name="authentication.setupAdmin.subtitle" xml:space="preserve"><value>Define your Administrator credentials to access the system.</value></data>
+  <data name="authentication.setupAdmin.field.name" xml:space="preserve"><value>Full name</value></data>
+  <data name="authentication.setupAdmin.field.username" xml:space="preserve"><value>Username</value></data>
+  <data name="authentication.setupAdmin.field.email" xml:space="preserve"><value>Email</value></data>
+  <data name="authentication.setupAdmin.field.password" xml:space="preserve"><value>Password</value></data>
+  <data name="authentication.setupAdmin.field.confirmPassword" xml:space="preserve"><value>Confirm password</value></data>
+  <data name="authentication.setupAdmin.submit" xml:space="preserve"><value>Create Administrator account</value></data>
+  <data name="authentication.setupAdmin.successTitle" xml:space="preserve"><value>Account created!</value></data>
+  <data name="authentication.setupAdmin.successDescription" xml:space="preserve"><value>Your Administrator account has been created. You can now sign in to the system.</value></data>
+  <data name="authentication.setupAdmin.invalidLink" xml:space="preserve"><value>This setup link is invalid or has expired.</value></data>
+  <data name="authentication.setupAdmin.validation.passwordMismatch" xml:space="preserve"><value>Passwords do not match.</value></data>
+  <data name="authentication.setupAdmin.label.company" xml:space="preserve"><value>Company</value></data>
+  <data name="authentication.setupAdmin.label.system" xml:space="preserve"><value>System</value></data>
+  <data name="authentication.setupAdmin.toast.success" xml:space="preserve"><value>Administrator configured successfully.</value></data>
+  <data name="authentication.setupAdmin.toast.error" xml:space="preserve"><value>Failed to configure the administrator.</value></data>
   <data name="company.service.create.emptyResponse" xml:space="preserve"><value>Empty response while creating company.</value></data>
   <data name="company.service.update.emptyResponse" xml:space="preserve"><value>Empty response while updating company.</value></data>
   <data name="contract.service.create.emptyResponse" xml:space="preserve"><value>Empty response while creating contract.</value></data>

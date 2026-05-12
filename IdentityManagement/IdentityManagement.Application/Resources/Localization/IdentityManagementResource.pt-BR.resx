@@ -228,6 +228,15 @@
   <data name="auth.password.reset" xml:space="preserve">
     <value>Senha redefinida com sucesso.</value>
   </data>
+  <data name="auth.adminSetup.invalidToken" xml:space="preserve">
+    <value>Link de configuração inválido ou expirado.</value>
+  </data>
+  <data name="auth.adminSetup.success" xml:space="preserve">
+    <value>Administrador configurado com sucesso.</value>
+  </data>
+  <data name="contract.adminInvitation.resent" xml:space="preserve">
+    <value>Convite de configuração reenviado com sucesso.</value>
+  </data>
   <data name="auth.password.tooShort" xml:space="preserve">
     <value>A senha deve ter no mínimo 6 caracteres.</value>
   </data>
@@ -263,6 +272,54 @@
   </data>
   <data name="authentication.resetPassword.toast.error" xml:space="preserve">
     <value>Erro ao redefinir senha.</value>
+  </data>
+  <data name="authentication.setupAdmin.title" xml:space="preserve">
+    <value>Configure seu acesso</value>
+  </data>
+  <data name="authentication.setupAdmin.subtitle" xml:space="preserve">
+    <value>Defina suas credenciais de Administrador para acessar o sistema.</value>
+  </data>
+  <data name="authentication.setupAdmin.field.name" xml:space="preserve">
+    <value>Nome completo</value>
+  </data>
+  <data name="authentication.setupAdmin.field.username" xml:space="preserve">
+    <value>Nome de usuário</value>
+  </data>
+  <data name="authentication.setupAdmin.field.email" xml:space="preserve">
+    <value>E-mail</value>
+  </data>
+  <data name="authentication.setupAdmin.field.password" xml:space="preserve">
+    <value>Senha</value>
+  </data>
+  <data name="authentication.setupAdmin.field.confirmPassword" xml:space="preserve">
+    <value>Confirmar senha</value>
+  </data>
+  <data name="authentication.setupAdmin.submit" xml:space="preserve">
+    <value>Criar conta de Administrador</value>
+  </data>
+  <data name="authentication.setupAdmin.successTitle" xml:space="preserve">
+    <value>Conta criada com sucesso!</value>
+  </data>
+  <data name="authentication.setupAdmin.successDescription" xml:space="preserve">
+    <value>Seu usuário Administrador foi configurado. Você já pode fazer login no sistema.</value>
+  </data>
+  <data name="authentication.setupAdmin.invalidLink" xml:space="preserve">
+    <value>Este link de configuração é inválido ou já expirou.</value>
+  </data>
+  <data name="authentication.setupAdmin.validation.passwordMismatch" xml:space="preserve">
+    <value>As senhas não coincidem.</value>
+  </data>
+  <data name="authentication.setupAdmin.label.company" xml:space="preserve">
+    <value>Empresa</value>
+  </data>
+  <data name="authentication.setupAdmin.label.system" xml:space="preserve">
+    <value>Sistema</value>
+  </data>
+  <data name="authentication.setupAdmin.toast.success" xml:space="preserve">
+    <value>Administrador configurado com sucesso.</value>
+  </data>
+  <data name="authentication.setupAdmin.toast.error" xml:space="preserve">
+    <value>Erro ao configurar o administrador.</value>
   </data>
   <data name="company.service.create.emptyResponse" xml:space="preserve">
     <value>Resposta vazia ao criar empresa.</value>

@@ -6,19 +6,23 @@ using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
 
 namespace IdentityManagement.Infrastructure.Services
 {
     public sealed class ContractService : CrudService<Contract>, IContractService
     {
         private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
+        private readonly IEmailSender emailSender;
 
-        public ContractService(DbContext dbContext, IStringLocalizer<IdentityManagementResource> Localizer) : base(dbContext)
+        public ContractService(DbContext dbContext, IStringLocalizer<IdentityManagementResource> Localizer, IEmailSender emailSender) : base(dbContext)
         {
             this.Localizer = Localizer;
+            this.emailSender = emailSender;
         }
 
-        public async Task<ContractSummaryResponse> CreateContract(CreateContractRequest request, CancellationToken cancellationToken = default)
+        public async Task<ContractSummaryResponse> CreateContract(CreateContractRequest request, string setupBaseUrl, CancellationToken cancellationToken = default)
         {
             ValidateDateRange(request.StartDate, request.EndDate);
             await EnsureDependencies(request.CompanyId, request.SystemApplicationId, cancellationToken);
@@ -51,7 +55,31 @@ namespace IdentityManagement.Infrastructure.Services
             Contract hydratedContract = await GetByIdWithRelations(contract.Id, cancellationToken)
                 ?? throw new InvalidOperationException(Localizer["contract.loadAfterCreate.failed"]);
 
+            await SendAdminInvitation(hydratedContract, setupBaseUrl, cancellationToken);
+
             return ToSummaryResponse(hydratedContract);
+        }
+
+        public async Task ResendAdminInvitation(long contractId, string setupBaseUrl, CancellationToken cancellationToken = default)
+        {
+            Contract? contract = await GetByIdWithRelations(contractId, cancellationToken);
+            if (contract is null)
+            {
+                throw new InvalidOperationException(Localizer["contract.notFound"]);
+            }
+
+            List<ContractAdminInvitation> pending = await DbContext.Set<ContractAdminInvitation>()
+                .AsTracking()
+                .Where(item => item.ContractId == contractId && item.UsedAt == null && item.RevokedAt == null && DateTimeOffset.UtcNow < item.ExpiresAt)
+                .ToListAsync(cancellationToken);
+
+            foreach (ContractAdminInvitation invitation in pending)
+            {
+                invitation.Revoke();
+            }
+
+            await DbContext.SaveChangesAsync(cancellationToken);
+            await SendAdminInvitation(contract, setupBaseUrl, cancellationToken);
         }
 
         public async Task<ContractSummaryResponse> UpdateContract(long id, UpdateContractRequest request, CancellationToken cancellationToken = default)
@@ -389,6 +417,28 @@ namespace IdentityManagement.Infrastructure.Services
             {
                 throw new InvalidOperationException(Localizer["contract.systemApplication.changeNotAllowedAfterRoles"]);
             }
+        }
+
+        private async Task SendAdminInvitation(Contract contract, string setupBaseUrl, CancellationToken cancellationToken)
+        {
+            string token = GenerateOpaqueToken();
+            ContractAdminInvitation invitation = new ContractAdminInvitation(contract.Id, token, DateTimeOffset.UtcNow.AddDays(7));
+            DbContext.Set<ContractAdminInvitation>().Add(invitation);
+            await DbContext.SaveChangesAsync(cancellationToken);
+
+            string setupLink = $"{setupBaseUrl.TrimEnd('/')}/setup-admin?token={token}";
+            await emailSender.SendAdminInvitationEmailAsync(
+                contract.Company.Email,
+                contract.Company.LegalName,
+                contract.SystemApplication.Name,
+                setupLink,
+                cancellationToken);
+        }
+
+        private static string GenerateOpaqueToken()
+        {
+            byte[] bytes = RandomNumberGenerator.GetBytes(32);
+            return Base64UrlEncoder.Encode(bytes);
         }
 
         private void ValidateDateRange(DateTimeOffset startDate, DateTimeOffset? endDate)

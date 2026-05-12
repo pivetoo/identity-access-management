@@ -6,6 +6,7 @@ using IdentityManagement.Application.Responses.Users;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Localization;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
@@ -112,6 +113,69 @@ namespace IdentityManagement.Infrastructure.Services
             await emailSender.SendPasswordResetConfirmationEmailAsync(resetToken.User.Email, resetToken.User.Name, cancellationToken);
 
             return true;
+        }
+
+        public async Task<AdminInvitationInfoResponse?> ValidateAdminInvitation(string token, CancellationToken cancellationToken = default)
+        {
+            ContractAdminInvitation? invitation = await dbContext.Set<ContractAdminInvitation>()
+                .AsNoTracking()
+                .Include(i => i.Contract).ThenInclude(c => c.Company)
+                .Include(i => i.Contract).ThenInclude(c => c.SystemApplication)
+                .FirstOrDefaultAsync(i => i.Token == token, cancellationToken);
+
+            if (invitation is null || !invitation.IsValid())
+            {
+                return null;
+            }
+
+            return new AdminInvitationInfoResponse
+            {
+                CompanyName = invitation.Contract.Company.LegalName,
+                SystemApplicationName = invitation.Contract.SystemApplication.Name,
+                CompanyEmail = invitation.Contract.Company.Email
+            };
+        }
+
+        public async Task<bool> SetupAdmin(SetupAdminRequest request, CancellationToken cancellationToken = default)
+        {
+            ContractAdminInvitation? invitation = await dbContext.Set<ContractAdminInvitation>()
+                .AsTracking()
+                .FirstOrDefaultAsync(i => i.Token == request.Token, cancellationToken);
+
+            if (invitation is null || !invitation.IsValid())
+            {
+                return false;
+            }
+
+            Role? rootRole = await dbContext.Set<Role>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(r => r.ContractId == invitation.ContractId && r.IsRoot, cancellationToken);
+
+            if (rootRole is null)
+            {
+                return false;
+            }
+
+            IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                User user = await userService.Register(request.Username, request.Email, request.Password, request.Name, cancellationToken);
+
+                UserRole userRole = new UserRole(user.Id, rootRole.Id);
+                dbContext.Set<UserRole>().Add(userRole);
+                await dbContext.SaveChangesAsync(cancellationToken);
+
+                invitation.MarkAsUsed(user.Id);
+                await dbContext.SaveChangesAsync(cancellationToken);
+
+                await transaction.CommitAsync(cancellationToken);
+                return true;
+            }
+            catch
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
         }
 
         private static UserResponse ToUserResponse(IdentityManagement.Domain.Entities.User user)
