@@ -8,7 +8,7 @@ namespace IdentityManagement.Infrastructure.Services
         public async Task SendPasswordResetEmailAsync(string toEmail, string toName, string resetLink, CancellationToken cancellationToken = default)
         {
             var message = new EmailMessage();
-            message.From = "noreply@mainstay.com.br";
+            message.From = "no-reply@mainstay.com.br";
             message.To.Add(toEmail);
             message.Subject = "Recuperação de senha — Mainstay";
             message.HtmlBody = BuildHtml(toName, resetLink);
