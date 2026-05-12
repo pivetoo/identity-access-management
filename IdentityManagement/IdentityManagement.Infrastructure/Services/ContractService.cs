@@ -33,9 +33,16 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException(Localizer["contract.activeDuplicate"]);
             }
 
+            Guid tenantId = await (
+                from company in DbContext.Set<Company>().AsNoTracking()
+                where company.Id == request.CompanyId
+                select company.TenantId)
+                .FirstAsync(cancellationToken);
+
             Contract contract = new Contract(
                 request.CompanyId,
-                request.SystemApplicationId);
+                request.SystemApplicationId,
+                tenantId);
 
             contract.Update(
                 request.CompanyId,

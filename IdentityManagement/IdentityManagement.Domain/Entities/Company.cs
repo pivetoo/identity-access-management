@@ -16,6 +16,8 @@ namespace IdentityManagement.Domain.Entities
 
         public string PhoneNumber { get; private set; } = string.Empty;
 
+        public Guid TenantId { get; private set; }
+
         public bool IsActive { get; private set; } = true;
 
         public IReadOnlyCollection<Contract> Contracts => contracts.AsReadOnly();
@@ -30,6 +32,7 @@ namespace IdentityManagement.Domain.Entities
             Document = document.Trim();
             Email = email.Trim();
             PhoneNumber = phoneNumber.Trim();
+            TenantId = Guid.NewGuid();
         }
 
         public void Update(string legalName, string tradeName, string document, string email, string phoneNumber, bool isActive)

@@ -34,7 +34,7 @@ namespace IdentityManagement.Domain.Entities
         {
         }
 
-        public Contract(long companyId, long systemApplicationId)
+        public Contract(long companyId, long systemApplicationId, Guid tenantId)
         {
             if (companyId <= 0)
             {
@@ -48,7 +48,7 @@ namespace IdentityManagement.Domain.Entities
 
             CompanyId = companyId;
             SystemApplicationId = systemApplicationId;
-            TenantId = Guid.NewGuid();
+            TenantId = tenantId;
         }
 
         public bool IsValid()

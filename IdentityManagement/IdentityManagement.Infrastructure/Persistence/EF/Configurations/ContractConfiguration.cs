@@ -23,9 +23,6 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
 
             builder.HasIndex(entity => new { entity.CompanyId, entity.SystemApplicationId })
                 .IsUnique();
-
-            builder.HasIndex(entity => entity.TenantId)
-                .IsUnique();
         }
     }
 }

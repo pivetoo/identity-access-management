@@ -29,6 +29,12 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.PhoneNumber)
                 .HasMaxLength(30);
 
+            builder.Property(entity => entity.TenantId)
+                .IsRequired();
+
+            builder.HasIndex(entity => entity.TenantId)
+                .IsUnique();
+
             builder.HasIndex(entity => entity.Document)
                 .IsUnique();
 
