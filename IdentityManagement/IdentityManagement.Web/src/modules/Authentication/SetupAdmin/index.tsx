@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ShieldCheck, Eye, EyeOff, Building2, Monitor } from 'lucide-react';
 import { Button, Card, CardContent, Input, useToast, useI18n } from 'archon-ui';
-import { adminSetupService, AdminInvitationInfo } from '../../../services/adminSetupService';
+import { adminSetupService, type AdminInvitationInfo } from '../../../services/adminSetupService';
 
 export default function SetupAdmin() {
   const { t } = useI18n()
