@@ -132,7 +132,7 @@ jobs:
             set -e
             mkdir -p /var/www/identity-management/config
             cd /var/www/identity-management
-            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+            echo "${{ secrets.GH_PAT }}" | docker login ghcr.io -u "${{ env.IMAGE_OWNER }}" --password-stdin
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
             docker image prune -f
