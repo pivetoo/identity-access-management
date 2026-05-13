@@ -286,8 +286,8 @@ export default function Login() {
               </div>
 
               <p className="text-center text-sm text-muted-foreground mb-10">
-                <strong>{t('authentication.login.title')}</strong>
-                <br />
+                {/* <strong>{t('authentication.login.title')}</strong> */}
+                {/* <br /> */}
                 {t('authentication.login.subtitle')}
               </p>
 
