@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { PageLayout, DataTable, Badge, ConfirmModal, FilterPanel, TableToolbar, toast, useApi, useI18n } from 'archon-ui';
-import type { DataTableColumn, FilterSection } from 'archon-ui';
+import type { DataTableColumn, FilterSection, PaginatedResult } from 'archon-ui';
 import { CompanyService } from '../../../services/companyService';
 import type { Company } from '../../../types/company';
 import CompanyFormModal from '../../../components/modals/CompanyFormModal';
@@ -21,7 +21,7 @@ export default function Companies() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
 
-  const { execute: fetchEmpresas, loading, pagination } = useApi<Company[]>({ showErrorMessage: true });
+  const { execute: fetchEmpresas, loading, pagination } = useApi<PaginatedResult<Company>>({ showErrorMessage: true });
   const deleteApi = useApi({
     onSuccess: () => {
       toast({
@@ -46,7 +46,8 @@ export default function Companies() {
       }),
     );
     if (result) {
-      const filtered = (result as Company[]).filter((empresa) => {
+      const items: Company[] = result.data ?? [];
+      const filtered = items.filter((empresa) => {
         if (statusFilter === 'active') return empresa.isActive;
         if (statusFilter === 'inactive') return !empresa.isActive;
         return true;

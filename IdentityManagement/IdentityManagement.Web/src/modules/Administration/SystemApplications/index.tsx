@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { PageLayout, DataTable, Badge, ConfirmModal, FilterPanel, TableToolbar, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, toast, useApi, useI18n } from 'archon-ui';
-import type { DataTableColumn, FilterSection } from 'archon-ui';
+import type { DataTableColumn, FilterSection, PaginatedResult } from 'archon-ui';
 import { SystemApplicationService } from '../../../services/systemApplicationService';
 import type { SystemApplication } from '../../../types/systemApplication';
 import SystemApplicationFormModal from '../../../components/modals/SystemApplicationFormModal';
@@ -19,7 +19,7 @@ export default function SystemApplications() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
 
-  const { execute: fetchSistemas, loading, pagination } = useApi<SystemApplication[]>({ showErrorMessage: true });
+  const { execute: fetchSistemas, loading, pagination } = useApi<PaginatedResult<SystemApplication>>({ showErrorMessage: true });
   const deleteApi = useApi({
     onSuccess: () => {
       toast({
@@ -44,7 +44,8 @@ export default function SystemApplications() {
       }),
     );
     if (result) {
-      const filtered = (result as SystemApplication[]).filter((s) => {
+      const items: SystemApplication[] = result.data ?? [];
+      const filtered = items.filter((s) => {
         if (statusFilter === 'active') return s.isActive;
         if (statusFilter === 'inactive') return !s.isActive;
         return true;

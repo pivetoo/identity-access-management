@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { PageLayout, DataTable, Badge, ConfirmModal, FilterPanel, TableToolbar, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, toast, useApi, useI18n } from 'archon-ui';
-import type { DataTableColumn, FilterSection } from 'archon-ui';
+import type { DataTableColumn, FilterSection, PaginatedResult } from 'archon-ui';
 import { UserService } from '../../../services/userService';
 import type { User } from '../../../types/user';
 import UserFormModal from '../../../components/modals/UserFormModal';
@@ -20,7 +20,7 @@ export default function Users() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
 
-  const { execute: fetchUsuarios, loading, pagination } = useApi<User[]>({ showErrorMessage: true });
+  const { execute: fetchUsuarios, loading, pagination } = useApi<PaginatedResult<User>>({ showErrorMessage: true });
   const deleteApi = useApi({
     onSuccess: () => {
       toast({
@@ -45,7 +45,8 @@ export default function Users() {
       }),
     );
     if (result) {
-      const filtered = (result as User[]).filter((u) => {
+      const items: User[] = result.data ?? [];
+      const filtered = items.filter((u) => {
         if (statusFilter === 'active') return u.isActive;
         if (statusFilter === 'inactive') return !u.isActive;
         return true;
