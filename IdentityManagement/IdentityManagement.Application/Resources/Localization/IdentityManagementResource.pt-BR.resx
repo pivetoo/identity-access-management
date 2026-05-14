@@ -683,4 +683,39 @@
   <data name="user.form.createTitle" xml:space="preserve"><value>Novo Usuário</value></data>
   <data name="user.form.newPasswordLabel" xml:space="preserve"><value>Nova Senha (deixe em branco para não alterar)</value></data>
   <data name="user.form.activeLabel" xml:space="preserve"><value>Usuário Ativo</value></data>
+  <data name="layout.menu.tenants" xml:space="preserve"><value>Tenants</value></data>
+  <data name="tenantDatabase.notFound" xml:space="preserve"><value>Tenant não encontrado.</value></data>
+  <data name="tenantDatabase.created" xml:space="preserve"><value>Tenant cadastrado com sucesso.</value></data>
+  <data name="tenantDatabase.updated" xml:space="preserve"><value>Tenant atualizado com sucesso.</value></data>
+  <data name="tenantDatabase.loadAfterCreate.failed" xml:space="preserve"><value>Não foi possível carregar o tenant após o cadastro.</value></data>
+  <data name="tenantDatabase.connectionString.required" xml:space="preserve"><value>A string de conexão é obrigatória.</value></data>
+  <data name="tenantDatabase.integrationSecret.required" xml:space="preserve"><value>O integration secret é obrigatório.</value></data>
+  <data name="tenantDatabase.integrationSecret.alreadyExists" xml:space="preserve"><value>Já existe um tenant cadastrado com este integration secret.</value></data>
+  <data name="tenantDatabase.contract.alreadyConfigured" xml:space="preserve"><value>Este contrato já possui tenant configurado.</value></data>
+  <data name="tenantDatabase.list.title" xml:space="preserve"><value>Tenants</value></data>
+  <data name="tenantDatabase.list.subtitle" xml:space="preserve"><value>Configuração de banco de dados por contrato</value></data>
+  <data name="tenantDatabase.list.searchPlaceholder" xml:space="preserve"><value>Buscar por empresa ou aplicação...</value></data>
+  <data name="tenantDatabase.list.filterLabel" xml:space="preserve"><value>Situação</value></data>
+  <data name="tenantDatabase.list.toast.activated" xml:space="preserve"><value>Tenant ativado com sucesso.</value></data>
+  <data name="tenantDatabase.list.toast.inactivated" xml:space="preserve"><value>Tenant inativado com sucesso.</value></data>
+  <data name="tenantDatabase.list.validation.selectToEdit" xml:space="preserve"><value>Selecione um tenant para editar.</value></data>
+  <data name="tenantDatabase.list.validation.selectToToggle" xml:space="preserve"><value>Selecione um tenant para alterar a situação.</value></data>
+  <data name="tenantDatabase.list.confirmActivateTitle" xml:space="preserve"><value>Ativar tenant?</value></data>
+  <data name="tenantDatabase.list.confirmInactivateTitle" xml:space="preserve"><value>Inativar tenant?</value></data>
+  <data name="tenantDatabase.list.confirmActivateDescription" xml:space="preserve"><value>Deseja ativar o tenant de {0} · {1}?</value></data>
+  <data name="tenantDatabase.list.confirmInactivateDescription" xml:space="preserve"><value>Deseja inativar o tenant de {0} · {1}?</value></data>
+  <data name="tenantDatabase.preview.title" xml:space="preserve"><value>Detalhes do Tenant</value></data>
+  <data name="tenantDatabase.preview.subtitle" xml:space="preserve"><value>Configuração de banco e secret deste tenant.</value></data>
+  <data name="tenantDatabase.field.contract" xml:space="preserve"><value>Contrato</value></data>
+  <data name="tenantDatabase.field.connectionString" xml:space="preserve"><value>String de Conexão</value></data>
+  <data name="tenantDatabase.field.databaseProvider" xml:space="preserve"><value>Provider</value></data>
+  <data name="tenantDatabase.field.schemaName" xml:space="preserve"><value>Schema</value></data>
+  <data name="tenantDatabase.field.integrationSecret" xml:space="preserve"><value>Integration Secret</value></data>
+  <data name="tenantDatabase.form.createTitle" xml:space="preserve"><value>Novo Tenant</value></data>
+  <data name="tenantDatabase.form.editTitle" xml:space="preserve"><value>Editar Tenant</value></data>
+  <data name="tenantDatabase.form.contractPlaceholder" xml:space="preserve"><value>Selecione um contrato</value></data>
+  <data name="tenantDatabase.form.contractSearchPlaceholder" xml:space="preserve"><value>Buscar contrato...</value></data>
+  <data name="tenantDatabase.form.providerPlaceholder" xml:space="preserve"><value>Selecione um provider</value></data>
+  <data name="tenantDatabase.form.activeLabel" xml:space="preserve"><value>Tenant Ativo</value></data>
+  <data name="tenantDatabase.form.toast.loadContractsError" xml:space="preserve"><value>Erro ao carregar contratos disponíveis.</value></data>
 </root>

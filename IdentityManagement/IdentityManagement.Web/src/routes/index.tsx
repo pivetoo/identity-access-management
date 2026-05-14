@@ -6,6 +6,7 @@ import Dashboard from '../modules/Dashboard';
 import Users from '../modules/Administration/Users';
 import Companies from '../modules/Administration/Companies';
 import Contracts from '../modules/Administration/Contracts';
+import Tenants from '../modules/Administration/Tenants';
 import SystemApplications from '../modules/Administration/SystemApplications';
 import OAuthClients from '../modules/Administration/OAuthClients';
 import Roles from '../modules/Administration/Roles';
@@ -109,6 +110,7 @@ function AppRoutes() {
           <Route path="users" element={<Users />} />
           <Route path="companies" element={<Companies />} />
           <Route path="contracts" element={<Contracts />} />
+          <Route path="tenants" element={<Tenants />} />
           <Route path="system-applications" element={<SystemApplications />} />
           <Route path="oauth-clients" element={<OAuthClients />} />
           <Route path="system-role-templates" element={<SystemRoleTemplates />} />
