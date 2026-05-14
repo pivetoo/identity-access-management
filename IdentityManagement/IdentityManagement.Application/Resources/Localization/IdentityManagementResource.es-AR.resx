@@ -240,7 +240,7 @@
   <data name="company.field.legalName" xml:space="preserve"><value>Razón social</value></data>
   <data name="company.field.tradeName" xml:space="preserve"><value>Nombre de fantasía</value></data>
   <data name="company.field.document" xml:space="preserve"><value>CUIT/CNPJ</value></data>
-  <data name="company.list.title" xml:space="preserve"><value>Clientes</value></data>
+  <data name="company.list.title" xml:space="preserve"><value>Empresas</value></data>
   <data name="company.list.subtitle" xml:space="preserve"><value>Registra y mantiene las organizaciones vinculadas a Identity Management.</value></data>
   <data name="company.list.searchPlaceholder" xml:space="preserve"><value>Buscar por nombre, fantasía, correo o documento</value></data>
   <data name="company.list.filterLabel" xml:space="preserve"><value>Filtrar empresas</value></data>
@@ -467,9 +467,9 @@
   <data name="tenantDatabase.form.activeLabel" xml:space="preserve"><value>Tenant Activo</value></data>
   <data name="tenantDatabase.form.toast.loadContractsError" xml:space="preserve"><value>Error al cargar los contratos disponibles.</value></data>
   <data name="company.list.openDetail" xml:space="preserve"><value>Ver detalles</value></data>
-  <data name="clientDetail.notFound.title" xml:space="preserve"><value>Cliente no encontrado</value></data>
-  <data name="clientDetail.notFound.description" xml:space="preserve"><value>El cliente solicitado no existe o fue eliminado.</value></data>
-  <data name="clientDetail.backToList" xml:space="preserve"><value>Volver a clientes</value></data>
+  <data name="clientDetail.notFound.title" xml:space="preserve"><value>Empresa no encontrada</value></data>
+  <data name="clientDetail.notFound.description" xml:space="preserve"><value>La empresa solicitada no existe o fue eliminada.</value></data>
+  <data name="clientDetail.backToList" xml:space="preserve"><value>Volver a empresas</value></data>
   <data name="clientDetail.metrics.activeContracts" xml:space="preserve"><value>Contratos activos</value></data>
   <data name="clientDetail.metrics.totalContracts" xml:space="preserve"><value>de {0} en total</value></data>
   <data name="clientDetail.metrics.configuredTenants" xml:space="preserve"><value>Bases configuradas</value></data>
@@ -487,11 +487,11 @@
   <data name="clientDetail.overview.contactDescription" xml:space="preserve"><value>Canales de soporte y facturación</value></data>
   <data name="clientDetail.overview.tenantTitle" xml:space="preserve"><value>Identidad técnica</value></data>
   <data name="clientDetail.overview.tenantDescription" xml:space="preserve"><value>Identificador del tenant utilizado en las integraciones</value></data>
-  <data name="clientDetail.contracts.heading" xml:space="preserve"><value>Sistemas contratados por el cliente</value></data>
+  <data name="clientDetail.contracts.heading" xml:space="preserve"><value>Sistemas contratados por la empresa</value></data>
   <data name="clientDetail.contracts.subheading" xml:space="preserve"><value>{0} contratos vinculados</value></data>
   <data name="clientDetail.contracts.addContract" xml:space="preserve"><value>Agregar contrato</value></data>
   <data name="clientDetail.contracts.empty.title" xml:space="preserve"><value>Sin contratos</value></data>
-  <data name="clientDetail.contracts.empty.description" xml:space="preserve"><value>Este cliente todavía no tiene ningún sistema contratado.</value></data>
+  <data name="clientDetail.contracts.empty.description" xml:space="preserve"><value>Esta empresa todavía no tiene ningún sistema contratado.</value></data>
   <data name="clientDetail.contracts.contractCardTitle" xml:space="preserve"><value>Contrato #{0}</value></data>
   <data name="clientDetail.contracts.expired" xml:space="preserve"><value>Expirado</value></data>
   <data name="clientDetail.contracts.tenantConfigured" xml:space="preserve"><value>Base configurada</value></data>
@@ -502,12 +502,12 @@
   <data name="clientDetail.people.searchPlaceholder" xml:space="preserve"><value>Buscar por nombre o e-mail...</value></data>
   <data name="clientDetail.people.filterByContract" xml:space="preserve"><value>Sistema</value></data>
   <data name="clientDetail.people.empty.title" xml:space="preserve"><value>Sin personas asignadas</value></data>
-  <data name="clientDetail.people.empty.description" xml:space="preserve"><value>Asigná usuarios a los perfiles de los contratos de este cliente.</value></data>
+  <data name="clientDetail.people.empty.description" xml:space="preserve"><value>Asigná usuarios a los perfiles de los contratos de esta empresa.</value></data>
   <data name="clientDetail.audit.empty.title" xml:space="preserve"><value>Auditoría próximamente</value></data>
-  <data name="clientDetail.audit.empty.description" xml:space="preserve"><value>Pronto verás aquí el historial de cambios, accesos y eventos sensibles de este cliente.</value></data>
+  <data name="clientDetail.audit.empty.description" xml:space="preserve"><value>Pronto verás aquí el historial de cambios, accesos y eventos sensibles de esta empresa.</value></data>
   <data name="contractDetail.notFound.title" xml:space="preserve"><value>Contrato no encontrado</value></data>
   <data name="contractDetail.notFound.description" xml:space="preserve"><value>El contrato solicitado no existe o fue eliminado.</value></data>
-  <data name="contractDetail.backToClient" xml:space="preserve"><value>Volver al cliente</value></data>
+  <data name="contractDetail.backToClient" xml:space="preserve"><value>Volver a la empresa</value></data>
   <data name="contractDetail.metrics.tenant" xml:space="preserve"><value>Base de datos</value></data>
   <data name="contractDetail.metrics.roles" xml:space="preserve"><value>Perfiles</value></data>
   <data name="contractDetail.metrics.rolesHint" xml:space="preserve"><value>configurados en este contrato</value></data>
@@ -546,30 +546,30 @@
   <data name="contractDetail.people.confirmReactivateTitle" xml:space="preserve"><value>¿Reactivar acceso?</value></data>
   <data name="contractDetail.people.confirmRevokeDescription" xml:space="preserve"><value>¿Revocar el acceso de {0} al perfil {1}?</value></data>
   <data name="contractDetail.people.confirmReactivateDescription" xml:space="preserve"><value>¿Reactivar el acceso de {0} al perfil {1}?</value></data>
-  <data name="layout.menu.clients" xml:space="preserve"><value>Clientes</value></data>
+  <data name="layout.menu.clients" xml:space="preserve"><value>Empresas</value></data>
   <data name="layout.menu.configuration" xml:space="preserve"><value>Configuración</value></data>
-  <data name="layout.breadcrumb.client" xml:space="preserve"><value>Cliente</value></data>
+  <data name="layout.breadcrumb.client" xml:space="preserve"><value>Empresa</value></data>
   <data name="layout.breadcrumb.contract" xml:space="preserve"><value>Contrato</value></data>
-  <data name="wizard.title" xml:space="preserve"><value>Nuevo cliente</value></data>
+  <data name="wizard.title" xml:space="preserve"><value>Nueva empresa</value></data>
   <data name="wizard.subtitle" xml:space="preserve"><value>Registrá empresa, contratos y bases de datos en un único flujo guiado</value></data>
   <data name="wizard.steps.company" xml:space="preserve"><value>Empresa</value></data>
   <data name="wizard.steps.systems" xml:space="preserve"><value>Sistemas y bases</value></data>
   <data name="wizard.steps.review" xml:space="preserve"><value>Revisión</value></data>
   <data name="wizard.action.previous" xml:space="preserve"><value>Volver</value></data>
   <data name="wizard.action.next" xml:space="preserve"><value>Continuar</value></data>
-  <data name="wizard.action.finish" xml:space="preserve"><value>Crear cliente</value></data>
-  <data name="wizard.toast.created" xml:space="preserve"><value>Cliente creado correctamente.</value></data>
+  <data name="wizard.action.finish" xml:space="preserve"><value>Crear empresa</value></data>
+  <data name="wizard.toast.created" xml:space="preserve"><value>Empresa creada correctamente.</value></data>
   <data name="wizard.toast.error" xml:space="preserve"><value>No fue posible completar el alta. Revisá los datos e intentá de nuevo.</value></data>
-  <data name="wizard.step1.title" xml:space="preserve"><value>Datos del cliente</value></data>
+  <data name="wizard.step1.title" xml:space="preserve"><value>Datos de la empresa</value></data>
   <data name="wizard.step1.description" xml:space="preserve"><value>Razón social, documento y canales de contacto</value></data>
   <data name="wizard.step1.legalNamePlaceholder" xml:space="preserve"><value>Razón social completa</value></data>
   <data name="wizard.step1.tradeNamePlaceholder" xml:space="preserve"><value>Nombre comercial</value></data>
   <data name="wizard.step2.title" xml:space="preserve"><value>Sistemas contratados</value></data>
-  <data name="wizard.step2.description" xml:space="preserve"><value>Seleccioná los sistemas que va a usar este cliente e indicá la conexión de la base de cada uno</value></data>
+  <data name="wizard.step2.description" xml:space="preserve"><value>Seleccioná los sistemas que va a usar esta empresa e indicá la conexión de la base de cada uno</value></data>
   <data name="wizard.step2.noSystems" xml:space="preserve"><value>No hay sistemas disponibles. Registrá sistemas en "Sistemas" antes de continuar.</value></data>
   <data name="wizard.step3.title" xml:space="preserve"><value>Revisión</value></data>
   <data name="wizard.step3.description" xml:space="preserve"><value>Revisá los datos antes de finalizar. Podrás editarlos después.</value></data>
-  <data name="wizard.step3.companySection" xml:space="preserve"><value>Cliente</value></data>
+  <data name="wizard.step3.companySection" xml:space="preserve"><value>Empresa</value></data>
   <data name="wizard.step3.systemsSection" xml:space="preserve"><value>Sistemas y bases</value></data>
   <data name="wizard.step3.confirmTitle" xml:space="preserve"><value>Al confirmar, este flujo va a:</value></data>
   <data name="wizard.step3.confirmDescription" xml:space="preserve"><value>Crear la empresa, registrar un contrato por sistema seleccionado, configurar la base de cada contrato y enviar la invitación de administrador al e-mail informado.</value></data>
