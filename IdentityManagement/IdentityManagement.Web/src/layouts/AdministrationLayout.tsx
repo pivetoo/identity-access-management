@@ -3,7 +3,7 @@ import { useLocation, useNavigate, Outlet, matchPath } from 'react-router-dom';
 import { Home, Users, Building2, Layers, ShieldCheck, KeyRound } from 'lucide-react';
 import { AppLayout, useAuth, useAppNavigation, useI18n } from 'archon-ui';
 import type { BreadcrumbItem } from 'archon-ui';
-import logoIdentityProvider from '../assets/logo-identity-provider.png';
+import logoEmpresa from '../assets/logo-empresa.png';
 import logoempresa from '../assets/Mainstay/logo-login.png';
 import { getNameInitials, resolveAvatarUrl } from '../utils/user';
 
@@ -107,13 +107,13 @@ export default function AdministrationLayout() {
   return (
     <AppLayout
       title={t('layout.title')}
-      titleStyle={{ fontSize: '14px' }}
-      subtitle={contract?.companyName ?? ''}
+      subtitle="by Mainstay"
+      navbarCompanyName={contract?.companyName}
       logo={
         <img
-          src={logoIdentityProvider}
-          alt={t('layout.title')}
-          style={{ width: '32px', height: '32px', objectFit: 'contain' }}
+          src={logoEmpresa}
+          alt="Mainstay"
+          style={{ width: 28, height: 28, objectFit: 'contain' }}
         />
       }
       user={user}
