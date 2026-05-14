@@ -126,7 +126,7 @@
   <data name="userRole.service.notFound" xml:space="preserve"><value>Vinculación no encontrada.</value></data>
   <data name="user.service.create.emptyResponse" xml:space="preserve"><value>Respuesta vacía al crear el usuario.</value></data>
   <data name="user.service.update.emptyResponse" xml:space="preserve"><value>Respuesta vacía al actualizar el usuario.</value></data>
-  <data name="layout.title" xml:space="preserve"><value>Identity Management</value></data>
+  <data name="layout.title" xml:space="preserve"><value>Authenticator</value></data>
   <data name="layout.menu.dashboard" xml:space="preserve"><value>Dashboard</value></data>
   <data name="layout.menu.management" xml:space="preserve"><value>Gestión</value></data>
   <data name="layout.menu.users" xml:space="preserve"><value>Usuarios</value></data>

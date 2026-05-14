@@ -378,7 +378,7 @@
   <data name="user.service.update.emptyResponse" xml:space="preserve">
     <value>Resposta vazia ao atualizar usuário.</value>
   </data>
-  <data name="layout.title" xml:space="preserve"><value>Identity Management</value></data>
+  <data name="layout.title" xml:space="preserve"><value>Authenticator</value></data>
   <data name="layout.menu.dashboard" xml:space="preserve"><value>Dashboard</value></data>
   <data name="layout.menu.management" xml:space="preserve"><value>Gestão</value></data>
   <data name="layout.menu.users" xml:space="preserve"><value>Usuários</value></data>
