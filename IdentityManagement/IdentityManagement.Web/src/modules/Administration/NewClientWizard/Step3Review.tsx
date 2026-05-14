@@ -90,7 +90,7 @@ export default function Step3Review({ company, systems }: Step3ReviewProps) {
                       {sys.systemApplicationAudience}
                     </div>
                   </div>
-                  <Badge variant="primary">{providerLabels[sys.databaseProvider]}</Badge>
+                  <Badge variant="info">{providerLabels[sys.databaseProvider]}</Badge>
                 </div>
                 <dl className="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-2">
                   <Field label={t('common.field.startDate')} value={sys.startDate} />

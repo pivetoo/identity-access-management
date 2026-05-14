@@ -82,7 +82,7 @@ export default function ContractPeopleTab({ contractId, refreshKey, onRefresh }:
       title: t('clientDetail.people.roles'),
       dataIndex: 'roleName',
       render: (value: string, record) => (
-        <Badge variant={record.isRoot ? 'primary' : 'secondary'}>{value}</Badge>
+        <Badge variant={record.isRoot ? 'info' : 'secondary'}>{value}</Badge>
       ),
     },
     {

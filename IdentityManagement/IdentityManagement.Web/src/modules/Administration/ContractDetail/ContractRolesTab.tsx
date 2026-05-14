@@ -100,7 +100,7 @@ export default function ContractRolesTab({ contractId, refreshKey, onRefresh }: 
 
                   <div className="flex flex-wrap gap-1">
                     {role.isRoot && (
-                      <Badge variant="primary" className="text-[10px]">
+                      <Badge variant="info" className="text-[10px]">
                         {t('contractDetail.roles.badge.root')}
                       </Badge>
                     )}

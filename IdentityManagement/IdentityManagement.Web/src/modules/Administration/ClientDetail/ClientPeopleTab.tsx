@@ -118,7 +118,7 @@ export default function ClientPeopleTab({ companyId, refreshKey }: ClientPeopleT
           {record.roles.map((role, idx) => (
             <Badge
               key={`${role.contractId}-${role.roleName}-${idx}`}
-              variant={role.isRoot ? 'primary' : 'secondary'}
+              variant={role.isRoot ? 'info' : 'secondary'}
               className="text-[10px]"
             >
               {role.systemApplicationName} · {role.roleName}
