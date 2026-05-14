@@ -41,7 +41,7 @@ export default function Users() {
         page,
         pageSize,
         search: debouncedSearch || undefined,
-        orderBy: 'username',
+        orderBy: 'id',
       }),
     );
     if (result) {

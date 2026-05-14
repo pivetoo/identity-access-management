@@ -40,7 +40,7 @@ export default function SystemApplications() {
         page,
         pageSize,
         search: debouncedSearch || undefined,
-        orderBy: 'name',
+        orderBy: 'id',
       }),
     );
     if (result) {

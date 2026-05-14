@@ -42,7 +42,7 @@ export default function Companies() {
         page,
         pageSize,
         search: debouncedSearch || undefined,
-        orderBy: 'legalName',
+        orderBy: 'id',
       }),
     );
     if (result) {

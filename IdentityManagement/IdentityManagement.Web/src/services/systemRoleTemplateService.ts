@@ -1,7 +1,6 @@
 import { httpClient, queryCollection, translate } from 'archon-ui'
 import type { PaginationParams, PaginatedResult } from 'archon-ui'
 import type { CreateSystemRoleTemplateRequest, SystemRoleTemplate, UpdateSystemRoleTemplateRequest } from '../types/systemRoleTemplate'
-import { sortByPriority } from '../utils/sort'
 
 export class SystemRoleTemplateService {
   private static baseUrl = '/systemroletemplates'
@@ -14,8 +13,7 @@ export class SystemRoleTemplateService {
       `${this.baseUrl}/getbysystemapplicationid/${systemApplicationId}`
     )
 
-    const templates = sortByPriority(response.data ?? [])
-    return queryCollection(templates, params, ['name', 'description'])
+    return queryCollection(response.data ?? [], params, ['name', 'description'])
   }
 
   static async getById(id: number): Promise<SystemRoleTemplate> {
