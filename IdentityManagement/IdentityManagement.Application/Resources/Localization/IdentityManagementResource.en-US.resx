@@ -558,6 +558,8 @@
   <data name="layout.menu.configuration" xml:space="preserve"><value>Configuration</value></data>
   <data name="layout.breadcrumb.client" xml:space="preserve"><value>Company</value></data>
   <data name="layout.breadcrumb.contract" xml:space="preserve"><value>Contract</value></data>
+  <data name="common.filter.all" xml:space="preserve"><value>All</value></data>
+  <data name="common.state.empty" xml:space="preserve"><value>No records found</value></data>
   <data name="wizard.title" xml:space="preserve"><value>New company</value></data>
   <data name="wizard.subtitle" xml:space="preserve"><value>Register the company, contracts and databases in a single guided flow</value></data>
   <data name="wizard.steps.company" xml:space="preserve"><value>Company</value></data>

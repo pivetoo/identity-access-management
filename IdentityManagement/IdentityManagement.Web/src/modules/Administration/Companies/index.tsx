@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
-import { PageLayout, DataTable, Badge, Button, ConfirmModal, FilterDropdown, TableToolbar, toast, useApi, useI18n } from 'archon-ui';
-import type { DataTableColumn, PaginatedResult } from 'archon-ui';
+import { PageLayout, DataTable, Badge, ConfirmModal, FilterPanel, TableToolbar, toast, useApi, useI18n } from 'archon-ui';
+import type { DataTableColumn, FilterSection } from 'archon-ui';
 import { CompanyService } from '../../../services/companyService';
 import type { Company } from '../../../types/company';
 import CompanyFormModal from '../../../components/modals/CompanyFormModal';
@@ -10,80 +10,92 @@ import CompanyFormModal from '../../../components/modals/CompanyFormModal';
 export default function Companies() {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const [selectedEmpresas, setSelectedEmpresas] = useState<Company[]>([]);
   const [empresas, setEmpresas] = useState<Company[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [selectedEmpresa, setSelectedEmpresa] = useState<Company | null>(null);
   const [editingEmpresa, setEditingEmpresa] = useState<Company | undefined>();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
-  const pageSize = 30;
 
-  const loadEmpresasApi = useApi({
-    onSuccess: (data: PaginatedResult<Company>) => {
-      setEmpresas(data.data);
-      setHasMore(data.data.length === pageSize);
-    },
-  });
-
-  const loadMoreEmpresasApi = useApi({
-    onSuccess: (data: PaginatedResult<Company>) => {
-      setEmpresas((prev) => [...prev, ...data.data]);
-      setHasMore(data.data.length === pageSize);
-    },
-  });
-
-  const deleteEmpresaApi = useApi({
+  const { execute: fetchEmpresas, loading, pagination } = useApi<Company[]>({ showErrorMessage: true });
+  const deleteApi = useApi({
     onSuccess: () => {
       toast({
         variant: 'success',
         title: t('common.toast.successTitle'),
         description: t('company.list.toast.deleted'),
       });
-      loadEmpresas(true);
-      setSelectedEmpresas([]);
+      void loadEmpresas();
+      setSelectedEmpresa(null);
       setIsConfirmDeleteOpen(false);
     },
-    onError: () => {
-      setIsConfirmDeleteOpen(false);
-    },
+    onError: () => setIsConfirmDeleteOpen(false),
   });
 
-  const loadEmpresas = async (reset = false) => {
-    if (reset) {
-      setEmpresas([]);
+  const loadEmpresas = async () => {
+    const result = await fetchEmpresas(() =>
+      CompanyService.getAll({
+        page,
+        pageSize,
+        search: debouncedSearch || undefined,
+        orderBy: 'legalName',
+      }),
+    );
+    if (result) {
+      const filtered = (result as Company[]).filter((empresa) => {
+        if (statusFilter === 'active') return empresa.isActive;
+        if (statusFilter === 'inactive') return !empresa.isActive;
+        return true;
+      });
+      setEmpresas(filtered);
     }
-    await loadEmpresasApi.execute(() =>
-      CompanyService.getAll({
-        page: 1,
-        pageSize,
-        orderBy: 'id',
-      }),
-    );
-  };
-
-  const loadMoreEmpresas = async () => {
-    const currentPage = Math.floor(empresas.length / pageSize) + 1;
-    await loadMoreEmpresasApi.execute(() =>
-      CompanyService.getAll({
-        page: currentPage + 1,
-        pageSize,
-        orderBy: 'id',
-      }),
-    );
   };
 
   useEffect(() => {
-    loadEmpresas(true);
-  }, []);
+    const timeout = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timeout);
+  }, [search]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, statusFilter]);
+
+  useEffect(() => {
+    void loadEmpresas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize, debouncedSearch, statusFilter]);
+
+  const filterSections: FilterSection[] = useMemo(
+    () => [
+      {
+        key: 'status',
+        label: t('common.column.status'),
+        value: statusFilter,
+        onChange: setStatusFilter,
+        options: [
+          { value: 'active', label: t('common.filter.activeOnly') },
+          { value: 'inactive', label: t('common.filter.inactiveOnly') },
+        ],
+        allLabel: t('common.filter.all'),
+      },
+    ],
+    [statusFilter, t],
+  );
+
+  const clearFilters = () => {
+    setStatusFilter('');
+  };
 
   const handleAddEmpresa = () => {
     navigate('/management/clients/new');
   };
 
   const handleEditEmpresa = () => {
-    if (selectedEmpresas.length === 0) {
+    if (!selectedEmpresa) {
       toast({
         variant: 'warning',
         title: t('common.toast.warningTitle'),
@@ -91,20 +103,12 @@ export default function Companies() {
       });
       return;
     }
-    if (selectedEmpresas.length > 1) {
-      toast({
-        variant: 'warning',
-        title: t('common.toast.warningTitle'),
-        description: t('company.list.validation.selectOnlyOneToEdit'),
-      });
-      return;
-    }
-    setEditingEmpresa(selectedEmpresas[0]);
+    setEditingEmpresa(selectedEmpresa);
     setIsModalOpen(true);
   };
 
   const handleDeleteEmpresa = () => {
-    if (selectedEmpresas.length === 0) {
+    if (!selectedEmpresa) {
       toast({
         variant: 'warning',
         title: t('common.toast.warningTitle'),
@@ -116,13 +120,8 @@ export default function Companies() {
   };
 
   const handleConfirmDelete = async () => {
-    for (const empresa of selectedEmpresas) {
-      await deleteEmpresaApi.execute(() => CompanyService.delete(empresa.id));
-    }
-  };
-
-  const handleRefresh = () => {
-    loadEmpresas(true);
+    if (!selectedEmpresa) return;
+    await deleteApi.execute(() => CompanyService.delete(selectedEmpresa.id));
   };
 
   const handleOpenDetail = (id: number) => {
@@ -140,11 +139,13 @@ export default function Companies() {
       key: 'nomeFantasia',
       title: t('company.field.tradeName'),
       dataIndex: 'tradeName',
+      hiddenBelow: 'sm',
     },
     {
       key: 'documento',
       title: t('company.field.document'),
       dataIndex: 'document',
+      hiddenBelow: 'md',
       render: (value: string) => {
         if (!value) return '-';
         return value.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
@@ -154,11 +155,13 @@ export default function Companies() {
       key: 'email',
       title: t('common.field.email'),
       dataIndex: 'email',
+      hiddenBelow: 'lg',
     },
     {
       key: 'telefone',
       title: t('common.field.phoneNumber'),
       dataIndex: 'phoneNumber',
+      hiddenBelow: 'lg',
       render: (value: string) => {
         if (!value) return '-';
         return value.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
@@ -194,35 +197,6 @@ export default function Companies() {
     },
   ];
 
-  const handleSelectionChange = (selected: Company[]) => {
-    setSelectedEmpresas(selected);
-  };
-
-  const handleModalSuccess = () => {
-    setSelectedEmpresas([]);
-    loadEmpresas(true);
-  };
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-    setEditingEmpresa(undefined);
-  };
-
-  const filteredEmpresas = empresas.filter((empresa) => {
-    const search = searchTerm.trim().toLowerCase();
-    const matchesSearch =
-      !search ||
-      [empresa.legalName, empresa.tradeName, empresa.email, empresa.document].some((value) =>
-        value.toLowerCase().includes(search),
-      );
-    const matchesStatus =
-      statusFilter === 'all' ||
-      (statusFilter === 'active' && empresa.isActive) ||
-      (statusFilter === 'inactive' && !empresa.isActive);
-
-    return matchesSearch && matchesStatus;
-  });
-
   return (
     <PageLayout
       title={t('company.list.title')}
@@ -230,56 +204,51 @@ export default function Companies() {
       onAdd={handleAddEmpresa}
       onEdit={handleEditEmpresa}
       onDelete={handleDeleteEmpresa}
-      onRefresh={handleRefresh}
-      selectedRowsCount={selectedEmpresas.length}
+      onRefresh={() => void loadEmpresas()}
+      selectedRowsCount={selectedEmpresa ? 1 : 0}
     >
-      <div className="space-y-4">
-        <TableToolbar
-          searchValue={searchTerm}
-          onSearchChange={setSearchTerm}
-          searchPlaceholder={t('company.list.searchPlaceholder')}
-          rightSlot={
-            <FilterDropdown
-              label={t('company.list.filterLabel')}
-              value={statusFilter}
-              onChange={(value) => setStatusFilter(value as 'all' | 'active' | 'inactive')}
-              options={[
-                { value: 'active', label: t('common.filter.activeOnly') },
-                { value: 'inactive', label: t('common.filter.inactiveOnly') },
-              ]}
-            />
-          }
-        />
+      <TableToolbar
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder={t('common.action.search')}
+        rightSlot={<FilterPanel sections={filterSections} onClearAll={clearFilters} />}
+        className="mb-3"
+      />
 
-        <DataTable
-          columns={columns}
-          data={filteredEmpresas}
-          loading={loadEmpresasApi.isLoading || deleteEmpresaApi.isLoading}
-          rowKey="id"
-          selectable
-          selectedRows={selectedEmpresas}
-          onSelectionChange={handleSelectionChange}
-          onRowDoubleClick={(record) => handleOpenDetail(record.id)}
-        />
-
-        {hasMore && (
-          <div className="mt-4 flex justify-end">
-            <Button
-              variant="outline"
-              onClick={loadMoreEmpresas}
-              loading={loadMoreEmpresasApi.isLoading}
-            >
-              {t('common.action.loadMore')}
-            </Button>
-          </div>
-        )}
-      </div>
+      <DataTable
+        columns={columns}
+        data={empresas}
+        rowKey="id"
+        loading={loading || deleteApi.isLoading}
+        selectable
+        selectedRows={selectedEmpresa ? [selectedEmpresa] : []}
+        onSelectionChange={(rows) => setSelectedEmpresa(rows[0] ?? null)}
+        onRowDoubleClick={(record) => handleOpenDetail(record.id)}
+        emptyText={t('common.state.empty')}
+        pageSize={pageSize}
+        pageSizeOptions={[10, 20, 50]}
+        totalCount={pagination?.totalCount}
+        page={page}
+        onPageChange={setPage}
+        onPageSizeChange={(s) => {
+          setPageSize(s);
+          setPage(1);
+        }}
+      />
 
       <CompanyFormModal
         isOpen={isModalOpen}
-        onClose={handleModalClose}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingEmpresa(undefined);
+        }}
         company={editingEmpresa}
-        onSuccess={handleModalSuccess}
+        onSuccess={() => {
+          setIsModalOpen(false);
+          setEditingEmpresa(undefined);
+          setSelectedEmpresa(null);
+          void loadEmpresas();
+        }}
       />
 
       <ConfirmModal
@@ -288,13 +257,13 @@ export default function Companies() {
         onConfirm={handleConfirmDelete}
         title={t('common.confirm.deleteTitle')}
         description={
-          selectedEmpresas.length === 1
-            ? t('company.list.confirmDeleteSingle').replace('{0}', selectedEmpresas[0]?.legalName ?? '')
-            : t('company.list.confirmDeleteMultiple').replace('{0}', String(selectedEmpresas.length))
+          selectedEmpresa
+            ? t('company.list.confirmDeleteSingle').replace('{0}', selectedEmpresa.legalName)
+            : ''
         }
         confirmText={t('common.action.delete')}
         variant="danger"
-        loading={deleteEmpresaApi.isLoading}
+        loading={deleteApi.isLoading}
       />
     </PageLayout>
   );

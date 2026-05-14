@@ -1,81 +1,91 @@
-import { useState, useEffect } from 'react';
-import { PageLayout, DataTable, Badge, Button, ConfirmModal, FilterDropdown, TableToolbar, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, toast, useApi, useI18n } from 'archon-ui';
-import type { DataTableColumn, PaginatedResult } from 'archon-ui';
+import { useEffect, useMemo, useState } from 'react';
+import { PageLayout, DataTable, Badge, ConfirmModal, FilterPanel, TableToolbar, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, toast, useApi, useI18n } from 'archon-ui';
+import type { DataTableColumn, FilterSection } from 'archon-ui';
 import { UserService } from '../../../services/userService';
 import type { User } from '../../../types/user';
 import UserFormModal from '../../../components/modals/UserFormModal';
 import { formatDate } from '../../../utils/date';
 
 export default function Users() {
-  const { t } = useI18n()
-  const [selectedUsuarios, setSelectedUsuarios] = useState<User[]>([]);
-  const [previewUsuario, setPreviewUsuario] = useState<User | null>(null);
+  const { t } = useI18n();
   const [usuarios, setUsuarios] = useState<User[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [selectedUsuario, setSelectedUsuario] = useState<User | null>(null);
+  const [previewUsuario, setPreviewUsuario] = useState<User | null>(null);
   const [editingUsuario, setEditingUsuario] = useState<User | undefined>();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
-  const pageSize = 30;
 
-  const loadUsuariosApi = useApi({
-    onSuccess: (data: PaginatedResult<User>) => {
-      setUsuarios(prev => [...prev, ...data.data]);
-      setHasMore(data.data.length === pageSize);
-    }
-  });
-
-  const loadMoreUsuariosApi = useApi({
-    onSuccess: (data: PaginatedResult<User>) => {
-      setUsuarios(prev => [...prev, ...data.data]);
-      setHasMore(data.data.length === pageSize);
-    }
-  });
-
-  const deleteUsuarioApi = useApi({
+  const { execute: fetchUsuarios, loading, pagination } = useApi<User[]>({ showErrorMessage: true });
+  const deleteApi = useApi({
     onSuccess: () => {
       toast({
         variant: 'success',
         title: t('common.toast.successTitle'),
         description: t('user.list.toast.deleted'),
       });
-      loadUsuarios(true);
-      setSelectedUsuarios([]);
+      void loadUsuarios();
+      setSelectedUsuario(null);
       setIsConfirmDeleteOpen(false);
     },
-    onError: () => {
-      setIsConfirmDeleteOpen(false);
-    }
+    onError: () => setIsConfirmDeleteOpen(false),
   });
 
-  const loadUsuarios = async (reset = false) => {
-    if (reset) {
-      setUsuarios([]);
+  const loadUsuarios = async () => {
+    const result = await fetchUsuarios(() =>
+      UserService.getAll({
+        page,
+        pageSize,
+        search: debouncedSearch || undefined,
+        orderBy: 'username',
+      }),
+    );
+    if (result) {
+      const filtered = (result as User[]).filter((u) => {
+        if (statusFilter === 'active') return u.isActive;
+        if (statusFilter === 'inactive') return !u.isActive;
+        return true;
+      });
+      setUsuarios(filtered);
     }
-    await loadUsuariosApi.execute(() =>
-      UserService.getAll({
-        page: 1,
-        pageSize: pageSize,
-        orderBy: 'id'
-      })
-    );
-  };
-
-  const loadMoreUsuarios = async () => {
-    const currentPage = Math.floor(usuarios.length / pageSize) + 1;
-    await loadMoreUsuariosApi.execute(() =>
-      UserService.getAll({
-        page: currentPage + 1,
-        pageSize: pageSize,
-        orderBy: 'id'
-      })
-    );
   };
 
   useEffect(() => {
-    loadUsuarios(true);
-  }, []);
+    const timeout = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timeout);
+  }, [search]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, statusFilter]);
+
+  useEffect(() => {
+    void loadUsuarios();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize, debouncedSearch, statusFilter]);
+
+  const filterSections: FilterSection[] = useMemo(
+    () => [
+      {
+        key: 'status',
+        label: t('common.column.status'),
+        value: statusFilter,
+        onChange: setStatusFilter,
+        options: [
+          { value: 'active', label: t('common.filter.activeOnly') },
+          { value: 'inactive', label: t('common.filter.inactiveOnly') },
+        ],
+        allLabel: t('common.filter.all'),
+      },
+    ],
+    [statusFilter, t],
+  );
+
+  const clearFilters = () => setStatusFilter('');
 
   const handleAddUsuario = () => {
     setEditingUsuario(undefined);
@@ -83,7 +93,7 @@ export default function Users() {
   };
 
   const handleEditUsuario = () => {
-    if (selectedUsuarios.length === 0) {
+    if (!selectedUsuario) {
       toast({
         variant: 'warning',
         title: t('common.toast.warningTitle'),
@@ -91,20 +101,12 @@ export default function Users() {
       });
       return;
     }
-    if (selectedUsuarios.length > 1) {
-      toast({
-        variant: 'warning',
-        title: t('common.toast.warningTitle'),
-        description: t('user.list.validation.selectOnlyOneToEdit'),
-      });
-      return;
-    }
-    setEditingUsuario(selectedUsuarios[0]);
+    setEditingUsuario(selectedUsuario);
     setIsModalOpen(true);
   };
 
   const handleDeleteUsuario = () => {
-    if (selectedUsuarios.length === 0) {
+    if (!selectedUsuario) {
       toast({
         variant: 'warning',
         title: t('common.toast.warningTitle'),
@@ -116,13 +118,8 @@ export default function Users() {
   };
 
   const handleConfirmDelete = async () => {
-    for (const usuario of selectedUsuarios) {
-      await deleteUsuarioApi.execute(() => UserService.delete(usuario.id));
-    }
-  };
-
-  const handleRefresh = () => {
-    loadUsuarios(true);
+    if (!selectedUsuario) return;
+    await deleteApi.execute(() => UserService.delete(selectedUsuario.id));
   };
 
   const columns: DataTableColumn<User>[] = [
@@ -136,12 +133,14 @@ export default function Users() {
       key: 'name',
       title: t('user.field.fullName'),
       dataIndex: 'name',
-      render: (value: string) => value || t('common.value.notAvailable')
+      hiddenBelow: 'sm',
+      render: (value: string) => value || t('common.value.notAvailable'),
     },
     {
       key: 'email',
       title: t('common.field.email'),
       dataIndex: 'email',
+      hiddenBelow: 'md',
       sortable: true,
     },
     {
@@ -152,48 +151,24 @@ export default function Users() {
         <Badge variant={value ? 'success' : 'destructive'}>
           {value ? t('common.status.active') : t('common.status.inactive')}
         </Badge>
-      )
+      ),
     },
     {
       key: 'lastLoginAt',
       title: t('user.field.lastLoginAt'),
       dataIndex: 'lastLoginAt',
-      render: (value: string) => formatDate(value)
+      hiddenBelow: 'lg',
+      render: (value: string) => formatDate(value),
     },
     {
       key: 'createdAt',
       title: t('user.field.createdAt'),
       dataIndex: 'createdAt',
+      hiddenBelow: 'lg',
       render: (value: string) => formatDate(value),
       sortable: true,
-    }
+    },
   ];
-
-  const handleSelectionChange = (selected: User[]) => {
-    setSelectedUsuarios(selected);
-  };
-
-  const handleModalSuccess = () => {
-    setSelectedUsuarios([]);
-    loadUsuarios(true);
-  };
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-    setEditingUsuario(undefined);
-  };
-
-  const filteredUsuarios = usuarios.filter((usuario) => {
-    const search = searchTerm.trim().toLowerCase();
-    const matchesSearch = !search || [usuario.username, usuario.name, usuario.email]
-      .some((value) => value.toLowerCase().includes(search));
-    const matchesStatus =
-      statusFilter === 'all' ||
-      (statusFilter === 'active' && usuario.isActive) ||
-      (statusFilter === 'inactive' && !usuario.isActive);
-
-    return matchesSearch && matchesStatus;
-  });
 
   return (
     <>
@@ -203,56 +178,51 @@ export default function Users() {
         onAdd={handleAddUsuario}
         onEdit={handleEditUsuario}
         onDelete={handleDeleteUsuario}
-        onRefresh={handleRefresh}
-        selectedRowsCount={selectedUsuarios.length}
+        onRefresh={() => void loadUsuarios()}
+        selectedRowsCount={selectedUsuario ? 1 : 0}
       >
-        <div className="space-y-4">
-          <TableToolbar
-            searchValue={searchTerm}
-            onSearchChange={setSearchTerm}
-            searchPlaceholder={t('user.list.searchPlaceholder')}
-            rightSlot={
-              <FilterDropdown
-                label={t('user.list.filterLabel')}
-                value={statusFilter}
-                onChange={(value) => setStatusFilter(value as 'all' | 'active' | 'inactive')}
-                options={[
-                  { value: 'active', label: t('common.filter.activeOnly') },
-                  { value: 'inactive', label: t('common.filter.inactiveOnly') },
-                ]}
-              />
-            }
-          />
+        <TableToolbar
+          searchValue={search}
+          onSearchChange={setSearch}
+          searchPlaceholder={t('common.action.search')}
+          rightSlot={<FilterPanel sections={filterSections} onClearAll={clearFilters} />}
+          className="mb-3"
+        />
 
-          <DataTable
-            columns={columns}
-            data={filteredUsuarios}
-            loading={loadUsuariosApi.isLoading || deleteUsuarioApi.isLoading}
-            rowKey="id"
-            selectable
-            selectedRows={selectedUsuarios}
-            onSelectionChange={handleSelectionChange}
-            onRowDoubleClick={setPreviewUsuario}
-          />
-
-          {hasMore && (
-            <div className="mt-4 flex justify-end">
-              <Button
-                variant="outline"
-                onClick={loadMoreUsuarios}
-                loading={loadMoreUsuariosApi.isLoading}
-              >
-                {t('common.action.loadMore')}
-              </Button>
-            </div>
-          )}
-        </div>
+        <DataTable
+          columns={columns}
+          data={usuarios}
+          rowKey="id"
+          loading={loading || deleteApi.isLoading}
+          selectable
+          selectedRows={selectedUsuario ? [selectedUsuario] : []}
+          onSelectionChange={(rows) => setSelectedUsuario(rows[0] ?? null)}
+          onRowDoubleClick={setPreviewUsuario}
+          emptyText={t('common.state.empty')}
+          pageSize={pageSize}
+          pageSizeOptions={[10, 20, 50]}
+          totalCount={pagination?.totalCount}
+          page={page}
+          onPageChange={setPage}
+          onPageSizeChange={(s) => {
+            setPageSize(s);
+            setPage(1);
+          }}
+        />
 
         <UserFormModal
           isOpen={isModalOpen}
-          onClose={handleModalClose}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditingUsuario(undefined);
+          }}
           usuario={editingUsuario}
-          onSuccess={handleModalSuccess}
+          onSuccess={() => {
+            setIsModalOpen(false);
+            setEditingUsuario(undefined);
+            setSelectedUsuario(null);
+            void loadUsuarios();
+          }}
         />
 
         <ConfirmModal
@@ -261,13 +231,13 @@ export default function Users() {
           onConfirm={handleConfirmDelete}
           title={t('common.confirm.deleteTitle')}
           description={
-            selectedUsuarios.length === 1
-              ? t('user.list.confirmDeleteSingle').replace('{0}', selectedUsuarios[0]?.username ?? '')
-              : t('user.list.confirmDeleteMultiple').replace('{0}', String(selectedUsuarios.length))
+            selectedUsuario
+              ? t('user.list.confirmDeleteSingle').replace('{0}', selectedUsuario.username)
+              : ''
           }
           confirmText={t('common.action.delete')}
           variant="danger"
-          loading={deleteUsuarioApi.isLoading}
+          loading={deleteApi.isLoading}
         />
       </PageLayout>
 
@@ -313,7 +283,6 @@ export default function Users() {
                   </SheetPreviewGrid>
                 </SheetPreviewSection>
               </div>
-
             </div>
           ) : null}
         </SheetContent>

@@ -550,6 +550,8 @@
   <data name="layout.menu.configuration" xml:space="preserve"><value>Configuración</value></data>
   <data name="layout.breadcrumb.client" xml:space="preserve"><value>Empresa</value></data>
   <data name="layout.breadcrumb.contract" xml:space="preserve"><value>Contrato</value></data>
+  <data name="common.filter.all" xml:space="preserve"><value>Todos</value></data>
+  <data name="common.state.empty" xml:space="preserve"><value>No se encontraron registros</value></data>
   <data name="wizard.title" xml:space="preserve"><value>Nueva empresa</value></data>
   <data name="wizard.subtitle" xml:space="preserve"><value>Registrá empresa, contratos y bases de datos en un único flujo guiado</value></data>
   <data name="wizard.steps.company" xml:space="preserve"><value>Empresa</value></data>
