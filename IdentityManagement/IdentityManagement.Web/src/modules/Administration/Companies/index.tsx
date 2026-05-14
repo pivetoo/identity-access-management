@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
-import { PageLayout, DataTable, Badge, Button, ConfirmModal, FilterDropdown, TableToolbar, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, toast, useApi, useI18n } from 'archon-ui';
+import { useNavigate } from 'react-router-dom';
+import { ChevronRight } from 'lucide-react';
+import { PageLayout, DataTable, Badge, Button, ConfirmModal, FilterDropdown, TableToolbar, toast, useApi, useI18n } from 'archon-ui';
 import type { DataTableColumn, PaginatedResult } from 'archon-ui';
 import { CompanyService } from '../../../services/companyService';
 import type { Company } from '../../../types/company';
 import CompanyFormModal from '../../../components/modals/CompanyFormModal';
 
 export default function Companies() {
-  const { t } = useI18n()
+  const { t } = useI18n();
+  const navigate = useNavigate();
   const [selectedEmpresas, setSelectedEmpresas] = useState<Company[]>([]);
-  const [previewEmpresa, setPreviewEmpresa] = useState<Company | null>(null);
   const [empresas, setEmpresas] = useState<Company[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEmpresa, setEditingEmpresa] = useState<Company | undefined>();
@@ -20,16 +22,16 @@ export default function Companies() {
 
   const loadEmpresasApi = useApi({
     onSuccess: (data: PaginatedResult<Company>) => {
-      setEmpresas(prev => [...prev, ...data.data]);
+      setEmpresas(data.data);
       setHasMore(data.data.length === pageSize);
-    }
+    },
   });
 
   const loadMoreEmpresasApi = useApi({
     onSuccess: (data: PaginatedResult<Company>) => {
-      setEmpresas(prev => [...prev, ...data.data]);
+      setEmpresas((prev) => [...prev, ...data.data]);
       setHasMore(data.data.length === pageSize);
-    }
+    },
   });
 
   const deleteEmpresaApi = useApi({
@@ -45,7 +47,7 @@ export default function Companies() {
     },
     onError: () => {
       setIsConfirmDeleteOpen(false);
-    }
+    },
   });
 
   const loadEmpresas = async (reset = false) => {
@@ -55,9 +57,9 @@ export default function Companies() {
     await loadEmpresasApi.execute(() =>
       CompanyService.getAll({
         page: 1,
-        pageSize: pageSize,
-        orderBy: 'id'
-      })
+        pageSize,
+        orderBy: 'id',
+      }),
     );
   };
 
@@ -66,9 +68,9 @@ export default function Companies() {
     await loadMoreEmpresasApi.execute(() =>
       CompanyService.getAll({
         page: currentPage + 1,
-        pageSize: pageSize,
-        orderBy: 'id'
-      })
+        pageSize,
+        orderBy: 'id',
+      }),
     );
   };
 
@@ -77,8 +79,7 @@ export default function Companies() {
   }, []);
 
   const handleAddEmpresa = () => {
-    setEditingEmpresa(undefined);
-    setIsModalOpen(true);
+    navigate('/management/clients/new');
   };
 
   const handleEditEmpresa = () => {
@@ -124,6 +125,10 @@ export default function Companies() {
     loadEmpresas(true);
   };
 
+  const handleOpenDetail = (id: number) => {
+    navigate(`/management/clients/${id}`);
+  };
+
   const columns: DataTableColumn<Company>[] = [
     {
       key: 'nome',
@@ -143,7 +148,7 @@ export default function Companies() {
       render: (value: string) => {
         if (!value) return '-';
         return value.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
-      }
+      },
     },
     {
       key: 'email',
@@ -157,7 +162,7 @@ export default function Companies() {
       render: (value: string) => {
         if (!value) return '-';
         return value.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
-      }
+      },
     },
     {
       key: 'isActive',
@@ -167,7 +172,25 @@ export default function Companies() {
         <Badge variant={value ? 'success' : 'destructive'}>
           {value ? t('common.status.active') : t('common.status.inactive')}
         </Badge>
-      )
+      ),
+    },
+    {
+      key: 'actions',
+      title: '',
+      dataIndex: 'id',
+      render: (_value, record) => (
+        <button
+          type="button"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleOpenDetail(record.id);
+          }}
+        >
+          {t('company.list.openDetail')}
+          <ChevronRight className="h-3.5 w-3.5" />
+        </button>
+      ),
     },
   ];
 
@@ -187,8 +210,11 @@ export default function Companies() {
 
   const filteredEmpresas = empresas.filter((empresa) => {
     const search = searchTerm.trim().toLowerCase();
-    const matchesSearch = !search || [empresa.legalName, empresa.tradeName, empresa.email, empresa.document]
-      .some((value) => value.toLowerCase().includes(search));
+    const matchesSearch =
+      !search ||
+      [empresa.legalName, empresa.tradeName, empresa.email, empresa.document].some((value) =>
+        value.toLowerCase().includes(search),
+      );
     const matchesStatus =
       statusFilter === 'all' ||
       (statusFilter === 'active' && empresa.isActive) ||
@@ -198,121 +224,78 @@ export default function Companies() {
   });
 
   return (
-    <>
-      <PageLayout
-        title={t('company.list.title')}
-        subtitle={t('company.list.subtitle')}
-        onAdd={handleAddEmpresa}
-        onEdit={handleEditEmpresa}
-        onDelete={handleDeleteEmpresa}
-        onRefresh={handleRefresh}
-        selectedRowsCount={selectedEmpresas.length}
-      >
-        <div className="space-y-4">
-          <TableToolbar
-            searchValue={searchTerm}
-            onSearchChange={setSearchTerm}
-            searchPlaceholder={t('company.list.searchPlaceholder')}
-            rightSlot={
-              <FilterDropdown
-                label={t('company.list.filterLabel')}
-                value={statusFilter}
-                onChange={(value) => setStatusFilter(value as 'all' | 'active' | 'inactive')}
-                options={[
-                  { value: 'active', label: t('common.filter.activeOnly') },
-                  { value: 'inactive', label: t('common.filter.inactiveOnly') },
-                ]}
-              />
-            }
-          />
-
-          <DataTable
-            columns={columns}
-            data={filteredEmpresas}
-            loading={loadEmpresasApi.isLoading || deleteEmpresaApi.isLoading}
-            rowKey="id"
-            selectable
-            selectedRows={selectedEmpresas}
-            onSelectionChange={handleSelectionChange}
-            onRowDoubleClick={setPreviewEmpresa}
-          />
-
-          {hasMore && (
-            <div className="mt-4 flex justify-end">
-              <Button
-                variant="outline"
-                onClick={loadMoreEmpresas}
-                loading={loadMoreEmpresasApi.isLoading}
-              >
-                {t('common.action.loadMore')}
-              </Button>
-            </div>
-          )}
-        </div>
-
-        <CompanyFormModal
-          isOpen={isModalOpen}
-          onClose={handleModalClose}
-          company={editingEmpresa}
-          onSuccess={handleModalSuccess}
-        />
-
-        <ConfirmModal
-          open={isConfirmDeleteOpen}
-          onOpenChange={(open) => setIsConfirmDeleteOpen(open)}
-          onConfirm={handleConfirmDelete}
-          title={t('common.confirm.deleteTitle')}
-          description={
-            selectedEmpresas.length === 1
-              ? t('company.list.confirmDeleteSingle').replace('{0}', selectedEmpresas[0]?.legalName ?? '')
-              : t('company.list.confirmDeleteMultiple').replace('{0}', String(selectedEmpresas.length))
+    <PageLayout
+      title={t('company.list.title')}
+      subtitle={t('company.list.subtitle')}
+      onAdd={handleAddEmpresa}
+      onEdit={handleEditEmpresa}
+      onDelete={handleDeleteEmpresa}
+      onRefresh={handleRefresh}
+      selectedRowsCount={selectedEmpresas.length}
+    >
+      <div className="space-y-4">
+        <TableToolbar
+          searchValue={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder={t('company.list.searchPlaceholder')}
+          rightSlot={
+            <FilterDropdown
+              label={t('company.list.filterLabel')}
+              value={statusFilter}
+              onChange={(value) => setStatusFilter(value as 'all' | 'active' | 'inactive')}
+              options={[
+                { value: 'active', label: t('common.filter.activeOnly') },
+                { value: 'inactive', label: t('common.filter.inactiveOnly') },
+              ]}
+            />
           }
-          confirmText={t('common.action.delete')}
-          variant="danger"
-          loading={deleteEmpresaApi.isLoading}
         />
-      </PageLayout>
 
-      <Sheet open={!!previewEmpresa} onOpenChange={(open) => !open && setPreviewEmpresa(null)}>
-        <SheetContent side="right" className="w-full sm:max-w-md">
-          {previewEmpresa ? (
-            <div className="flex h-full flex-col">
-              <SheetPreviewHeader
-                title={previewEmpresa.legalName}
-                meta={
-                  <>
-                    <Badge variant={previewEmpresa.isActive ? 'success' : 'destructive'}>
-                      {previewEmpresa.isActive ? t('common.status.active') : t('common.status.inactive')}
-                    </Badge>
-                    <span className="text-xs font-medium text-muted-foreground">
-                      {previewEmpresa.document || t('company.preview.documentNotProvided')}
-                    </span>
-                  </>
-                }
-                description={t('company.preview.description')}
-              />
+        <DataTable
+          columns={columns}
+          data={filteredEmpresas}
+          loading={loadEmpresasApi.isLoading || deleteEmpresaApi.isLoading}
+          rowKey="id"
+          selectable
+          selectedRows={selectedEmpresas}
+          onSelectionChange={handleSelectionChange}
+          onRowDoubleClick={(record) => handleOpenDetail(record.id)}
+        />
 
-              <div className="mt-6 flex-1 space-y-4 overflow-y-auto">
-                <SheetPreviewSection title={t('company.preview.registrationTitle')} description={t('company.preview.registrationDescription')}>
-                  <SheetPreviewGrid>
-                    <SheetPreviewField label={t('company.field.legalName')} value={previewEmpresa.legalName || t('common.value.notAvailable')} />
-                    <SheetPreviewField label={t('company.field.document')} value={previewEmpresa.document || t('common.value.notAvailable')} />
-                    <SheetPreviewField className="sm:col-span-2" label={t('company.field.tradeName')} value={previewEmpresa.tradeName || t('common.value.notAvailable')} />
-                  </SheetPreviewGrid>
-                </SheetPreviewSection>
+        {hasMore && (
+          <div className="mt-4 flex justify-end">
+            <Button
+              variant="outline"
+              onClick={loadMoreEmpresas}
+              loading={loadMoreEmpresasApi.isLoading}
+            >
+              {t('common.action.loadMore')}
+            </Button>
+          </div>
+        )}
+      </div>
 
-                <SheetPreviewSection title={t('company.preview.contactTitle')} description={t('company.preview.contactDescription')}>
-                  <div className="grid gap-4">
-                    <SheetPreviewField label={t('common.field.phoneNumber')} value={previewEmpresa.phoneNumber || t('common.value.notAvailable')} />
-                    <SheetPreviewField label={t('common.field.email')} value={previewEmpresa.email || t('common.value.notAvailable')} />
-                  </div>
-                </SheetPreviewSection>
-              </div>
+      <CompanyFormModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        company={editingEmpresa}
+        onSuccess={handleModalSuccess}
+      />
 
-            </div>
-          ) : null}
-        </SheetContent>
-      </Sheet>
-    </>
+      <ConfirmModal
+        open={isConfirmDeleteOpen}
+        onOpenChange={(open) => setIsConfirmDeleteOpen(open)}
+        onConfirm={handleConfirmDelete}
+        title={t('common.confirm.deleteTitle')}
+        description={
+          selectedEmpresas.length === 1
+            ? t('company.list.confirmDeleteSingle').replace('{0}', selectedEmpresas[0]?.legalName ?? '')
+            : t('company.list.confirmDeleteMultiple').replace('{0}', String(selectedEmpresas.length))
+        }
+        confirmText={t('common.action.delete')}
+        variant="danger"
+        loading={deleteEmpresaApi.isLoading}
+      />
+    </PageLayout>
   );
 }

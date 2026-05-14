@@ -240,7 +240,7 @@
   <data name="company.field.legalName" xml:space="preserve"><value>Razón social</value></data>
   <data name="company.field.tradeName" xml:space="preserve"><value>Nombre de fantasía</value></data>
   <data name="company.field.document" xml:space="preserve"><value>CUIT/CNPJ</value></data>
-  <data name="company.list.title" xml:space="preserve"><value>Empresas</value></data>
+  <data name="company.list.title" xml:space="preserve"><value>Clientes</value></data>
   <data name="company.list.subtitle" xml:space="preserve"><value>Registra y mantiene las organizaciones vinculadas a Identity Management.</value></data>
   <data name="company.list.searchPlaceholder" xml:space="preserve"><value>Buscar por nombre, fantasía, correo o documento</value></data>
   <data name="company.list.filterLabel" xml:space="preserve"><value>Filtrar empresas</value></data>
@@ -466,4 +466,111 @@
   <data name="tenantDatabase.form.providerPlaceholder" xml:space="preserve"><value>Selecciona un provider</value></data>
   <data name="tenantDatabase.form.activeLabel" xml:space="preserve"><value>Tenant Activo</value></data>
   <data name="tenantDatabase.form.toast.loadContractsError" xml:space="preserve"><value>Error al cargar los contratos disponibles.</value></data>
+  <data name="company.list.openDetail" xml:space="preserve"><value>Ver detalles</value></data>
+  <data name="clientDetail.notFound.title" xml:space="preserve"><value>Cliente no encontrado</value></data>
+  <data name="clientDetail.notFound.description" xml:space="preserve"><value>El cliente solicitado no existe o fue eliminado.</value></data>
+  <data name="clientDetail.backToList" xml:space="preserve"><value>Volver a clientes</value></data>
+  <data name="clientDetail.metrics.activeContracts" xml:space="preserve"><value>Contratos activos</value></data>
+  <data name="clientDetail.metrics.totalContracts" xml:space="preserve"><value>de {0} en total</value></data>
+  <data name="clientDetail.metrics.configuredTenants" xml:space="preserve"><value>Bases configuradas</value></data>
+  <data name="clientDetail.metrics.configuredTenantsHint" xml:space="preserve"><value>con infraestructura aprovisionada</value></data>
+  <data name="clientDetail.metrics.expiringSoon" xml:space="preserve"><value>Expirando pronto</value></data>
+  <data name="clientDetail.metrics.expiringSoonHint" xml:space="preserve"><value>en los próximos 30 días</value></data>
+  <data name="clientDetail.metrics.statusHint" xml:space="preserve"><value>situación del registro</value></data>
+  <data name="clientDetail.tabs.overview" xml:space="preserve"><value>Resumen</value></data>
+  <data name="clientDetail.tabs.contracts" xml:space="preserve"><value>Sistemas contratados</value></data>
+  <data name="clientDetail.tabs.people" xml:space="preserve"><value>Personas</value></data>
+  <data name="clientDetail.tabs.audit" xml:space="preserve"><value>Auditoría</value></data>
+  <data name="clientDetail.overview.registrationTitle" xml:space="preserve"><value>Registro</value></data>
+  <data name="clientDetail.overview.registrationDescription" xml:space="preserve"><value>Datos fiscales y razón social</value></data>
+  <data name="clientDetail.overview.contactTitle" xml:space="preserve"><value>Contacto</value></data>
+  <data name="clientDetail.overview.contactDescription" xml:space="preserve"><value>Canales de soporte y facturación</value></data>
+  <data name="clientDetail.overview.tenantTitle" xml:space="preserve"><value>Identidad técnica</value></data>
+  <data name="clientDetail.overview.tenantDescription" xml:space="preserve"><value>Identificador del tenant utilizado en las integraciones</value></data>
+  <data name="clientDetail.contracts.heading" xml:space="preserve"><value>Sistemas contratados por el cliente</value></data>
+  <data name="clientDetail.contracts.subheading" xml:space="preserve"><value>{0} contratos vinculados</value></data>
+  <data name="clientDetail.contracts.addContract" xml:space="preserve"><value>Agregar contrato</value></data>
+  <data name="clientDetail.contracts.empty.title" xml:space="preserve"><value>Sin contratos</value></data>
+  <data name="clientDetail.contracts.empty.description" xml:space="preserve"><value>Este cliente todavía no tiene ningún sistema contratado.</value></data>
+  <data name="clientDetail.contracts.contractCardTitle" xml:space="preserve"><value>Contrato #{0}</value></data>
+  <data name="clientDetail.contracts.expired" xml:space="preserve"><value>Expirado</value></data>
+  <data name="clientDetail.contracts.tenantConfigured" xml:space="preserve"><value>Base configurada</value></data>
+  <data name="clientDetail.contracts.tenantMissing" xml:space="preserve"><value>Base pendiente</value></data>
+  <data name="clientDetail.contracts.userCount" xml:space="preserve"><value>{0} usuarios activos</value></data>
+  <data name="clientDetail.contracts.open" xml:space="preserve"><value>Abrir contrato</value></data>
+  <data name="clientDetail.people.roles" xml:space="preserve"><value>Perfiles</value></data>
+  <data name="clientDetail.people.searchPlaceholder" xml:space="preserve"><value>Buscar por nombre o e-mail...</value></data>
+  <data name="clientDetail.people.filterByContract" xml:space="preserve"><value>Sistema</value></data>
+  <data name="clientDetail.people.empty.title" xml:space="preserve"><value>Sin personas asignadas</value></data>
+  <data name="clientDetail.people.empty.description" xml:space="preserve"><value>Asigná usuarios a los perfiles de los contratos de este cliente.</value></data>
+  <data name="clientDetail.audit.empty.title" xml:space="preserve"><value>Auditoría próximamente</value></data>
+  <data name="clientDetail.audit.empty.description" xml:space="preserve"><value>Pronto verás aquí el historial de cambios, accesos y eventos sensibles de este cliente.</value></data>
+  <data name="contractDetail.notFound.title" xml:space="preserve"><value>Contrato no encontrado</value></data>
+  <data name="contractDetail.notFound.description" xml:space="preserve"><value>El contrato solicitado no existe o fue eliminado.</value></data>
+  <data name="contractDetail.backToClient" xml:space="preserve"><value>Volver al cliente</value></data>
+  <data name="contractDetail.metrics.tenant" xml:space="preserve"><value>Base de datos</value></data>
+  <data name="contractDetail.metrics.roles" xml:space="preserve"><value>Perfiles</value></data>
+  <data name="contractDetail.metrics.rolesHint" xml:space="preserve"><value>configurados en este contrato</value></data>
+  <data name="contractDetail.metrics.activeUsers" xml:space="preserve"><value>Usuarios activos</value></data>
+  <data name="contractDetail.metrics.activeUsersHint" xml:space="preserve"><value>con acceso a este sistema</value></data>
+  <data name="contractDetail.tabs.overview" xml:space="preserve"><value>Resumen</value></data>
+  <data name="contractDetail.tabs.tenant" xml:space="preserve"><value>Base de datos</value></data>
+  <data name="contractDetail.tabs.roles" xml:space="preserve"><value>Perfiles</value></data>
+  <data name="contractDetail.tabs.people" xml:space="preserve"><value>Personas</value></data>
+  <data name="contractDetail.overview.title" xml:space="preserve"><value>Resumen del contrato</value></data>
+  <data name="contractDetail.overview.description" xml:space="preserve"><value>Fechas, situación e identificador técnico</value></data>
+  <data name="contractDetail.tenant.title" xml:space="preserve"><value>Base de datos</value></data>
+  <data name="contractDetail.tenant.subtitle" xml:space="preserve"><value>Infraestructura utilizada para aislar los datos de este contrato</value></data>
+  <data name="contractDetail.tenant.configure" xml:space="preserve"><value>Configurar base</value></data>
+  <data name="contractDetail.tenant.empty.title" xml:space="preserve"><value>Base de datos aún no configurada</value></data>
+  <data name="contractDetail.tenant.empty.description" xml:space="preserve"><value>Este contrato no tiene infraestructura aprovisionada. Configurá la cadena de conexión y el integration secret para empezar a operar.</value></data>
+  <data name="contractDetail.tenant.copied" xml:space="preserve"><value>Copiado al portapapeles.</value></data>
+  <data name="contractDetail.tenant.copyError" xml:space="preserve"><value>No fue posible copiar.</value></data>
+  <data name="contractDetail.roles.heading" xml:space="preserve"><value>Perfiles de este contrato</value></data>
+  <data name="contractDetail.roles.subheading" xml:space="preserve"><value>{0} perfiles configurados</value></data>
+  <data name="contractDetail.roles.addRole" xml:space="preserve"><value>Nuevo perfil</value></data>
+  <data name="contractDetail.roles.empty.title" xml:space="preserve"><value>Sin perfiles</value></data>
+  <data name="contractDetail.roles.empty.description" xml:space="preserve"><value>Creá perfiles para definir qué puede acceder cada tipo de usuario en este sistema.</value></data>
+  <data name="contractDetail.roles.badge.root" xml:space="preserve"><value>Administrador</value></data>
+  <data name="contractDetail.roles.badge.default" xml:space="preserve"><value>Predeterminado</value></data>
+  <data name="contractDetail.roles.badge.permissions" xml:space="preserve"><value>{0} permisos</value></data>
+  <data name="contractDetail.people.heading" xml:space="preserve"><value>Personas con acceso</value></data>
+  <data name="contractDetail.people.subheading" xml:space="preserve"><value>{0} asignaciones</value></data>
+  <data name="contractDetail.people.assignUser" xml:space="preserve"><value>Asignar usuario</value></data>
+  <data name="contractDetail.people.assignedAt" xml:space="preserve"><value>Asignado el</value></data>
+  <data name="contractDetail.people.searchPlaceholder" xml:space="preserve"><value>Buscar por nombre, e-mail o perfil...</value></data>
+  <data name="contractDetail.people.empty.title" xml:space="preserve"><value>Sin usuarios asignados</value></data>
+  <data name="contractDetail.people.empty.description" xml:space="preserve"><value>Asigná usuarios a los perfiles de este contrato para habilitar el acceso al sistema.</value></data>
+  <data name="contractDetail.people.toast.updated" xml:space="preserve"><value>Acceso actualizado correctamente.</value></data>
+  <data name="contractDetail.people.confirmRevokeTitle" xml:space="preserve"><value>¿Revocar acceso?</value></data>
+  <data name="contractDetail.people.confirmReactivateTitle" xml:space="preserve"><value>¿Reactivar acceso?</value></data>
+  <data name="contractDetail.people.confirmRevokeDescription" xml:space="preserve"><value>¿Revocar el acceso de {0} al perfil {1}?</value></data>
+  <data name="contractDetail.people.confirmReactivateDescription" xml:space="preserve"><value>¿Reactivar el acceso de {0} al perfil {1}?</value></data>
+  <data name="layout.menu.clients" xml:space="preserve"><value>Clientes</value></data>
+  <data name="layout.menu.configuration" xml:space="preserve"><value>Configuración</value></data>
+  <data name="layout.breadcrumb.client" xml:space="preserve"><value>Cliente</value></data>
+  <data name="layout.breadcrumb.contract" xml:space="preserve"><value>Contrato</value></data>
+  <data name="wizard.title" xml:space="preserve"><value>Nuevo cliente</value></data>
+  <data name="wizard.subtitle" xml:space="preserve"><value>Registrá empresa, contratos y bases de datos en un único flujo guiado</value></data>
+  <data name="wizard.steps.company" xml:space="preserve"><value>Empresa</value></data>
+  <data name="wizard.steps.systems" xml:space="preserve"><value>Sistemas y bases</value></data>
+  <data name="wizard.steps.review" xml:space="preserve"><value>Revisión</value></data>
+  <data name="wizard.action.previous" xml:space="preserve"><value>Volver</value></data>
+  <data name="wizard.action.next" xml:space="preserve"><value>Continuar</value></data>
+  <data name="wizard.action.finish" xml:space="preserve"><value>Crear cliente</value></data>
+  <data name="wizard.toast.created" xml:space="preserve"><value>Cliente creado correctamente.</value></data>
+  <data name="wizard.toast.error" xml:space="preserve"><value>No fue posible completar el alta. Revisá los datos e intentá de nuevo.</value></data>
+  <data name="wizard.step1.title" xml:space="preserve"><value>Datos del cliente</value></data>
+  <data name="wizard.step1.description" xml:space="preserve"><value>Razón social, documento y canales de contacto</value></data>
+  <data name="wizard.step1.legalNamePlaceholder" xml:space="preserve"><value>Razón social completa</value></data>
+  <data name="wizard.step1.tradeNamePlaceholder" xml:space="preserve"><value>Nombre comercial</value></data>
+  <data name="wizard.step2.title" xml:space="preserve"><value>Sistemas contratados</value></data>
+  <data name="wizard.step2.description" xml:space="preserve"><value>Seleccioná los sistemas que va a usar este cliente e indicá la conexión de la base de cada uno</value></data>
+  <data name="wizard.step2.noSystems" xml:space="preserve"><value>No hay sistemas disponibles. Registrá sistemas en "Sistemas" antes de continuar.</value></data>
+  <data name="wizard.step3.title" xml:space="preserve"><value>Revisión</value></data>
+  <data name="wizard.step3.description" xml:space="preserve"><value>Revisá los datos antes de finalizar. Podrás editarlos después.</value></data>
+  <data name="wizard.step3.companySection" xml:space="preserve"><value>Cliente</value></data>
+  <data name="wizard.step3.systemsSection" xml:space="preserve"><value>Sistemas y bases</value></data>
+  <data name="wizard.step3.confirmTitle" xml:space="preserve"><value>Al confirmar, este flujo va a:</value></data>
+  <data name="wizard.step3.confirmDescription" xml:space="preserve"><value>Crear la empresa, registrar un contrato por sistema seleccionado, configurar la base de cada contrato y enviar la invitación de administrador al e-mail informado.</value></data>
 </root>

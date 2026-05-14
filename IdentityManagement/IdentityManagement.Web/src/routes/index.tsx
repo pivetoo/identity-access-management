@@ -5,6 +5,9 @@ import AdministrationLayout from '../layouts/AdministrationLayout';
 import Dashboard from '../modules/Dashboard';
 import Users from '../modules/Administration/Users';
 import Companies from '../modules/Administration/Companies';
+import ClientDetail from '../modules/Administration/ClientDetail';
+import ContractDetail from '../modules/Administration/ContractDetail';
+import NewClientWizard from '../modules/Administration/NewClientWizard';
 import Contracts from '../modules/Administration/Contracts';
 import Tenants from '../modules/Administration/Tenants';
 import SystemApplications from '../modules/Administration/SystemApplications';
@@ -109,6 +112,9 @@ function AppRoutes() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="users" element={<Users />} />
           <Route path="companies" element={<Companies />} />
+          <Route path="clients/:id" element={<ClientDetail />} />
+          <Route path="clients/:id/contracts/:contractId" element={<ContractDetail />} />
+          <Route path="clients/new" element={<NewClientWizard />} />
           <Route path="contracts" element={<Contracts />} />
           <Route path="tenants" element={<Tenants />} />
           <Route path="system-applications" element={<SystemApplications />} />

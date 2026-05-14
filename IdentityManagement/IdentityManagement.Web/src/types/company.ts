@@ -5,6 +5,7 @@ export interface Company {
   document: string
   email: string
   phoneNumber: string
+  tenantId?: string
   isActive: boolean
   createdAt?: string
   updatedAt?: string

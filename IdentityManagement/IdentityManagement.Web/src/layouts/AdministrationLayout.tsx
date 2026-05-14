@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { useLocation, useNavigate, Outlet } from 'react-router-dom';
-import { Home, Users, MapPin, FileText, Layers, UserCheck, Link, ShieldCheck, KeyRound, Database } from 'lucide-react';
+import { useLocation, useNavigate, Outlet, matchPath } from 'react-router-dom';
+import { Home, Users, Building2, Layers, ShieldCheck, KeyRound } from 'lucide-react';
 import { AppLayout, useAuth, useAppNavigation, useI18n } from 'archon-ui';
 import type { BreadcrumbItem } from 'archon-ui';
 import logoIdentityProvider from '../assets/logo-identity-provider.png';
@@ -8,9 +8,9 @@ import logoempresa from '../assets/Mainstay/logo-login.png';
 import { getNameInitials, resolveAvatarUrl } from '../utils/user';
 
 export default function AdministrationLayout() {
-  const { t } = useI18n()
+  const { t } = useI18n();
   const { createMenuItem, createMenuGroup } = useAppNavigation({
-    basePath: '/management'
+    basePath: '/management',
   });
 
   const { user: authUser, contract } = useAuth();
@@ -42,50 +42,63 @@ export default function AdministrationLayout() {
       name: authUser!.name,
       email: authUser!.email,
       role: contract?.roleName ?? '',
-      avatar: getAvatar()
+      avatar: getAvatar(),
     };
   }, [authUser, contract]);
 
   const dashboardItem = createMenuItem('dashboard', t('layout.menu.dashboard'), '', <Home size={20} />);
 
   const managementGroup = createMenuGroup(t('layout.menu.management'), [
-    { key: 'users', label: t('layout.menu.users'), path: '/users', icon: <Users size={20} /> },
-    { key: 'companies', label: t('layout.menu.companies'), path: '/companies', icon: <MapPin size={20} /> },
+    { key: 'companies', label: t('layout.menu.clients'), path: '/companies', icon: <Building2 size={20} /> },
     { key: 'system-applications', label: t('layout.menu.systemApplications'), path: '/system-applications', icon: <Layers size={20} /> },
+    { key: 'users', label: t('layout.menu.users'), path: '/users', icon: <Users size={20} /> },
     { key: 'oauth-clients', label: 'OAuth Clients', path: '/oauth-clients', icon: <KeyRound size={20} /> },
-    { key: 'contracts', label: t('layout.menu.contracts'), path: '/contracts', icon: <FileText size={20} /> },
-    { key: 'tenants', label: t('layout.menu.tenants'), path: '/tenants', icon: <Database size={20} /> }
   ]);
 
-  const systemGroup = createMenuGroup(t('layout.menu.accessControl'), [
+  const systemGroup = createMenuGroup(t('layout.menu.configuration'), [
     { key: 'system-role-templates', label: t('layout.menu.systemRoleTemplates'), path: '/system-role-templates', icon: <ShieldCheck size={20} /> },
-    { key: 'roles', label: t('layout.menu.roles'), path: '/roles', icon: <UserCheck size={20} /> },
-    { key: 'user-roles', label: t('layout.menu.userRoles'), path: '/user-roles', icon: <Link size={20} /> }
   ]);
 
   const breadcrumbs = useMemo((): BreadcrumbItem[] => {
     const path = location.pathname;
     const crumbs: BreadcrumbItem[] = [
-      { label: t('layout.breadcrumb.home'), onClick: () => navigate('/management') }
+      { label: t('layout.breadcrumb.home'), onClick: () => navigate('/management') },
     ];
 
-    const routeMap: Record<string, string> = {
+    const staticMap: Record<string, string> = {
       '/management': t('layout.menu.dashboard'),
       '/management/dashboard': t('layout.menu.dashboard'),
       '/management/users': t('layout.menu.users'),
-      '/management/companies': t('layout.menu.companies'),
-      '/management/contracts': t('layout.menu.contracts'),
-      '/management/tenants': t('layout.menu.tenants'),
+      '/management/companies': t('layout.menu.clients'),
       '/management/system-applications': t('layout.menu.systemApplications'),
       '/management/oauth-clients': 'OAuth Clients',
       '/management/system-role-templates': t('layout.menu.systemRoleTemplates'),
-      '/management/roles': t('layout.menu.roles'),
-      '/management/user-roles': t('layout.menu.userRoles')
     };
 
-    const currentLabel = routeMap[path];
-    if (currentLabel && currentLabel !== t('layout.menu.dashboard')) {
-      crumbs.push({ label: currentLabel });
+    const staticLabel = staticMap[path];
+    if (staticLabel && staticLabel !== t('layout.menu.dashboard')) {
+      crumbs.push({ label: staticLabel });
+      return crumbs;
+    }
+
+    const clientDetailMatch = matchPath({ path: '/management/clients/:id', end: true }, path);
+    const contractDetailMatch = matchPath({ path: '/management/clients/:id/contracts/:contractId', end: true }, path);
+
+    if (clientDetailMatch || contractDetailMatch) {
+      const clientId = clientDetailMatch?.params.id ?? contractDetailMatch?.params.id;
+      crumbs.push({
+        label: t('layout.menu.clients'),
+        onClick: () => navigate('/management/companies'),
+      });
+      if (contractDetailMatch && clientId) {
+        crumbs.push({
+          label: t('layout.breadcrumb.client'),
+          onClick: () => navigate(`/management/clients/${clientId}`),
+        });
+        crumbs.push({ label: t('layout.breadcrumb.contract') });
+      } else {
+        crumbs.push({ label: t('layout.breadcrumb.client') });
+      }
     }
 
     return crumbs;
