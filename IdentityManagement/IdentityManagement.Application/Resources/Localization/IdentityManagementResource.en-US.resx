@@ -163,6 +163,7 @@
   <data name="common.action.update" xml:space="preserve"><value>Update</value></data>
   <data name="common.action.create" xml:space="preserve"><value>Create</value></data>
   <data name="common.action.delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="common.action.edit" xml:space="preserve"><value>Edit</value></data>
   <data name="common.action.loadMore" xml:space="preserve"><value>Load More</value></data>
   <data name="common.action.selectPermissions" xml:space="preserve"><value>Select Permissions</value></data>
   <data name="common.action.link" xml:space="preserve"><value>Link</value></data>
@@ -487,7 +488,7 @@
   <data name="clientDetail.metrics.statusHint" xml:space="preserve"><value>registration status</value></data>
   <data name="clientDetail.tabs.overview" xml:space="preserve"><value>Overview</value></data>
   <data name="clientDetail.tabs.contracts" xml:space="preserve"><value>Contracted systems</value></data>
-  <data name="clientDetail.tabs.people" xml:space="preserve"><value>People</value></data>
+  <data name="clientDetail.tabs.people" xml:space="preserve"><value>Users</value></data>
   <data name="clientDetail.tabs.audit" xml:space="preserve"><value>Audit</value></data>
   <data name="clientDetail.overview.registrationTitle" xml:space="preserve"><value>Registration</value></data>
   <data name="clientDetail.overview.registrationDescription" xml:space="preserve"><value>Tax and legal information</value></data>
@@ -556,7 +557,7 @@
   <data name="contractDetail.people.confirmReactivateDescription" xml:space="preserve"><value>Reactivate {0}'s access to role {1}?</value></data>
   <data name="layout.menu.clients" xml:space="preserve"><value>Companies</value></data>
   <data name="layout.menu.configuration" xml:space="preserve"><value>Configuration</value></data>
-  <data name="layout.breadcrumb.client" xml:space="preserve"><value>Company</value></data>
+  <data name="layout.breadcrumb.client" xml:space="preserve"><value>Details</value></data>
   <data name="layout.breadcrumb.contract" xml:space="preserve"><value>Contract</value></data>
   <data name="common.filter.all" xml:space="preserve"><value>All</value></data>
   <data name="common.state.empty" xml:space="preserve"><value>No records found</value></data>

@@ -13,7 +13,6 @@ import ContractFormModal from '../../../components/modals/ContractFormModal';
 import ClientOverviewTab from './ClientOverviewTab';
 import ClientContractsTab from './ClientContractsTab';
 import ClientPeopleTab from './ClientPeopleTab';
-import ClientAuditTab from './ClientAuditTab';
 
 export default function ClientDetail() {
   const { t } = useI18n();
@@ -115,15 +114,7 @@ export default function ClientDetail() {
       <PageLayout
         title={company.legalName}
         subtitle={subtitle}
-        actions={[
-          {
-            key: 'back',
-            label: t('clientDetail.backToList'),
-            icon: <ArrowLeft className="h-4 w-4" />,
-            variant: 'outline',
-            onClick: () => navigate('/management/companies'),
-          },
-        ]}
+        showDefaultActions={false}
       >
         <div className="space-y-5">
           {metrics && (
@@ -160,34 +151,38 @@ export default function ClientDetail() {
             </div>
           )}
 
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList>
-              <TabsTrigger value="overview">
-                <Info className="mr-2 h-4 w-4" />
-                {t('clientDetail.tabs.overview')}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="pt-2">
+            <TabsList className="mb-6 h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
+              <TabsTrigger
+                value="overview"
+                className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
+              >
+                <Info className="h-4 w-4" /> {t('clientDetail.tabs.overview')}
               </TabsTrigger>
-              <TabsTrigger value="contracts">
-                <FileText className="mr-2 h-4 w-4" />
-                {t('clientDetail.tabs.contracts')}
-                <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium">
-                  {contracts.length}
-                </span>
+              <TabsTrigger
+                value="contracts"
+                className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
+              >
+                <FileText className="h-4 w-4" /> {t('clientDetail.tabs.contracts')}
+                {contracts.length ? (
+                  <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground group-data-[state=active]:bg-primary/10 group-data-[state=active]:text-primary">
+                    {contracts.length}
+                  </span>
+                ) : null}
               </TabsTrigger>
-              <TabsTrigger value="people">
-                <Users className="mr-2 h-4 w-4" />
-                {t('clientDetail.tabs.people')}
-              </TabsTrigger>
-              <TabsTrigger value="audit">
-                <Activity className="mr-2 h-4 w-4" />
-                {t('clientDetail.tabs.audit')}
+              <TabsTrigger
+                value="people"
+                className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
+              >
+                <Users className="h-4 w-4" /> {t('clientDetail.tabs.people')}
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="overview" className="mt-4">
+            <TabsContent value="overview" className="mt-0">
               <ClientOverviewTab company={company} onEdit={() => setIsEditModalOpen(true)} />
             </TabsContent>
 
-            <TabsContent value="contracts" className="mt-4">
+            <TabsContent value="contracts" className="mt-0">
               <ClientContractsTab
                 companyId={companyId}
                 onCreateContract={() => setIsContractModalOpen(true)}
@@ -195,12 +190,8 @@ export default function ClientDetail() {
               />
             </TabsContent>
 
-            <TabsContent value="people" className="mt-4">
+            <TabsContent value="people" className="mt-0">
               <ClientPeopleTab companyId={companyId} refreshKey={refreshKey} />
-            </TabsContent>
-
-            <TabsContent value="audit" className="mt-4">
-              <ClientAuditTab />
             </TabsContent>
           </Tabs>
         </div>

@@ -155,6 +155,7 @@
   <data name="common.action.update" xml:space="preserve"><value>Actualizar</value></data>
   <data name="common.action.create" xml:space="preserve"><value>Crear</value></data>
   <data name="common.action.delete" xml:space="preserve"><value>Eliminar</value></data>
+  <data name="common.action.edit" xml:space="preserve"><value>Editar</value></data>
   <data name="common.action.loadMore" xml:space="preserve"><value>Cargar más</value></data>
   <data name="common.action.selectPermissions" xml:space="preserve"><value>Seleccionar permisos</value></data>
   <data name="common.action.link" xml:space="preserve"><value>Vincular</value></data>
@@ -479,7 +480,7 @@
   <data name="clientDetail.metrics.statusHint" xml:space="preserve"><value>situación del registro</value></data>
   <data name="clientDetail.tabs.overview" xml:space="preserve"><value>Resumen</value></data>
   <data name="clientDetail.tabs.contracts" xml:space="preserve"><value>Sistemas contratados</value></data>
-  <data name="clientDetail.tabs.people" xml:space="preserve"><value>Personas</value></data>
+  <data name="clientDetail.tabs.people" xml:space="preserve"><value>Usuarios</value></data>
   <data name="clientDetail.tabs.audit" xml:space="preserve"><value>Auditoría</value></data>
   <data name="clientDetail.overview.registrationTitle" xml:space="preserve"><value>Registro</value></data>
   <data name="clientDetail.overview.registrationDescription" xml:space="preserve"><value>Datos fiscales y razón social</value></data>
@@ -548,7 +549,7 @@
   <data name="contractDetail.people.confirmReactivateDescription" xml:space="preserve"><value>¿Reactivar el acceso de {0} al perfil {1}?</value></data>
   <data name="layout.menu.clients" xml:space="preserve"><value>Empresas</value></data>
   <data name="layout.menu.configuration" xml:space="preserve"><value>Configuración</value></data>
-  <data name="layout.breadcrumb.client" xml:space="preserve"><value>Empresa</value></data>
+  <data name="layout.breadcrumb.client" xml:space="preserve"><value>Detalles</value></data>
   <data name="layout.breadcrumb.contract" xml:space="preserve"><value>Contrato</value></data>
   <data name="common.filter.all" xml:space="preserve"><value>Todos</value></data>
   <data name="common.state.empty" xml:space="preserve"><value>No se encontraron registros</value></data>

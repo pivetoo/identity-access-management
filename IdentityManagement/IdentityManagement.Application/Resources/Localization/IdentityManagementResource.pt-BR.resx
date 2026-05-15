@@ -407,6 +407,7 @@
   <data name="common.action.update" xml:space="preserve"><value>Atualizar</value></data>
   <data name="common.action.create" xml:space="preserve"><value>Criar</value></data>
   <data name="common.action.delete" xml:space="preserve"><value>Excluir</value></data>
+  <data name="common.action.edit" xml:space="preserve"><value>Editar</value></data>
   <data name="common.action.loadMore" xml:space="preserve"><value>Carregar mais</value></data>
   <data name="common.action.selectPermissions" xml:space="preserve"><value>Selecionar permissões</value></data>
   <data name="common.action.link" xml:space="preserve"><value>Vincular</value></data>
@@ -731,7 +732,7 @@
   <data name="clientDetail.metrics.statusHint" xml:space="preserve"><value>situação cadastral</value></data>
   <data name="clientDetail.tabs.overview" xml:space="preserve"><value>Visão geral</value></data>
   <data name="clientDetail.tabs.contracts" xml:space="preserve"><value>Sistemas contratados</value></data>
-  <data name="clientDetail.tabs.people" xml:space="preserve"><value>Pessoas</value></data>
+  <data name="clientDetail.tabs.people" xml:space="preserve"><value>Usuários</value></data>
   <data name="clientDetail.tabs.audit" xml:space="preserve"><value>Auditoria</value></data>
   <data name="clientDetail.overview.registrationTitle" xml:space="preserve"><value>Cadastro</value></data>
   <data name="clientDetail.overview.registrationDescription" xml:space="preserve"><value>Dados fiscais e razão social</value></data>
@@ -800,7 +801,7 @@
   <data name="contractDetail.people.confirmReactivateDescription" xml:space="preserve"><value>Deseja reativar o acesso de {0} ao perfil {1}?</value></data>
   <data name="layout.menu.clients" xml:space="preserve"><value>Empresas</value></data>
   <data name="layout.menu.configuration" xml:space="preserve"><value>Configuração</value></data>
-  <data name="layout.breadcrumb.client" xml:space="preserve"><value>Empresa</value></data>
+  <data name="layout.breadcrumb.client" xml:space="preserve"><value>Detalhes</value></data>
   <data name="layout.breadcrumb.contract" xml:space="preserve"><value>Contrato</value></data>
   <data name="common.filter.all" xml:space="preserve"><value>Todos</value></data>
   <data name="common.state.empty" xml:space="preserve"><value>Nenhum registro encontrado</value></data>
