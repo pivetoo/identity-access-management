@@ -400,6 +400,7 @@
   <data name="common.field.situation" xml:space="preserve"><value>Situação</value></data>
   <data name="common.field.permissions" xml:space="preserve"><value>Permissões</value></data>
   <data name="common.column.name" xml:space="preserve"><value>Nome</value></data>
+  <data name="common.column.username" xml:space="preserve"><value>Usuário</value></data>
   <data name="common.column.status" xml:space="preserve"><value>Status</value></data>
   <data name="common.action.back" xml:space="preserve"><value>Voltar</value></data>
   <data name="common.action.access" xml:space="preserve"><value>Acessar</value></data>

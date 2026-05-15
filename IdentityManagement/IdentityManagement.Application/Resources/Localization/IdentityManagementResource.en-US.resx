@@ -156,6 +156,7 @@
   <data name="common.field.situation" xml:space="preserve"><value>Status</value></data>
   <data name="common.field.permissions" xml:space="preserve"><value>Permissions</value></data>
   <data name="common.column.name" xml:space="preserve"><value>Name</value></data>
+  <data name="common.column.username" xml:space="preserve"><value>Username</value></data>
   <data name="common.column.status" xml:space="preserve"><value>Status</value></data>
   <data name="common.action.back" xml:space="preserve"><value>Back</value></data>
   <data name="common.action.access" xml:space="preserve"><value>Access</value></data>
