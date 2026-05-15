@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ChevronRight, Database, Info, Shield, Users } from 'lucide-react';
+import { ArrowLeft, Database, Info, Shield, Users } from 'lucide-react';
 import { Badge, Button, Card, CardContent, PageLayout, Tabs, TabsBadge, TabsContent, TabsList, TabsTrigger, useApi, useI18n } from 'archon-ui';
 import { ContractService } from '../../../services/contractService';
 import { CompanyService } from '../../../services/companyService';
@@ -114,24 +114,9 @@ export default function ContractDetail() {
       <PageLayout
         title={data.contract.systemApplicationName}
         subtitle={`${data.company.legalName}`}
-        actions={[
-          {
-            key: 'back',
-            label: t('contractDetail.backToClient'),
-            icon: <ArrowLeft className="h-4 w-4" />,
-            variant: 'outline',
-            onClick: () => navigate(`/management/clients/${companyId}`),
-          },
-        ]}
+        showDefaultActions={false}
       >
         <div className="space-y-5">
-          <ContextBar
-            companyName={data.company.legalName}
-            companyId={companyId}
-            systemName={data.contract.systemApplicationName}
-            onNavigateCompany={() => navigate(`/management/clients/${companyId}`)}
-          />
-
           {stats && (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <StatCard
@@ -224,31 +209,6 @@ export default function ContractDetail() {
         }}
       />
     </>
-  );
-}
-
-function ContextBar({
-  companyName,
-  systemName,
-  onNavigateCompany,
-}: {
-  companyName: string;
-  companyId: number;
-  systemName: string;
-  onNavigateCompany: () => void;
-}) {
-  return (
-    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-      <button
-        type="button"
-        onClick={onNavigateCompany}
-        className="font-medium text-primary hover:underline"
-      >
-        {companyName}
-      </button>
-      <ChevronRight className="h-3 w-3" />
-      <span className="font-medium text-foreground">{systemName}</span>
-    </div>
   );
 }
 
