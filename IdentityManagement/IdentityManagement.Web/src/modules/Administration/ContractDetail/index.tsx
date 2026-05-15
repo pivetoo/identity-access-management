@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, ChevronRight, Database, Info, Shield, Users } from 'lucide-react';
-import { Badge, Button, Card, CardContent, PageLayout, Tabs, TabsContent, TabsList, TabsTrigger, useApi, useI18n } from 'archon-ui';
+import { Badge, Button, Card, CardContent, PageLayout, Tabs, TabsBadge, TabsContent, TabsList, TabsTrigger, useApi, useI18n } from 'archon-ui';
 import { ContractService } from '../../../services/contractService';
 import { CompanyService } from '../../../services/companyService';
 import { RoleService } from '../../../services/roleService';
@@ -177,45 +177,37 @@ export default function ContractDetail() {
               : ''}
           </div>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="pt-2">
+            <TabsList variant="underline" className="mb-6">
               <TabsTrigger value="overview">
-                <Info className="mr-2 h-4 w-4" />
-                {t('contractDetail.tabs.overview')}
+                <Info className="h-4 w-4" /> {t('contractDetail.tabs.overview')}
               </TabsTrigger>
               <TabsTrigger value="tenant">
-                <Database className="mr-2 h-4 w-4" />
-                {t('contractDetail.tabs.tenant')}
+                <Database className="h-4 w-4" /> {t('contractDetail.tabs.tenant')}
               </TabsTrigger>
               <TabsTrigger value="roles">
-                <Shield className="mr-2 h-4 w-4" />
-                {t('contractDetail.tabs.roles')}
-                <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium">
-                  {data.roles.length}
-                </span>
+                <Shield className="h-4 w-4" /> {t('contractDetail.tabs.roles')}
+                {data.roles.length ? <TabsBadge>{data.roles.length}</TabsBadge> : null}
               </TabsTrigger>
               <TabsTrigger value="people">
-                <Users className="mr-2 h-4 w-4" />
-                {t('contractDetail.tabs.people')}
-                <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium">
-                  {stats?.activeUsers ?? 0}
-                </span>
+                <Users className="h-4 w-4" /> {t('contractDetail.tabs.people')}
+                {stats?.activeUsers ? <TabsBadge>{stats.activeUsers}</TabsBadge> : null}
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="overview" className="mt-4">
+            <TabsContent value="overview" className="mt-0">
               <ContractOverviewTab contract={data.contract} onEdit={() => setIsEditModalOpen(true)} />
             </TabsContent>
 
-            <TabsContent value="tenant" className="mt-4">
+            <TabsContent value="tenant" className="mt-0">
               <ContractTenantTab contractId={contractId} refreshKey={refreshKey} onRefresh={handleRefresh} />
             </TabsContent>
 
-            <TabsContent value="roles" className="mt-4">
+            <TabsContent value="roles" className="mt-0">
               <ContractRolesTab contractId={contractId} refreshKey={refreshKey} onRefresh={handleRefresh} />
             </TabsContent>
 
-            <TabsContent value="people" className="mt-4">
+            <TabsContent value="people" className="mt-0">
               <ContractPeopleTab contractId={contractId} refreshKey={refreshKey} onRefresh={handleRefresh} />
             </TabsContent>
           </Tabs>

@@ -525,7 +525,7 @@
   <data name="contractDetail.tabs.overview" xml:space="preserve"><value>Overview</value></data>
   <data name="contractDetail.tabs.tenant" xml:space="preserve"><value>Database</value></data>
   <data name="contractDetail.tabs.roles" xml:space="preserve"><value>Roles</value></data>
-  <data name="contractDetail.tabs.people" xml:space="preserve"><value>People</value></data>
+  <data name="contractDetail.tabs.people" xml:space="preserve"><value>Users</value></data>
   <data name="contractDetail.overview.title" xml:space="preserve"><value>Contract summary</value></data>
   <data name="contractDetail.overview.description" xml:space="preserve"><value>Dates, status and technical identifier</value></data>
   <data name="contractDetail.tenant.title" xml:space="preserve"><value>Database</value></data>

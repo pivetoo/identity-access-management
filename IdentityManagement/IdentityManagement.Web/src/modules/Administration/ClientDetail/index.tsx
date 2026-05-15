@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, FileText, Users, Activity, Info, Database } from 'lucide-react';
-import { Badge, Button, Card, CardContent, PageLayout, Tabs, TabsContent, TabsList, TabsTrigger, useApi, useI18n } from 'archon-ui';
+import { Badge, Button, Card, CardContent, PageLayout, Tabs, TabsBadge, TabsContent, TabsList, TabsTrigger, useApi, useI18n } from 'archon-ui';
 import { CompanyService } from '../../../services/companyService';
 import { ContractService } from '../../../services/contractService';
 import { TenantDatabaseService } from '../../../services/tenantDatabaseService';
@@ -152,28 +152,15 @@ export default function ClientDetail() {
           )}
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="pt-2">
-            <TabsList className="mb-6 h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
-              <TabsTrigger
-                value="overview"
-                className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
-              >
+            <TabsList variant="underline" className="mb-6">
+              <TabsTrigger value="overview">
                 <Info className="h-4 w-4" /> {t('clientDetail.tabs.overview')}
               </TabsTrigger>
-              <TabsTrigger
-                value="contracts"
-                className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
-              >
+              <TabsTrigger value="contracts">
                 <FileText className="h-4 w-4" /> {t('clientDetail.tabs.contracts')}
-                {contracts.length ? (
-                  <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground group-data-[state=active]:bg-primary/10 group-data-[state=active]:text-primary">
-                    {contracts.length}
-                  </span>
-                ) : null}
+                {contracts.length ? <TabsBadge>{contracts.length}</TabsBadge> : null}
               </TabsTrigger>
-              <TabsTrigger
-                value="people"
-                className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
-              >
+              <TabsTrigger value="people">
                 <Users className="h-4 w-4" /> {t('clientDetail.tabs.people')}
               </TabsTrigger>
             </TabsList>

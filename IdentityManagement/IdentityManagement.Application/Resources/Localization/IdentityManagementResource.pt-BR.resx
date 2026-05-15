@@ -769,7 +769,7 @@
   <data name="contractDetail.tabs.overview" xml:space="preserve"><value>Visão geral</value></data>
   <data name="contractDetail.tabs.tenant" xml:space="preserve"><value>Banco de dados</value></data>
   <data name="contractDetail.tabs.roles" xml:space="preserve"><value>Perfis</value></data>
-  <data name="contractDetail.tabs.people" xml:space="preserve"><value>Pessoas</value></data>
+  <data name="contractDetail.tabs.people" xml:space="preserve"><value>Usuários</value></data>
   <data name="contractDetail.overview.title" xml:space="preserve"><value>Resumo do contrato</value></data>
   <data name="contractDetail.overview.description" xml:space="preserve"><value>Datas, situação e identificação técnica</value></data>
   <data name="contractDetail.tenant.title" xml:space="preserve"><value>Banco de dados</value></data>

@@ -517,7 +517,7 @@
   <data name="contractDetail.tabs.overview" xml:space="preserve"><value>Resumen</value></data>
   <data name="contractDetail.tabs.tenant" xml:space="preserve"><value>Base de datos</value></data>
   <data name="contractDetail.tabs.roles" xml:space="preserve"><value>Perfiles</value></data>
-  <data name="contractDetail.tabs.people" xml:space="preserve"><value>Personas</value></data>
+  <data name="contractDetail.tabs.people" xml:space="preserve"><value>Usuarios</value></data>
   <data name="contractDetail.overview.title" xml:space="preserve"><value>Resumen del contrato</value></data>
   <data name="contractDetail.overview.description" xml:space="preserve"><value>Fechas, situación e identificador técnico</value></data>
   <data name="contractDetail.tenant.title" xml:space="preserve"><value>Base de datos</value></data>
