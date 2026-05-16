@@ -25,14 +25,15 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
                 .IsRequired()
                 .HasMaxLength(100);
 
-            builder.Property(entity => entity.IntegrationSecret)
+            builder.Property(entity => entity.ApiKey)
                 .IsRequired()
-                .HasMaxLength(255);
+                .HasMaxLength(255)
+                .HasColumnName("apikey");
 
             builder.HasIndex(entity => entity.ContractId)
                 .IsUnique();
 
-            builder.HasIndex(entity => entity.IntegrationSecret)
+            builder.HasIndex(entity => entity.ApiKey)
                 .IsUnique();
 
             builder.HasIndex(entity => entity.IsActive);

@@ -14,6 +14,6 @@ namespace IdentityManagement.Application.Responses.Tenants
 
         public string Schema { get; set; } = "public";
 
-        public string IntegrationSecret { get; set; } = string.Empty;
+        public string ApiKey { get; set; } = string.Empty;
     }
 }

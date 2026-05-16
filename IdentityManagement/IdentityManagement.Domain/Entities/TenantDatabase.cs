@@ -15,7 +15,7 @@ namespace IdentityManagement.Domain.Entities
 
         public string SchemaName { get; private set; } = "public";
 
-        public string IntegrationSecret { get; private set; } = string.Empty;
+        public string ApiKey { get; private set; } = string.Empty;
 
         public bool IsActive { get; private set; } = true;
 
@@ -23,7 +23,7 @@ namespace IdentityManagement.Domain.Entities
         {
         }
 
-        public TenantDatabase(long contractId, string connectionString, DatabaseProvider databaseProvider, string integrationSecret, string? schemaName = null)
+        public TenantDatabase(long contractId, string connectionString, DatabaseProvider databaseProvider, string apiKey, string? schemaName = null)
         {
             if (contractId <= 0)
             {
@@ -31,23 +31,23 @@ namespace IdentityManagement.Domain.Entities
             }
 
             ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
-            ArgumentException.ThrowIfNullOrWhiteSpace(integrationSecret);
+            ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
 
             ContractId = contractId;
             ConnectionString = connectionString.Trim();
             DatabaseProvider = databaseProvider;
-            IntegrationSecret = integrationSecret.Trim();
+            ApiKey = apiKey.Trim();
             SchemaName = NormalizeSchema(schemaName);
         }
 
-        public void Update(string connectionString, DatabaseProvider databaseProvider, string integrationSecret, string? schemaName, bool isActive)
+        public void Update(string connectionString, DatabaseProvider databaseProvider, string apiKey, string? schemaName, bool isActive)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
-            ArgumentException.ThrowIfNullOrWhiteSpace(integrationSecret);
+            ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
 
             ConnectionString = connectionString.Trim();
             DatabaseProvider = databaseProvider;
-            IntegrationSecret = integrationSecret.Trim();
+            ApiKey = apiKey.Trim();
             SchemaName = NormalizeSchema(schemaName);
             IsActive = isActive;
         }

@@ -31,7 +31,7 @@ namespace IdentityManagement.Api.Controllers
         [GetEndpoint]
         public async Task<IActionResult> ResolveByApiKey([FromQuery] string apiKey, [FromQuery] string? applicationId, CancellationToken cancellationToken)
         {
-            var response = await tenantResolutionService.ResolveByIntegrationSecret(apiKey, applicationId, cancellationToken);
+            var response = await tenantResolutionService.ResolveByApiKey(apiKey, applicationId, cancellationToken);
             if (response is null)
             {
                 return Http404();

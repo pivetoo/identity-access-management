@@ -31,19 +31,19 @@ namespace IdentityManagement.Infrastructure.Services
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<TenantResolutionResponse?> ResolveByIntegrationSecret(string integrationSecret, string? applicationId, CancellationToken cancellationToken = default)
+        public async Task<TenantResolutionResponse?> ResolveByApiKey(string apiKey, string? applicationId, CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrWhiteSpace(integrationSecret))
+            if (string.IsNullOrWhiteSpace(apiKey))
             {
                 return null;
             }
 
-            string normalizedSecret = integrationSecret.Trim();
+            string normalizedApiKey = apiKey.Trim();
             string? normalizedApplicationId = string.IsNullOrWhiteSpace(applicationId) ? null : applicationId.Trim();
 
             return await BuildBaseQuery()
                 .Where(item =>
-                    item.TenantDatabase.IntegrationSecret == normalizedSecret &&
+                    item.TenantDatabase.ApiKey == normalizedApiKey &&
                     (normalizedApplicationId == null || item.SystemApplication.Audience == normalizedApplicationId))
                 .Select(MapToResponse())
                 .FirstOrDefaultAsync(cancellationToken);
@@ -76,7 +76,7 @@ namespace IdentityManagement.Infrastructure.Services
                 ConnectionString = record.TenantDatabase.ConnectionString,
                 DatabaseProvider = (int)record.TenantDatabase.DatabaseProvider,
                 Schema = record.TenantDatabase.SchemaName,
-                IntegrationSecret = record.TenantDatabase.IntegrationSecret
+                ApiKey = record.TenantDatabase.ApiKey
             };
         }
 

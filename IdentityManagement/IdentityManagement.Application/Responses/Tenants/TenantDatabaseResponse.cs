@@ -20,7 +20,7 @@ namespace IdentityManagement.Application.Responses.Tenants
 
         public string SchemaName { get; set; } = "public";
 
-        public string IntegrationSecret { get; set; } = string.Empty;
+        public string ApiKey { get; set; } = string.Empty;
 
         public bool IsActive { get; set; }
 

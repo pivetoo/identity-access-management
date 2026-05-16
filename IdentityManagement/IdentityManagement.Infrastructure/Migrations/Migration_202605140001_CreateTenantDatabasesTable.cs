@@ -15,7 +15,7 @@ namespace IdentityManagement.Infrastructure.Migrations
                     .WithColumn("connectionstring").AsString(2000).NotNullable()
                     .WithColumn("databaseprovider").AsInt32().NotNullable()
                     .WithColumn("schemaname").AsString(100).NotNullable().WithDefaultValue("public")
-                    .WithColumn("integrationsecret").AsString(255).NotNullable()
+                    .WithColumn("apikey").AsString(255).NotNullable()
                     .WithColumn("isactive").AsBoolean().NotNullable().WithDefaultValue(true)
                     .WithColumn("createdat").AsDateTimeOffset().NotNullable()
                     .WithColumn("updatedat").AsDateTimeOffset().Nullable();
@@ -36,11 +36,11 @@ namespace IdentityManagement.Infrastructure.Migrations
                     .WithOptions().Unique();
             }
 
-            if (!Schema.Table("tenantdatabases").Index("ix_tenantdatabases_integrationsecret").Exists())
+            if (!Schema.Table("tenantdatabases").Index("ix_tenantdatabases_apikey").Exists())
             {
-                Create.Index("ix_tenantdatabases_integrationsecret")
+                Create.Index("ix_tenantdatabases_apikey")
                     .OnTable("tenantdatabases")
-                    .OnColumn("integrationsecret").Ascending()
+                    .OnColumn("apikey").Ascending()
                     .WithOptions().Unique();
             }
 
@@ -59,9 +59,9 @@ namespace IdentityManagement.Infrastructure.Migrations
                 Delete.Index("ix_tenantdatabases_isactive").OnTable("tenantdatabases");
             }
 
-            if (Schema.Table("tenantdatabases").Index("ix_tenantdatabases_integrationsecret").Exists())
+            if (Schema.Table("tenantdatabases").Index("ix_tenantdatabases_apikey").Exists())
             {
-                Delete.Index("ix_tenantdatabases_integrationsecret").OnTable("tenantdatabases");
+                Delete.Index("ix_tenantdatabases_apikey").OnTable("tenantdatabases");
             }
 
             if (Schema.Table("tenantdatabases").Index("ix_tenantdatabases_contractid").Exists())

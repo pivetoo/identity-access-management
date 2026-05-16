@@ -6,6 +6,6 @@ namespace IdentityManagement.Application.Services
     {
         Task<TenantResolutionResponse?> ResolveByTenantAndApplication(Guid tenantId, string applicationId, CancellationToken cancellationToken = default);
 
-        Task<TenantResolutionResponse?> ResolveByIntegrationSecret(string integrationSecret, string? applicationId, CancellationToken cancellationToken = default);
+        Task<TenantResolutionResponse?> ResolveByApiKey(string apiKey, string? applicationId, CancellationToken cancellationToken = default);
     }
 }

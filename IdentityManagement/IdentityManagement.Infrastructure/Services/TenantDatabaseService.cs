@@ -36,7 +36,7 @@ namespace IdentityManagement.Infrastructure.Services
 
         public async Task<TenantDatabaseResponse> Create(CreateTenantDatabaseRequest request, CancellationToken cancellationToken = default)
         {
-            ValidateRequiredFields(request.ConnectionString, request.IntegrationSecret);
+            ValidateRequiredFields(request.ConnectionString, request.ApiKey);
 
             Contract? contract = await dbContext.Set<Contract>()
                 .AsNoTracking()
@@ -48,13 +48,13 @@ namespace IdentityManagement.Infrastructure.Services
             }
 
             await EnsureContractAvailable(request.ContractId, null, cancellationToken);
-            await EnsureUniqueIntegrationSecret(request.IntegrationSecret, null, cancellationToken);
+            await EnsureUniqueApiKey(request.ApiKey, null, cancellationToken);
 
             TenantDatabase tenantDatabase = new TenantDatabase(
                 request.ContractId,
                 request.ConnectionString,
                 ResolveDatabaseProvider(request.DatabaseProvider),
-                request.IntegrationSecret,
+                request.ApiKey,
                 request.SchemaName);
 
             dbContext.Set<TenantDatabase>().Add(tenantDatabase);
@@ -71,7 +71,7 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException(Localizer["request.route.idMismatch"]);
             }
 
-            ValidateRequiredFields(request.ConnectionString, request.IntegrationSecret);
+            ValidateRequiredFields(request.ConnectionString, request.ApiKey);
 
             TenantDatabase? tenantDatabase = await dbContext.Set<TenantDatabase>()
                 .AsTracking()
@@ -82,12 +82,12 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException(Localizer["tenantDatabase.notFound"]);
             }
 
-            await EnsureUniqueIntegrationSecret(request.IntegrationSecret, id, cancellationToken);
+            await EnsureUniqueApiKey(request.ApiKey, id, cancellationToken);
 
             tenantDatabase.Update(
                 request.ConnectionString,
                 ResolveDatabaseProvider(request.DatabaseProvider),
-                request.IntegrationSecret,
+                request.ApiKey,
                 request.SchemaName,
                 request.IsActive);
 
@@ -141,23 +141,23 @@ namespace IdentityManagement.Infrastructure.Services
                     ConnectionString = td.ConnectionString,
                     DatabaseProvider = (int)td.DatabaseProvider,
                     SchemaName = td.SchemaName,
-                    IntegrationSecret = td.IntegrationSecret,
+                    ApiKey = td.ApiKey,
                     IsActive = td.IsActive,
                     CreatedAt = td.CreatedAt,
                     UpdatedAt = td.UpdatedAt
                 };
         }
 
-        private void ValidateRequiredFields(string connectionString, string integrationSecret)
+        private void ValidateRequiredFields(string connectionString, string apiKey)
         {
             if (string.IsNullOrWhiteSpace(connectionString))
             {
                 throw new InvalidOperationException(Localizer["tenantDatabase.connectionString.required"]);
             }
 
-            if (string.IsNullOrWhiteSpace(integrationSecret))
+            if (string.IsNullOrWhiteSpace(apiKey))
             {
-                throw new InvalidOperationException(Localizer["tenantDatabase.integrationSecret.required"]);
+                throw new InvalidOperationException(Localizer["tenantDatabase.apiKey.required"]);
             }
         }
 
@@ -173,16 +173,16 @@ namespace IdentityManagement.Infrastructure.Services
             }
         }
 
-        private async Task EnsureUniqueIntegrationSecret(string integrationSecret, long? currentId, CancellationToken cancellationToken)
+        private async Task EnsureUniqueApiKey(string apiKey, long? currentId, CancellationToken cancellationToken)
         {
-            string normalized = integrationSecret.Trim();
+            string normalized = apiKey.Trim();
             bool exists = await dbContext.Set<TenantDatabase>()
                 .AsNoTracking()
-                .AnyAsync(item => item.IntegrationSecret == normalized && (!currentId.HasValue || item.Id != currentId.Value), cancellationToken);
+                .AnyAsync(item => item.ApiKey == normalized && (!currentId.HasValue || item.Id != currentId.Value), cancellationToken);
 
             if (exists)
             {
-                throw new InvalidOperationException(Localizer["tenantDatabase.integrationSecret.alreadyExists"]);
+                throw new InvalidOperationException(Localizer["tenantDatabase.apiKey.alreadyExists"]);
             }
         }
 
