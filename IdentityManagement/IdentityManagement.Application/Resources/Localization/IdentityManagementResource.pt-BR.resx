@@ -141,6 +141,9 @@
   <data name="user.username.alreadyExists" xml:space="preserve">
     <value>Já existe um usuário com este nome de usuário.</value>
   </data>
+  <data name="user.role.alreadyAssignedInContract" xml:space="preserve">
+    <value>Este usuário já possui um perfil ativo neste contrato.</value>
+  </data>
   <data name="user.avatar.updated" xml:space="preserve">
     <value>Avatar do usuário atualizado com sucesso.</value>
   </data>

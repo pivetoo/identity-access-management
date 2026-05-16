@@ -197,6 +197,8 @@ namespace IdentityManagement.Infrastructure.Services
                 DbContext.Set<User>().Add(user);
                 await DbContext.SaveChangesAsync(cancellationToken);
 
+                await EnsureSingleActiveRoleInContract(user.Id, contractId, null, cancellationToken);
+
                 UserRole userRole = new UserRole(user.Id, role.Id);
                 userRole.SetCreatedAt(DateTimeOffset.UtcNow);
                 DbContext.Set<UserRole>().Add(userRole);
@@ -391,6 +393,25 @@ namespace IdentityManagement.Infrastructure.Services
         public bool VerifyPassword(string password, string hashedPassword)
         {
             return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+        }
+
+        private async Task EnsureSingleActiveRoleInContract(long userId, long contractId, long? ignoreUserRoleId, CancellationToken cancellationToken)
+        {
+            bool hasActiveRole = await (
+                from userRole in DbContext.Set<UserRole>().AsNoTracking()
+                join role in DbContext.Set<Role>().AsNoTracking() on userRole.RoleId equals role.Id
+                where userRole.UserId == userId &&
+                      role.ContractId == contractId &&
+                      userRole.IsActive &&
+                      !userRole.RevokedAt.HasValue &&
+                      (!ignoreUserRoleId.HasValue || userRole.Id != ignoreUserRoleId.Value)
+                select userRole.Id)
+                .AnyAsync(cancellationToken);
+
+            if (hasActiveRole)
+            {
+                throw new InvalidOperationException(Localizer["user.role.alreadyAssignedInContract"]);
+            }
         }
 
         private async Task EnsureUniqueUser(string username, string email, long? currentUserId, CancellationToken cancellationToken)

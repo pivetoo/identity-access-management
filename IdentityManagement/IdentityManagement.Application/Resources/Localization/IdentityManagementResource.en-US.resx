@@ -55,6 +55,7 @@
   <data name="user.notFoundOrInactive" xml:space="preserve"><value>User not found or inactive.</value></data>
   <data name="user.firstRegistration.notAllowed" xml:space="preserve"><value>First user registration is not allowed because active users already exist.</value></data>
   <data name="user.username.alreadyExists" xml:space="preserve"><value>Username already exists.</value></data>
+  <data name="user.role.alreadyAssignedInContract" xml:space="preserve"><value>This user already has an active role in this contract.</value></data>
   <data name="user.avatar.updated" xml:space="preserve"><value>User avatar updated successfully.</value></data>
   <data name="user.avatar.deleted" xml:space="preserve"><value>User avatar deleted successfully.</value></data>
   <data name="userRole.assigned" xml:space="preserve"><value>User role assigned successfully.</value></data>
