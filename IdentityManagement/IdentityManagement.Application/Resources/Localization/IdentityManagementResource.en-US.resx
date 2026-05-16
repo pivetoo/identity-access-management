@@ -447,8 +447,8 @@
   <data name="tenantDatabase.updated" xml:space="preserve"><value>Tenant updated successfully.</value></data>
   <data name="tenantDatabase.loadAfterCreate.failed" xml:space="preserve"><value>Failed to load tenant after creation.</value></data>
   <data name="tenantDatabase.connectionString.required" xml:space="preserve"><value>Connection string is required.</value></data>
-  <data name="tenantDatabase.integrationSecret.required" xml:space="preserve"><value>Integration secret is required.</value></data>
-  <data name="tenantDatabase.integrationSecret.alreadyExists" xml:space="preserve"><value>A tenant with this integration secret already exists.</value></data>
+  <data name="tenantDatabase.apiKey.required" xml:space="preserve"><value>API key is required.</value></data>
+  <data name="tenantDatabase.apiKey.alreadyExists" xml:space="preserve"><value>A tenant with this API key already exists.</value></data>
   <data name="tenantDatabase.contract.alreadyConfigured" xml:space="preserve"><value>This contract already has a tenant configured.</value></data>
   <data name="tenantDatabase.list.title" xml:space="preserve"><value>Tenants</value></data>
   <data name="tenantDatabase.list.subtitle" xml:space="preserve"><value>Database configuration per contract</value></data>
@@ -468,7 +468,7 @@
   <data name="tenantDatabase.field.connectionString" xml:space="preserve"><value>Connection String</value></data>
   <data name="tenantDatabase.field.databaseProvider" xml:space="preserve"><value>Provider</value></data>
   <data name="tenantDatabase.field.schemaName" xml:space="preserve"><value>Schema</value></data>
-  <data name="tenantDatabase.field.integrationSecret" xml:space="preserve"><value>Integration Secret</value></data>
+  <data name="tenantDatabase.field.apiKey" xml:space="preserve"><value>API Key</value></data>
   <data name="tenantDatabase.form.createTitle" xml:space="preserve"><value>New Tenant</value></data>
   <data name="tenantDatabase.form.editTitle" xml:space="preserve"><value>Edit Tenant</value></data>
   <data name="tenantDatabase.form.contractPlaceholder" xml:space="preserve"><value>Select a contract</value></data>
