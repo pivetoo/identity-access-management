@@ -7,14 +7,6 @@ namespace IdentityManagement.Application.Requests.Users
         [Required]
         public long Id { get; set; }
 
-        [Required]
-        [StringLength(50, MinimumLength = 3)]
-        public string Username { get; set; } = string.Empty;
-
-        [Required]
-        [StringLength(150, MinimumLength = 5)]
-        public string Email { get; set; } = string.Empty;
-
         [StringLength(100, MinimumLength = 6)]
         public string? Password { get; set; }
 

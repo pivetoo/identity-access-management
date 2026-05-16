@@ -45,9 +45,7 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException(Localizer["user.notFound"]);
             }
 
-            await EnsureUniqueUser(request.Username, request.Email, id, cancellationToken);
-
-            user.Update(request.Username, request.Email, request.Name, request.IsActive, user.AvatarUrl);
+            user.Update(user.Username, user.Email, request.Name, request.IsActive, user.AvatarUrl);
 
             if (!string.IsNullOrWhiteSpace(request.Password))
             {
