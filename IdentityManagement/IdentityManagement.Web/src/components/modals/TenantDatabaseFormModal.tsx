@@ -31,7 +31,7 @@ export default function TenantDatabaseFormModal({
     connectionString: '',
     databaseProvider: DatabaseProviderValue.PostgreSql as DatabaseProvider,
     schemaName: 'public',
-    integrationSecret: '',
+    apiKey: '',
     isActive: true,
   });
 
@@ -91,7 +91,7 @@ export default function TenantDatabaseFormModal({
         connectionString: tenant.connectionString,
         databaseProvider: tenant.databaseProvider,
         schemaName: tenant.schemaName || 'public',
-        integrationSecret: tenant.integrationSecret,
+        apiKey: tenant.apiKey,
         isActive: tenant.isActive,
       });
     } else {
@@ -100,7 +100,7 @@ export default function TenantDatabaseFormModal({
         connectionString: '',
         databaseProvider: DatabaseProviderValue.PostgreSql,
         schemaName: 'public',
-        integrationSecret: '',
+        apiKey: '',
         isActive: true,
       });
     }
@@ -130,7 +130,7 @@ export default function TenantDatabaseFormModal({
         connectionString: formData.connectionString,
         databaseProvider: formData.databaseProvider,
         schemaName: formData.schemaName || undefined,
-        integrationSecret: formData.integrationSecret,
+        apiKey: formData.apiKey,
         isActive: formData.isActive,
       };
       await saveApi.execute(() => TenantDatabaseService.update(tenant.id, updateData));
@@ -140,7 +140,7 @@ export default function TenantDatabaseFormModal({
         connectionString: formData.connectionString,
         databaseProvider: formData.databaseProvider,
         schemaName: formData.schemaName || undefined,
-        integrationSecret: formData.integrationSecret,
+        apiKey: formData.apiKey,
       };
       await saveApi.execute(() => TenantDatabaseService.create(createData));
     }
@@ -149,7 +149,7 @@ export default function TenantDatabaseFormModal({
   const isValid =
     formData.contractId > 0 &&
     formData.connectionString.trim().length > 0 &&
-    formData.integrationSecret.trim().length > 0;
+    formData.apiKey.trim().length > 0;
 
   const providerOptions = [
     { label: 'PostgreSQL', value: DatabaseProviderValue.PostgreSql.toString() },
@@ -224,15 +224,15 @@ export default function TenantDatabaseFormModal({
 
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">
-              {t('tenantDatabase.field.integrationSecret')} <span className="text-destructive">*</span>
+              {t('tenantDatabase.field.apiKey')} <span className="text-destructive">*</span>
             </label>
             <div className="relative">
               <Input
                 type={showSecret ? 'text' : 'password'}
-                value={formData.integrationSecret}
-                onChange={(e) => handleInputChange('integrationSecret', e.target.value)}
-                error={!!getError('integrationSecret')}
-                helperText={getError('integrationSecret')}
+                value={formData.apiKey}
+                onChange={(e) => handleInputChange('apiKey', e.target.value)}
+                error={!!getError('apiKey')}
+                helperText={getError('apiKey')}
                 className="pr-10"
               />
               <button

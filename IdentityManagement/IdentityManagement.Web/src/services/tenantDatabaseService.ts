@@ -43,7 +43,7 @@ export class TenantDatabaseService {
       connectionString: item.connectionString,
       databaseProvider: item.databaseProvider,
       schemaName: item.schemaName,
-      integrationSecret: item.integrationSecret,
+      apiKey: item.apiKey,
       isActive: !item.isActive,
     })
   }

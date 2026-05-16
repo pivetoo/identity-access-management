@@ -154,7 +154,7 @@ export default function ContractTenantTab({ contractId, refreshKey, onRefresh }:
           <div>
             <div className="flex items-center justify-between">
               <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                {t('tenantDatabase.field.integrationSecret')}
+                {t('tenantDatabase.field.apiKey')}
               </div>
               <div className="flex items-center gap-2">
                 <button
@@ -166,7 +166,7 @@ export default function ContractTenantTab({ contractId, refreshKey, onRefresh }:
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleCopy('secret', tenant.integrationSecret)}
+                  onClick={() => handleCopy('secret', tenant.apiKey)}
                   className="text-xs text-muted-foreground hover:text-foreground"
                 >
                   {copiedField === 'secret' ? (
@@ -179,8 +179,8 @@ export default function ContractTenantTab({ contractId, refreshKey, onRefresh }:
             </div>
             <div className="mt-1 rounded-md border border-border/60 bg-muted/30 p-2 font-mono text-xs text-muted-foreground break-all">
               {showSecret
-                ? tenant.integrationSecret
-                : '•'.repeat(Math.min(tenant.integrationSecret.length, 32))}
+                ? tenant.apiKey
+                : '•'.repeat(Math.min(tenant.apiKey.length, 32))}
             </div>
           </div>
         </CardContent>

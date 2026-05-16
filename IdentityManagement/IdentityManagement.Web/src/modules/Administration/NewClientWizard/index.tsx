@@ -30,7 +30,7 @@ export interface SystemSelection {
   connectionString: string;
   databaseProvider: DatabaseProvider;
   schemaName: string;
-  integrationSecret: string;
+  apiKey: string;
 }
 
 const initialCompany: CompanyData = {
@@ -75,7 +75,7 @@ export default function NewClientWizard() {
     selectedSystems.every(
       (sys) =>
         sys.connectionString.trim().length > 0 &&
-        sys.integrationSecret.trim().length > 0 &&
+        sys.apiKey.trim().length > 0 &&
         sys.startDate.length > 0,
     );
 
@@ -92,7 +92,7 @@ export default function NewClientWizard() {
           connectionString: '',
           databaseProvider: DatabaseProviderValue.PostgreSql,
           schemaName: 'public',
-          integrationSecret: '',
+          apiKey: '',
         },
       ]);
     } else {
@@ -126,7 +126,7 @@ export default function NewClientWizard() {
           connectionString: sys.connectionString,
           databaseProvider: sys.databaseProvider,
           schemaName: sys.schemaName || undefined,
-          integrationSecret: sys.integrationSecret,
+          apiKey: sys.apiKey,
         });
       }
 

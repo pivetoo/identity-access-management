@@ -145,15 +145,15 @@ export default function Step2Systems({
                         </div>
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-medium text-muted-foreground">
-                            {t('tenantDatabase.field.integrationSecret')}{' '}
+                            {t('tenantDatabase.field.apiKey')}{' '}
                             <span className="text-destructive">*</span>
                           </label>
                           <div className="relative">
                             <Input
                               type={showSecretIds.has(system.id) ? 'text' : 'password'}
-                              value={data.integrationSecret}
+                              value={data.apiKey}
                               onChange={(e) =>
-                                onUpdateSystem(system.id, { integrationSecret: e.target.value })
+                                onUpdateSystem(system.id, { apiKey: e.target.value })
                               }
                               className="pr-9"
                             />

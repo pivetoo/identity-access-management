@@ -97,8 +97,8 @@ export default function Step3Review({ company, systems }: Step3ReviewProps) {
                   <Field label={t('common.field.endDate')} value={sys.endDate ?? '-'} />
                   <Field label={t('tenantDatabase.field.schemaName')} value={sys.schemaName} />
                   <Field
-                    label={t('tenantDatabase.field.integrationSecret')}
-                    value={maskSecret(sys.integrationSecret)}
+                    label={t('tenantDatabase.field.apiKey')}
+                    value={maskSecret(sys.apiKey)}
                     mono
                   />
                   <div className="sm:col-span-2">

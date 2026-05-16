@@ -313,10 +313,10 @@ export default function Tenants() {
 
               <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  {t('tenantDatabase.field.integrationSecret')}
+                  {t('tenantDatabase.field.apiKey')}
                 </div>
                 <div className="mt-1 font-mono text-xs text-muted-foreground break-all">
-                  {maskSecret(record.integrationSecret)}
+                  {maskSecret(record.apiKey)}
                 </div>
               </div>
 

@@ -16,7 +16,7 @@ export interface TenantDatabase {
   connectionString: string
   databaseProvider: DatabaseProvider
   schemaName: string
-  integrationSecret: string
+  apiKey: string
   isActive: boolean
   createdAt?: string
   updatedAt?: string
@@ -27,7 +27,7 @@ export interface CreateTenantDatabaseRequest {
   connectionString: string
   databaseProvider: DatabaseProvider
   schemaName?: string
-  integrationSecret: string
+  apiKey: string
 }
 
 export interface UpdateTenantDatabaseRequest {
@@ -35,6 +35,6 @@ export interface UpdateTenantDatabaseRequest {
   connectionString: string
   databaseProvider: DatabaseProvider
   schemaName?: string
-  integrationSecret: string
+  apiKey: string
   isActive: boolean
 }
