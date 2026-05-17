@@ -32,6 +32,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         string audience = builder.Configuration["Jwt:Audience"]
             ?? throw new InvalidOperationException("Jwt:Audience is not configured.");
 
+        options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
