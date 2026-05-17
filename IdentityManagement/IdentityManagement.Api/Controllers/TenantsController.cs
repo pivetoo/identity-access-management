@@ -39,5 +39,13 @@ namespace IdentityManagement.Api.Controllers
 
             return Http200(response);
         }
+
+        [RequireAccess]
+        [GetEndpoint]
+        public async Task<IActionResult> ListByApplication([FromQuery] string applicationId, CancellationToken cancellationToken)
+        {
+            var response = await tenantResolutionService.ListByApplication(applicationId, cancellationToken);
+            return Http200(response);
+        }
     }
 }

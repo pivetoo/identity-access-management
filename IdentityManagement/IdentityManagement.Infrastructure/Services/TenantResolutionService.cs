@@ -31,6 +31,21 @@ namespace IdentityManagement.Infrastructure.Services
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
+        public async Task<IReadOnlyList<TenantResolutionResponse>> ListByApplication(string applicationId, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(applicationId))
+            {
+                return Array.Empty<TenantResolutionResponse>();
+            }
+
+            string normalized = applicationId.Trim();
+
+            return await BuildBaseQuery()
+                .Where(item => item.SystemApplication.Audience == normalized)
+                .Select(MapToResponse())
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task<TenantResolutionResponse?> ResolveByApiKey(string apiKey, string? applicationId, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(apiKey))
