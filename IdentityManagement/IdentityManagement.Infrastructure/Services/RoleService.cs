@@ -125,6 +125,74 @@ namespace IdentityManagement.Infrastructure.Services
             return roles;
         }
 
+        public async Task<RoleResponse?> GetRoleById(long id, CancellationToken cancellationToken = default)
+        {
+            return await (
+                from item in DbContext.Set<Role>().AsNoTracking()
+                where item.Id == id
+                select new RoleResponse
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    Description = item.Description,
+                    ContractId = item.ContractId,
+                    IsRoot = item.IsRoot,
+                    IsDefault = item.IsDefault,
+                    AccessResourceIds = DbContext.Set<RoleAccessResource>()
+                        .Where(link => link.RoleId == item.Id && link.IsActive)
+                        .OrderBy(link => link.AccessResourceId)
+                        .Select(link => link.AccessResourceId)
+                        .ToList(),
+                    CreatedAt = item.CreatedAt,
+                    UpdatedAt = item.UpdatedAt
+                })
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public async Task DeleteRole(long id, CancellationToken cancellationToken = default)
+        {
+            Role? role = await DbContext.Set<Role>()
+                .AsTracking()
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (role is null)
+            {
+                throw new InvalidOperationException(Localizer["role.notFound"]);
+            }
+
+            bool hasActiveUsers = await DbContext.Set<UserRole>()
+                .AsNoTracking()
+                .AnyAsync(item => item.RoleId == id && item.IsActive && !item.RevokedAt.HasValue, cancellationToken);
+
+            if (hasActiveUsers)
+            {
+                throw new InvalidOperationException(Localizer["role.delete.hasActiveUsers"]);
+            }
+
+            List<RoleAccessResource> links = await DbContext.Set<RoleAccessResource>()
+                .AsTracking()
+                .Where(item => item.RoleId == id)
+                .ToListAsync(cancellationToken);
+
+            if (links.Count > 0)
+            {
+                DbContext.Set<RoleAccessResource>().RemoveRange(links);
+            }
+
+            List<UserRole> revokedAssignments = await DbContext.Set<UserRole>()
+                .AsTracking()
+                .Where(item => item.RoleId == id)
+                .ToListAsync(cancellationToken);
+
+            if (revokedAssignments.Count > 0)
+            {
+                DbContext.Set<UserRole>().RemoveRange(revokedAssignments);
+            }
+
+            DbContext.Set<Role>().Remove(role);
+            await DbContext.SaveChangesAsync(cancellationToken);
+        }
+
         public async Task<RoleResponse?> GetDefaultRoleByContract(long contractId, CancellationToken cancellationToken = default)
         {
             return await (

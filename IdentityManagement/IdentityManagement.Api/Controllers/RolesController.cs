@@ -63,5 +63,26 @@ namespace IdentityManagement.Api.Controllers
             var response = await roleService.UpdateRole(id, request, cancellationToken);
             return Http200(response, Localizer["role.updated"]);
         }
+
+        [RequireAccess]
+        [GetEndpoint("{id:long}")]
+        public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
+        {
+            var role = await roleService.GetRoleById(id, cancellationToken);
+            if (role is null)
+            {
+                return Http404(Localizer["role.notFound"]);
+            }
+
+            return Http200(role);
+        }
+
+        [RequireAccess]
+        [DeleteEndpoint("{id:long}")]
+        public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
+        {
+            await roleService.DeleteRole(id, cancellationToken);
+            return Http200(Localizer["role.deleted"]);
+        }
     }
 }

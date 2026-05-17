@@ -29,6 +29,8 @@
   <data name="systemApplication.audience.notFound" xml:space="preserve"><value>No se encontró la aplicación del sistema con audience '{0}'.</value></data>
   <data name="role.created" xml:space="preserve"><value>Perfil creado correctamente.</value></data>
   <data name="role.updated" xml:space="preserve"><value>Perfil actualizado correctamente.</value></data>
+  <data name="role.deleted" xml:space="preserve"><value>Perfil eliminado correctamente.</value></data>
+  <data name="role.delete.hasActiveUsers" xml:space="preserve"><value>No se puede eliminar un perfil con usuarios vinculados.</value></data>
   <data name="role.notFound" xml:space="preserve"><value>Perfil no encontrado.</value></data>
   <data name="role.notFoundInContract" xml:space="preserve"><value>Perfil no encontrado en el contrato activo.</value></data>
   <data name="user.contract.created" xml:space="preserve"><value>Usuario creado y vinculado al contrato activo.</value></data>

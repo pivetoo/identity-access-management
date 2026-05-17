@@ -16,5 +16,9 @@ namespace IdentityManagement.Application.Services
         Task<IReadOnlyCollection<RoleResponse>> GetRolesByContract(long contractId, CancellationToken cancellationToken = default);
 
         Task<RoleResponse?> GetDefaultRoleByContract(long contractId, CancellationToken cancellationToken = default);
+
+        Task<RoleResponse?> GetRoleById(long id, CancellationToken cancellationToken = default);
+
+        Task DeleteRole(long id, CancellationToken cancellationToken = default);
     }
 }

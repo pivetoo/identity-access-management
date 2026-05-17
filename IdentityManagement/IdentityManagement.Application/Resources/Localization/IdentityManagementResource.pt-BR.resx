@@ -87,6 +87,12 @@
   <data name="role.updated" xml:space="preserve">
     <value>Perfil atualizado com sucesso.</value>
   </data>
+  <data name="role.deleted" xml:space="preserve">
+    <value>Perfil excluído com sucesso.</value>
+  </data>
+  <data name="role.delete.hasActiveUsers" xml:space="preserve">
+    <value>Não é possível excluir um perfil com usuários vinculados.</value>
+  </data>
   <data name="role.notFound" xml:space="preserve">
     <value>Perfil não encontrado.</value>
   </data>

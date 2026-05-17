@@ -33,5 +33,13 @@ namespace IdentityManagement.Api.Controllers
             var response = await accessResourceService.SyncResources(resources, cancellationToken);
             return Http200(response, Localizer["accessResources.sync.completed"]);
         }
+
+        [RequireAccess]
+        [GetEndpoint("{contractId:long}")]
+        public async Task<IActionResult> GetByContract(long contractId, CancellationToken cancellationToken)
+        {
+            var response = await accessResourceService.GetActiveResourcesByContract(contractId, cancellationToken);
+            return Http200(response);
+        }
     }
 }

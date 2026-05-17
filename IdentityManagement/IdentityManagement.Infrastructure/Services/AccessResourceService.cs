@@ -41,6 +41,37 @@ namespace IdentityManagement.Infrastructure.Services
             return resources;
         }
 
+        public async Task<IReadOnlyCollection<AccessResourceResponse>> GetActiveResourcesByContract(long contractId, CancellationToken cancellationToken = default)
+        {
+            long systemApplicationId = await (
+                from contract in dbContext.Set<Contract>().AsNoTracking()
+                where contract.Id == contractId
+                select contract.SystemApplicationId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (systemApplicationId <= 0)
+            {
+                return Array.Empty<AccessResourceResponse>();
+            }
+
+            return await (
+                from accessResource in dbContext.Set<AccessResource>().AsNoTracking()
+                where accessResource.IsActive && accessResource.SystemApplicationId == systemApplicationId
+                orderby accessResource.Controller, accessResource.Action, accessResource.HttpMethod
+                select new AccessResourceResponse
+                {
+                    Id = accessResource.Id,
+                    SystemApplicationId = accessResource.SystemApplicationId,
+                    Name = accessResource.Name,
+                    Description = accessResource.Description,
+                    Controller = accessResource.Controller,
+                    Action = accessResource.Action,
+                    HttpMethod = accessResource.HttpMethod,
+                    Route = accessResource.Route
+                })
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task<AccessResourceSyncResponse> SyncResources(IReadOnlyCollection<AccessResourceModel> resources, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(resources);

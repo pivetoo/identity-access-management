@@ -7,6 +7,8 @@ namespace IdentityManagement.Application.Services
     {
         Task<IReadOnlyCollection<AccessResourceResponse>> GetActiveResources(CancellationToken cancellationToken = default);
 
+        Task<IReadOnlyCollection<AccessResourceResponse>> GetActiveResourcesByContract(long contractId, CancellationToken cancellationToken = default);
+
         Task<AccessResourceSyncResponse> SyncResources(IReadOnlyCollection<AccessResourceModel> resources, CancellationToken cancellationToken = default);
     }
 }
