@@ -280,14 +280,10 @@ namespace IdentityManagement.Infrastructure.Services
                     .ToListAsync(cancellationToken);
 
                 UserRole? existing = currentAssignments.FirstOrDefault(item => item.RoleId == newRoleId);
-                List<UserRole> toRevoke = currentAssignments.Where(item => item.RoleId != newRoleId).ToList();
-                foreach (UserRole assignment in toRevoke)
+                List<UserRole> toRemove = currentAssignments.Where(item => item.RoleId != newRoleId).ToList();
+                if (toRemove.Count > 0)
                 {
-                    assignment.Revoke();
-                }
-
-                if (toRevoke.Count > 0)
-                {
+                    DbContext.Set<UserRole>().RemoveRange(toRemove);
                     await DbContext.SaveChangesAsync(cancellationToken);
                 }
 
