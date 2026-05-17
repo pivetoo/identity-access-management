@@ -103,7 +103,7 @@ namespace IdentityManagement.Infrastructure.Services
             List<RoleResponse> roles = await (
                 from role in DbContext.Set<Role>().AsNoTracking()
                 where role.ContractId == contractId
-                orderby role.Name
+                orderby role.Id
                 select new RoleResponse
                 {
                     Id = role.Id,
