@@ -77,6 +77,7 @@ namespace IdentityManagement.Infrastructure.Services
                     IsActive = systemApplication.IsActive,
                     Audience = systemApplication.Audience,
                     Type = systemApplication.Type,
+                    CatalogApiKey = systemApplication.CatalogApiKey,
                     CreatedAt = systemApplication.CreatedAt,
                     UpdatedAt = systemApplication.UpdatedAt
                 })
@@ -120,6 +121,7 @@ namespace IdentityManagement.Infrastructure.Services
                 IsActive = systemApplication.IsActive,
                 Audience = systemApplication.Audience,
                 Type = systemApplication.Type,
+                CatalogApiKey = systemApplication.CatalogApiKey,
                 CreatedAt = systemApplication.CreatedAt,
                 UpdatedAt = systemApplication.UpdatedAt
             };

@@ -77,6 +77,7 @@ namespace IdentityManagement.Infrastructure.Services
                     Document = company.Document,
                     Email = company.Email,
                     PhoneNumber = company.PhoneNumber,
+                    TenantId = company.TenantId,
                     IsActive = company.IsActive,
                     CreatedAt = company.CreatedAt,
                     UpdatedAt = company.UpdatedAt
@@ -121,6 +122,7 @@ namespace IdentityManagement.Infrastructure.Services
                 Document = company.Document,
                 Email = company.Email,
                 PhoneNumber = company.PhoneNumber,
+                TenantId = company.TenantId,
                 IsActive = company.IsActive,
                 CreatedAt = company.CreatedAt,
                 UpdatedAt = company.UpdatedAt

@@ -5,6 +5,7 @@ export interface SystemApplication {
   isActive: boolean
   audience: string
   type?: number | string
+  catalogApiKey?: string
   createdAt?: string
   updatedAt?: string
 }

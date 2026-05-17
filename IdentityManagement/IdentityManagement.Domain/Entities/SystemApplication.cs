@@ -31,6 +31,12 @@ namespace IdentityManagement.Domain.Entities
             Description = description.Trim();
             Audience = audience.Trim();
             Type = type;
+            CatalogApiKey = Guid.NewGuid().ToString();
+        }
+
+        public void RegenerateCatalogApiKey()
+        {
+            CatalogApiKey = Guid.NewGuid().ToString();
         }
 
         public void Update(string name, string description, string audience, ApplicationType type, bool isActive)

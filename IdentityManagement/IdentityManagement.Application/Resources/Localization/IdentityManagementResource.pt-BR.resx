@@ -496,6 +496,15 @@
   <data name="dashboard.confirm.revokeAllDescription" xml:space="preserve"><value>Tem certeza que deseja revogar todas as sessões ativas do sistema? Esta ação não pode ser desfeita e todos os usuários serão desconectados.</value></data>
   <data name="company.field.legalName" xml:space="preserve"><value>Razão social</value></data>
   <data name="company.field.tradeName" xml:space="preserve"><value>Nome Fantasia</value></data>
+  <data name="company.field.tenantId" xml:space="preserve"><value>TenantId</value></data>
+  <data name="common.action.show" xml:space="preserve"><value>Exibir</value></data>
+  <data name="common.action.hide" xml:space="preserve"><value>Ocultar</value></data>
+  <data name="common.action.copy" xml:space="preserve"><value>Copiar</value></data>
+  <data name="systemApplication.field.catalogApiKey" xml:space="preserve"><value>Chave de API do Catálogo</value></data>
+  <data name="systemApplication.preview.catalogTitle" xml:space="preserve"><value>Acesso ao Catálogo do IdM</value></data>
+  <data name="systemApplication.preview.catalogDescription" xml:space="preserve"><value>Credencial que este sistema usa para consultar o catálogo de tenants no IdentityManagement. Configure como IdMApiKey no appsettings do sistema correspondente.</value></data>
+  <data name="systemApplication.catalogApiKey.copied" xml:space="preserve"><value>Chave copiada para a área de transferência.</value></data>
+  <data name="systemApplication.catalogApiKey.copyError" xml:space="preserve"><value>Não foi possível copiar a chave.</value></data>
   <data name="company.field.document" xml:space="preserve"><value>CNPJ</value></data>
   <data name="company.list.title" xml:space="preserve"><value>Empresas</value></data>
   <data name="company.list.subtitle" xml:space="preserve"><value>Cadastre e mantenha as organizações vinculadas ao Identity Management.</value></data>

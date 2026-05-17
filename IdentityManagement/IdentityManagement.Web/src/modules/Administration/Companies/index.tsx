@@ -137,10 +137,13 @@ export default function Companies() {
       sortable: true,
     },
     {
-      key: 'nomeFantasia',
-      title: t('company.field.tradeName'),
-      dataIndex: 'tradeName',
+      key: 'tenantId',
+      title: t('company.field.tenantId'),
+      dataIndex: 'tenantId',
       hiddenBelow: 'sm',
+      render: (value?: string) => (
+        <span className="font-mono text-xs text-muted-foreground">{value || '-'}</span>
+      ),
     },
     {
       key: 'documento',

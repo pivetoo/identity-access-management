@@ -14,6 +14,8 @@ namespace IdentityManagement.Application.Responses.Companies
 
         public string PhoneNumber { get; set; } = string.Empty;
 
+        public Guid TenantId { get; set; }
+
         public bool IsActive { get; set; }
 
         public DateTimeOffset? CreatedAt { get; set; }

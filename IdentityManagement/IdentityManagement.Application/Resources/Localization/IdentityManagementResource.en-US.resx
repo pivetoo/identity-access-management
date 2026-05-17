@@ -250,6 +250,15 @@
   <data name="dashboard.confirm.revokeAllDescription" xml:space="preserve"><value>Are you sure you want to revoke all active sessions? This action cannot be undone and all users will be disconnected.</value></data>
   <data name="company.field.legalName" xml:space="preserve"><value>Legal Name</value></data>
   <data name="company.field.tradeName" xml:space="preserve"><value>Trade Name</value></data>
+  <data name="company.field.tenantId" xml:space="preserve"><value>TenantId</value></data>
+  <data name="common.action.show" xml:space="preserve"><value>Show</value></data>
+  <data name="common.action.hide" xml:space="preserve"><value>Hide</value></data>
+  <data name="common.action.copy" xml:space="preserve"><value>Copy</value></data>
+  <data name="systemApplication.field.catalogApiKey" xml:space="preserve"><value>Catalog API Key</value></data>
+  <data name="systemApplication.preview.catalogTitle" xml:space="preserve"><value>IdM Catalog Access</value></data>
+  <data name="systemApplication.preview.catalogDescription" xml:space="preserve"><value>Credential this system uses to query the tenant catalog in IdentityManagement. Configure as IdMApiKey in the system's appsettings.</value></data>
+  <data name="systemApplication.catalogApiKey.copied" xml:space="preserve"><value>Key copied to clipboard.</value></data>
+  <data name="systemApplication.catalogApiKey.copyError" xml:space="preserve"><value>Could not copy the key.</value></data>
   <data name="company.field.document" xml:space="preserve"><value>Tax ID</value></data>
   <data name="company.list.title" xml:space="preserve"><value>Companies</value></data>
   <data name="company.list.subtitle" xml:space="preserve"><value>Register and maintain organizations linked to Identity Management.</value></data>

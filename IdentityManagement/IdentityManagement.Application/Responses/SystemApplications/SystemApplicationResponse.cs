@@ -16,6 +16,8 @@ namespace IdentityManagement.Application.Responses.SystemApplications
 
         public ApplicationType Type { get; set; }
 
+        public string CatalogApiKey { get; set; } = string.Empty;
+
         public DateTimeOffset? CreatedAt { get; set; }
 
         public DateTimeOffset? UpdatedAt { get; set; }

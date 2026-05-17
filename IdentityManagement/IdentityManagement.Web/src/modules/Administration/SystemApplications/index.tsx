@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Check, Copy, Eye, EyeOff } from 'lucide-react';
 import { PageLayout, DataTable, Badge, ConfirmModal, FilterPanel, TableToolbar, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, toast, useApi, useI18n } from 'archon-ui';
 import type { DataTableColumn, FilterSection, PaginatedResult } from 'archon-ui';
 import { SystemApplicationService } from '../../../services/systemApplicationService';
@@ -18,6 +19,24 @@ export default function SystemApplications() {
   const [editingSistema, setEditingSistema] = useState<SystemApplication | undefined>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+  const [showCatalogKey, setShowCatalogKey] = useState(false);
+  const [catalogKeyCopied, setCatalogKeyCopied] = useState(false);
+
+  const handleCopyCatalogKey = async (value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCatalogKeyCopied(true);
+      toast({ variant: 'success', title: t('common.toast.successTitle'), description: t('systemApplication.catalogApiKey.copied') });
+      setTimeout(() => setCatalogKeyCopied(false), 2000);
+    } catch {
+      toast({ variant: 'destructive', title: t('common.toast.errorTitle'), description: t('systemApplication.catalogApiKey.copyError') });
+    }
+  };
+
+  useEffect(() => {
+    setShowCatalogKey(false);
+    setCatalogKeyCopied(false);
+  }, [previewSistema]);
 
   const { execute: fetchSistemas, loading, pagination } = useApi<PaginatedResult<SystemApplication>>({ showErrorMessage: true });
   const deleteApi = useApi({
@@ -258,6 +277,46 @@ export default function SystemApplications() {
                     />
                     <SheetPreviewField className="sm:col-span-2" label={t('common.field.description')} value={previewSistema.description || t('common.value.notAvailable')} />
                   </SheetPreviewGrid>
+                </SheetPreviewSection>
+
+                <SheetPreviewSection
+                  title={t('systemApplication.preview.catalogTitle')}
+                  description={t('systemApplication.preview.catalogDescription')}
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                        {t('systemApplication.field.catalogApiKey')}
+                      </span>
+                      {previewSistema.catalogApiKey ? (
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setShowCatalogKey((prev) => !prev)}
+                            className="text-xs text-muted-foreground hover:text-foreground"
+                            aria-label={showCatalogKey ? t('common.action.hide') : t('common.action.show')}
+                          >
+                            {showCatalogKey ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void handleCopyCatalogKey(previewSistema.catalogApiKey!)}
+                            className="text-xs text-muted-foreground hover:text-foreground"
+                            aria-label={t('common.action.copy')}
+                          >
+                            {catalogKeyCopied ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
+                    <div className="rounded-md border border-border/60 bg-muted/30 p-2 font-mono text-xs text-muted-foreground break-all">
+                      {previewSistema.catalogApiKey
+                        ? showCatalogKey
+                          ? previewSistema.catalogApiKey
+                          : '•'.repeat(Math.min(previewSistema.catalogApiKey.length, 32))
+                        : t('common.value.notAvailable')}
+                    </div>
+                  </div>
                 </SheetPreviewSection>
               </div>
             </div>
