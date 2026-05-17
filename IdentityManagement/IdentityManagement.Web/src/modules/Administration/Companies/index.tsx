@@ -141,9 +141,7 @@ export default function Companies() {
       title: t('company.field.tenantId'),
       dataIndex: 'tenantId',
       hiddenBelow: 'sm',
-      render: (value?: string) => (
-        <span className="font-mono text-xs text-muted-foreground">{value || '-'}</span>
-      ),
+      render: (value?: string) => value || '-',
     },
     {
       key: 'documento',
