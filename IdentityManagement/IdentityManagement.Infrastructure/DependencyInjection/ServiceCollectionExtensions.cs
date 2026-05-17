@@ -1,10 +1,13 @@
+using Archon.Application.MultiTenancy;
 using Archon.Infrastructure.DependencyInjection;
 using Archon.Infrastructure.Migrations;
 using Archon.Infrastructure.MultiTenancy;
 using IdentityManagement.Application.Services;
+using IdentityManagement.Infrastructure.MultiTenancy;
 using IdentityManagement.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Resend;
 
 namespace IdentityManagement.Infrastructure.DependencyInjection
@@ -14,6 +17,7 @@ namespace IdentityManagement.Infrastructure.DependencyInjection
         public static IServiceCollection AddIdentityManagementInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddArchonPersistence(configuration, typeof(ServiceCollectionExtensions).Assembly);
+            services.Replace(ServiceDescriptor.Singleton<ITenantResolver, IdentityManagementTenantResolver>());
             services.RunMigrations(
                 configuration,
                 GetMigrationSchema(configuration),
