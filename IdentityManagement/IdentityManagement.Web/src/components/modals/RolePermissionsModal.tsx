@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Badge, Button, Checkbox, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, useI18n } from 'archon-ui'
 import type { AccessResource } from '../../types/accessResource'
 import { getHttpMethodClassName } from '../../utils/accessResource'
@@ -23,6 +23,13 @@ export default function RolePermissionsModal({
   const { t } = useI18n()
   const [search, setSearch] = useState('')
   const [draftResourceIds, setDraftResourceIds] = useState<number[]>(selectedResourceIds)
+
+  useEffect(() => {
+    if (isOpen) {
+      setDraftResourceIds(selectedResourceIds)
+      setSearch('')
+    }
+  }, [isOpen, selectedResourceIds])
 
   const normalizedSearch = search.trim().toLowerCase()
 
