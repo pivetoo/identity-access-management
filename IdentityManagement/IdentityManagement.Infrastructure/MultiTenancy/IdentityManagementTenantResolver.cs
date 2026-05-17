@@ -88,6 +88,7 @@ namespace IdentityManagement.Infrastructure.MultiTenancy
             bool matched = await ApiKeyExistsInDatabaseAsync(normalized, cancellationToken);
             if (!matched)
             {
+                cache.Set<TenantInfo?>(cacheKey, null, options.NegativeCacheTtl);
                 return null;
             }
 
