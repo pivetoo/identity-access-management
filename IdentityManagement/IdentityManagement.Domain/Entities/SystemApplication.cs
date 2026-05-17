@@ -17,6 +17,8 @@ namespace IdentityManagement.Domain.Entities
 
         public ApplicationType Type { get; private set; } = ApplicationType.External;
 
+        public string CatalogApiKey { get; private set; } = string.Empty;
+
         public IReadOnlyCollection<Contract> Contracts => contracts.AsReadOnly();
 
         private SystemApplication()

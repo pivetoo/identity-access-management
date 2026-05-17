@@ -113,7 +113,15 @@ namespace IdentityManagement.Infrastructure.MultiTenancy
             await connection.OpenAsync(cancellationToken);
 
             await using NpgsqlCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT 1 FROM tenantdatabases WHERE apikey = @apikey AND isactive = TRUE LIMIT 1";
+            command.CommandText = @"
+                SELECT 1
+                FROM (
+                    SELECT catalogapikey AS apikey, isactive FROM systemapplications
+                    UNION ALL
+                    SELECT apikey, isactive FROM tenantdatabases
+                ) sources
+                WHERE apikey = @apikey AND isactive = TRUE
+                LIMIT 1";
             command.Parameters.Add(new NpgsqlParameter("apikey", apiKey));
 
             object? result = await command.ExecuteScalarAsync(cancellationToken);

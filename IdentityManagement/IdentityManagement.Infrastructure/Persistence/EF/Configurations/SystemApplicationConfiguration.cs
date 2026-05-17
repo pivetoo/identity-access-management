@@ -21,10 +21,18 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
                 .IsRequired()
                 .HasMaxLength(200);
 
+            builder.Property(entity => entity.CatalogApiKey)
+                .IsRequired()
+                .HasMaxLength(255)
+                .HasColumnName("catalogapikey");
+
             builder.HasIndex(entity => entity.Name)
                 .IsUnique();
 
             builder.HasIndex(entity => entity.Audience)
+                .IsUnique();
+
+            builder.HasIndex(entity => entity.CatalogApiKey)
                 .IsUnique();
         }
     }
