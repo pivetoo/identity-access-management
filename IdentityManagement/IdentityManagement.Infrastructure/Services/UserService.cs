@@ -280,9 +280,15 @@ namespace IdentityManagement.Infrastructure.Services
                     .ToListAsync(cancellationToken);
 
                 UserRole? existing = currentAssignments.FirstOrDefault(item => item.RoleId == newRoleId);
-                foreach (UserRole assignment in currentAssignments.Where(item => item.RoleId != newRoleId))
+                List<UserRole> toRevoke = currentAssignments.Where(item => item.RoleId != newRoleId).ToList();
+                foreach (UserRole assignment in toRevoke)
                 {
                     assignment.Revoke();
+                }
+
+                if (toRevoke.Count > 0)
+                {
+                    await DbContext.SaveChangesAsync(cancellationToken);
                 }
 
                 UserRole effectiveAssignment;
@@ -290,13 +296,13 @@ namespace IdentityManagement.Infrastructure.Services
                 {
                     effectiveAssignment = new UserRole(userId, newRoleId);
                     DbContext.Set<UserRole>().Add(effectiveAssignment);
+                    await DbContext.SaveChangesAsync(cancellationToken);
                 }
                 else
                 {
                     effectiveAssignment = existing;
                 }
 
-                await DbContext.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
 
                 return BuildContractUserResponse(user, newRole, effectiveAssignment);
