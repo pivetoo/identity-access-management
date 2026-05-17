@@ -224,7 +224,7 @@ namespace IdentityManagement.Infrastructure.Services
                 where role.ContractId == contractId &&
                       userRole.IsActive &&
                       !userRole.RevokedAt.HasValue
-                orderby user.Name
+                orderby user.Id
                 select new ContractUserResponse
                 {
                     UserId = user.Id,
