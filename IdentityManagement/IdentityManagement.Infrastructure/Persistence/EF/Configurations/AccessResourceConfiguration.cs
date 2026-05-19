@@ -21,6 +21,9 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.Description)
                 .HasMaxLength(500);
 
+            builder.Property(entity => entity.Area)
+                .HasMaxLength(255);
+
             builder.Property(entity => entity.Controller)
                 .IsRequired()
                 .HasMaxLength(120);

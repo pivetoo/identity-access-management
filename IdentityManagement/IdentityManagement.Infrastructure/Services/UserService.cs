@@ -31,7 +31,7 @@ namespace IdentityManagement.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(Localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             User? user = await (
@@ -42,7 +42,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (user is null)
             {
-                throw new InvalidOperationException(Localizer["user.notFound"]);
+                throw new InvalidOperationException("user.notFound");
             }
 
             user.Update(user.Username, user.Email, request.Name, request.IsActive, user.AvatarUrl);
@@ -71,7 +71,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (user is null)
             {
-                throw new InvalidOperationException(Localizer["user.notFound"]);
+                throw new InvalidOperationException("user.notFound");
             }
 
             string? previousAvatarUrl = user.AvatarUrl;
@@ -184,7 +184,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (role is null)
             {
-                throw new InvalidOperationException(Localizer["role.notFoundInContract"]);
+                throw new InvalidOperationException("role.notFoundInContract");
             }
 
             await EnsureUniqueUser(request.Username, request.Email, null, cancellationToken);
@@ -253,7 +253,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (newRole is null)
             {
-                throw new InvalidOperationException(Localizer["role.notFoundInContract"]);
+                throw new InvalidOperationException("role.notFoundInContract");
             }
 
             User? user = await DbContext.Set<User>()
@@ -263,7 +263,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (user is null)
             {
-                throw new InvalidOperationException(Localizer["user.notFound"]);
+                throw new InvalidOperationException("user.notFound");
             }
 
             IDbContextTransaction transaction = await DbContext.Database.BeginTransactionAsync(cancellationToken);
@@ -320,7 +320,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (user is null)
             {
-                throw new InvalidOperationException(Localizer["user.notFound"]);
+                throw new InvalidOperationException("user.notFound");
             }
 
             if (isActive)
@@ -412,7 +412,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (hasActiveRole)
             {
-                throw new InvalidOperationException(Localizer["user.role.alreadyAssignedInContract"]);
+                throw new InvalidOperationException("user.role.alreadyAssignedInContract");
             }
         }
 
@@ -426,7 +426,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (usernameExists)
             {
-                throw new InvalidOperationException(Localizer["user.username.alreadyExists"]);
+                throw new InvalidOperationException("user.username.alreadyExists");
             }
 
             bool emailExists = await (
@@ -437,7 +437,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (emailExists)
             {
-                throw new InvalidOperationException(Localizer["email.alreadyExists"]);
+                throw new InvalidOperationException("email.alreadyExists");
             }
         }
 

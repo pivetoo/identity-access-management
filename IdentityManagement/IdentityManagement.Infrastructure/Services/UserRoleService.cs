@@ -24,7 +24,7 @@ namespace IdentityManagement.Infrastructure.Services
             UserRole? existingUserRole = await GetCurrentUserRole(userId, roleId, cancellationToken);
             if (existingUserRole is not null)
             {
-                throw new InvalidOperationException(Localizer["userRole.alreadyAssigned"]);
+                throw new InvalidOperationException("userRole.alreadyAssigned");
             }
 
             await EnsureNoOtherActiveRoleInContract(userId, roleId, cancellationToken);
@@ -49,7 +49,7 @@ namespace IdentityManagement.Infrastructure.Services
             UserRole? userRole = await GetCurrentUserRole(userId, roleId, cancellationToken);
             if (userRole is null)
             {
-                throw new InvalidOperationException(Localizer["userRole.assignment.notFound"]);
+                throw new InvalidOperationException("userRole.assignment.notFound");
             }
 
             userRole.Revoke();
@@ -77,7 +77,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (userRole is null)
             {
-                throw new InvalidOperationException(Localizer["userRole.inactiveAssignment.notFound"]);
+                throw new InvalidOperationException("userRole.inactiveAssignment.notFound");
             }
 
             await EnsureNoOtherActiveRoleInContract(userId, roleId, cancellationToken);
@@ -159,7 +159,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (hasOtherActiveRole)
             {
-                throw new InvalidOperationException(Localizer["userRole.alreadyHasRoleInContract"]);
+                throw new InvalidOperationException("userRole.alreadyHasRoleInContract");
             }
         }
 
@@ -168,13 +168,13 @@ namespace IdentityManagement.Infrastructure.Services
             bool userExists = await DbContext.Set<User>().AnyAsync(item => item.Id == userId && item.IsActive, cancellationToken);
             if (!userExists)
             {
-                throw new InvalidOperationException(Localizer["user.notFoundOrInactive"]);
+                throw new InvalidOperationException("user.notFoundOrInactive");
             }
 
             bool roleExists = await DbContext.Set<Role>().AnyAsync(item => item.Id == roleId, cancellationToken);
             if (!roleExists)
             {
-                throw new InvalidOperationException(Localizer["role.notFound"]);
+                throw new InvalidOperationException("role.notFound");
             }
         }
 

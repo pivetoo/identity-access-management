@@ -44,7 +44,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (contract is null)
             {
-                throw new InvalidOperationException(Localizer["contract.notFound"]);
+                throw new InvalidOperationException("contract.notFound");
             }
 
             await EnsureContractAvailable(request.ContractId, null, cancellationToken);
@@ -61,14 +61,14 @@ namespace IdentityManagement.Infrastructure.Services
             await dbContext.SaveChangesAsync(cancellationToken);
 
             TenantDatabaseResponse? response = await GetById(tenantDatabase.Id, cancellationToken);
-            return response ?? throw new InvalidOperationException(Localizer["tenantDatabase.loadAfterCreate.failed"]);
+            return response ?? throw new InvalidOperationException("tenantDatabase.loadAfterCreate.failed");
         }
 
         public async Task<TenantDatabaseResponse> Update(long id, UpdateTenantDatabaseRequest request, CancellationToken cancellationToken = default)
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(Localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             ValidateRequiredFields(request.ConnectionString, request.ApiKey);
@@ -79,7 +79,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (tenantDatabase is null)
             {
-                throw new InvalidOperationException(Localizer["tenantDatabase.notFound"]);
+                throw new InvalidOperationException("tenantDatabase.notFound");
             }
 
             await EnsureUniqueApiKey(request.ApiKey, id, cancellationToken);
@@ -94,7 +94,7 @@ namespace IdentityManagement.Infrastructure.Services
             await dbContext.SaveChangesAsync(cancellationToken);
 
             TenantDatabaseResponse? response = await GetById(id, cancellationToken);
-            return response ?? throw new InvalidOperationException(Localizer["tenantDatabase.notFound"]);
+            return response ?? throw new InvalidOperationException("tenantDatabase.notFound");
         }
 
         public async Task<TenantDatabaseResponse> SetActive(long id, bool isActive, CancellationToken cancellationToken = default)
@@ -105,7 +105,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (tenantDatabase is null)
             {
-                throw new InvalidOperationException(Localizer["tenantDatabase.notFound"]);
+                throw new InvalidOperationException("tenantDatabase.notFound");
             }
 
             if (isActive)
@@ -120,7 +120,7 @@ namespace IdentityManagement.Infrastructure.Services
             await dbContext.SaveChangesAsync(cancellationToken);
 
             TenantDatabaseResponse? response = await GetById(id, cancellationToken);
-            return response ?? throw new InvalidOperationException(Localizer["tenantDatabase.notFound"]);
+            return response ?? throw new InvalidOperationException("tenantDatabase.notFound");
         }
 
         private IQueryable<TenantDatabaseResponse> BuildBaseQuery()
@@ -152,12 +152,12 @@ namespace IdentityManagement.Infrastructure.Services
         {
             if (string.IsNullOrWhiteSpace(connectionString))
             {
-                throw new InvalidOperationException(Localizer["tenantDatabase.connectionString.required"]);
+                throw new InvalidOperationException("tenantDatabase.connectionString.required");
             }
 
             if (string.IsNullOrWhiteSpace(apiKey))
             {
-                throw new InvalidOperationException(Localizer["tenantDatabase.apiKey.required"]);
+                throw new InvalidOperationException("tenantDatabase.apiKey.required");
             }
         }
 
@@ -169,7 +169,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (exists)
             {
-                throw new InvalidOperationException(Localizer["tenantDatabase.contract.alreadyConfigured"]);
+                throw new InvalidOperationException("tenantDatabase.contract.alreadyConfigured");
             }
         }
 
@@ -182,7 +182,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (exists)
             {
-                throw new InvalidOperationException(Localizer["tenantDatabase.apiKey.alreadyExists"]);
+                throw new InvalidOperationException("tenantDatabase.apiKey.alreadyExists");
             }
         }
 

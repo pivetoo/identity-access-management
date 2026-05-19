@@ -50,7 +50,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (template is null)
             {
-                throw new InvalidOperationException(Localizer["systemRoleTemplate.notFound"]);
+                throw new InvalidOperationException("systemRoleTemplate.notFound");
             }
 
             await EnsureUniqueTemplateName(template.SystemApplicationId, request.Name, id, cancellationToken);
@@ -129,7 +129,7 @@ namespace IdentityManagement.Infrastructure.Services
         private async Task<SystemRoleTemplateResponse> GetRequiredResponse(long id, CancellationToken cancellationToken)
         {
             return await GetById(id, cancellationToken)
-                ?? throw new InvalidOperationException(Localizer["systemRoleTemplate.load.failed"]);
+                ?? throw new InvalidOperationException("systemRoleTemplate.load.failed");
         }
 
         private async Task EnsureSystemApplication(long systemApplicationId, CancellationToken cancellationToken)
@@ -139,7 +139,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (!exists)
             {
-                throw new InvalidOperationException(Localizer["systemApplication.notFoundOrInactive"]);
+                throw new InvalidOperationException("systemApplication.notFoundOrInactive");
             }
         }
 
@@ -155,7 +155,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (exists)
             {
-                throw new InvalidOperationException(Localizer["systemRoleTemplate.name.alreadyExists"]);
+                throw new InvalidOperationException("systemRoleTemplate.name.alreadyExists");
             }
         }
 
@@ -197,7 +197,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (validResourceIds.Count != normalizedIds.Count)
             {
-                throw new InvalidOperationException(Localizer["systemRoleTemplate.accessResource.invalid"]);
+                throw new InvalidOperationException("systemRoleTemplate.accessResource.invalid");
             }
 
             List<SystemRoleTemplateAccessResource> existingLinks = await (

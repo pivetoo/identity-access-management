@@ -36,7 +36,7 @@ namespace IdentityManagement.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(Localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             Company? company = await (
@@ -47,7 +47,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (company is null)
             {
-                throw new InvalidOperationException(Localizer["company.notFound"]);
+                throw new InvalidOperationException("company.notFound");
             }
 
             await EnsureUniqueCompany(request.Document, request.Email, id, cancellationToken);
@@ -97,7 +97,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (documentExists)
             {
-                throw new InvalidOperationException(Localizer["company.document.alreadyExists"]);
+                throw new InvalidOperationException("company.document.alreadyExists");
             }
 
             bool emailExists = await (
@@ -108,7 +108,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (emailExists)
             {
-                throw new InvalidOperationException(Localizer["email.alreadyExists"]);
+                throw new InvalidOperationException("email.alreadyExists");
             }
         }
 

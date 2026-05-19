@@ -74,7 +74,7 @@ namespace IdentityManagement.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(Localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             OAuthClient? client = await DbContext.Set<OAuthClient>()
@@ -83,7 +83,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (client is null)
             {
-                throw new InvalidOperationException(Localizer["oauthClient.notFound"]);
+                throw new InvalidOperationException("oauthClient.notFound");
             }
 
             await ValidateClient(client.SystemApplicationId, client.ClientId, request.ClientType, request.ClientSecret, id, cancellationToken, request.RotateClientSecret);
@@ -144,7 +144,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (!systemExists)
             {
-                throw new InvalidOperationException(Localizer["systemApplication.notFoundOrInactive"]);
+                throw new InvalidOperationException("systemApplication.notFoundOrInactive");
             }
 
             bool clientIdExists = await DbContext.Set<OAuthClient>()
@@ -153,12 +153,12 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (clientIdExists)
             {
-                throw new InvalidOperationException(Localizer["oauthClient.clientId.alreadyExists"]);
+                throw new InvalidOperationException("oauthClient.clientId.alreadyExists");
             }
 
             if (clientType == OAuthClientType.Confidential && requireSecret && string.IsNullOrWhiteSpace(clientSecret))
             {
-                throw new InvalidOperationException(Localizer["oauthClient.clientSecret.requiredForConfidential"]);
+                throw new InvalidOperationException("oauthClient.clientSecret.requiredForConfidential");
             }
         }
 
@@ -166,7 +166,7 @@ namespace IdentityManagement.Infrastructure.Services
         {
             if (redirectUris.Count == 0)
             {
-                throw new InvalidOperationException(Localizer["oauthClient.redirectUris.required"]);
+                throw new InvalidOperationException("oauthClient.redirectUris.required");
             }
 
             foreach (OAuthClientRedirectUriRequest redirectUri in redirectUris)
@@ -174,7 +174,7 @@ namespace IdentityManagement.Infrastructure.Services
                 if (!Uri.TryCreate(redirectUri.Uri, UriKind.Absolute, out Uri? uri) ||
                     (uri.Scheme != Uri.UriSchemeHttps && uri.Host != "localhost" && uri.Host != "127.0.0.1"))
                 {
-                    throw new InvalidOperationException(Localizer["oauthClient.redirectUris.invalid"]);
+                    throw new InvalidOperationException("oauthClient.redirectUris.invalid");
                 }
             }
 
@@ -200,7 +200,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (normalizedScopes.Count == 0 || !normalizedScopes.Contains("openid", StringComparer.Ordinal))
             {
-                throw new InvalidOperationException(Localizer["oauthClient.scopes.openidRequired"]);
+                throw new InvalidOperationException("oauthClient.scopes.openidRequired");
             }
 
             List<OAuthClientScope> existing = await DbContext.Set<OAuthClientScope>()
@@ -215,7 +215,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (scopes.Count != normalizedScopes.Count)
             {
-                throw new InvalidOperationException(Localizer["oauthClient.scopes.invalidOrInactive"]);
+                throw new InvalidOperationException("oauthClient.scopes.invalidOrInactive");
             }
 
             foreach (OAuthScope scope in scopes)

@@ -30,7 +30,7 @@ namespace IdentityManagement.Infrastructure.Services
             Contract? existingContract = await GetByCompanyAndSystemApplication(request.CompanyId, request.SystemApplicationId, cancellationToken);
             if (existingContract is not null && existingContract.IsActive)
             {
-                throw new InvalidOperationException(Localizer["contract.activeDuplicate"]);
+                throw new InvalidOperationException("contract.activeDuplicate");
             }
 
             Contract contract = new Contract(
@@ -53,7 +53,7 @@ namespace IdentityManagement.Infrastructure.Services
             await ApplySystemRoleTemplates(contract.Id, contract.SystemApplicationId, cancellationToken);
 
             Contract hydratedContract = await GetByIdWithRelations(contract.Id, cancellationToken)
-                ?? throw new InvalidOperationException(Localizer["contract.loadAfterCreate.failed"]);
+                ?? throw new InvalidOperationException("contract.loadAfterCreate.failed");
 
             await SendAdminInvitation(hydratedContract, setupBaseUrl, cancellationToken);
 
@@ -65,7 +65,7 @@ namespace IdentityManagement.Infrastructure.Services
             Contract? contract = await GetByIdWithRelations(contractId, cancellationToken);
             if (contract is null)
             {
-                throw new InvalidOperationException(Localizer["contract.notFound"]);
+                throw new InvalidOperationException("contract.notFound");
             }
 
             List<ContractAdminInvitation> pending = await DbContext.Set<ContractAdminInvitation>()
@@ -86,7 +86,7 @@ namespace IdentityManagement.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(Localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             ValidateDateRange(request.StartDate, request.EndDate);
@@ -99,7 +99,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (contract is null)
             {
-                throw new InvalidOperationException(Localizer["contract.notFound"]);
+                throw new InvalidOperationException("contract.notFound");
             }
 
             await EnsureSystemApplicationChangeAllowed(contract, request.SystemApplicationId, cancellationToken);
@@ -108,7 +108,7 @@ namespace IdentityManagement.Infrastructure.Services
             Contract? existingContract = await GetByCompanyAndSystemApplication(request.CompanyId, request.SystemApplicationId, cancellationToken);
             if (existingContract is not null && existingContract.Id != id && existingContract.IsActive)
             {
-                throw new InvalidOperationException(Localizer["contract.activeDuplicate"]);
+                throw new InvalidOperationException("contract.activeDuplicate");
             }
 
             contract.Update(
@@ -125,7 +125,7 @@ namespace IdentityManagement.Infrastructure.Services
             }
 
             Contract hydratedContract = await GetByIdWithRelations(result.Id, cancellationToken)
-                ?? throw new InvalidOperationException(Localizer["contract.loadAfterUpdate.failed"]);
+                ?? throw new InvalidOperationException("contract.loadAfterUpdate.failed");
 
             return ToSummaryResponse(hydratedContract);
         }
@@ -340,13 +340,13 @@ namespace IdentityManagement.Infrastructure.Services
             bool companyExists = await DbContext.Set<Company>().AnyAsync(item => item.Id == companyId && item.IsActive, cancellationToken);
             if (!companyExists)
             {
-                throw new InvalidOperationException(Localizer["company.notFoundOrInactive"]);
+                throw new InvalidOperationException("company.notFoundOrInactive");
             }
 
             bool systemApplicationExists = await DbContext.Set<SystemApplication>().AnyAsync(item => item.Id == systemApplicationId && item.IsActive, cancellationToken);
             if (!systemApplicationExists)
             {
-                throw new InvalidOperationException(Localizer["systemApplication.notFoundOrInactive"]);
+                throw new InvalidOperationException("systemApplication.notFoundOrInactive");
             }
         }
 
@@ -415,7 +415,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (hasRoles)
             {
-                throw new InvalidOperationException(Localizer["contract.systemApplication.changeNotAllowedAfterRoles"]);
+                throw new InvalidOperationException("contract.systemApplication.changeNotAllowedAfterRoles");
             }
         }
 
@@ -445,7 +445,7 @@ namespace IdentityManagement.Infrastructure.Services
         {
             if (endDate.HasValue && endDate.Value <= startDate)
             {
-                throw new InvalidOperationException(Localizer["date.endMustBeGreaterThanStart"]);
+                throw new InvalidOperationException("date.endMustBeGreaterThanStart");
             }
         }
 

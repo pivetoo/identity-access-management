@@ -1,4 +1,5 @@
 using Archon.Core.Access;
+using Archon.Core.Exceptions;
 using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Responses.AccessResources;
 using IdentityManagement.Application.Services;
@@ -31,6 +32,7 @@ namespace IdentityManagement.Infrastructure.Services
                     SystemApplicationId = accessResource.SystemApplicationId,
                     Name = accessResource.Name,
                     Description = accessResource.Description,
+                    Area = accessResource.Area,
                     Controller = accessResource.Controller,
                     Action = accessResource.Action,
                     HttpMethod = accessResource.HttpMethod,
@@ -64,6 +66,7 @@ namespace IdentityManagement.Infrastructure.Services
                     SystemApplicationId = accessResource.SystemApplicationId,
                     Name = accessResource.Name,
                     Description = accessResource.Description,
+                    Area = accessResource.Area,
                     Controller = accessResource.Controller,
                     Action = accessResource.Action,
                     HttpMethod = accessResource.HttpMethod,
@@ -117,7 +120,7 @@ namespace IdentityManagement.Infrastructure.Services
             {
                 if (!systemApplicationIdsByAudience.TryGetValue(resource.SystemAudience.Trim(), out long systemApplicationId))
                 {
-                    throw new InvalidOperationException(Localizer["systemApplication.audience.notFound", resource.SystemAudience]);
+                    throw new BusinessRuleException("systemApplication.audience.notFound", resource.SystemAudience);
                 }
 
                 string resourceKey = CreateResourceKey(resource.SystemAudience, resource.Name);
@@ -127,6 +130,7 @@ namespace IdentityManagement.Infrastructure.Services
                     bool changed =
                         existingResource.SystemApplicationId != systemApplicationId ||
                         !string.Equals(existingResource.Description, resource.Description, StringComparison.Ordinal) ||
+                        !string.Equals(existingResource.Area, resource.Area, StringComparison.Ordinal) ||
                         !string.Equals(existingResource.Controller, resource.Controller, StringComparison.Ordinal) ||
                         !string.Equals(existingResource.Action, resource.Action, StringComparison.Ordinal) ||
                         !string.Equals(existingResource.HttpMethod, resource.HttpMethod, StringComparison.OrdinalIgnoreCase) ||
@@ -138,13 +142,13 @@ namespace IdentityManagement.Infrastructure.Services
                         continue;
                     }
 
-                    existingResource.Update(systemApplicationId, resource.Description, resource.Controller, resource.Action, resource.HttpMethod, resource.Route);
+                    existingResource.Update(systemApplicationId, resource.Description, resource.Area, resource.Controller, resource.Action, resource.HttpMethod, resource.Route);
                     existingResource.Activate();
                     updatedCount++;
                     continue;
                 }
 
-                AccessResource accessResource = new AccessResource(systemApplicationId, resource.Name, resource.Description, resource.Controller, resource.Action, resource.HttpMethod, resource.Route);
+                AccessResource accessResource = new AccessResource(systemApplicationId, resource.Name, resource.Description, resource.Area, resource.Controller, resource.Action, resource.HttpMethod, resource.Route);
                 await dbContext.Set<AccessResource>().AddAsync(accessResource, cancellationToken);
                 createdCount++;
             }

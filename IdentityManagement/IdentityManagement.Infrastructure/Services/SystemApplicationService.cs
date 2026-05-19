@@ -36,7 +36,7 @@ namespace IdentityManagement.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(Localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             SystemApplication? systemApplication = await (
@@ -47,7 +47,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (systemApplication is null)
             {
-                throw new InvalidOperationException(Localizer["systemApplication.notFound"]);
+                throw new InvalidOperationException("systemApplication.notFound");
             }
 
             await EnsureUniqueSystemApplication(request.Name, request.Audience, id, cancellationToken);
@@ -96,7 +96,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (nameExists)
             {
-                throw new InvalidOperationException(Localizer["systemApplication.name.alreadyExists"]);
+                throw new InvalidOperationException("systemApplication.name.alreadyExists");
             }
 
             bool audienceExists = await (
@@ -107,7 +107,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (audienceExists)
             {
-                throw new InvalidOperationException(Localizer["systemApplication.audience.alreadyExists"]);
+                throw new InvalidOperationException("systemApplication.audience.alreadyExists");
             }
         }
 

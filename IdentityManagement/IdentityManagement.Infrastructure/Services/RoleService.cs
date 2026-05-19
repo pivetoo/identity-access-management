@@ -49,7 +49,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (role is null)
             {
-                throw new InvalidOperationException(Localizer["role.notFound"]);
+                throw new InvalidOperationException("role.notFound");
             }
 
             if (request.IsDefault)
@@ -157,7 +157,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (role is null)
             {
-                throw new InvalidOperationException(Localizer["role.notFound"]);
+                throw new InvalidOperationException("role.notFound");
             }
 
             bool hasActiveUsers = await DbContext.Set<UserRole>()
@@ -166,7 +166,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (hasActiveUsers)
             {
-                throw new InvalidOperationException(Localizer["role.delete.hasActiveUsers"]);
+                throw new InvalidOperationException("role.delete.hasActiveUsers");
             }
 
             List<RoleAccessResource> links = await DbContext.Set<RoleAccessResource>()
@@ -222,7 +222,7 @@ namespace IdentityManagement.Infrastructure.Services
             bool contractExists = await DbContext.Set<Contract>().AnyAsync(item => item.Id == contractId && item.IsActive, cancellationToken);
             if (!contractExists)
             {
-                throw new InvalidOperationException(Localizer["contract.notFoundOrInactive"]);
+                throw new InvalidOperationException("contract.notFoundOrInactive");
             }
         }
 
@@ -286,7 +286,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (role is null)
             {
-                throw new InvalidOperationException(Localizer["role.notFound"]);
+                throw new InvalidOperationException("role.notFound");
             }
 
             return role;
@@ -303,7 +303,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (systemApplicationId <= 0)
             {
-                throw new InvalidOperationException(Localizer["role.contract.systemApplication.notFound"]);
+                throw new InvalidOperationException("role.contract.systemApplication.notFound");
             }
 
             List<long> normalizedIds = accessResourceIds
@@ -321,7 +321,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (validResourceIds.Count != normalizedIds.Count)
             {
-                throw new InvalidOperationException(Localizer["accessResource.invalid"]);
+                throw new InvalidOperationException("accessResource.invalid");
             }
 
             List<RoleAccessResource> existingLinks = await (
