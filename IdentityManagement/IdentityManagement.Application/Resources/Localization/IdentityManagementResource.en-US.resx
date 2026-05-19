@@ -597,4 +597,9 @@
   <data name="wizard.step3.systemsSection" xml:space="preserve"><value>Systems and databases</value></data>
   <data name="wizard.step3.confirmTitle" xml:space="preserve"><value>By confirming, this flow will:</value></data>
   <data name="wizard.step3.confirmDescription" xml:space="preserve"><value>Create the company, register one contract per selected system, configure each contract's database, and send the admin invitation to the provided email.</value></data>
+  <data name="systemRoleTemplates.area" xml:space="preserve"><value>System role templates</value></data>
+  <data name="systemRoleTemplates.create.description" xml:space="preserve"><value>Permite cadastrar um perfil padrão para uma aplicação do sistema.</value></data>
+  <data name="systemRoleTemplates.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de um perfil padrão de aplicação.</value></data>
+  <data name="systemRoleTemplates.getBySystemApplicationId.description" xml:space="preserve"><value>Permite listar os perfis padrão de uma aplicação específica.</value></data>
+  <data name="systemRoleTemplates.update.description" xml:space="preserve"><value>Permite atualizar um perfil padrão de aplicação.</value></data>
 </root>

@@ -847,4 +847,9 @@
   <data name="wizard.step3.systemsSection" xml:space="preserve"><value>Sistemas e bancos</value></data>
   <data name="wizard.step3.confirmTitle" xml:space="preserve"><value>Ao confirmar, este fluxo vai:</value></data>
   <data name="wizard.step3.confirmDescription" xml:space="preserve"><value>Criar a empresa, cadastrar um contrato por sistema selecionado, configurar o banco de cada contrato e enviar o convite de admin para o e-mail informado.</value></data>
+  <data name="systemRoleTemplates.area" xml:space="preserve"><value>System role templates</value></data>
+  <data name="systemRoleTemplates.create.description" xml:space="preserve"><value>Permite cadastrar um perfil padrão para uma aplicação do sistema.</value></data>
+  <data name="systemRoleTemplates.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de um perfil padrão de aplicação.</value></data>
+  <data name="systemRoleTemplates.getBySystemApplicationId.description" xml:space="preserve"><value>Permite listar os perfis padrão de uma aplicação específica.</value></data>
+  <data name="systemRoleTemplates.update.description" xml:space="preserve"><value>Permite atualizar um perfil padrão de aplicação.</value></data>
 </root>

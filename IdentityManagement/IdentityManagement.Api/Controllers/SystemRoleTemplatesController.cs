@@ -8,6 +8,7 @@ using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Api.Controllers
 {
+    [AccessArea("systemRoleTemplates.area")]
     public sealed class SystemRoleTemplatesController : ApiControllerBase
     {
         private readonly ISystemRoleTemplateService systemRoleTemplateService;
@@ -19,7 +20,7 @@ namespace IdentityManagement.Api.Controllers
             this.Localizer = Localizer;
         }
 
-        [RequireAccess("Permite listar os perfis padrão de uma aplicação específica.")]
+        [RequireAccess("systemRoleTemplates.getBySystemApplicationId.description")]
         [GetEndpoint("{systemApplicationId:long}")]
         public async Task<IActionResult> GetBySystemApplicationId(long systemApplicationId, CancellationToken cancellationToken)
         {
@@ -27,7 +28,7 @@ namespace IdentityManagement.Api.Controllers
             return Http200(response);
         }
 
-        [RequireAccess("Permite consultar os detalhes de um perfil padrão de aplicação.")]
+        [RequireAccess("systemRoleTemplates.getById.description")]
         [GetEndpoint("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
@@ -35,7 +36,7 @@ namespace IdentityManagement.Api.Controllers
             return response is null ? Http404(Localizer["systemRoleTemplate.notFound"]) : Http200(response);
         }
 
-        [RequireAccess("Permite cadastrar um perfil padrão para uma aplicação do sistema.")]
+        [RequireAccess("systemRoleTemplates.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateSystemRoleTemplateRequest request, CancellationToken cancellationToken)
         {
@@ -43,7 +44,7 @@ namespace IdentityManagement.Api.Controllers
             return Http201(response, Localizer["systemRoleTemplate.created"]);
         }
 
-        [RequireAccess("Permite atualizar um perfil padrão de aplicação.")]
+        [RequireAccess("systemRoleTemplates.update.description")]
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateSystemRoleTemplateRequest request, CancellationToken cancellationToken)
         {
