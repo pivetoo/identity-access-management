@@ -1,6 +1,8 @@
 using Archon.Api.DependencyInjection;
 using Archon.Api.MultiTenancy;
+using Archon.Application.MultiTenancy;
 using Archon.Infrastructure.DependencyInjection;
+using Archon.Infrastructure.MultiTenancy;
 using IdentityManagement.Application.Localization;
 using IdentityManagement.Domain.Entities;
 using IdentityManagement.Infrastructure.DependencyInjection;
@@ -80,34 +82,38 @@ static IEnumerable<SecurityKey> ResolveSigningKeys(IServiceProvider? serviceProv
         return keys;
     }
 
-    try
+    using IServiceScope scope = serviceProvider.CreateScope();
+
+    // Este callback roda FORA do request pipeline (scope novo a partir do root), entao o
+    // TenantResolutionMiddleware nunca setou o tenant aqui. Como o IdM roda em FixedTenant,
+    // setamos o tenant fixo explicitamente antes de tocar o DbContext - sem depender de fallback.
+    ITenantResolver tenantResolver = scope.ServiceProvider.GetRequiredService<ITenantResolver>();
+    TenantInfo? tenant = tenantResolver.ResolveAsync("FixedTenantId", CancellationToken.None).GetAwaiter().GetResult();
+    if (tenant is not null && scope.ServiceProvider.GetRequiredService<ITenantContext>() is MultiTenantContext multiTenantContext)
     {
-        using IServiceScope scope = serviceProvider.CreateScope();
-        DbContext dbContext = scope.ServiceProvider.GetRequiredService<DbContext>();
-
-        List<SigningKey> signingKeys = dbContext.Set<SigningKey>()
-            .AsNoTracking()
-            .Where(item => item.IsActive &&
-                           !item.RevokedAt.HasValue &&
-                           item.Algorithm == SecurityAlgorithms.RsaSha256 &&
-                           DateTimeOffset.UtcNow >= item.NotBefore &&
-                           (!item.ExpiresAt.HasValue || DateTimeOffset.UtcNow < item.ExpiresAt.Value))
-            .OrderByDescending(item => item.NotBefore)
-            .ToList();
-
-        foreach (SigningKey signingKey in signingKeys)
-        {
-            RSA rsa = RSA.Create();
-            rsa.ImportFromPem(signingKey.PublicKeyPem);
-            keys.Add(new RsaSecurityKey(rsa)
-            {
-                KeyId = signingKey.KeyId
-            });
-        }
+        multiTenantContext.SetTenant(tenant);
     }
-    catch
+
+    DbContext dbContext = scope.ServiceProvider.GetRequiredService<DbContext>();
+
+    List<SigningKey> signingKeys = dbContext.Set<SigningKey>()
+        .AsNoTracking()
+        .Where(item => item.IsActive &&
+                       !item.RevokedAt.HasValue &&
+                       item.Algorithm == SecurityAlgorithms.RsaSha256 &&
+                       DateTimeOffset.UtcNow >= item.NotBefore &&
+                       (!item.ExpiresAt.HasValue || DateTimeOffset.UtcNow < item.ExpiresAt.Value))
+        .OrderByDescending(item => item.NotBefore)
+        .ToList();
+
+    foreach (SigningKey signingKey in signingKeys)
     {
-        return keys;
+        RSA rsa = RSA.Create();
+        rsa.ImportFromPem(signingKey.PublicKeyPem);
+        keys.Add(new RsaSecurityKey(rsa)
+        {
+            KeyId = signingKey.KeyId
+        });
     }
 
     return keys;
