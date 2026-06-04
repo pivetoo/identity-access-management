@@ -1,0 +1,10 @@
+[Unit]
+Description=Identity Management deploy poll a cada 30s (VPS puxa as imagens; sem entrada do GitHub)
+
+[Timer]
+OnBootSec=45s
+OnUnitActiveSec=30s
+AccuracySec=5s
+
+[Install]
+WantedBy=timers.target

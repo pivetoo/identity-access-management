@@ -1,0 +1,8 @@
+[Unit]
+Description=Identity Management deploy poll (pull latest images and apply)
+After=network-online.target docker.service
+Wants=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/identity-management-deploy/deploy.sh
