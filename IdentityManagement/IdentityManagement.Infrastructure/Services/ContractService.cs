@@ -53,11 +53,13 @@ namespace IdentityManagement.Infrastructure.Services
                 request.EndDate,
                 true);
 
-            bool success = await Insert(cancellationToken, contract);
-            if (!success)
+            if (!ValidateEntity(contract))
             {
                 throw new InvalidOperationException(GetErrorMessages());
             }
+
+            DbContext.Set<Contract>().Add(contract);
+            await DbContext.SaveChangesAsync(cancellationToken);
 
             await ApplySystemRoleTemplates(contract.Id, contract.SystemApplicationId, cancellationToken);
 
