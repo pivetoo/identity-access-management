@@ -11,5 +11,7 @@ namespace IdentityManagement.Application.Services
         Task SendAccountDeactivatedEmailAsync(string toEmail, string toName, CancellationToken cancellationToken = default);
 
         Task SendAdminInvitationEmailAsync(string toEmail, string companyName, string systemApplicationName, string setupLink, CancellationToken cancellationToken = default);
+
+        Task SendClientAdminInvitationEmailAsync(string toEmail, string companyName, IReadOnlyCollection<string> systemNames, string setupLink, CancellationToken cancellationToken = default);
     }
 }
