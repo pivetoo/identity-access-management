@@ -124,11 +124,13 @@ namespace IdentityManagement.Infrastructure.Services
             await EnsureUniqueUser(username, email, null, cancellationToken);
 
             User user = new User(username, email, HashPassword(password), string.IsNullOrWhiteSpace(name) ? username : name);
-            bool success = await Insert(cancellationToken, user);
-            if (!success)
+            if (!ValidateEntity(user))
             {
                 throw new InvalidOperationException(GetErrorMessages());
             }
+
+            DbContext.Set<User>().Add(user);
+            await DbContext.SaveChangesAsync(cancellationToken);
 
             return user;
         }

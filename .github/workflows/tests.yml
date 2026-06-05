@@ -1,0 +1,64 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout identity access management
+        uses: actions/checkout@v4
+        with:
+          path: system/identity-access-management
+
+      - name: Checkout archon framework
+        uses: actions/checkout@v4
+        with:
+          repository: pivetoo/archon-framework
+          token: ${{ secrets.GH_PAT }}
+          path: frameworks/archon-framework
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Unit tests (Domain + pure logic)
+        run: >
+          dotnet test
+          system/identity-access-management/IdentityManagement/IdentityManagement.Testing/IdentityManagement.Testing.csproj
+          -c Release
+          --settings system/identity-access-management/IdentityManagement/IdentityManagement.Testing/coverlet.runsettings
+          --collect:"XPlat Code Coverage"
+
+      # Sobe um Postgres efemero via Testcontainers (Docker ja disponivel nos runners ubuntu-latest)
+      # e exercita a camada acoplada a banco (onboarding, consolidate, seeds, contratos).
+      - name: Integration tests (Testcontainers Postgres)
+        run: >
+          dotnet test
+          system/identity-access-management/IdentityManagement/IdentityManagement.IntegrationTests/IdentityManagement.IntegrationTests.csproj
+          -c Release
+          --settings system/identity-access-management/IdentityManagement/IdentityManagement.Testing/coverlet.runsettings
+          --collect:"XPlat Code Coverage"
+
+      # Junta a cobertura dos dois projetos (unit + integracao) e imprime a % combinada do backend.
+      - name: Cobertura combinada (unit + integracao)
+        if: always()
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          reportgenerator \
+            "-reports:**/coverage.cobertura.xml" \
+            "-targetdir:coverage-report" \
+            "-reporttypes:TextSummary;MarkdownSummaryGithub" \
+            "-assemblyfilters:+IdentityManagement.Domain;+IdentityManagement.Application;+IdentityManagement.Infrastructure"
+          echo "===== COBERTURA COMBINADA (backend IdentityManagement) ====="
+          cat coverage-report/Summary.txt
+          cat coverage-report/SummaryGithub.md >> "$GITHUB_STEP_SUMMARY" || true

@@ -14,6 +14,8 @@ namespace IdentityManagement.Infrastructure.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
+        private const string FixedTenantConnectionStringKey = "TenantDatabases:FixedTenantId:ConnectionString";
+
         public static IServiceCollection AddIdentityManagementInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddArchonPersistence(configuration, typeof(ServiceCollectionExtensions).Assembly);
@@ -24,6 +26,10 @@ namespace IdentityManagement.Infrastructure.DependencyInjection
                 typeof(DatabaseMigrator).Assembly,
                 typeof(ServiceCollectionExtensions).Assembly);
             services.AddServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
+
+            string selfConnectionString = configuration[FixedTenantConnectionStringKey]
+                ?? throw new InvalidOperationException($"Configuração obrigatória ausente: {FixedTenantConnectionStringKey}.");
+            services.AddSingleton<ITenantProvisioner>(_ => new PostgresTenantProvisioner(selfConnectionString));
 
             services.AddOptions();
             services.AddHttpClient<ResendClient>();
