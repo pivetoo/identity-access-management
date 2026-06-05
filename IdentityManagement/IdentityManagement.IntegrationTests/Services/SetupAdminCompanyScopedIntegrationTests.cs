@@ -68,8 +68,8 @@ namespace IdentityManagement.IntegrationTests.Services
 
                 info.Should().NotBeNull();
                 info!.SystemApplicationNames.Should().HaveCount(2);
-                info.SystemApplicationNames.Should().Contain("Kanvas");
-                info.SystemApplicationNames.Should().Contain("Plataforma de Integracoes");
+                info.SystemApplicationNames.Should().Contain("AgencyCampaign");
+                info.SystemApplicationNames.Should().Contain("IntegrationPlatform");
 
                 SetupAdminRequest setupRequest = new SetupAdminRequest(
                     Token: invitationToken,
