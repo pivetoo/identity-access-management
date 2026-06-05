@@ -1,3 +1,4 @@
+using System.Globalization;
 using IdentityManagement.Application.Requests.Billing;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
@@ -7,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace IdentityManagement.Infrastructure.Services
 {
-    // Usa DbContext direto (multi-passo: dedupe + transicao + persistencia em sequencia).
+    // Usa DbContext direto (multi-passo: dedupe + upsert do pagamento + transicao + persistencia em sequencia).
     public sealed class BillingWebhookService : IBillingWebhookService
     {
         private readonly DbContext dbContext;
@@ -19,7 +20,7 @@ namespace IdentityManagement.Infrastructure.Services
             this.logger = logger;
         }
 
-        public async Task<bool> ProcessAsaasEventAsync(AsaasWebhookPayload payload, CancellationToken ct = default)
+        public async Task<bool> ProcessAsaasEventAsync(AsaasWebhookPayload payload, string rawPayload = "", CancellationToken ct = default)
         {
             // Idempotencia: se ja processamos este evento, ignora (o Asaas reenvia ate receber 200).
             bool alreadyProcessed = await dbContext.Set<BillingWebhookEvent>()
@@ -31,45 +32,86 @@ namespace IdentityManagement.Infrastructure.Services
                 return false;
             }
 
-            string? subscriptionId = payload.Payment.Subscription;
+            PaymentStatus paymentStatus = MapPaymentStatus(payload.Event);
+            DateTimeOffset? paidDate = ResolvePaidDate(payload);
 
-            Subscription? subscription = null;
-            if (!string.IsNullOrWhiteSpace(subscriptionId))
+            // SEMPRE persiste o pagamento (mesmo sem assinatura conhecida).
+            Payment payment = await UpsertPaymentAsync(payload, paymentStatus, paidDate, ct);
+
+            Subscription? subscription = await FindSubscriptionAsync(payload.Payment.Subscription, ct);
+
+            bool applied = false;
+            string outcome;
+
+            if (subscription is not null)
             {
-                subscription = await dbContext.Set<Subscription>()
-                    .AsTracking()
-                    .FirstOrDefaultAsync(s => s.ExternalSubscriptionId == subscriptionId, ct);
+                payment.SetSubscription(subscription.Id, subscription.CompanyId, subscription.ExternalSubscriptionId);
+
+                Plan? plan = await dbContext.Set<Plan>()
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(p => p.Id == subscription.PlanId, ct);
+
+                if (plan is null)
+                {
+                    outcome = BuildOutcome(payload.Event, "ignored.plan_not_found");
+                }
+                else
+                {
+                    DateTimeOffset now = DateTimeOffset.UtcNow;
+                    DateTimeOffset periodEnd = ComputePeriodEnd(now, plan.BillingPeriod);
+
+                    TransitionResult transition = TryApplyTransition(payload.Event, subscription, now, periodEnd);
+                    applied = transition.Applied;
+                    outcome = BuildOutcome(payload.Event, transition.Outcome);
+                }
+            }
+            else
+            {
+                outcome = BuildOutcome(payload.Event, "ignored.unknown_subscription");
             }
 
-            // Assinatura desconhecida: registra o evento para nao reprocessar e ignora.
-            if (subscription is null)
-            {
-                await RecordEventAsync(payload, ct);
-                return false;
-            }
+            RecordEvent(payload, outcome, rawPayload);
 
-            Plan? plan = await dbContext.Set<Plan>()
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == subscription.PlanId, ct);
-
-            if (plan is null)
-            {
-                await RecordEventAsync(payload, ct);
-                return false;
-            }
-
-            DateTimeOffset now = DateTimeOffset.UtcNow;
-            DateTimeOffset periodEnd = ComputePeriodEnd(now, plan.BillingPeriod);
-
-            bool applied = TryApplyTransition(payload.Event, subscription, now, periodEnd);
-
-            // SEMPRE registra o evento (mesmo ignorado/invalido) para garantir idempotencia.
-            await RecordEventAsync(payload, ct);
+            await dbContext.SaveChangesAsync(ct);
 
             return applied;
         }
 
-        private bool TryApplyTransition(string eventType, Subscription subscription, DateTimeOffset now, DateTimeOffset periodEnd)
+        private async Task<Payment> UpsertPaymentAsync(
+            AsaasWebhookPayload payload,
+            PaymentStatus status,
+            DateTimeOffset? paidDate,
+            CancellationToken ct)
+        {
+            Payment? payment = await dbContext.Set<Payment>()
+                .AsTracking()
+                .FirstOrDefaultAsync(p => p.ExternalPaymentId == payload.Payment.Id, ct);
+
+            if (payment is null)
+            {
+                payment = new Payment(payload.Payment.Id, payload.Payment.Value ?? 0m, status);
+                await dbContext.Set<Payment>().AddAsync(payment, ct);
+            }
+
+            payment.SetDetails(payload.Payment.BillingType, ParseDate(payload.Payment.DueDate));
+            payment.UpdateStatus(status, paidDate);
+
+            return payment;
+        }
+
+        private async Task<Subscription?> FindSubscriptionAsync(string? externalSubscriptionId, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(externalSubscriptionId))
+            {
+                return null;
+            }
+
+            return await dbContext.Set<Subscription>()
+                .AsTracking()
+                .FirstOrDefaultAsync(s => s.ExternalSubscriptionId == externalSubscriptionId, ct);
+        }
+
+        private TransitionResult TryApplyTransition(string eventType, Subscription subscription, DateTimeOffset now, DateTimeOffset periodEnd)
         {
             try
             {
@@ -86,20 +128,20 @@ namespace IdentityManagement.Infrastructure.Services
                             subscription.Activate(now, periodEnd);
                         }
 
-                        return true;
+                        return new TransitionResult(true, "subscription.activated");
 
                     case "PAYMENT_OVERDUE":
                         subscription.MarkPastDue();
-                        return true;
+                        return new TransitionResult(true, "subscription.pastdue");
 
                     case "PAYMENT_REFUNDED":
                     case "PAYMENT_CHARGEBACK_REQUESTED":
                     case "PAYMENT_DELETED":
                         subscription.Suspend();
-                        return true;
+                        return new TransitionResult(true, "subscription.suspended");
 
                     default:
-                        return false;
+                        return new TransitionResult(false, "subscription.unmapped");
                 }
             }
             catch (InvalidOperationException ex)
@@ -113,19 +155,86 @@ namespace IdentityManagement.Infrastructure.Services
                     subscription.ExternalSubscriptionId,
                     subscription.Status);
 
-                return false;
+                return new TransitionResult(false, "transition.invalid");
             }
         }
 
-        private async Task RecordEventAsync(AsaasWebhookPayload payload, CancellationToken ct)
+        private void RecordEvent(AsaasWebhookPayload payload, string outcome, string rawPayload)
         {
             BillingWebhookEvent webhookEvent = new BillingWebhookEvent(
                 payload.Id,
                 payload.Event,
-                DateTimeOffset.UtcNow);
+                DateTimeOffset.UtcNow,
+                payload.Payment.Id,
+                outcome,
+                string.IsNullOrWhiteSpace(rawPayload) ? null : rawPayload);
 
-            await dbContext.Set<BillingWebhookEvent>().AddAsync(webhookEvent, ct);
-            await dbContext.SaveChangesAsync(ct);
+            dbContext.Set<BillingWebhookEvent>().Add(webhookEvent);
+        }
+
+        private static PaymentStatus MapPaymentStatus(string eventType)
+        {
+            switch (eventType)
+            {
+                case "PAYMENT_CREATED":
+                    return PaymentStatus.Pending;
+                case "PAYMENT_CONFIRMED":
+                    return PaymentStatus.Confirmed;
+                case "PAYMENT_RECEIVED":
+                    return PaymentStatus.Received;
+                case "PAYMENT_OVERDUE":
+                    return PaymentStatus.Overdue;
+                case "PAYMENT_REFUNDED":
+                    return PaymentStatus.Refunded;
+                case "PAYMENT_CHARGEBACK_REQUESTED":
+                    return PaymentStatus.ChargebackRequested;
+                case "PAYMENT_DELETED":
+                    return PaymentStatus.Deleted;
+                default:
+                    return PaymentStatus.Pending;
+            }
+        }
+
+        private static DateTimeOffset? ResolvePaidDate(AsaasWebhookPayload payload)
+        {
+            if (payload.Event != "PAYMENT_RECEIVED" && payload.Event != "PAYMENT_CONFIRMED")
+            {
+                return null;
+            }
+
+            return ParseDate(payload.Payment.PaymentDate) ?? ParseDate(payload.Payment.ConfirmedDate);
+        }
+
+        private static DateTimeOffset? ParseDate(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            if (DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out DateTimeOffset parsed))
+            {
+                return parsed;
+            }
+
+            return null;
+        }
+
+        private static string BuildOutcome(string eventType, string detail)
+        {
+            string paymentPart = eventType switch
+            {
+                "PAYMENT_CREATED" => "payment.created",
+                "PAYMENT_CONFIRMED" => "payment.confirmed",
+                "PAYMENT_RECEIVED" => "payment.received",
+                "PAYMENT_OVERDUE" => "payment.overdue",
+                "PAYMENT_REFUNDED" => "payment.refunded",
+                "PAYMENT_CHARGEBACK_REQUESTED" => "payment.chargeback",
+                "PAYMENT_DELETED" => "payment.deleted",
+                _ => "payment.unmapped"
+            };
+
+            return $"{paymentPart}; {detail}";
         }
 
         private static DateTimeOffset ComputePeriodEnd(DateTimeOffset start, BillingPeriod period)
@@ -137,5 +246,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             return start.AddMonths(1);
         }
+
+        private readonly record struct TransitionResult(bool Applied, string Outcome);
     }
 }

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
 using IdentityManagement.Application.Requests.Billing;
@@ -14,6 +15,8 @@ namespace IdentityManagement.Api.Controllers
     {
         private const string AsaasAccessTokenHeader = "asaas-access-token";
 
+        private static readonly JsonSerializerOptions WebhookJsonOptions = new(JsonSerializerDefaults.Web);
+
         private readonly IBillingWebhookService billingWebhookService;
         private readonly AsaasOptions options;
 
@@ -25,7 +28,7 @@ namespace IdentityManagement.Api.Controllers
 
         [AllowAnonymous]
         [PostEndpoint("webhook")]
-        public async Task<IActionResult> Receive([FromBody] AsaasWebhookPayload payload, CancellationToken cancellationToken)
+        public async Task<IActionResult> Receive(CancellationToken cancellationToken)
         {
             // Token vazio = pula validacao (conveniencia de dev).
             if (!string.IsNullOrEmpty(options.WebhookToken))
@@ -37,7 +40,23 @@ namespace IdentityManagement.Api.Controllers
                 }
             }
 
-            await billingWebhookService.ProcessAsaasEventAsync(payload, cancellationToken);
+            // O corpo so pode ser lido uma vez; capturamos o payload bruto para auditoria.
+            string raw;
+            using (StreamReader reader = new StreamReader(Request.Body))
+            {
+                raw = await reader.ReadToEndAsync(cancellationToken);
+            }
+
+            AsaasWebhookPayload? payload = null;
+            if (!string.IsNullOrWhiteSpace(raw))
+            {
+                payload = JsonSerializer.Deserialize<AsaasWebhookPayload>(raw, WebhookJsonOptions);
+            }
+
+            if (payload is not null)
+            {
+                await billingWebhookService.ProcessAsaasEventAsync(payload, raw, cancellationToken);
+            }
 
             // Sempre 200 (aplicado ou ignorado) para que o Asaas pare de reenviar o evento.
             return Http200();

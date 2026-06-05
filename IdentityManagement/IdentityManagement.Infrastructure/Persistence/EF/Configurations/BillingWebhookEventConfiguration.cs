@@ -21,6 +21,15 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.ProcessedAt)
                 .IsRequired();
 
+            builder.Property(entity => entity.ExternalPaymentId)
+                .HasMaxLength(120);
+
+            builder.Property(entity => entity.Outcome)
+                .HasMaxLength(200);
+
+            builder.Property(entity => entity.RawPayload)
+                .HasColumnType("text");
+
             builder.HasIndex(entity => entity.ExternalEventId)
                 .IsUnique();
         }
