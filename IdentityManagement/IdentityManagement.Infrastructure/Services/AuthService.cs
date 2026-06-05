@@ -158,6 +158,11 @@ namespace IdentityManagement.Infrastructure.Services
                 };
             }
 
+            if (invitation.Contract is null)
+            {
+                return null;
+            }
+
             return new AdminInvitationInfoResponse
             {
                 CompanyName = invitation.Contract.Company.LegalName,
@@ -231,7 +236,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             Role? legacyRootRole = await dbContext.Set<Role>()
                 .AsNoTracking()
-                .FirstOrDefaultAsync(r => r.ContractId == invitation.ContractId && r.IsRoot, cancellationToken);
+                .FirstOrDefaultAsync(r => r.ContractId == invitation.ContractId!.Value && r.IsRoot, cancellationToken);
 
             if (legacyRootRole is null)
             {
