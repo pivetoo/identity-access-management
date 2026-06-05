@@ -26,6 +26,14 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
                 .HasMaxLength(255)
                 .HasColumnName("catalogapikey");
 
+            builder.Property(entity => entity.BaseUrl)
+                .HasMaxLength(2000)
+                .HasColumnName("baseurl");
+
+            builder.HasMany(entity => entity.Integrations)
+                .WithOne()
+                .HasForeignKey(entity => entity.SystemApplicationId);
+
             builder.HasIndex(entity => entity.Name)
                 .IsUnique();
 

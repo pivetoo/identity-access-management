@@ -23,6 +23,10 @@
   <data name="systemApplication.created" xml:space="preserve"><value>Aplicación del sistema creada correctamente.</value></data>
   <data name="systemApplication.updated" xml:space="preserve"><value>Aplicación del sistema actualizada correctamente.</value></data>
   <data name="systemApplication.notFound" xml:space="preserve"><value>Aplicación del sistema no encontrada.</value></data>
+  <data name="systemIntegration.created" xml:space="preserve"><value>Integración del sistema creada correctamente.</value></data>
+  <data name="systemIntegration.updated" xml:space="preserve"><value>Integración del sistema actualizada correctamente.</value></data>
+  <data name="systemIntegration.deleted" xml:space="preserve"><value>Integración del sistema eliminada correctamente.</value></data>
+  <data name="systemIntegration.notFound" xml:space="preserve"><value>Integración del sistema no encontrada.</value></data>
   <data name="systemApplication.notFoundOrInactive" xml:space="preserve"><value>Aplicación del sistema no encontrada o inactiva.</value></data>
   <data name="systemApplication.name.alreadyExists" xml:space="preserve"><value>Ya existe una aplicación del sistema con este nombre.</value></data>
   <data name="systemApplication.audience.alreadyExists" xml:space="preserve"><value>Ya existe una aplicación del sistema con esta audience.</value></data>

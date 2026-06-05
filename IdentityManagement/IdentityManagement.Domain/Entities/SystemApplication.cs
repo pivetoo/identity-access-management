@@ -6,6 +6,7 @@ namespace IdentityManagement.Domain.Entities
     public class SystemApplication : Entity
     {
         private readonly List<Contract> contracts = [];
+        private readonly List<SystemIntegration> integrations = [];
 
         public string Name { get; private set; } = string.Empty;
 
@@ -19,7 +20,11 @@ namespace IdentityManagement.Domain.Entities
 
         public string CatalogApiKey { get; private set; } = string.Empty;
 
+        public string? BaseUrl { get; private set; }
+
         public IReadOnlyCollection<Contract> Contracts => contracts.AsReadOnly();
+
+        public IReadOnlyCollection<SystemIntegration> Integrations => integrations.AsReadOnly();
 
         private SystemApplication()
         {
@@ -37,6 +42,11 @@ namespace IdentityManagement.Domain.Entities
         public void RegenerateCatalogApiKey()
         {
             CatalogApiKey = Guid.NewGuid().ToString();
+        }
+
+        public void SetBaseUrl(string? baseUrl)
+        {
+            BaseUrl = string.IsNullOrWhiteSpace(baseUrl) ? null : baseUrl.Trim();
         }
 
         public void Update(string name, string description, string audience, ApplicationType type, bool isActive)

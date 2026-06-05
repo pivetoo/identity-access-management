@@ -18,6 +18,8 @@ namespace IdentityManagement.Application.Responses.SystemApplications
 
         public string CatalogApiKey { get; set; } = string.Empty;
 
+        public string? BaseUrl { get; set; }
+
         public DateTimeOffset? CreatedAt { get; set; }
 
         public DateTimeOffset? UpdatedAt { get; set; }

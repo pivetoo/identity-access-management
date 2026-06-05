@@ -53,6 +53,7 @@ namespace IdentityManagement.Infrastructure.Services
             await EnsureUniqueSystemApplication(request.Name, request.Audience, id, cancellationToken);
 
             systemApplication.Update(request.Name, request.Description, request.Audience, request.Type, request.IsActive);
+            systemApplication.SetBaseUrl(request.BaseUrl);
 
             SystemApplication? result = await Update(systemApplication, cancellationToken);
             if (result is null)
@@ -78,6 +79,7 @@ namespace IdentityManagement.Infrastructure.Services
                     Audience = systemApplication.Audience,
                     Type = systemApplication.Type,
                     CatalogApiKey = systemApplication.CatalogApiKey,
+                    BaseUrl = systemApplication.BaseUrl,
                     CreatedAt = systemApplication.CreatedAt,
                     UpdatedAt = systemApplication.UpdatedAt
                 })
@@ -122,6 +124,7 @@ namespace IdentityManagement.Infrastructure.Services
                 Audience = systemApplication.Audience,
                 Type = systemApplication.Type,
                 CatalogApiKey = systemApplication.CatalogApiKey,
+                BaseUrl = systemApplication.BaseUrl,
                 CreatedAt = systemApplication.CreatedAt,
                 UpdatedAt = systemApplication.UpdatedAt
             };
