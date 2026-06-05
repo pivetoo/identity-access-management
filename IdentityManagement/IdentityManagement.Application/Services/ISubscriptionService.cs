@@ -18,5 +18,7 @@ namespace IdentityManagement.Application.Services
         Task<SubscriptionResponse> ActivateAsync(long companyId, CancellationToken cancellationToken = default);
 
         Task<SubscriptionResponse?> GetByCompanyAsync(long companyId, CancellationToken cancellationToken = default);
+
+        Task<bool> IsCompanyBlockedAsync(long companyId, DateTimeOffset now, CancellationToken cancellationToken = default);
     }
 }

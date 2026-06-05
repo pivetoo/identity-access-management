@@ -15,6 +15,7 @@ import OAuthClients from '../modules/Administration/OAuthClients';
 import Roles from '../modules/Administration/Roles';
 import SystemRoleTemplates from '../modules/Administration/SystemRoleTemplates';
 import UserRoles from '../modules/Administration/UserRoles';
+import Plans from '../modules/Administration/Plans';
 import ForgotPassword from '../modules/Authentication/ForgotPassword';
 import ResetPassword from '../modules/Authentication/ResetPassword';
 import SetupAdmin from '../modules/Authentication/SetupAdmin';
@@ -122,6 +123,7 @@ function AppRoutes() {
           <Route path="system-role-templates" element={<SystemRoleTemplates />} />
           <Route path="roles" element={<Roles />} />
           <Route path="user-roles" element={<UserRoles />} />
+          <Route path="plans" element={<Plans />} />
         </Route>
       </Routes>
     </BrowserRouter>

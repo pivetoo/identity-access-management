@@ -160,5 +160,25 @@ namespace IdentityManagement.Domain.Entities
             ExternalCustomerId = externalCustomerId;
             ExternalSubscriptionId = externalSubscriptionId;
         }
+
+        public bool GrantsAccess(DateTimeOffset now)
+        {
+            if (Status == SubscriptionStatus.Active)
+            {
+                return true;
+            }
+
+            if (Status == SubscriptionStatus.PastDue)
+            {
+                return true;
+            }
+
+            if (Status == SubscriptionStatus.Trialing)
+            {
+                return TrialEndsAt.HasValue && now <= TrialEndsAt.Value;
+            }
+
+            return false;
+        }
     }
 }
