@@ -81,7 +81,7 @@ namespace IdentityManagement.Infrastructure.Services
             message.From = "no-reply@mainstay.com.br";
             message.To.Add(toEmail);
             message.Subject = "Configure seu acesso — Mainstay";
-            message.HtmlBody = BuildClientAdminInvitationHtml(companyName, systemNames, setupLink);
+            message.HtmlBody = BuildClientAdminInvitationHtml(companyName, setupLink);
 
             await resend.EmailSendAsync(message, cancellationToken);
         }
@@ -164,10 +164,8 @@ namespace IdentityManagement.Infrastructure.Services
             </html>
             """;
 
-        private static string BuildClientAdminInvitationHtml(string companyName, IReadOnlyCollection<string> systemNames, string setupLink)
+        private static string BuildClientAdminInvitationHtml(string companyName, string setupLink)
         {
-            string systemsList = string.Join(string.Empty, systemNames.Select(name => $"<li style=\"margin:0 0 6px;\">{name}</li>"));
-
             return $"""
             <!DOCTYPE html>
             <html lang="pt-BR">
@@ -186,9 +184,7 @@ namespace IdentityManagement.Infrastructure.Services
                         <td style="background:#ffffff;border-radius:10px;padding:40px 36px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
                           <h2 style="margin:0 0 8px;color:#1F3B61;font-size:22px;font-weight:700;">Configure seu acesso</h2>
                           <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">Olá, <strong>{companyName}</strong>.</p>
-                          <p style="margin:0 0 8px;color:#374151;font-size:15px;line-height:1.6;">Sua empresa foi cadastrada e os seguintes sistemas foram contratados:</p>
-                          <ul style="margin:0 0 24px;padding:0 0 0 20px;color:#374151;font-size:15px;line-height:1.6;">{systemsList}</ul>
-                          <p style="margin:0 0 28px;color:#374151;font-size:15px;line-height:1.6;">Clique no botão abaixo para configurar o usuário <strong>Administrador</strong> e definir suas credenciais de acesso:</p>
+                          <p style="margin:0 0 28px;color:#374151;font-size:15px;line-height:1.6;">Sua conta na <strong>Mainstay</strong> foi criada. Clique no botão abaixo para configurar o usuário <strong>Administrador</strong> e definir suas credenciais de acesso:</p>
                           <table cellpadding="0" cellspacing="0">
                             <tr>
                               <td style="border-radius:6px;background:#1F3B61;">
