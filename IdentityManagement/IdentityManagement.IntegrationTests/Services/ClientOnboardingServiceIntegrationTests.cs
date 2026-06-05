@@ -143,7 +143,7 @@ namespace IdentityManagement.IntegrationTests.Services
 
             public string GenerateApiKey()
             {
-                return "test-api-key";
+                return Guid.NewGuid().ToString("N");
             }
 
             public Task<bool> DatabaseExistsAsync(string databaseName, CancellationToken ct = default)

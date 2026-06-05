@@ -1,3 +1,4 @@
+using IdentityManagement.Application.Services;
 using IdentityManagement.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -56,6 +57,8 @@ namespace IdentityManagement.IntegrationTests
             services.AddLocalization();
             // Roda as migrations contra o container e registra persistencia + servicos reais.
             services.AddIdentityManagementInfrastructure(configuration);
+            // Substitui o ResendEmailSender real por um no-op para evitar chamadas externas em testes.
+            services.AddScoped<IEmailSender, NoOpEmailSender>();
 
             Services = services.BuildServiceProvider();
         }
