@@ -48,6 +48,7 @@ namespace IdentityManagement.Infrastructure.DependencyInjection
 
             services.AddOptions();
             services.AddHttpClient<ResendClient>();
+            services.AddHttpClient<Archon.Infrastructure.RestApi.RestApi>();
             services.Configure<ResendClientOptions>(o => o.ApiToken = configuration["Resend:ApiKey"] ?? string.Empty);
             services.AddScoped<IEmailSender, ResendEmailSender>();
 
