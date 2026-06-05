@@ -238,6 +238,22 @@ namespace IdentityManagement.Infrastructure.Services
             return response;
         }
 
+        public async Task<bool> IsCompanyBlockedAsync(long companyId, DateTimeOffset now, CancellationToken cancellationToken = default)
+        {
+            Subscription? subscription = await DbContext.Set<Subscription>()
+                .AsNoTracking()
+                .Where(s => s.CompanyId == companyId)
+                .OrderByDescending(s => s.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (subscription is null)
+            {
+                return false;
+            }
+
+            return !subscription.GrantsAccess(now);
+        }
+
         private async Task<string> ResolvePlanNameAsync(long planId, CancellationToken cancellationToken)
         {
             string? name = await DbContext.Set<Plan>()

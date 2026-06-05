@@ -5,6 +5,7 @@ using IdentityManagement.Domain.Entities;
 using IdentityManagement.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -21,8 +22,10 @@ namespace IdentityManagement.Infrastructure.Services
         private readonly IRefreshTokenService refreshTokenService;
         private readonly IConfiguration configuration;
         private readonly IContractService contractService;
+        private readonly ISubscriptionService subscriptionService;
+        private readonly ILogger<OidcAuthorizationService> logger;
 
-        public OidcAuthorizationService(DbContext dbContext, IJwtService jwtService, ILoginSessionService loginSessionService, IRefreshTokenService refreshTokenService, IConfiguration configuration, IContractService contractService)
+        public OidcAuthorizationService(DbContext dbContext, IJwtService jwtService, ILoginSessionService loginSessionService, IRefreshTokenService refreshTokenService, IConfiguration configuration, IContractService contractService, ISubscriptionService subscriptionService, ILogger<OidcAuthorizationService> logger)
         {
             this.dbContext = dbContext;
             this.jwtService = jwtService;
@@ -30,6 +33,27 @@ namespace IdentityManagement.Infrastructure.Services
             this.refreshTokenService = refreshTokenService;
             this.configuration = configuration;
             this.contractService = contractService;
+            this.subscriptionService = subscriptionService;
+            this.logger = logger;
+        }
+
+        private async Task EnsureCompanyNotBlocked(long companyId, CancellationToken cancellationToken)
+        {
+            bool blocked;
+            try
+            {
+                blocked = await subscriptionService.IsCompanyBlockedAsync(companyId, DateTimeOffset.UtcNow, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, "Subscription gate check failed for company {CompanyId}; allowing access (fail-open).", companyId);
+                blocked = false;
+            }
+
+            if (blocked)
+            {
+                throw new UnauthorizedAccessException("access_denied");
+            }
         }
 
         public async Task<OidcAuthorizeResult> Authorize(
@@ -182,6 +206,8 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new UnauthorizedAccessException("invalid_grant");
             }
 
+            await EnsureCompanyNotBlocked(authorizationCode.Contract.CompanyId, cancellationToken);
+
             string accessToken = await jwtService.GenerateAccessToken(
                 authorizationCode.User,
                 authorizationCode.Contract,
@@ -262,6 +288,8 @@ namespace IdentityManagement.Infrastructure.Services
             {
                 throw new UnauthorizedAccessException("invalid_grant");
             }
+
+            await EnsureCompanyNotBlocked(existingRefreshToken.Contract.CompanyId, cancellationToken);
 
             existingRefreshToken.Revoke();
             existingRefreshToken.MarkAsUsed();
