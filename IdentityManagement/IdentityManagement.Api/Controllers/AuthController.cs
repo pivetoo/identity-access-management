@@ -129,6 +129,19 @@ namespace IdentityManagement.Api.Controllers
             return Http200(message: Localizer["auth.adminSetup.success"]);
         }
 
+        [AllowAnonymous]
+        [PostEndpoint]
+        public async Task<IActionResult> SetupAdminExistingUser([FromBody] SetupAdminExistingUserRequest request, CancellationToken cancellationToken)
+        {
+            bool success = await authService.SetupAdminExistingUser(request, cancellationToken);
+            if (!success)
+            {
+                return Http400(Localizer["auth.adminSetup.invalidToken"]);
+            }
+
+            return Http200(message: Localizer["auth.adminSetup.success"]);
+        }
+
         [RequireAccess]
         [Authorize]
         [GetEndpoint("{username}")]
