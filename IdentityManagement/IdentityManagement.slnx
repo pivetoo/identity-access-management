@@ -10,4 +10,5 @@
   <Project Path="IdentityManagement.Domain/IdentityManagement.Domain.csproj" />
   <Project Path="IdentityManagement.Infrastructure/IdentityManagement.Infrastructure.csproj" />
   <Project Path="IdentityManagement.Testing/IdentityManagement.Testing.csproj" />
+  <Project Path="IdentityManagement.IntegrationTests/IdentityManagement.IntegrationTests.csproj" />
 </Solution>

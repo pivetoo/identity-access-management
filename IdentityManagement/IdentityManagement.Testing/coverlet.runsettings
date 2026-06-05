@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <!-- Migrations sao scripts de schema (FluentMigrator) executados contra um banco real,
+               nao logica de negocio; sao validados pelo startup da aplicacao, nao por unit test.
+               Excluidas da metrica de cobertura. -->
+          <Exclude>[IdentityManagement.Infrastructure]IdentityManagement.Infrastructure.Migrations.*</Exclude>
+          <ExcludeByAttribute>GeneratedCodeAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
