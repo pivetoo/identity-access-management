@@ -4,6 +4,7 @@ export interface AdminInvitationInfo {
   companyName: string;
   systemApplicationName: string;
   companyEmail: string;
+  systemApplicationNames?: string[];
 }
 
 async function validateInvitation(token: string): Promise<AdminInvitationInfo> {
@@ -34,4 +35,16 @@ async function setupAdmin(token: string, name: string, username: string, email: 
   }
 }
 
-export const adminSetupService = { validateInvitation, setupAdmin };
+async function setupAdminExistingUser(token: string, usernameOrEmail: string, password: string): Promise<void> {
+  const response = await fetch(`${apiBaseUrl}/Auth/SetupAdminExistingUser`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, usernameOrEmail, password }),
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body?.message || 'Credenciais inválidas ou link expirado.');
+  }
+}
+
+export const adminSetupService = { validateInvitation, setupAdmin, setupAdminExistingUser };
