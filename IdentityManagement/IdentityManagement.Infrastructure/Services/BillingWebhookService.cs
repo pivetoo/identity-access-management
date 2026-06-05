@@ -128,6 +128,8 @@ namespace IdentityManagement.Infrastructure.Services
                             subscription.Activate(now, periodEnd);
                         }
 
+                        subscription.Unblock();
+
                         return new TransitionResult(true, "subscription.activated");
 
                     case "PAYMENT_OVERDUE":
