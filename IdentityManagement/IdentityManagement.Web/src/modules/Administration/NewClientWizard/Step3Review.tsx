@@ -1,32 +1,61 @@
 import { Badge, Card, CardContent, useI18n } from 'archon-ui';
-import { Building2, Database } from 'lucide-react';
+import { Building2, CheckCircle2, Database } from 'lucide-react';
 import type { CompanyData, SystemSelection } from './index';
-import { DatabaseProviderValue } from '../../../types/tenantDatabase';
-import type { DatabaseProvider } from '../../../types/tenantDatabase';
+import type { OnboardClientResponse } from '../../../services/clientService';
 
 interface Step3ReviewProps {
   company: CompanyData;
   systems: SystemSelection[];
+  result?: OnboardClientResponse;
 }
 
-const providerLabels: Record<DatabaseProvider, string> = {
-  [DatabaseProviderValue.PostgreSql]: 'PostgreSQL',
-  [DatabaseProviderValue.SqlServer]: 'SQL Server',
-  [DatabaseProviderValue.MySql]: 'MySQL',
-};
-
-const maskSecret = (value: string): string => {
-  if (!value) {
-    return '';
-  }
-  if (value.length <= 8) {
-    return '••••••••';
-  }
-  return `${value.slice(0, 4)}••••${value.slice(-4)}`;
-};
-
-export default function Step3Review({ company, systems }: Step3ReviewProps) {
+export default function Step3Review({ company, systems, result }: Step3ReviewProps) {
   const { t } = useI18n();
+
+  if (result) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col items-center gap-3 py-4 text-center">
+          <div className="rounded-full bg-success/15 p-4 text-success">
+            <CheckCircle2 className="h-10 w-10" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-foreground">Provisionamento concluido</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              O tenant foi provisionado com sucesso. Um convite de configuracao foi enviado para{' '}
+              <span className="font-medium text-foreground">{company.email}</span>.
+            </p>
+          </div>
+        </div>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="mb-3 flex items-center gap-2">
+              <Database className="h-4 w-4 text-primary" />
+              <span className="text-sm font-semibold text-foreground">Bancos de dados provisionados</span>
+              <Badge variant="secondary">{result.databaseNames.length}</Badge>
+            </div>
+            <div className="space-y-1.5">
+              {result.databaseNames.map((name) => (
+                <div key={name} className="rounded bg-muted px-3 py-1.5 font-mono text-xs text-foreground">
+                  {name}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="rounded-lg border border-success/30 bg-success/5 p-4 text-sm text-foreground">
+          <strong>Proximo passo:</strong>
+          <p className="mt-1 text-xs text-muted-foreground">
+            O administrador receberao um link de configuracao no e-mail{' '}
+            <span className="font-medium">{company.email}</span> para concluir a configuracao inicial
+            do tenant.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -58,9 +87,7 @@ export default function Step3Review({ company, systems }: Step3ReviewProps) {
             <Field label={t('common.field.email')} value={company.email} />
             <Field
               label={t('common.field.phoneNumber')}
-              value={company.phoneNumber
-                ? company.phoneNumber.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3')
-                : '-'}
+              value={company.phoneNumber ? company.phoneNumber.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3') : '-'}
             />
           </dl>
         </CardContent>
@@ -90,24 +117,10 @@ export default function Step3Review({ company, systems }: Step3ReviewProps) {
                       {sys.systemApplicationAudience}
                     </div>
                   </div>
-                  <Badge variant="info">{providerLabels[sys.databaseProvider]}</Badge>
                 </div>
                 <dl className="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-2">
                   <Field label={t('common.field.startDate')} value={sys.startDate} />
                   <Field label={t('common.field.endDate')} value={sys.endDate ?? '-'} />
-                  <Field label={t('tenantDatabase.field.schemaName')} value={sys.schemaName} />
-                  <Field
-                    label={t('tenantDatabase.field.apiKey')}
-                    value={maskSecret(sys.apiKey)}
-                    mono
-                  />
-                  <div className="sm:col-span-2">
-                    <Field
-                      label={t('tenantDatabase.field.connectionString')}
-                      value={sys.connectionString}
-                      mono
-                    />
-                  </div>
                 </dl>
               </CardContent>
             </Card>

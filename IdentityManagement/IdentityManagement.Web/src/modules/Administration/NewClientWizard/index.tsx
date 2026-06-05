@@ -2,13 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Building2, Check, Database, ClipboardCheck } from 'lucide-react';
 import { Button, Card, CardContent, PageLayout, toast, useApi, useI18n } from 'archon-ui';
-import { CompanyService } from '../../../services/companyService';
-import { ContractService } from '../../../services/contractService';
+import { ClientService } from '../../../services/clientService';
 import { SystemApplicationService } from '../../../services/systemApplicationService';
-import { TenantDatabaseService } from '../../../services/tenantDatabaseService';
 import type { SystemApplication } from '../../../types/systemApplication';
-import type { DatabaseProvider } from '../../../types/tenantDatabase';
-import { DatabaseProviderValue } from '../../../types/tenantDatabase';
+import type { OnboardClientResponse } from '../../../services/clientService';
 import Step1Company from './Step1Company';
 import Step2Systems from './Step2Systems';
 import Step3Review from './Step3Review';
@@ -27,10 +24,6 @@ export interface SystemSelection {
   systemApplicationAudience: string;
   startDate: string;
   endDate?: string;
-  connectionString: string;
-  databaseProvider: DatabaseProvider;
-  schemaName: string;
-  apiKey: string;
 }
 
 const initialCompany: CompanyData = {
@@ -49,6 +42,7 @@ export default function NewClientWizard() {
   const [selectedSystems, setSelectedSystems] = useState<SystemSelection[]>([]);
   const [availableSystems, setAvailableSystems] = useState<SystemApplication[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [onboardResult, setOnboardResult] = useState<OnboardClientResponse | undefined>(undefined);
 
   const loadSystemsApi = useApi({
     onSuccess: (data: SystemApplication[]) => setAvailableSystems(data),
@@ -72,12 +66,7 @@ export default function NewClientWizard() {
 
   const canProceedStep2 =
     selectedSystems.length > 0 &&
-    selectedSystems.every(
-      (sys) =>
-        sys.connectionString.trim().length > 0 &&
-        sys.apiKey.trim().length > 0 &&
-        sys.startDate.length > 0,
-    );
+    selectedSystems.every((sys) => sys.startDate.length > 0);
 
   const handleToggleSystem = (system: SystemApplication, checked: boolean) => {
     if (checked) {
@@ -89,10 +78,6 @@ export default function NewClientWizard() {
           systemApplicationAudience: system.audience,
           startDate: new Date().toISOString().split('T')[0],
           endDate: undefined,
-          connectionString: '',
-          databaseProvider: DatabaseProviderValue.PostgreSql,
-          schemaName: 'public',
-          apiKey: '',
         },
       ]);
     } else {
@@ -111,32 +96,26 @@ export default function NewClientWizard() {
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      const company = await CompanyService.create(companyData);
-
-      for (const sys of selectedSystems) {
-        const contract = await ContractService.create({
-          companyId: company.id,
+      const result = await ClientService.onboard({
+        legalName: companyData.legalName,
+        tradeName: companyData.tradeName,
+        document: companyData.document,
+        email: companyData.email,
+        phoneNumber: companyData.phoneNumber || undefined,
+        systems: selectedSystems.map((sys) => ({
           systemApplicationId: sys.systemApplicationId,
           startDate: sys.startDate,
-          endDate: sys.endDate || undefined,
-        });
+          endDate: sys.endDate ?? null,
+        })),
+      });
 
-        await TenantDatabaseService.create({
-          contractId: contract.id,
-          connectionString: sys.connectionString,
-          databaseProvider: sys.databaseProvider,
-          schemaName: sys.schemaName || undefined,
-          apiKey: sys.apiKey,
-        });
-      }
+      setOnboardResult(result);
 
       toast({
         variant: 'success',
         title: t('common.toast.successTitle'),
         description: t('wizard.toast.created'),
       });
-
-      navigate(`/management/clients/${company.id}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : t('wizard.toast.error');
       toast({
@@ -149,17 +128,19 @@ export default function NewClientWizard() {
     }
   };
 
+  const isFinished = onboardResult !== undefined;
+
   return (
     <PageLayout
-      title={t('wizard.title')}
+      title="Provisionamento de Tenant"
       subtitle={t('wizard.subtitle')}
       actions={[
         {
           key: 'cancel',
-          label: t('common.action.cancel'),
+          label: isFinished ? t('common.action.close') : t('common.action.cancel'),
           icon: <ArrowLeft className="h-4 w-4" />,
           variant: 'outline',
-          onClick: () => navigate('/management/companies'),
+          onClick: () => navigate(isFinished ? `/management/clients/${onboardResult.companyId}` : '/management/companies'),
         },
       ]}
     >
@@ -182,40 +163,54 @@ export default function NewClientWizard() {
             )}
 
             {currentStep === 3 && (
-              <Step3Review company={companyData} systems={selectedSystems} />
+              <Step3Review company={companyData} systems={selectedSystems} result={onboardResult} />
             )}
           </CardContent>
         </Card>
 
-        <div className="flex items-center justify-between">
-          <Button
-            variant="outline"
-            onClick={() => setCurrentStep((s) => Math.max(1, s - 1))}
-            disabled={currentStep === 1 || submitting}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {t('wizard.action.previous')}
-          </Button>
+        {!isFinished && (
+          <div className="flex items-center justify-between">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentStep((s) => Math.max(1, s - 1))}
+              disabled={currentStep === 1 || submitting}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              {t('wizard.action.previous')}
+            </Button>
 
-          {currentStep < 3 ? (
+            {currentStep < 3 ? (
+              <Button
+                variant="primary"
+                onClick={() => setCurrentStep((s) => s + 1)}
+                disabled={
+                  (currentStep === 1 && !canProceedStep1) ||
+                  (currentStep === 2 && !canProceedStep2)
+                }
+              >
+                {t('wizard.action.next')}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            ) : (
+              <Button variant="primary" onClick={handleSubmit} loading={submitting}>
+                <Check className="mr-2 h-4 w-4" />
+                {t('wizard.action.finish')}
+              </Button>
+            )}
+          </div>
+        )}
+
+        {isFinished && (
+          <div className="flex justify-end">
             <Button
               variant="primary"
-              onClick={() => setCurrentStep((s) => s + 1)}
-              disabled={
-                (currentStep === 1 && !canProceedStep1) ||
-                (currentStep === 2 && !canProceedStep2)
-              }
+              onClick={() => navigate(`/management/clients/${onboardResult.companyId}`)}
             >
-              {t('wizard.action.next')}
+              Ver cliente
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-          ) : (
-            <Button variant="primary" onClick={handleSubmit} loading={submitting}>
-              <Check className="mr-2 h-4 w-4" />
-              {t('wizard.action.finish')}
-            </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </PageLayout>
   );
