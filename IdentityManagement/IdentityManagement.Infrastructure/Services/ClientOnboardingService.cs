@@ -1,14 +1,18 @@
 using Archon.Core.ValueObjects;
+using Archon.Infrastructure.RestApi;
 using IdentityManagement.Application.Requests.Clients;
 using IdentityManagement.Application.Requests.Contracts;
+using IdentityManagement.Application.Requests.Tenants;
 using IdentityManagement.Application.Responses.Clients;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
+using IdentityManagement.Domain.ValueObjects;
 using IdentityManagement.Infrastructure.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
+using Rest = Archon.Infrastructure.RestApi.RestApi;
 
 namespace IdentityManagement.Infrastructure.Services
 {
@@ -20,6 +24,7 @@ namespace IdentityManagement.Infrastructure.Services
         private readonly IContractService contractService;
         private readonly ITenantProvisioner provisioner;
         private readonly IEmailSender emailSender;
+        private readonly Rest restApi;
         private readonly ILogger<ClientOnboardingService> logger;
 
         public ClientOnboardingService(
@@ -27,12 +32,14 @@ namespace IdentityManagement.Infrastructure.Services
             IContractService contractService,
             ITenantProvisioner provisioner,
             IEmailSender emailSender,
+            Rest restApi,
             ILogger<ClientOnboardingService> logger)
         {
             this.dbContext = dbContext;
             this.contractService = contractService;
             this.provisioner = provisioner;
             this.emailSender = emailSender;
+            this.restApi = restApi;
             this.logger = logger;
         }
 
@@ -44,6 +51,8 @@ namespace IdentityManagement.Infrastructure.Services
             List<long> contractIds = new();
             List<string> systemNames = new();
             List<string> createdDatabases = new();
+            List<long> contractedSystemApplicationIds = new();
+            Dictionary<string, string> apiKeyByAudience = new();
 
             Company company = new Company(request.LegalName, request.TradeName, request.Document, request.Email, request.PhoneNumber ?? string.Empty);
             string setupLink = string.Empty;
@@ -90,6 +99,8 @@ namespace IdentityManagement.Infrastructure.Services
                     plannedDatabases.Add(dbName);
                     contractIds.Add(contract.Id);
                     systemNames.Add(systemApp.Name);
+                    contractedSystemApplicationIds.Add(systemApp.Id);
+                    apiKeyByAudience[systemApp.Audience] = apiKey;
                 }
 
                 string token = GenerateOpaqueToken();
@@ -125,14 +136,165 @@ namespace IdentityManagement.Infrastructure.Services
                 throw;
             }
 
+            List<SystemBootstrapResult> bootstrapResults = await BootstrapContractedSystemsAsync(contractedSystemApplicationIds, apiKeyByAudience, ct);
+
             await emailSender.SendClientAdminInvitationEmailAsync(company.Email, company.LegalName, systemNames, setupLink, ct);
 
             return new OnboardClientResponse
             {
                 CompanyId = company.Id,
                 ContractIds = contractIds.ToArray(),
-                DatabaseNames = plannedDatabases.ToArray()
+                DatabaseNames = plannedDatabases.ToArray(),
+                BootstrapResults = bootstrapResults
             };
+        }
+
+        private async Task<List<SystemBootstrapResult>> BootstrapContractedSystemsAsync(
+            IReadOnlyCollection<long> systemApplicationIds,
+            IReadOnlyDictionary<string, string> apiKeyByAudience,
+            CancellationToken ct)
+        {
+            List<SystemBootstrapResult> results = new();
+
+            List<SystemApplication> systemApplications = await dbContext.Set<SystemApplication>()
+                .AsNoTracking()
+                .Include(application => application.Integrations)
+                    .ThenInclude(integration => integration.Parameters)
+                .Where(application => systemApplicationIds.Contains(application.Id))
+                .ToListAsync(ct);
+
+            foreach (SystemApplication systemApp in systemApplications)
+            {
+                SystemBootstrapResult result = new SystemBootstrapResult
+                {
+                    Audience = systemApp.Audience,
+                    SystemName = systemApp.Name
+                };
+
+                List<SystemIntegration> activeIntegrations = systemApp.Integrations
+                    .Where(integration => integration.IsActive)
+                    .ToList();
+
+                if (string.IsNullOrWhiteSpace(systemApp.BaseUrl) || activeIntegrations.Count == 0)
+                {
+                    logger.LogWarning(
+                        "Skipping tenant bootstrap for system '{System}' (audience '{Audience}'): blueprint not configured (baseUrl empty or no active integrations).",
+                        systemApp.Name,
+                        systemApp.Audience);
+
+                    result.Skipped = true;
+                    result.Detail = "blueprint.notConfigured";
+                    results.Add(result);
+                    continue;
+                }
+
+                if (!apiKeyByAudience.TryGetValue(systemApp.Audience, out string? systemApiKey))
+                {
+                    logger.LogWarning(
+                        "Skipping tenant bootstrap for system '{System}' (audience '{Audience}'): no provisioned apiKey for this tenant.",
+                        systemApp.Name,
+                        systemApp.Audience);
+
+                    result.Skipped = true;
+                    result.Detail = "apiKey.notProvisioned";
+                    results.Add(result);
+                    continue;
+                }
+
+                TenantBootstrapRequest body = BuildBootstrapRequest(activeIntegrations, apiKeyByAudience);
+                string url = $"{systemApp.BaseUrl!.TrimEnd('/')}/api/tenants/bootstrap";
+
+                try
+                {
+                    RestResponse<object> resp = await restApi.Fetch<object>(
+                        RestRequest.Post(url, body).WithHeader("X-Api-Key", systemApiKey),
+                        ct);
+
+                    if (resp.Ok)
+                    {
+                        result.Success = true;
+                    }
+                    else
+                    {
+                        result.Success = false;
+                        result.Detail = $"status {resp.Status}: {string.Join("; ", resp.Errors)}";
+                        logger.LogError(
+                            "Tenant bootstrap failed for system '{System}' (audience '{Audience}') at {Url}: status {Status} {Errors}.",
+                            systemApp.Name,
+                            systemApp.Audience,
+                            url,
+                            resp.Status,
+                            string.Join("; ", resp.Errors));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    result.Success = false;
+                    result.Detail = ex.Message;
+                    logger.LogError(
+                        ex,
+                        "Tenant bootstrap threw for system '{System}' (audience '{Audience}') at {Url}.",
+                        systemApp.Name,
+                        systemApp.Audience,
+                        url);
+                }
+
+                results.Add(result);
+            }
+
+            return results;
+        }
+
+        private TenantBootstrapRequest BuildBootstrapRequest(
+            IEnumerable<SystemIntegration> activeIntegrations,
+            IReadOnlyDictionary<string, string> apiKeyByAudience)
+        {
+            TenantBootstrapRequest request = new TenantBootstrapRequest();
+
+            foreach (SystemIntegration integration in activeIntegrations)
+            {
+                TenantBootstrapIntegration target = new TenantBootstrapIntegration
+                {
+                    Name = integration.Name,
+                    BaseUrl = integration.BaseUrl
+                };
+
+                foreach (SystemIntegrationParameter parameter in integration.Parameters)
+                {
+                    string? resolvedValue;
+
+                    if (parameter.ValueSource == SystemIntegrationParameterSource.TenantApiKey)
+                    {
+                        if (string.IsNullOrWhiteSpace(parameter.SourceAudience)
+                            || !apiKeyByAudience.TryGetValue(parameter.SourceAudience, out string? sourceApiKey))
+                        {
+                            logger.LogWarning(
+                                "Skipping bootstrap parameter '{Key}' of integration '{Integration}': source audience '{SourceAudience}' was not provisioned for this tenant.",
+                                parameter.Key,
+                                integration.Name,
+                                parameter.SourceAudience);
+                            continue;
+                        }
+
+                        resolvedValue = sourceApiKey;
+                    }
+                    else
+                    {
+                        resolvedValue = parameter.Value;
+                    }
+
+                    target.Parameters.Add(new TenantBootstrapParameter
+                    {
+                        Key = parameter.Key,
+                        Value = resolvedValue,
+                        IsSecret = parameter.IsSecret
+                    });
+                }
+
+                request.Integrations.Add(target);
+            }
+
+            return request;
         }
 
         private static string GenerateOpaqueToken()

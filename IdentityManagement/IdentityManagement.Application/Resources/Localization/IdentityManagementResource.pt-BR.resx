@@ -69,6 +69,18 @@
   <data name="systemApplication.notFound" xml:space="preserve">
     <value>Aplicação do sistema não encontrada.</value>
   </data>
+  <data name="systemIntegration.created" xml:space="preserve">
+    <value>Integração do sistema criada com sucesso.</value>
+  </data>
+  <data name="systemIntegration.updated" xml:space="preserve">
+    <value>Integração do sistema atualizada com sucesso.</value>
+  </data>
+  <data name="systemIntegration.deleted" xml:space="preserve">
+    <value>Integração do sistema removida com sucesso.</value>
+  </data>
+  <data name="systemIntegration.notFound" xml:space="preserve">
+    <value>Integração do sistema não encontrada.</value>
+  </data>
   <data name="systemApplication.notFoundOrInactive" xml:space="preserve">
     <value>Aplicação do sistema não encontrada ou inativa.</value>
   </data>

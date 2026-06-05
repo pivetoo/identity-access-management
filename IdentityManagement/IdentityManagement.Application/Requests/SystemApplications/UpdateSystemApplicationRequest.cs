@@ -22,5 +22,8 @@ namespace IdentityManagement.Application.Requests.SystemApplications
         public bool IsActive { get; set; }
 
         public ApplicationType Type { get; set; } = ApplicationType.External;
+
+        [StringLength(2000)]
+        public string? BaseUrl { get; set; }
     }
 }

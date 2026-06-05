@@ -57,6 +57,8 @@ namespace IdentityManagement.IntegrationTests
             services.AddLocalization();
             // Roda as migrations contra o container e registra persistencia + servicos reais.
             services.AddIdentityManagementInfrastructure(configuration);
+            // RestApi e injetado por ClientOnboardingService; registrar o typed HttpClient igual ao Archon faz em prod.
+            services.AddHttpClient<Archon.Infrastructure.RestApi.RestApi>();
             // Substitui o ResendEmailSender real por um no-op para evitar chamadas externas em testes.
             services.AddScoped<IEmailSender, NoOpEmailSender>();
 

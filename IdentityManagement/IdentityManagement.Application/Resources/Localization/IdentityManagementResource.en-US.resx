@@ -31,6 +31,10 @@
   <data name="systemApplication.created" xml:space="preserve"><value>System application created successfully.</value></data>
   <data name="systemApplication.updated" xml:space="preserve"><value>System application updated successfully.</value></data>
   <data name="systemApplication.notFound" xml:space="preserve"><value>System application not found.</value></data>
+  <data name="systemIntegration.created" xml:space="preserve"><value>System integration created successfully.</value></data>
+  <data name="systemIntegration.updated" xml:space="preserve"><value>System integration updated successfully.</value></data>
+  <data name="systemIntegration.deleted" xml:space="preserve"><value>System integration deleted successfully.</value></data>
+  <data name="systemIntegration.notFound" xml:space="preserve"><value>System integration not found.</value></data>
   <data name="systemApplication.notFoundOrInactive" xml:space="preserve"><value>System application not found or inactive.</value></data>
   <data name="systemApplication.name.alreadyExists" xml:space="preserve"><value>A system application with this name already exists.</value></data>
   <data name="systemApplication.audience.alreadyExists" xml:space="preserve"><value>A system application with this audience already exists.</value></data>

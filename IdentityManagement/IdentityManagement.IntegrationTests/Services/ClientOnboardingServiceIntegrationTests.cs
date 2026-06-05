@@ -1,3 +1,4 @@
+using Archon.Infrastructure.RestApi;
 using IdentityManagement.Application.Requests.Clients;
 using IdentityManagement.Application.Responses.Clients;
 using IdentityManagement.Application.Services;
@@ -86,6 +87,7 @@ namespace IdentityManagement.IntegrationTests.Services
                     contractService,
                     provisioner,
                     new NoOpEmailSender(),
+                    new RestApi(new HttpClient()),
                     NullLogger<ClientOnboardingService>.Instance);
 
                 OnboardClientRequest request = new OnboardClientRequest
