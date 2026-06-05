@@ -44,6 +44,11 @@ namespace IdentityManagement.Domain.Entities
                 Value = null;
                 SourceAudience = sourceAudience!.Trim();
             }
+            else if (valueSource == SystemIntegrationParameterSource.TenantId)
+            {
+                Value = null;
+                SourceAudience = null;
+            }
             else
             {
                 Value = value;
