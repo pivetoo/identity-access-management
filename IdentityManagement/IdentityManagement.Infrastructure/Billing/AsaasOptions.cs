@@ -1,6 +1,5 @@
 namespace IdentityManagement.Infrastructure.Billing
 {
-    // Configuracao do gateway Asaas, vinculada a secao "Asaas" da configuracao.
     public sealed class AsaasOptions
     {
         public const string SectionName = "Asaas";

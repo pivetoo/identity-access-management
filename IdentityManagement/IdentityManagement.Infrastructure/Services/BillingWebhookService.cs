@@ -7,8 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace IdentityManagement.Infrastructure.Services
 {
-    // Processa eventos de cobranca do Asaas e aplica as transicoes na Subscription.
-    // Usa o DbContext cru (orquestracao multi-passo: dedupe + transicao + persistencia).
+    // Usa DbContext direto (multi-passo: dedupe + transicao + persistencia em sequencia).
     public sealed class BillingWebhookService : IBillingWebhookService
     {
         private readonly DbContext dbContext;

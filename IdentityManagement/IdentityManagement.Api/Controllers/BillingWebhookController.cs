@@ -9,7 +9,6 @@ using Microsoft.Extensions.Options;
 
 namespace IdentityManagement.Api.Controllers
 {
-    // Rota customizada para obter POST /api/billing/webhook sem depender do nome do controller.
     [Route("api/billing")]
     public sealed class BillingWebhookController : ApiControllerBase
     {
@@ -24,13 +23,11 @@ namespace IdentityManagement.Api.Controllers
             this.options = options.Value;
         }
 
-        // Recebe eventos de cobranca do Asaas (pago/falhou/estornado) que disparam as transicoes da Subscription.
         [AllowAnonymous]
         [PostEndpoint("webhook")]
         public async Task<IActionResult> Receive([FromBody] AsaasWebhookPayload payload, CancellationToken cancellationToken)
         {
-            // Validacao do token: o Asaas devolve o authToken configurado no header asaas-access-token.
-            // Se o token configurado estiver vazio, pula a validacao (conveniencia de dev) mas ainda processa.
+            // Token vazio = pula validacao (conveniencia de dev).
             if (!string.IsNullOrEmpty(options.WebhookToken))
             {
                 string receivedToken = Request.Headers[AsaasAccessTokenHeader].ToString();

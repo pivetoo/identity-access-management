@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using Archon.Infrastructure.RestApi;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
@@ -10,8 +9,6 @@ using Rest = Archon.Infrastructure.RestApi.RestApi;
 
 namespace IdentityManagement.Infrastructure.Services
 {
-    // Implementacao real do gateway de cobranca usando a API do Asaas.
-    // Usa o RestApi do Archon para transporte HTTP padronizado.
     public sealed class AsaasBillingGateway : IBillingGateway
     {
         private readonly Rest restApi;
@@ -134,49 +131,37 @@ namespace IdentityManagement.Infrastructure.Services
 
         private sealed class AsaasCustomerRequest
         {
-            [JsonPropertyName("name")]
             public string Name { get; set; } = string.Empty;
 
-            [JsonPropertyName("cpfCnpj")]
             public string CpfCnpj { get; set; } = string.Empty;
 
-            [JsonPropertyName("email")]
             public string Email { get; set; } = string.Empty;
 
-            [JsonPropertyName("mobilePhone")]
             public string? MobilePhone { get; set; }
         }
 
         private sealed class AsaasCustomerResponse
         {
-            [JsonPropertyName("id")]
             public string? Id { get; set; }
         }
 
         private sealed class AsaasSubscriptionRequest
         {
-            [JsonPropertyName("customer")]
             public string? Customer { get; set; }
 
-            [JsonPropertyName("billingType")]
             public string BillingType { get; set; } = string.Empty;
 
-            [JsonPropertyName("value")]
             public decimal Value { get; set; }
 
-            [JsonPropertyName("cycle")]
             public string Cycle { get; set; } = string.Empty;
 
-            [JsonPropertyName("nextDueDate")]
             public string NextDueDate { get; set; } = string.Empty;
 
-            [JsonPropertyName("description")]
             public string Description { get; set; } = string.Empty;
         }
 
         private sealed class AsaasSubscriptionResponse
         {
-            [JsonPropertyName("id")]
             public string? Id { get; set; }
         }
     }
