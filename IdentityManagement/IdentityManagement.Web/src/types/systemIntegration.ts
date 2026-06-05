@@ -1,6 +1,7 @@
 export const SystemIntegrationParameterSource = {
   Static: 0,
   TenantApiKey: 1,
+  TenantId: 2,
 } as const
 
 export type SystemIntegrationParameterSource = (typeof SystemIntegrationParameterSource)[keyof typeof SystemIntegrationParameterSource]

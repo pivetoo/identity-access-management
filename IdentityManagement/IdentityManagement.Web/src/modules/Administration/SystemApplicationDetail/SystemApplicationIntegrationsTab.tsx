@@ -13,10 +13,10 @@ interface SystemApplicationIntegrationsTabProps {
 
 const emptyParameter = (): SystemIntegrationParameter => ({
   key: '',
-  value: '',
+  value: null,
   isSecret: false,
   valueSource: SystemIntegrationParameterSource.Static,
-  sourceAudience: '',
+  sourceAudience: null,
 })
 
 const emptyForm = (systemApplicationId: number): UpsertSystemIntegrationRequest => ({
@@ -41,7 +41,7 @@ function ParameterEditor({ params, onChange }: ParameterEditorProps) {
         return p
       }
       if (field === 'valueSource') {
-        return { ...p, valueSource: value as SystemIntegrationParameterSource, value: '', sourceAudience: '' }
+        return { ...p, valueSource: value as SystemIntegrationParameterSource, value: null, sourceAudience: null }
       }
       return { ...p, [field]: value }
     })
@@ -97,6 +97,7 @@ function ParameterEditor({ params, onChange }: ParameterEditorProps) {
                   <SelectContent>
                     <SelectItem value={SystemIntegrationParameterSource.Static.toString()}>Valor fixo</SelectItem>
                     <SelectItem value={SystemIntegrationParameterSource.TenantApiKey.toString()}>Secret do tenant</SelectItem>
+                    <SelectItem value={SystemIntegrationParameterSource.TenantId.toString()}>TenantId do tenant</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -111,7 +112,7 @@ function ParameterEditor({ params, onChange }: ParameterEditorProps) {
             </button>
           </div>
 
-          {param.valueSource === SystemIntegrationParameterSource.Static ? (
+          {param.valueSource === SystemIntegrationParameterSource.Static && (
             <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <label className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Valor</label>
@@ -134,7 +135,9 @@ function ParameterEditor({ params, onChange }: ParameterEditorProps) {
                 placeholder={param.isSecret ? 'Deixe em branco para manter o valor atual' : 'Valor do parametro'}
               />
             </div>
-          ) : (
+          )}
+
+          {param.valueSource === SystemIntegrationParameterSource.TenantApiKey && (
             <div className="space-y-1">
               <label className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Sistema de referencia (audience)</label>
               <Input
@@ -145,6 +148,14 @@ function ParameterEditor({ params, onChange }: ParameterEditorProps) {
               />
               <p className="text-[11px] text-muted-foreground">
                 No provisionamento de cada tenant, o apiKey gerado para o sistema informado sera injetado automaticamente neste parametro — sem necessidade de digitar um valor.
+              </p>
+            </div>
+          )}
+
+          {param.valueSource === SystemIntegrationParameterSource.TenantId && (
+            <div className="rounded-md bg-muted/40 px-3 py-2">
+              <p className="text-[11px] text-muted-foreground">
+                O identificador do tenant (<span className="font-mono">Company.TenantId</span>) sera injetado automaticamente no provisionamento — nenhum valor precisa ser informado aqui.
               </p>
             </div>
           )}
@@ -398,10 +409,13 @@ export default function SystemApplicationIntegrationsTab({ systemApplicationId, 
                       </p>
                       <div className="flex flex-wrap gap-1">
                         {integration.parameters.map((param, idx) => (
-                          <Badge key={idx} variant={param.valueSource === SystemIntegrationParameterSource.TenantApiKey ? 'info' : 'outline'} className="text-[10px] font-mono">
+                          <Badge key={idx} variant={param.valueSource === SystemIntegrationParameterSource.TenantApiKey ? 'info' : param.valueSource === SystemIntegrationParameterSource.TenantId ? 'info' : 'outline'} className="text-[10px] font-mono">
                             {param.key}
                             {param.valueSource === SystemIntegrationParameterSource.TenantApiKey && (
-                              <span className="ml-1 font-sans opacity-70">tenant</span>
+                              <span className="ml-1 font-sans opacity-70">tenant-key</span>
+                            )}
+                            {param.valueSource === SystemIntegrationParameterSource.TenantId && (
+                              <span className="ml-1 font-sans opacity-70">tenant-id</span>
                             )}
                             {param.isSecret && param.valueSource === SystemIntegrationParameterSource.Static && (
                               <span className="ml-1 font-sans opacity-70">secret</span>

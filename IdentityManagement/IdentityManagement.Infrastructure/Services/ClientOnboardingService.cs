@@ -136,7 +136,7 @@ namespace IdentityManagement.Infrastructure.Services
                 throw;
             }
 
-            List<SystemBootstrapResult> bootstrapResults = await BootstrapContractedSystemsAsync(contractedSystemApplicationIds, apiKeyByAudience, ct);
+            List<SystemBootstrapResult> bootstrapResults = await BootstrapContractedSystemsAsync(contractedSystemApplicationIds, apiKeyByAudience, company, ct);
 
             await emailSender.SendClientAdminInvitationEmailAsync(company.Email, company.LegalName, systemNames, setupLink, ct);
 
@@ -152,6 +152,7 @@ namespace IdentityManagement.Infrastructure.Services
         private async Task<List<SystemBootstrapResult>> BootstrapContractedSystemsAsync(
             IReadOnlyCollection<long> systemApplicationIds,
             IReadOnlyDictionary<string, string> apiKeyByAudience,
+            Company company,
             CancellationToken ct)
         {
             List<SystemBootstrapResult> results = new();
@@ -201,7 +202,7 @@ namespace IdentityManagement.Infrastructure.Services
                     continue;
                 }
 
-                TenantBootstrapRequest body = BuildBootstrapRequest(activeIntegrations, apiKeyByAudience);
+                TenantBootstrapRequest body = BuildBootstrapRequest(activeIntegrations, apiKeyByAudience, company);
                 string url = $"{systemApp.BaseUrl!.TrimEnd('/')}/api/tenants/bootstrap";
 
                 try
@@ -247,7 +248,8 @@ namespace IdentityManagement.Infrastructure.Services
 
         private TenantBootstrapRequest BuildBootstrapRequest(
             IEnumerable<SystemIntegration> activeIntegrations,
-            IReadOnlyDictionary<string, string> apiKeyByAudience)
+            IReadOnlyDictionary<string, string> apiKeyByAudience,
+            Company company)
         {
             TenantBootstrapRequest request = new TenantBootstrapRequest();
 
@@ -277,6 +279,10 @@ namespace IdentityManagement.Infrastructure.Services
                         }
 
                         resolvedValue = sourceApiKey;
+                    }
+                    else if (parameter.ValueSource == SystemIntegrationParameterSource.TenantId)
+                    {
+                        resolvedValue = company.TenantId.ToString();
                     }
                     else
                     {
