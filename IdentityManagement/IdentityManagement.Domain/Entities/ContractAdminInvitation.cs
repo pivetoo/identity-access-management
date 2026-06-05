@@ -6,6 +6,8 @@ namespace IdentityManagement.Domain.Entities
     {
         public long ContractId { get; private set; }
 
+        public long? CompanyId { get; private set; }
+
         public string Token { get; private set; } = string.Empty;
 
         public DateTimeOffset ExpiresAt { get; private set; }
@@ -25,6 +27,13 @@ namespace IdentityManagement.Domain.Entities
         public ContractAdminInvitation(long contractId, string token, DateTimeOffset expiresAt)
         {
             ContractId = contractId;
+            Token = token;
+            ExpiresAt = expiresAt;
+        }
+
+        public ContractAdminInvitation(long companyId, string token, DateTimeOffset expiresAt, bool companyScoped)
+        {
+            CompanyId = companyId;
             Token = token;
             ExpiresAt = expiresAt;
         }

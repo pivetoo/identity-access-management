@@ -14,6 +14,10 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
                 .IsRequired()
                 .HasMaxLength(64);
 
+            builder.Property(e => e.CompanyId)
+                .HasColumnName("companyid")
+                .IsRequired(false);
+
             builder.HasOne(e => e.Contract)
                 .WithMany()
                 .HasForeignKey(e => e.ContractId);
