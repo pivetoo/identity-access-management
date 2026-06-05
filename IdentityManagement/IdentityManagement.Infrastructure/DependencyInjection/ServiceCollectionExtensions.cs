@@ -3,6 +3,7 @@ using Archon.Infrastructure.DependencyInjection;
 using Archon.Infrastructure.Migrations;
 using Archon.Infrastructure.MultiTenancy;
 using IdentityManagement.Application.Services;
+using IdentityManagement.Infrastructure.Billing;
 using IdentityManagement.Infrastructure.MultiTenancy;
 using IdentityManagement.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
@@ -27,8 +28,19 @@ namespace IdentityManagement.Infrastructure.DependencyInjection
                 typeof(ServiceCollectionExtensions).Assembly);
             services.AddServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
 
-            // Registro manual: o gateway nao e auto-descoberto porque o nome nao termina em "Service".
-            services.AddScoped<IBillingGateway, NoopBillingGateway>();
+            // Gateway de cobranca: usa o Asaas quando ha ApiKey configurada; senao mantem o no-op.
+            // Registro manual porque o nome nao termina em "Service" (nao e auto-descoberto).
+            services.Configure<AsaasOptions>(configuration.GetSection(AsaasOptions.SectionName));
+
+            string asaasApiKey = configuration[$"{AsaasOptions.SectionName}:ApiKey"] ?? string.Empty;
+            if (!string.IsNullOrWhiteSpace(asaasApiKey))
+            {
+                services.AddScoped<IBillingGateway, AsaasBillingGateway>();
+            }
+            else
+            {
+                services.AddScoped<IBillingGateway, NoopBillingGateway>();
+            }
 
             string selfConnectionString = configuration[FixedTenantConnectionStringKey]
                 ?? throw new InvalidOperationException($"Configuração obrigatória ausente: {FixedTenantConnectionStringKey}.");
