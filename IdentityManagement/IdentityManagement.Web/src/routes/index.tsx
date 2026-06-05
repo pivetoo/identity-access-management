@@ -11,6 +11,7 @@ import NewClientWizard from '../modules/Administration/NewClientWizard';
 import Contracts from '../modules/Administration/Contracts';
 import Tenants from '../modules/Administration/Tenants';
 import SystemApplications from '../modules/Administration/SystemApplications';
+import SystemApplicationDetail from '../modules/Administration/SystemApplicationDetail';
 import OAuthClients from '../modules/Administration/OAuthClients';
 import Roles from '../modules/Administration/Roles';
 import SystemRoleTemplates from '../modules/Administration/SystemRoleTemplates';
@@ -120,6 +121,7 @@ function AppRoutes() {
           <Route path="contracts" element={<Contracts />} />
           <Route path="tenants" element={<Tenants />} />
           <Route path="system-applications" element={<SystemApplications />} />
+          <Route path="system-applications/:id" element={<SystemApplicationDetail />} />
           <Route path="oauth-clients" element={<OAuthClients />} />
           <Route path="system-role-templates" element={<SystemRoleTemplates />} />
           <Route path="roles" element={<Roles />} />

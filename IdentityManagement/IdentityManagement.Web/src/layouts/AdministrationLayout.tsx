@@ -79,9 +79,20 @@ export default function AdministrationLayout() {
       '/management/system-role-templates': t('layout.menu.systemRoleTemplates'),
     };
 
+    const systemAppDetailMatch = matchPath({ path: '/management/system-applications/:id', end: true }, path);
+
     const staticLabel = staticMap[path];
     if (staticLabel && staticLabel !== t('layout.menu.dashboard')) {
       crumbs.push({ label: staticLabel });
+      return crumbs;
+    }
+
+    if (systemAppDetailMatch) {
+      crumbs.push({
+        label: t('layout.menu.systemApplications'),
+        onClick: () => navigate('/management/system-applications'),
+      });
+      crumbs.push({ label: 'Detalhes' });
       return crumbs;
     }
 

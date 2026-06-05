@@ -6,6 +6,7 @@ export interface SystemApplication {
   audience: string
   type?: number | string
   catalogApiKey?: string
+  baseUrl?: string
   createdAt?: string
   updatedAt?: string
 }
@@ -15,6 +16,7 @@ export interface CreateSystemApplicationRequest {
   description?: string
   audience: string
   type?: number | string
+  baseUrl?: string
 }
 
 export interface UpdateSystemApplicationRequest {
@@ -24,4 +26,5 @@ export interface UpdateSystemApplicationRequest {
   isActive: boolean
   audience: string
   type?: number | string
+  baseUrl?: string
 }

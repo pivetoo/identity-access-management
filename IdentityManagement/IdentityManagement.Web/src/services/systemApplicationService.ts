@@ -34,6 +34,7 @@ export class SystemApplicationService {
       description: sistema.description ?? '',
       audience: sistema.audience,
       type: sistema.type ?? 2,
+      baseUrl: sistema.baseUrl ?? '',
     })
 
     if (!response.data) {
@@ -51,6 +52,7 @@ export class SystemApplicationService {
       audience: sistema.audience,
       isActive: sistema.isActive,
       type: sistema.type ?? 2,
+      baseUrl: sistema.baseUrl ?? '',
     })
 
     if (!response.data) {

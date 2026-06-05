@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Check, Copy, Eye, EyeOff } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Check, ChevronRight, Copy, Eye, EyeOff } from 'lucide-react';
 import { PageLayout, DataTable, Badge, ConfirmModal, FilterPanel, TableToolbar, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, toast, useApi, useI18n } from 'archon-ui';
 import type { DataTableColumn, FilterSection, PaginatedResult } from 'archon-ui';
 import { SystemApplicationService } from '../../../services/systemApplicationService';
@@ -8,6 +9,7 @@ import SystemApplicationFormModal from '../../../components/modals/SystemApplica
 
 export default function SystemApplications() {
   const { t } = useI18n();
+  const navigate = useNavigate();
   const [sistemas, setSistemas] = useState<SystemApplication[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -149,11 +151,11 @@ export default function SystemApplications() {
       sortable: true,
     },
     {
-      key: 'description',
-      title: t('common.field.description'),
-      dataIndex: 'description',
-      hiddenBelow: 'md',
-      render: (value: string) => value || t('common.value.notAvailable'),
+      key: 'baseUrl',
+      title: t('systemApplication.field.baseUrl'),
+      dataIndex: 'baseUrl',
+      hiddenBelow: 'lg',
+      render: (value: string) => value || '-',
     },
     {
       key: 'audience',
@@ -169,6 +171,24 @@ export default function SystemApplications() {
         <Badge variant={value ? 'success' : 'destructive'}>
           {value ? t('common.status.active') : t('common.status.inactive')}
         </Badge>
+      ),
+    },
+    {
+      key: 'actions',
+      title: '',
+      dataIndex: 'id',
+      render: (_value, record) => (
+        <button
+          type="button"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/management/system-applications/${record.id}`);
+          }}
+        >
+          Detalhes
+          <ChevronRight className="h-3.5 w-3.5" />
+        </button>
       ),
     },
   ];
@@ -200,7 +220,7 @@ export default function SystemApplications() {
           selectable
           selectedRows={selectedSistema ? [selectedSistema] : []}
           onSelectionChange={(rows) => setSelectedSistema(rows[0] ?? null)}
-          onRowDoubleClick={setPreviewSistema}
+          onRowDoubleClick={(record) => navigate(`/management/system-applications/${record.id}`)}
           emptyText={t('common.state.empty')}
           pageSize={pageSize}
           pageSizeOptions={[10, 20, 50]}

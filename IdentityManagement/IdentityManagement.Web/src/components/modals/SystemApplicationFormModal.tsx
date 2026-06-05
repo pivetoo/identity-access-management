@@ -22,7 +22,8 @@ export default function SystemApplicationFormModal({
     name: '',
     description: '',
     isActive: true,
-    audience: ''
+    audience: '',
+    baseUrl: '',
   });
 
   const saveSistemaApi = useApi({
@@ -55,14 +56,16 @@ export default function SystemApplicationFormModal({
           name: sistema.name,
           description: sistema.description || '',
           isActive: sistema.isActive,
-          audience: sistema.audience
+          audience: sistema.audience,
+          baseUrl: sistema.baseUrl || '',
         });
       } else {
         setFormData({
           name: '',
           description: '',
           isActive: true,
-          audience: ''
+          audience: '',
+          baseUrl: '',
         });
       }
     }
@@ -79,14 +82,19 @@ export default function SystemApplicationFormModal({
     if (sistema) {
       const updateData: UpdateSystemApplicationRequest = {
         id: sistema.id,
-        ...formData
+        name: formData.name,
+        description: formData.description,
+        isActive: formData.isActive,
+        audience: formData.audience,
+        baseUrl: formData.baseUrl,
       };
       await saveSistemaApi.execute(() => SystemApplicationService.update(sistema.id, updateData));
     } else {
       const createData: CreateSystemApplicationRequest = {
         name: formData.name,
         description: formData.description,
-        audience: formData.audience
+        audience: formData.audience,
+        baseUrl: formData.baseUrl,
       };
       await saveSistemaApi.execute(() => SystemApplicationService.create(createData));
     }
@@ -125,6 +133,17 @@ export default function SystemApplicationFormModal({
                 helperText={getError('audience')}
               />
             </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium">{t('systemApplication.field.baseUrl')}</label>
+            <Input
+              value={formData.baseUrl}
+              onChange={(e) => handleInputChange('baseUrl', e.target.value)}
+              placeholder="https://exemplo.mainstay.com.br"
+              error={!!getError('baseUrl')}
+              helperText={getError('baseUrl')}
+            />
           </div>
 
           <div className="flex flex-col gap-2">
