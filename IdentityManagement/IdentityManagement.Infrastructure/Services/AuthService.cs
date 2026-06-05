@@ -128,11 +128,42 @@ namespace IdentityManagement.Infrastructure.Services
                 return null;
             }
 
+            if (invitation.CompanyId.HasValue)
+            {
+                Company? company = await dbContext.Set<Company>()
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(c => c.Id == invitation.CompanyId.Value, cancellationToken);
+
+                if (company is null)
+                {
+                    return null;
+                }
+
+                List<Contract> activeContracts = await dbContext.Set<Contract>()
+                    .AsNoTracking()
+                    .Include(c => c.SystemApplication)
+                    .Where(c => c.CompanyId == invitation.CompanyId.Value && c.IsActive)
+                    .ToListAsync(cancellationToken);
+
+                string[] systemApplicationNames = activeContracts
+                    .Select(c => c.SystemApplication.Name)
+                    .ToArray();
+
+                return new AdminInvitationInfoResponse
+                {
+                    CompanyName = company.LegalName,
+                    CompanyEmail = company.Email,
+                    SystemApplicationNames = systemApplicationNames,
+                    SystemApplicationName = systemApplicationNames.Length > 0 ? systemApplicationNames[0] : string.Empty
+                };
+            }
+
             return new AdminInvitationInfoResponse
             {
                 CompanyName = invitation.Contract.Company.LegalName,
                 SystemApplicationName = invitation.Contract.SystemApplication.Name,
-                CompanyEmail = invitation.Contract.Company.Email
+                CompanyEmail = invitation.Contract.Company.Email,
+                SystemApplicationNames = new[] { invitation.Contract.SystemApplication.Name }
             };
         }
 
@@ -147,33 +178,84 @@ namespace IdentityManagement.Infrastructure.Services
                 return false;
             }
 
-            Role? rootRole = await dbContext.Set<Role>()
+            if (invitation.CompanyId.HasValue)
+            {
+                List<Contract> activeContracts = await dbContext.Set<Contract>()
+                    .AsNoTracking()
+                    .Where(c => c.CompanyId == invitation.CompanyId.Value && c.IsActive)
+                    .ToListAsync(cancellationToken);
+
+                List<Role> rootRoles = new();
+                foreach (Contract contract in activeContracts)
+                {
+                    Role? rootRole = await dbContext.Set<Role>()
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(r => r.ContractId == contract.Id && r.IsRoot, cancellationToken);
+
+                    if (rootRole is not null)
+                    {
+                        rootRoles.Add(rootRole);
+                    }
+                }
+
+                if (rootRoles.Count == 0)
+                {
+                    return false;
+                }
+
+                IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+                try
+                {
+                    User user = await userService.Register(request.Username, request.Email, request.Password, request.Name, cancellationToken);
+
+                    foreach (Role rootRole in rootRoles)
+                    {
+                        UserRole userRole = new UserRole(user.Id, rootRole.Id);
+                        dbContext.Set<UserRole>().Add(userRole);
+                    }
+
+                    await dbContext.SaveChangesAsync(cancellationToken);
+
+                    invitation.MarkAsUsed(user.Id);
+                    await dbContext.SaveChangesAsync(cancellationToken);
+
+                    await transaction.CommitAsync(cancellationToken);
+                    return true;
+                }
+                catch
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    throw;
+                }
+            }
+
+            Role? legacyRootRole = await dbContext.Set<Role>()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(r => r.ContractId == invitation.ContractId && r.IsRoot, cancellationToken);
 
-            if (rootRole is null)
+            if (legacyRootRole is null)
             {
                 return false;
             }
 
-            IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+            IDbContextTransaction legacyTransaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
             try
             {
-                User user = await userService.Register(request.Username, request.Email, request.Password, request.Name, cancellationToken);
+                User legacyUser = await userService.Register(request.Username, request.Email, request.Password, request.Name, cancellationToken);
 
-                UserRole userRole = new UserRole(user.Id, rootRole.Id);
-                dbContext.Set<UserRole>().Add(userRole);
+                UserRole legacyUserRole = new UserRole(legacyUser.Id, legacyRootRole.Id);
+                dbContext.Set<UserRole>().Add(legacyUserRole);
                 await dbContext.SaveChangesAsync(cancellationToken);
 
-                invitation.MarkAsUsed(user.Id);
+                invitation.MarkAsUsed(legacyUser.Id);
                 await dbContext.SaveChangesAsync(cancellationToken);
 
-                await transaction.CommitAsync(cancellationToken);
+                await legacyTransaction.CommitAsync(cancellationToken);
                 return true;
             }
             catch
             {
-                await transaction.RollbackAsync(cancellationToken);
+                await legacyTransaction.RollbackAsync(cancellationToken);
                 throw;
             }
         }
