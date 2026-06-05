@@ -301,7 +301,7 @@ export default function SetupAdmin() {
               <div className="flex flex-col items-center py-4 gap-4">
                 <h2 className="text-2xl font-bold text-foreground">{t('authentication.setupAdmin.successTitle')}</h2>
                 <p className="text-center text-sm text-muted-foreground">{t('authentication.setupAdmin.successDescription')}</p>
-                <Button variant="primary" className="w-full mt-2" onClick={() => navigate('/')}>
+                <Button variant="primary" className="w-full mt-2" onClick={() => { window.location.href = 'https://agencias.mainstay.com.br' }}>
                   {t('authentication.login.submit')}
                 </Button>
               </div>
