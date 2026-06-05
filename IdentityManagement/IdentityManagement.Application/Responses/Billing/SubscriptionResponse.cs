@@ -25,5 +25,11 @@ namespace IdentityManagement.Application.Responses.Billing
         public DateTimeOffset? CanceledAt { get; set; }
 
         public string? ProviderName { get; set; }
+
+        public bool IsBlocked { get; set; }
+
+        public SubscriptionBlockReason BlockReason { get; set; }
+
+        public DateTimeOffset? BlockedAt { get; set; }
     }
 }

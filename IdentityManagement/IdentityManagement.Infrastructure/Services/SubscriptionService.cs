@@ -231,7 +231,10 @@ namespace IdentityManagement.Infrastructure.Services
                     CurrentPeriodStart = s.CurrentPeriodStart,
                     CurrentPeriodEnd = s.CurrentPeriodEnd,
                     CanceledAt = s.CanceledAt,
-                    ProviderName = s.ProviderName
+                    ProviderName = s.ProviderName,
+                    IsBlocked = s.IsBlocked,
+                    BlockReason = s.BlockReason,
+                    BlockedAt = s.BlockedAt
                 })
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -251,7 +254,55 @@ namespace IdentityManagement.Infrastructure.Services
                 return false;
             }
 
-            return !subscription.GrantsAccess(now);
+            return subscription.IsBlocked || !subscription.GrantsAccess(now);
+        }
+
+        // Job de dunning: bloqueia (sem inativar) assinaturas PastDue vencidas alem do periodo de tolerancia.
+        // Usa o DbContext direto (nao CrudService) por ser batch multi-registro com um unico SaveChanges.
+        public async Task<int> BlockOverduePastGraceAsync(int graceDays, DateTimeOffset now, CancellationToken cancellationToken = default)
+        {
+            List<Subscription> candidates = await DbContext.Set<Subscription>()
+                .AsTracking()
+                .Where(s => s.Status == SubscriptionStatus.PastDue && !s.IsBlocked)
+                .ToListAsync(cancellationToken);
+
+            if (candidates.Count == 0)
+            {
+                return 0;
+            }
+
+            int blocked = 0;
+
+            foreach (Subscription subscription in candidates)
+            {
+                DateTimeOffset? overdueDueDate = await DbContext.Set<Payment>()
+                    .AsNoTracking()
+                    .Where(p => p.Status == PaymentStatus.Overdue &&
+                                p.DueDate.HasValue &&
+                                (p.SubscriptionId == subscription.Id ||
+                                 (subscription.ExternalSubscriptionId != null &&
+                                  p.ExternalSubscriptionId == subscription.ExternalSubscriptionId)))
+                    .OrderByDescending(p => p.DueDate)
+                    .Select(p => p.DueDate)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                DateTimeOffset deadline = overdueDueDate.HasValue
+                    ? overdueDueDate.Value.AddDays(graceDays)
+                    : subscription.CurrentPeriodEnd.AddDays(graceDays);
+
+                if (now > deadline)
+                {
+                    subscription.Block(SubscriptionBlockReason.PaymentOverdue, now);
+                    blocked++;
+                }
+            }
+
+            if (blocked > 0)
+            {
+                await DbContext.SaveChangesAsync(cancellationToken);
+            }
+
+            return blocked;
         }
 
         private async Task<string> ResolvePlanNameAsync(long planId, CancellationToken cancellationToken)
@@ -289,7 +340,10 @@ namespace IdentityManagement.Infrastructure.Services
                 CurrentPeriodStart = subscription.CurrentPeriodStart,
                 CurrentPeriodEnd = subscription.CurrentPeriodEnd,
                 CanceledAt = subscription.CanceledAt,
-                ProviderName = subscription.ProviderName
+                ProviderName = subscription.ProviderName,
+                IsBlocked = subscription.IsBlocked,
+                BlockReason = subscription.BlockReason,
+                BlockedAt = subscription.BlockedAt
             };
         }
     }

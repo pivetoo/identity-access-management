@@ -27,6 +27,12 @@ namespace IdentityManagement.Domain.Entities
 
         public string? ProviderName { get; private set; }
 
+        public bool IsBlocked { get; private set; }
+
+        public SubscriptionBlockReason BlockReason { get; private set; } = SubscriptionBlockReason.None;
+
+        public DateTimeOffset? BlockedAt { get; private set; }
+
         public Company Company { get; private set; } = null!;
 
         public Plan Plan { get; private set; } = null!;
@@ -159,6 +165,26 @@ namespace IdentityManagement.Domain.Entities
             ProviderName = providerName;
             ExternalCustomerId = externalCustomerId;
             ExternalSubscriptionId = externalSubscriptionId;
+        }
+
+        // Bloqueio recuperavel, ortogonal ao Status (nao inativa a assinatura).
+        public void Block(SubscriptionBlockReason reason, DateTimeOffset now)
+        {
+            if (IsBlocked && BlockReason == reason)
+            {
+                return;
+            }
+
+            IsBlocked = true;
+            BlockReason = reason;
+            BlockedAt = now;
+        }
+
+        public void Unblock()
+        {
+            IsBlocked = false;
+            BlockReason = SubscriptionBlockReason.None;
+            BlockedAt = null;
         }
 
         public bool GrantsAccess(DateTimeOffset now)
