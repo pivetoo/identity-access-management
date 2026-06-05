@@ -16,5 +16,17 @@ namespace IdentityManagement.Application.Requests.Billing
         public string? Subscription { get; set; }
 
         public string Status { get; set; } = string.Empty;
+
+        public decimal? Value { get; set; }
+
+        public string? BillingType { get; set; }
+
+        public string? DueDate { get; set; }
+
+        public string? PaymentDate { get; set; }
+
+        public string? ConfirmedDate { get; set; }
+
+        public string? Customer { get; set; }
     }
 }

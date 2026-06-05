@@ -12,17 +12,32 @@ namespace IdentityManagement.Domain.Entities
 
         public DateTimeOffset ProcessedAt { get; private set; }
 
+        public string? ExternalPaymentId { get; private set; }
+
+        public string? Outcome { get; private set; }
+
+        public string? RawPayload { get; private set; }
+
         private BillingWebhookEvent()
         {
         }
 
-        public BillingWebhookEvent(string externalEventId, string eventType, DateTimeOffset processedAt)
+        public BillingWebhookEvent(
+            string externalEventId,
+            string eventType,
+            DateTimeOffset processedAt,
+            string? externalPaymentId = null,
+            string? outcome = null,
+            string? rawPayload = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(externalEventId);
 
             ExternalEventId = externalEventId.Trim();
             EventType = eventType?.Trim() ?? string.Empty;
             ProcessedAt = processedAt;
+            ExternalPaymentId = externalPaymentId?.Trim();
+            Outcome = outcome?.Trim();
+            RawPayload = rawPayload;
         }
     }
 }
