@@ -35,17 +35,7 @@ namespace IdentityManagement.Infrastructure.DependencyInjection
             string asaasApiKey = configuration[$"{AsaasOptions.SectionName}:ApiKey"] ?? string.Empty;
             if (!string.IsNullOrWhiteSpace(asaasApiKey))
             {
-                string asaasBaseUrl = configuration[$"{AsaasOptions.SectionName}:BaseUrl"] ?? string.Empty;
-                services.AddHttpClient<IBillingGateway, AsaasBillingGateway>(client =>
-                {
-                    if (!string.IsNullOrWhiteSpace(asaasBaseUrl))
-                    {
-                        client.BaseAddress = new Uri(asaasBaseUrl.EndsWith('/') ? asaasBaseUrl : asaasBaseUrl + "/");
-                    }
-
-                    client.DefaultRequestHeaders.Remove("access_token");
-                    client.DefaultRequestHeaders.Add("access_token", asaasApiKey);
-                });
+                services.AddScoped<IBillingGateway, AsaasBillingGateway>();
             }
             else
             {

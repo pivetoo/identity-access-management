@@ -1,26 +1,26 @@
-using System.Net;
-using System.Net.Http.Json;
 using System.Text.Json.Serialization;
+using Archon.Infrastructure.RestApi;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
 using IdentityManagement.Domain.ValueObjects;
 using IdentityManagement.Infrastructure.Billing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Rest = Archon.Infrastructure.RestApi.RestApi;
 
 namespace IdentityManagement.Infrastructure.Services
 {
     // Implementacao real do gateway de cobranca usando a API do Asaas.
-    // O HttpClient e configurado no DI com BaseAddress e header access_token.
+    // Usa o RestApi do Archon para transporte HTTP padronizado.
     public sealed class AsaasBillingGateway : IBillingGateway
     {
-        private readonly HttpClient httpClient;
+        private readonly Rest restApi;
         private readonly DbContext dbContext;
         private readonly AsaasOptions options;
 
-        public AsaasBillingGateway(HttpClient httpClient, DbContext dbContext, IOptions<AsaasOptions> options)
+        public AsaasBillingGateway(Rest restApi, DbContext dbContext, IOptions<AsaasOptions> options)
         {
-            this.httpClient = httpClient;
+            this.restApi = restApi;
             this.dbContext = dbContext;
             this.options = options.Value;
         }
@@ -38,7 +38,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             string name = string.IsNullOrWhiteSpace(company.TradeName) ? company.LegalName : company.TradeName;
 
-            AsaasCustomerRequest request = new AsaasCustomerRequest
+            AsaasCustomerRequest body = new AsaasCustomerRequest
             {
                 Name = name,
                 CpfCnpj = DigitsOnly(company.Document),
@@ -46,11 +46,17 @@ namespace IdentityManagement.Infrastructure.Services
                 MobilePhone = DigitsOnly(company.PhoneNumber)
             };
 
-            HttpResponseMessage response = await httpClient.PostAsJsonAsync("customers", request, ct);
-            response.EnsureSuccessStatusCode();
+            string url = $"{BaseUrl}/customers";
+            RestResponse<AsaasCustomerResponse> resp = await restApi.Fetch<AsaasCustomerResponse>(
+                RestRequest.Post(url, body).WithHeader("access_token", options.ApiKey), ct);
 
-            AsaasCustomerResponse? created = await response.Content.ReadFromJsonAsync<AsaasCustomerResponse>(ct);
-            return created?.Id;
+            if (!resp.Ok)
+            {
+                throw new InvalidOperationException(
+                    $"Asaas CreateCustomer falhou ({resp.Status}): {string.Join("; ", resp.Errors)}");
+            }
+
+            return resp.Data?.Id;
         }
 
         public async Task<GatewaySubscriptionResult?> CreateSubscriptionAsync(long companyId, long planId, string? externalCustomerId, CancellationToken ct = default)
@@ -67,7 +73,7 @@ namespace IdentityManagement.Infrastructure.Services
             string cycle = plan.BillingPeriod == BillingPeriod.Yearly ? "YEARLY" : "MONTHLY";
             string nextDueDate = DateTime.UtcNow.Date.AddDays(plan.TrialDays).ToString("yyyy-MM-dd");
 
-            AsaasSubscriptionRequest request = new AsaasSubscriptionRequest
+            AsaasSubscriptionRequest body = new AsaasSubscriptionRequest
             {
                 Customer = externalCustomerId,
                 BillingType = options.BillingType,
@@ -77,31 +83,44 @@ namespace IdentityManagement.Infrastructure.Services
                 Description = plan.Name
             };
 
-            HttpResponseMessage response = await httpClient.PostAsJsonAsync("subscriptions", request, ct);
-            response.EnsureSuccessStatusCode();
+            string url = $"{BaseUrl}/subscriptions";
+            RestResponse<AsaasSubscriptionResponse> resp = await restApi.Fetch<AsaasSubscriptionResponse>(
+                RestRequest.Post(url, body).WithHeader("access_token", options.ApiKey), ct);
 
-            AsaasSubscriptionResponse? created = await response.Content.ReadFromJsonAsync<AsaasSubscriptionResponse>(ct);
+            if (!resp.Ok)
+            {
+                throw new InvalidOperationException(
+                    $"Asaas CreateSubscription falhou ({resp.Status}): {string.Join("; ", resp.Errors)}");
+            }
 
-            if (created?.Id is null)
+            if (resp.Data?.Id is null)
             {
                 throw new InvalidOperationException("asaas.subscription.missingId");
             }
 
-            return new GatewaySubscriptionResult(created.Id, externalCustomerId);
+            return new GatewaySubscriptionResult(resp.Data.Id, externalCustomerId);
         }
 
         public async Task CancelSubscriptionAsync(string externalSubscriptionId, CancellationToken ct = default)
         {
-            HttpResponseMessage response = await httpClient.DeleteAsync($"subscriptions/{externalSubscriptionId}", ct);
+            string url = $"{BaseUrl}/subscriptions/{externalSubscriptionId}";
+            RestResponse<object> resp = await restApi.Fetch<object>(
+                RestRequest.Delete(url).WithHeader("access_token", options.ApiKey), ct);
 
             // 404 = assinatura ja removida no Asaas; tratamos como sucesso idempotente.
-            if (response.StatusCode == HttpStatusCode.NotFound)
+            if (resp.Status == 404)
             {
                 return;
             }
 
-            response.EnsureSuccessStatusCode();
+            if (!resp.Ok)
+            {
+                throw new InvalidOperationException(
+                    $"Asaas CancelSubscription falhou ({resp.Status}): {string.Join("; ", resp.Errors)}");
+            }
         }
+
+        private string BaseUrl => options.BaseUrl.TrimEnd('/');
 
         private static string DigitsOnly(string? value)
         {
