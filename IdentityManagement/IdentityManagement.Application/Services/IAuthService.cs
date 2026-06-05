@@ -20,5 +20,7 @@ namespace IdentityManagement.Application.Services
         Task<AdminInvitationInfoResponse?> ValidateAdminInvitation(string token, CancellationToken cancellationToken = default);
 
         Task<bool> SetupAdmin(SetupAdminRequest request, CancellationToken cancellationToken = default);
+
+        Task<bool> SetupAdminExistingUser(SetupAdminExistingUserRequest request, CancellationToken cancellationToken = default);
     }
 }

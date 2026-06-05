@@ -265,6 +265,88 @@ namespace IdentityManagement.Infrastructure.Services
             }
         }
 
+        public async Task<bool> SetupAdminExistingUser(SetupAdminExistingUserRequest request, CancellationToken cancellationToken = default)
+        {
+            // Verificacao inicial sem transacao: convite valido?
+            ContractAdminInvitation? invitation = await dbContext.Set<ContractAdminInvitation>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(i => i.Token == request.Token, cancellationToken);
+
+            if (invitation is null || !invitation.IsValid())
+            {
+                return false;
+            }
+
+            // Authenticate abre e faz commit de sua propria transacao interna (CrudService.Update),
+            // entao deve ser chamado ANTES de abrir a transacao principal para evitar nesting.
+            User? user = await userService.Authenticate(request.UsernameOrEmail, request.Password, cancellationToken);
+            if (user is null)
+            {
+                return false;
+            }
+
+            // Apos o Authenticate limpar o change tracker, recarregar o convite como tracked.
+            ContractAdminInvitation inv = await dbContext.Set<ContractAdminInvitation>()
+                .AsTracking()
+                .FirstAsync(i => i.Id == invitation.Id, cancellationToken);
+
+            if (!inv.IsValid())
+            {
+                return false;
+            }
+
+            // Determinar os contratos cujas root roles devem ser concedidas.
+            List<Contract> contracts;
+            if (inv.CompanyId.HasValue)
+            {
+                contracts = await dbContext.Set<Contract>()
+                    .AsNoTracking()
+                    .Where(c => c.CompanyId == inv.CompanyId.Value && c.IsActive)
+                    .ToListAsync(cancellationToken);
+            }
+            else
+            {
+                contracts = await dbContext.Set<Contract>()
+                    .AsNoTracking()
+                    .Where(c => c.Id == inv.ContractId!.Value)
+                    .ToListAsync(cancellationToken);
+            }
+
+            // Roles que o usuario ja possui (para garantir idempotencia).
+            HashSet<long> existing = (await dbContext.Set<UserRole>()
+                .AsNoTracking()
+                .Where(ur => ur.UserId == user.Id)
+                .Select(ur => ur.RoleId)
+                .ToListAsync(cancellationToken))
+                .ToHashSet();
+
+            await using IDbContextTransaction tx = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                foreach (Contract contract in contracts)
+                {
+                    Role? rootRole = await dbContext.Set<Role>()
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(r => r.ContractId == contract.Id && r.IsRoot, cancellationToken);
+
+                    if (rootRole is not null && !existing.Contains(rootRole.Id))
+                    {
+                        dbContext.Set<UserRole>().Add(new UserRole(user.Id, rootRole.Id));
+                    }
+                }
+
+                inv.MarkAsUsed(user.Id);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await tx.CommitAsync(cancellationToken);
+                return true;
+            }
+            catch
+            {
+                await tx.RollbackAsync(cancellationToken);
+                throw;
+            }
+        }
+
         private static UserResponse ToUserResponse(IdentityManagement.Domain.Entities.User user)
         {
             return new UserResponse
