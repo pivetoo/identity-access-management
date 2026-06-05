@@ -44,7 +44,14 @@ namespace IdentityManagement.Infrastructure.DependencyInjection
 
             string selfConnectionString = configuration[FixedTenantConnectionStringKey]
                 ?? throw new InvalidOperationException($"Configuração obrigatória ausente: {FixedTenantConnectionStringKey}.");
-            services.AddSingleton<ITenantProvisioner>(_ => new PostgresTenantProvisioner(selfConnectionString));
+
+            // Credenciais por sistema: cada banco de tenant e criado com OWNER da role do sistema
+            // (app_agencycampaign, app_integrationplatform) e a connection string do tenant usa essa role.
+            // A role administrativa (master) cria/dropa os bancos. Sem configuracao, cai na credencial da
+            // propria conexao do IdM (compat com dev/testes single-role).
+            TenantProvisioningOptions provisioningOptions = new();
+            configuration.GetSection(TenantProvisioningOptions.SectionName).Bind(provisioningOptions);
+            services.AddSingleton<ITenantProvisioner>(_ => new PostgresTenantProvisioner(selfConnectionString, provisioningOptions));
 
             services.AddOptions();
             services.AddHttpClient<ResendClient>();

@@ -11,37 +11,46 @@ namespace IdentityManagement.Infrastructure.Services
         private readonly string adminConnectionString;
         private readonly string host;
         private readonly int port;
-        private readonly string username;
-        private readonly string password;
+        private readonly string adminUsername;
+        private readonly string adminPassword;
+        private readonly IReadOnlyDictionary<string, DatabaseCredential> systemCredentials;
 
-        public PostgresTenantProvisioner(string selfConnectionString)
+        public PostgresTenantProvisioner(string selfConnectionString, TenantProvisioningOptions? options = null)
         {
             NpgsqlConnectionStringBuilder builder = new(selfConnectionString);
             host = builder.Host ?? "localhost";
             port = builder.Port;
-            username = builder.Username ?? string.Empty;
-            password = builder.Password ?? string.Empty;
+
+            // Credencial administrativa (CREATE/DROP DATABASE): usa a role master quando configurada;
+            // caso contrario reaproveita a credencial da propria conexao do IdM (compat com dev/testes).
+            DatabaseCredential? admin = options?.Admin;
+            bool hasAdmin = admin is not null && !string.IsNullOrWhiteSpace(admin.Username);
+            adminUsername = hasAdmin ? admin!.Username : builder.Username ?? string.Empty;
+            adminPassword = hasAdmin ? admin!.Password : builder.Password ?? string.Empty;
+
+            systemCredentials = NormalizeCredentials(options?.SystemCredentials);
 
             adminConnectionString = new NpgsqlConnectionStringBuilder
             {
                 Host = host,
                 Port = port,
                 Database = "postgres",
-                Username = username,
-                Password = password
+                Username = adminUsername,
+                Password = adminPassword
             }.ToString();
         }
 
-        public string BuildTenantConnectionString(string databaseName)
+        public string BuildTenantConnectionString(string databaseName, string audience)
         {
             AssertValid(databaseName);
+            DatabaseCredential credential = ResolveCredential(audience);
             return new NpgsqlConnectionStringBuilder
             {
                 Host = host,
                 Port = port,
                 Database = databaseName,
-                Username = username,
-                Password = password
+                Username = credential.Username,
+                Password = credential.Password
             }.ToString();
         }
 
@@ -62,13 +71,17 @@ namespace IdentityManagement.Infrastructure.Services
             return result is not null;
         }
 
-        public async Task CreateDatabaseAsync(string databaseName, CancellationToken ct = default)
+        public async Task CreateDatabaseAsync(string databaseName, string audience, CancellationToken ct = default)
         {
             AssertValid(databaseName);
+            string? owner = ResolveOwner(audience);
+
             await using NpgsqlConnection connection = new(adminConnectionString);
             await connection.OpenAsync(ct);
             await using NpgsqlCommand command = connection.CreateCommand();
-            command.CommandText = $"CREATE DATABASE \"{databaseName}\"";
+            command.CommandText = owner is null
+                ? $"CREATE DATABASE \"{databaseName}\""
+                : $"CREATE DATABASE \"{databaseName}\" OWNER \"{owner}\"";
             await command.ExecuteNonQueryAsync(ct);
         }
 
@@ -80,6 +93,54 @@ namespace IdentityManagement.Infrastructure.Services
             await using NpgsqlCommand command = connection.CreateCommand();
             command.CommandText = $"DROP DATABASE IF EXISTS \"{databaseName}\" WITH (FORCE)";
             await command.ExecuteNonQueryAsync(ct);
+        }
+
+        private DatabaseCredential ResolveCredential(string audience)
+        {
+            if (systemCredentials.TryGetValue(NormalizeKey(audience), out DatabaseCredential? credential)
+                && !string.IsNullOrWhiteSpace(credential.Username))
+            {
+                return credential;
+            }
+
+            return new DatabaseCredential { Username = adminUsername, Password = adminPassword };
+        }
+
+        private string? ResolveOwner(string audience)
+        {
+            if (!systemCredentials.TryGetValue(NormalizeKey(audience), out DatabaseCredential? credential)
+                || string.IsNullOrWhiteSpace(credential.Username))
+            {
+                return null;
+            }
+
+            if (!TenantNaming.IsValidIdentifier(credential.Username))
+            {
+                throw new InvalidOperationException($"Role de owner invalida para o sistema '{audience}': '{credential.Username}'.");
+            }
+
+            return credential.Username;
+        }
+
+        private static IReadOnlyDictionary<string, DatabaseCredential> NormalizeCredentials(IDictionary<string, DatabaseCredential>? source)
+        {
+            Dictionary<string, DatabaseCredential> normalized = new(StringComparer.Ordinal);
+            if (source is null)
+            {
+                return normalized;
+            }
+
+            foreach (KeyValuePair<string, DatabaseCredential> entry in source)
+            {
+                normalized[NormalizeKey(entry.Key)] = entry.Value;
+            }
+
+            return normalized;
+        }
+
+        private static string NormalizeKey(string audience)
+        {
+            return (audience ?? string.Empty).Replace("-", string.Empty).ToLowerInvariant();
         }
 
         private static void AssertValid(string databaseName)

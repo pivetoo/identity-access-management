@@ -138,7 +138,7 @@ namespace IdentityManagement.IntegrationTests.Services
 
             public List<string> DroppedDatabases { get; } = new();
 
-            public string BuildTenantConnectionString(string databaseName)
+            public string BuildTenantConnectionString(string databaseName, string audience)
             {
                 return $"Host=localhost;Database={databaseName}";
             }
@@ -153,7 +153,7 @@ namespace IdentityManagement.IntegrationTests.Services
                 return Task.FromResult(CreatedDatabases.Contains(databaseName));
             }
 
-            public Task CreateDatabaseAsync(string databaseName, CancellationToken ct = default)
+            public Task CreateDatabaseAsync(string databaseName, string audience, CancellationToken ct = default)
             {
                 if (CreatedDatabases.Count >= 1)
                 {

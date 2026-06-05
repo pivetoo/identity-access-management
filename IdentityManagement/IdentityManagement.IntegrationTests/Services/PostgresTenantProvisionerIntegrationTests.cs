@@ -14,9 +14,9 @@ namespace IdentityManagement.IntegrationTests.Services
                 ITenantProvisioner provisioner = sp.GetRequiredService<ITenantProvisioner>();
                 string db = "it_provision_test_db";
                 (await provisioner.DatabaseExistsAsync(db)).Should().BeFalse();
-                await provisioner.CreateDatabaseAsync(db);
+                await provisioner.CreateDatabaseAsync(db, "agency-campaign");
                 (await provisioner.DatabaseExistsAsync(db)).Should().BeTrue();
-                provisioner.BuildTenantConnectionString(db).Should().Contain("Database=it_provision_test_db");
+                provisioner.BuildTenantConnectionString(db, "agency-campaign").Should().Contain("Database=it_provision_test_db");
                 await provisioner.DropDatabaseAsync(db);
                 (await provisioner.DatabaseExistsAsync(db)).Should().BeFalse();
             });
@@ -28,7 +28,7 @@ namespace IdentityManagement.IntegrationTests.Services
             await InScopeAsync(async sp =>
             {
                 ITenantProvisioner provisioner = sp.GetRequiredService<ITenantProvisioner>();
-                Func<Task> act = () => provisioner.CreateDatabaseAsync("bad; DROP DATABASE x");
+                Func<Task> act = () => provisioner.CreateDatabaseAsync("bad; DROP DATABASE x", "agency-campaign");
                 await act.Should().ThrowAsync<ArgumentException>();
             });
         }
