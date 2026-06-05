@@ -45,7 +45,7 @@ jobs:
           dotnet test
           system/identity-access-management/IdentityManagement/IdentityManagement.IntegrationTests/IdentityManagement.IntegrationTests.csproj
           -c Release
-          --settings system/identity-access-management/IdentityManagement/IdentityManagement.IntegrationTests/coverlet.runsettings
+          --settings system/identity-access-management/IdentityManagement/IdentityManagement.Testing/coverlet.runsettings
           --collect:"XPlat Code Coverage"
 
       # Junta a cobertura dos dois projetos (unit + integracao) e imprime a % combinada do backend.
