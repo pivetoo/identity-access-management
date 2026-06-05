@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, FileText, Users, Activity, Info, Database } from 'lucide-react';
+import { ArrowLeft, FileText, Users, Activity, Info, Database, CreditCard } from 'lucide-react';
 import { Badge, Button, Card, CardContent, PageLayout, Tabs, TabsBadge, TabsContent, TabsList, TabsTrigger, useApi, useI18n } from 'archon-ui';
 import { CompanyService } from '../../../services/companyService';
 import { ContractService } from '../../../services/contractService';
@@ -13,6 +13,7 @@ import ContractFormModal from '../../../components/modals/ContractFormModal';
 import ClientOverviewTab from './ClientOverviewTab';
 import ClientContractsTab from './ClientContractsTab';
 import ClientPeopleTab from './ClientPeopleTab';
+import ClientSubscriptionTab from './ClientSubscriptionTab';
 
 export default function ClientDetail() {
   const { t } = useI18n();
@@ -163,6 +164,9 @@ export default function ClientDetail() {
               <TabsTrigger value="people">
                 <Users className="h-4 w-4" /> {t('clientDetail.tabs.people')}
               </TabsTrigger>
+              <TabsTrigger value="subscription">
+                <CreditCard className="h-4 w-4" /> Assinatura
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="mt-0">
@@ -179,6 +183,10 @@ export default function ClientDetail() {
 
             <TabsContent value="people" className="mt-0">
               <ClientPeopleTab companyId={companyId} refreshKey={refreshKey} />
+            </TabsContent>
+
+            <TabsContent value="subscription" className="mt-0">
+              <ClientSubscriptionTab companyId={companyId} refreshKey={refreshKey} />
             </TabsContent>
           </Tabs>
         </div>
