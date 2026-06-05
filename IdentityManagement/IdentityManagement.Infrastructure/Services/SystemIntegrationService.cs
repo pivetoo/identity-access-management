@@ -65,6 +65,8 @@ namespace IdentityManagement.Infrastructure.Services
 
             integration.Update(request.Name, request.BaseUrl);
             ApplyActiveState(integration, request.IsActive);
+
+            dbContext.Set<SystemIntegrationParameter>().RemoveRange(integration.Parameters);
             ReplaceParameters(integration, request.Parameters);
 
             dbContext.Set<SystemIntegration>().Update(integration);

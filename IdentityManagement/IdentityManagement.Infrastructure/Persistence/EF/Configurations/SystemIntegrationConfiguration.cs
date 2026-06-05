@@ -28,7 +28,8 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
 
             builder.HasMany(entity => entity.Parameters)
                 .WithOne()
-                .HasForeignKey(entity => entity.SystemIntegrationId);
+                .HasForeignKey(entity => entity.SystemIntegrationId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasIndex(entity => entity.SystemApplicationId);
         }
