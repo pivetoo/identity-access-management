@@ -9,6 +9,7 @@ using IdentityManagement.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Resend;
 
 namespace IdentityManagement.Infrastructure.DependencyInjection
@@ -51,7 +52,10 @@ namespace IdentityManagement.Infrastructure.DependencyInjection
             // propria conexao do IdM (compat com dev/testes single-role).
             TenantProvisioningOptions provisioningOptions = new();
             configuration.GetSection(TenantProvisioningOptions.SectionName).Bind(provisioningOptions);
-            services.AddSingleton<ITenantProvisioner>(_ => new PostgresTenantProvisioner(selfConnectionString, provisioningOptions));
+            services.AddSingleton<ITenantProvisioner>(sp => new PostgresTenantProvisioner(
+                selfConnectionString,
+                provisioningOptions,
+                sp.GetRequiredService<ILogger<PostgresTenantProvisioner>>()));
 
             services.AddOptions();
             services.AddHttpClient<ResendClient>();

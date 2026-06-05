@@ -1,5 +1,7 @@
 using IdentityManagement.Application.Services;
 using IdentityManagement.Infrastructure.Tenancy;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
 using System.Security.Cryptography;
@@ -14,9 +16,11 @@ namespace IdentityManagement.Infrastructure.Services
         private readonly string adminUsername;
         private readonly string adminPassword;
         private readonly IReadOnlyDictionary<string, DatabaseCredential> systemCredentials;
+        private readonly ILogger<PostgresTenantProvisioner> logger;
 
-        public PostgresTenantProvisioner(string selfConnectionString, TenantProvisioningOptions? options = null)
+        public PostgresTenantProvisioner(string selfConnectionString, TenantProvisioningOptions? options = null, ILogger<PostgresTenantProvisioner>? logger = null)
         {
+            this.logger = logger ?? NullLogger<PostgresTenantProvisioner>.Instance;
             NpgsqlConnectionStringBuilder builder = new(selfConnectionString);
             host = builder.Host ?? "localhost";
             port = builder.Port;
@@ -101,6 +105,16 @@ namespace IdentityManagement.Infrastructure.Services
                 && !string.IsNullOrWhiteSpace(credential.Username))
             {
                 return credential;
+            }
+
+            // Sem credencial dedicada: reaproveita a credencial administrativa. Em deployment multi-sistema
+            // (ha credenciais de outros sistemas configuradas) isso defeitaria o isolamento por role, entao avisa.
+            if (systemCredentials.Count > 0)
+            {
+                logger.LogWarning(
+                    "Tenant connection string for audience '{Audience}' is falling back to the admin role '{AdminRole}': no dedicated credential configured under TenantProvisioning:SystemCredentials. Per-system isolation is not applied for this tenant.",
+                    audience,
+                    adminUsername);
             }
 
             return new DatabaseCredential { Username = adminUsername, Password = adminPassword };

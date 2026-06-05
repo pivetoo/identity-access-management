@@ -30,6 +30,14 @@ namespace IdentityManagement.Testing.Infrastructure.Tenancy
         }
 
         [Test]
+        public void DatabaseName_lowercases_prefix_so_it_stays_a_valid_identifier()
+        {
+            string name = TenantNaming.DatabaseName("Agency-Campaign", "mainstay", 6);
+            Assert.That(name, Is.EqualTo("agencycampaign_mainstay_6"));
+            Assert.That(TenantNaming.IsValidIdentifier(name), Is.True);
+        }
+
+        [Test]
         public void DatabaseName_truncates_slug_to_fit_63_bytes()
         {
             string longSlug = new string('a', 80);
@@ -40,9 +48,12 @@ namespace IdentityManagement.Testing.Infrastructure.Tenancy
         }
 
         [TestCase("agencycampaign_mainstay_6", true)]
+        [TestCase("app_agencycampaign", true)]
         [TestCase("Robert'); DROP TABLE", false)]
         [TestCase("1bad", false)]
         [TestCase("with-hyphen", false)]
+        [TestCase("app_agencycampaign\n", false)]
+        [TestCase("app_agencycampaign\ndropme", false)]
         public void IsValidIdentifier(string name, bool valid)
         {
             Assert.That(TenantNaming.IsValidIdentifier(name), Is.EqualTo(valid));

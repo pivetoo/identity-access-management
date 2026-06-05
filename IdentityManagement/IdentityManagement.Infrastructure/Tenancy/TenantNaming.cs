@@ -7,7 +7,7 @@ namespace IdentityManagement.Infrastructure.Tenancy
     public static class TenantNaming
     {
         private const int MaxIdentifier = 63;
-        private static readonly Regex ValidIdentifier = new("^[a-z][a-z0-9_]{0,62}$", RegexOptions.Compiled);
+        private static readonly Regex ValidIdentifier = new(@"\A[a-z][a-z0-9_]{0,62}\z", RegexOptions.Compiled);
 
         public static string Slugify(string name)
         {
@@ -32,7 +32,7 @@ namespace IdentityManagement.Infrastructure.Tenancy
 
         public static string DatabaseName(string audience, string slug, long companyId)
         {
-            string prefix = (audience ?? string.Empty).Replace("-", string.Empty);
+            string prefix = (audience ?? string.Empty).Replace("-", string.Empty).ToLowerInvariant();
             string suffix = "_" + companyId.ToString(CultureInfo.InvariantCulture);
             int maxSlug = MaxIdentifier - prefix.Length - 1 - suffix.Length;
             string slugPart = maxSlug <= 0 ? string.Empty : slug[..Math.Min(slug.Length, maxSlug)];
