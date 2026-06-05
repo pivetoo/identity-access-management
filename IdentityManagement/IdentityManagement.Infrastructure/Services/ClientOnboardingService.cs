@@ -47,7 +47,7 @@ namespace IdentityManagement.Infrastructure.Services
         {
             await using Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync(ct);
 
-            List<string> plannedDatabases = new();
+            List<(string Db, string Audience)> plannedDatabases = new();
             List<long> contractIds = new();
             List<string> systemNames = new();
             List<string> createdDatabases = new();
@@ -91,12 +91,12 @@ namespace IdentityManagement.Infrastructure.Services
 
                     string dbName = TenantNaming.DatabaseName(systemApp.Audience, slug, company.Id);
                     string apiKey = provisioner.GenerateApiKey();
-                    string conn = provisioner.BuildTenantConnectionString(dbName);
+                    string conn = provisioner.BuildTenantConnectionString(dbName, systemApp.Audience);
 
                     TenantDatabase tenantDatabase = new TenantDatabase(contract.Id, conn, DatabaseProvider.PostgreSql, apiKey, "public");
                     dbContext.Set<TenantDatabase>().Add(tenantDatabase);
 
-                    plannedDatabases.Add(dbName);
+                    plannedDatabases.Add((dbName, systemApp.Audience));
                     contractIds.Add(contract.Id);
                     systemNames.Add(systemApp.Name);
                     contractedSystemApplicationIds.Add(systemApp.Id);
@@ -110,9 +110,9 @@ namespace IdentityManagement.Infrastructure.Services
 
                 await dbContext.SaveChangesAsync(ct);
 
-                foreach (string db in plannedDatabases)
+                foreach ((string db, string audience) in plannedDatabases)
                 {
-                    await provisioner.CreateDatabaseAsync(db, ct);
+                    await provisioner.CreateDatabaseAsync(db, audience, ct);
                     createdDatabases.Add(db);
                 }
 
@@ -144,7 +144,7 @@ namespace IdentityManagement.Infrastructure.Services
             {
                 CompanyId = company.Id,
                 ContractIds = contractIds.ToArray(),
-                DatabaseNames = plannedDatabases.ToArray(),
+                DatabaseNames = plannedDatabases.Select(pair => pair.Db).ToArray(),
                 BootstrapResults = bootstrapResults
             };
         }
