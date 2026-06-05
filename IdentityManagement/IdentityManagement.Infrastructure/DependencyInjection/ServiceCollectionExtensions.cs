@@ -27,6 +27,9 @@ namespace IdentityManagement.Infrastructure.DependencyInjection
                 typeof(ServiceCollectionExtensions).Assembly);
             services.AddServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
 
+            // Registro manual: o gateway nao e auto-descoberto porque o nome nao termina em "Service".
+            services.AddScoped<IBillingGateway, NoopBillingGateway>();
+
             string selfConnectionString = configuration[FixedTenantConnectionStringKey]
                 ?? throw new InvalidOperationException($"Configuração obrigatória ausente: {FixedTenantConnectionStringKey}.");
             services.AddSingleton<ITenantProvisioner>(_ => new PostgresTenantProvisioner(selfConnectionString));
