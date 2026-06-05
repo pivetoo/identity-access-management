@@ -24,6 +24,15 @@ namespace IdentityManagement.Infrastructure.Services
 
         public async Task<ContractSummaryResponse> CreateContract(CreateContractRequest request, string setupBaseUrl, CancellationToken cancellationToken = default)
         {
+            Contract hydratedContract = await CreateContractCore(request, cancellationToken);
+
+            await SendAdminInvitation(hydratedContract, setupBaseUrl, cancellationToken);
+
+            return ToSummaryResponse(hydratedContract);
+        }
+
+        public async Task<Contract> CreateContractCore(CreateContractRequest request, CancellationToken cancellationToken = default)
+        {
             ValidateDateRange(request.StartDate, request.EndDate);
             await EnsureDependencies(request.CompanyId, request.SystemApplicationId, cancellationToken);
 
@@ -55,9 +64,7 @@ namespace IdentityManagement.Infrastructure.Services
             Contract hydratedContract = await GetByIdWithRelations(contract.Id, cancellationToken)
                 ?? throw new InvalidOperationException("contract.loadAfterCreate.failed");
 
-            await SendAdminInvitation(hydratedContract, setupBaseUrl, cancellationToken);
-
-            return ToSummaryResponse(hydratedContract);
+            return hydratedContract;
         }
 
         public async Task ResendAdminInvitation(long contractId, string setupBaseUrl, CancellationToken cancellationToken = default)

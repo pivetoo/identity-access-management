@@ -9,6 +9,8 @@ namespace IdentityManagement.Application.Services
     {
         Task<ContractSummaryResponse> CreateContract(CreateContractRequest request, string setupBaseUrl, CancellationToken cancellationToken = default);
 
+        Task<Contract> CreateContractCore(CreateContractRequest request, CancellationToken cancellationToken = default);
+
         Task<ContractSummaryResponse> UpdateContract(long id, UpdateContractRequest request, CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<ContractSummaryResponse>> GetByCompanyId(long companyId, CancellationToken cancellationToken = default);
