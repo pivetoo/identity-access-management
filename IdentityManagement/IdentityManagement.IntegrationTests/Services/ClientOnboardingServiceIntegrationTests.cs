@@ -72,6 +72,62 @@ namespace IdentityManagement.IntegrationTests.Services
         }
 
         [Test]
+        public async Task OnboardClient_with_plan_creates_trialing_subscription()
+        {
+            List<string> createdDatabases = new();
+
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                (long agencyAppId, _) = await SeedSystemApplications(dbContext);
+
+                Plan plan = new Plan("Pro Test", 1497m, BillingPeriod.Monthly, "BRL", 14, null);
+                dbContext.Set<Plan>().Add(plan);
+                await dbContext.SaveChangesAsync();
+
+                IClientOnboardingService onboarding = sp.GetRequiredService<IClientOnboardingService>();
+
+                OnboardClientRequest request = new OnboardClientRequest
+                {
+                    LegalName = "Empresa Plano LTDA",
+                    TradeName = "PlanoTest",
+                    Document = "11122233000155",
+                    Email = "plano@onboarding.example",
+                    PlanId = plan.Id,
+                    Systems = new List<OnboardClientSystemItem>
+                    {
+                        new OnboardClientSystemItem { SystemApplicationId = agencyAppId, StartDate = DateTimeOffset.UtcNow }
+                    }
+                };
+
+                OnboardClientResponse response = await onboarding.OnboardClient(request, "https://auth.mainstay.com.br");
+                createdDatabases.AddRange(response.DatabaseNames);
+
+                response.Subscription.Should().NotBeNull();
+                response.Subscription!.Success.Should().BeTrue();
+                response.Subscription.Status.Should().Be(SubscriptionStatus.Trialing.ToString());
+
+                Subscription? subscription = await dbContext.Set<Subscription>()
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(s => s.CompanyId == response.CompanyId);
+
+                subscription.Should().NotBeNull();
+                subscription!.Status.Should().Be(SubscriptionStatus.Trialing);
+                subscription.PlanId.Should().Be(plan.Id);
+                subscription.TrialEndsAt.Should().NotBeNull();
+            });
+
+            await InScopeAsync(async sp =>
+            {
+                ITenantProvisioner provisioner = sp.GetRequiredService<ITenantProvisioner>();
+                foreach (string db in createdDatabases)
+                {
+                    await provisioner.DropDatabaseAsync(db);
+                }
+            });
+        }
+
+        [Test]
         public async Task OnboardClient_compensates_on_provisioning_failure()
         {
             await InScopeAsync(async sp =>
@@ -88,6 +144,7 @@ namespace IdentityManagement.IntegrationTests.Services
                     provisioner,
                     new NoOpEmailSender(),
                     new RestApi(new HttpClient()),
+                    sp.GetRequiredService<ISubscriptionService>(),
                     NullLogger<ClientOnboardingService>.Instance);
 
                 OnboardClientRequest request = new OnboardClientRequest

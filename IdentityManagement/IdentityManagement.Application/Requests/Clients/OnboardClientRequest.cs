@@ -9,6 +9,9 @@ namespace IdentityManagement.Application.Requests.Clients
         [Required] public string Document { get; set; } = string.Empty;
         [Required][EmailAddress] public string Email { get; set; } = string.Empty;
         public string? PhoneNumber { get; set; }
+        // Plano de assinatura (opcional). Quando informado, o onboarding cria a Subscription
+        // (Trialing se o plano tem TrialDays > 0; senao Active) apos provisionar o tenant.
+        public long? PlanId { get; set; }
         [Required][MinLength(1)] public List<OnboardClientSystemItem> Systems { get; set; } = new();
     }
 
