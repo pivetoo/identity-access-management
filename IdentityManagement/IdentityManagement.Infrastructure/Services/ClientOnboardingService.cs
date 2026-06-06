@@ -1,8 +1,10 @@
 using Archon.Core.ValueObjects;
 using Archon.Infrastructure.RestApi;
+using IdentityManagement.Application.Requests.Billing;
 using IdentityManagement.Application.Requests.Clients;
 using IdentityManagement.Application.Requests.Contracts;
 using IdentityManagement.Application.Requests.Tenants;
+using IdentityManagement.Application.Responses.Billing;
 using IdentityManagement.Application.Responses.Clients;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
@@ -25,6 +27,7 @@ namespace IdentityManagement.Infrastructure.Services
         private readonly ITenantProvisioner provisioner;
         private readonly IEmailSender emailSender;
         private readonly Rest restApi;
+        private readonly ISubscriptionService subscriptionService;
         private readonly ILogger<ClientOnboardingService> logger;
 
         public ClientOnboardingService(
@@ -33,6 +36,7 @@ namespace IdentityManagement.Infrastructure.Services
             ITenantProvisioner provisioner,
             IEmailSender emailSender,
             Rest restApi,
+            ISubscriptionService subscriptionService,
             ILogger<ClientOnboardingService> logger)
         {
             this.dbContext = dbContext;
@@ -40,13 +44,12 @@ namespace IdentityManagement.Infrastructure.Services
             this.provisioner = provisioner;
             this.emailSender = emailSender;
             this.restApi = restApi;
+            this.subscriptionService = subscriptionService;
             this.logger = logger;
         }
 
         public async Task<OnboardClientResponse> OnboardClient(OnboardClientRequest request, string setupBaseUrl, CancellationToken ct = default)
         {
-            await using Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync(ct);
-
             List<(string Db, string Audience)> plannedDatabases = new();
             List<long> contractIds = new();
             List<string> systemNames = new();
@@ -56,6 +59,10 @@ namespace IdentityManagement.Infrastructure.Services
 
             Company company = new Company(request.LegalName, request.TradeName, request.Document, request.Email, request.PhoneNumber ?? string.Empty);
             string setupLink = string.Empty;
+
+            // A Subscription so e criada DEPOIS que esta transacao confirma: AssignAsync (CrudService)
+            // abre transacao propria, e o commit acima ja limpa a CurrentTransaction do EF.
+            await using Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync(ct);
 
             try
             {
@@ -138,6 +145,8 @@ namespace IdentityManagement.Infrastructure.Services
 
             List<SystemBootstrapResult> bootstrapResults = await BootstrapContractedSystemsAsync(contractedSystemApplicationIds, apiKeyByAudience, company, ct);
 
+            SubscriptionProvisionResult subscription = await ProvisionSubscriptionAsync(request, company.Id, ct);
+
             await emailSender.SendClientAdminInvitationEmailAsync(company.Email, company.LegalName, systemNames, setupLink, ct);
 
             return new OnboardClientResponse
@@ -145,8 +154,40 @@ namespace IdentityManagement.Infrastructure.Services
                 CompanyId = company.Id,
                 ContractIds = contractIds.ToArray(),
                 DatabaseNames = plannedDatabases.Select(pair => pair.Db).ToArray(),
-                BootstrapResults = bootstrapResults
+                BootstrapResults = bootstrapResults,
+                Subscription = subscription
             };
+        }
+
+        // Cria a assinatura do tenant (Trialing/Active conforme o plano) reusando o AssignAsync ja testado.
+        // Best-effort: o tenant ja foi provisionado; falha aqui e logada e retornavel pelo endpoint de billing.
+        private async Task<SubscriptionProvisionResult> ProvisionSubscriptionAsync(OnboardClientRequest request, long companyId, CancellationToken ct)
+        {
+            if (!request.PlanId.HasValue)
+            {
+                return new SubscriptionProvisionResult { Skipped = true, Detail = "plan.notProvided" };
+            }
+
+            try
+            {
+                SubscriptionResponse subscription = await subscriptionService.AssignAsync(
+                    new AssignSubscriptionRequest { CompanyId = companyId, PlanId = request.PlanId.Value },
+                    ct);
+
+                return new SubscriptionProvisionResult
+                {
+                    Success = true,
+                    SubscriptionId = subscription.Id,
+                    PlanId = subscription.PlanId,
+                    Status = subscription.Status.ToString(),
+                    TrialEndsAt = subscription.TrialEndsAt
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to provision subscription (plan {PlanId}) for company {CompanyId} during onboarding.", request.PlanId, companyId);
+                return new SubscriptionProvisionResult { Success = false, Detail = ex.Message };
+            }
         }
 
         private async Task<List<SystemBootstrapResult>> BootstrapContractedSystemsAsync(
