@@ -37,6 +37,8 @@ namespace IdentityManagement.Application.Services
 
         Task<IReadOnlyCollection<ContractUserResponse>> GetUsersByContract(long contractId, CancellationToken cancellationToken = default);
 
+        Task<IReadOnlyCollection<ContractUserResponse>> GetAdminsByApiKey(string apiKey, CancellationToken cancellationToken = default);
+
         Task<ContractUserResponse> UpdateUserRoleInContract(long userId, long contractId, long newRoleId, CancellationToken cancellationToken = default);
 
         Task<UserResponse> SetActive(long userId, bool isActive, CancellationToken cancellationToken = default);

@@ -246,6 +246,23 @@ namespace IdentityManagement.Infrastructure.Services
             return users;
         }
 
+        public async Task<IReadOnlyCollection<ContractUserResponse>> GetAdminsByApiKey(string apiKey, CancellationToken cancellationToken = default)
+        {
+            long? contractId = await DbContext.Set<TenantDatabase>()
+                .AsNoTracking()
+                .Where(item => item.ApiKey == apiKey && item.IsActive)
+                .Select(item => (long?)item.ContractId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (contractId is null)
+            {
+                return [];
+            }
+
+            IReadOnlyCollection<ContractUserResponse> users = await GetUsersByContract(contractId.Value, cancellationToken);
+            return users.Where(item => item.IsRoot && item.IsActive).ToList();
+        }
+
         public async Task<ContractUserResponse> UpdateUserRoleInContract(long userId, long contractId, long newRoleId, CancellationToken cancellationToken = default)
         {
             Role? newRole = await DbContext.Set<Role>()

@@ -114,6 +114,20 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [RequireAccess]
+        [GetEndpoint]
+        public async Task<IActionResult> GetAdmins(CancellationToken cancellationToken)
+        {
+            string? apiKey = Request.Headers["X-Api-Key"].FirstOrDefault();
+            if (string.IsNullOrWhiteSpace(apiKey))
+            {
+                return Http200(Array.Empty<object>());
+            }
+
+            var users = await userService.GetAdminsByApiKey(apiKey.Trim(), cancellationToken);
+            return Http200(users);
+        }
+
+        [RequireAccess]
         [PostEndpoint]
         public async Task<IActionResult> CreateInContract([FromBody] CreateUserInContractRequest request, CancellationToken cancellationToken)
         {
