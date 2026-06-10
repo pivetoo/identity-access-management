@@ -23,6 +23,7 @@ export default function ContractTenantTab({ contractId, refreshKey, onRefresh }:
   const [tenant, setTenant] = useState<TenantDatabase | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showSecret, setShowSecret] = useState(false);
+  const [showConn, setShowConn] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const loadApi = useApi({
@@ -134,20 +135,31 @@ export default function ContractTenantTab({ contractId, refreshKey, onRefresh }:
               <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 {t('tenantDatabase.field.connectionString')}
               </div>
-              <button
-                type="button"
-                onClick={() => handleCopy('conn', tenant.connectionString)}
-                className="text-xs text-muted-foreground hover:text-foreground"
-              >
-                {copiedField === 'conn' ? (
-                  <Check className="h-3.5 w-3.5 text-success" />
-                ) : (
-                  <Copy className="h-3.5 w-3.5" />
-                )}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowConn((prev) => !prev)}
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
+                  {showConn ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleCopy('conn', tenant.connectionString)}
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
+                  {copiedField === 'conn' ? (
+                    <Check className="h-3.5 w-3.5 text-success" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5" />
+                  )}
+                </button>
+              </div>
             </div>
             <div className="mt-1 rounded-md border border-border/60 bg-muted/30 p-2 font-mono text-xs text-muted-foreground break-all">
-              {tenant.connectionString}
+              {showConn
+                ? tenant.connectionString
+                : '•'.repeat(Math.min(tenant.connectionString.length, 32))}
             </div>
           </div>
 
