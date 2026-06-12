@@ -149,24 +149,29 @@ export default function SystemApplications() {
       title: t('common.column.name'),
       dataIndex: 'name',
       sortable: true,
-    },
-    {
-      key: 'baseUrl',
-      title: t('systemApplication.field.baseUrl'),
-      dataIndex: 'baseUrl',
-      hiddenBelow: 'lg',
-      render: (value: string) => value || '-',
+      // No card (mobile): coluna-titulo.
+      primary: true,
     },
     {
       key: 'audience',
       title: t('systemApplication.field.audience'),
       dataIndex: 'audience',
-      hiddenBelow: 'sm',
+      render: (value: string) => value || '-',
+    },
+    {
+      key: 'baseUrl',
+      title: t('systemApplication.field.baseUrl'),
+      dataIndex: 'baseUrl',
+      // URL longa: fica fora do card e some no desktop estreito.
+      hiddenBelow: 'lg',
+      render: (value: string) => value || '-',
     },
     {
       key: 'isActive',
       title: t('common.column.status'),
       dataIndex: 'isActive',
+      // No card (mobile): badge no canto superior direito.
+      cardTag: true,
       render: (value: boolean) => (
         <Badge variant={value ? 'success' : 'destructive'}>
           {value ? t('common.status.active') : t('common.status.inactive')}
@@ -177,6 +182,8 @@ export default function SystemApplications() {
       key: 'actions',
       title: '',
       dataIndex: 'id',
+      // Fora do card: no mobile a propria setinha do card abre os detalhes (evita botao redundante).
+      hiddenBelow: 'md',
       render: (_value, record) => (
         <button
           type="button"
