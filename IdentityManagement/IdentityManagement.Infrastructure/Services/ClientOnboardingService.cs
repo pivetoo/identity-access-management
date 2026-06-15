@@ -198,6 +198,11 @@ namespace IdentityManagement.Infrastructure.Services
         {
             List<SystemBootstrapResult> results = new();
 
+            // Segredos GeneratedSecret sao compartilhados por chave dentro de um mesmo onboarding: o mesmo
+            // Key (ex.: "CallbackSecret") em blueprints de apps diferentes resolve para o MESMO valor, de modo
+            // que o segredo case nos dois lados (ex.: AgencyCampaign valida o callback; IntegrationPlatform o envia).
+            Dictionary<string, string> generatedSecretByKey = new();
+
             List<SystemApplication> systemApplications = await dbContext.Set<SystemApplication>()
                 .AsNoTracking()
                 .Include(application => application.Integrations)
@@ -243,7 +248,7 @@ namespace IdentityManagement.Infrastructure.Services
                     continue;
                 }
 
-                TenantBootstrapRequest body = BuildBootstrapRequest(activeIntegrations, apiKeyByAudience, company);
+                TenantBootstrapRequest body = BuildBootstrapRequest(activeIntegrations, apiKeyByAudience, company, generatedSecretByKey);
                 string url = $"{systemApp.BaseUrl!.TrimEnd('/')}/api/tenants/bootstrap";
 
                 try
@@ -290,7 +295,8 @@ namespace IdentityManagement.Infrastructure.Services
         private TenantBootstrapRequest BuildBootstrapRequest(
             IEnumerable<SystemIntegration> activeIntegrations,
             IReadOnlyDictionary<string, string> apiKeyByAudience,
-            Company company)
+            Company company,
+            Dictionary<string, string> generatedSecretByKey)
         {
             TenantBootstrapRequest request = new TenantBootstrapRequest();
 
@@ -327,9 +333,10 @@ namespace IdentityManagement.Infrastructure.Services
                     }
                     else if (parameter.ValueSource == SystemIntegrationParameterSource.GeneratedSecret)
                     {
-                        // Gera um segredo aleatorio por tenant (ex.: CallbackSecret). Cada param GeneratedSecret
-                        // recebe um valor novo no onboarding; o consumidor (AgencyCampaign) le de integrationparameters.
-                        resolvedValue = provisioner.GenerateApiKey();
+                        // Segredo aleatorio por tenant (ex.: CallbackSecret), COMPARTILHADO por Key entre os apps
+                        // deste onboarding: a 1a ocorrencia gera, as demais reusam o mesmo valor. Assim o segredo
+                        // casa nos dois lados (AgencyCampaign valida o callback; IntegrationPlatform o envia).
+                        resolvedValue = ResolveGeneratedSecret(generatedSecretByKey, parameter.Key, provisioner.GenerateApiKey);
                     }
                     else
                     {
@@ -348,6 +355,19 @@ namespace IdentityManagement.Infrastructure.Services
             }
 
             return request;
+        }
+
+        // Resolve um GeneratedSecret compartilhado por chave: gera uma vez por Key e reusa no mesmo onboarding,
+        // de modo que o mesmo segredo (ex.: CallbackSecret) seja propagado identico para os dois lados que precisam casar.
+        internal static string ResolveGeneratedSecret(Dictionary<string, string> generatedSecretByKey, string key, Func<string> generator)
+        {
+            if (!generatedSecretByKey.TryGetValue(key, out string? secret))
+            {
+                secret = generator();
+                generatedSecretByKey[key] = secret;
+            }
+
+            return secret;
         }
 
         private static string GenerateOpaqueToken()
