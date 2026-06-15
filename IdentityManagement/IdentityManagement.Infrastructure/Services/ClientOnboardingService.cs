@@ -325,6 +325,12 @@ namespace IdentityManagement.Infrastructure.Services
                     {
                         resolvedValue = company.TenantId.ToString();
                     }
+                    else if (parameter.ValueSource == SystemIntegrationParameterSource.GeneratedSecret)
+                    {
+                        // Gera um segredo aleatorio por tenant (ex.: CallbackSecret). Cada param GeneratedSecret
+                        // recebe um valor novo no onboarding; o consumidor (AgencyCampaign) le de integrationparameters.
+                        resolvedValue = provisioner.GenerateApiKey();
+                    }
                     else
                     {
                         resolvedValue = parameter.Value;

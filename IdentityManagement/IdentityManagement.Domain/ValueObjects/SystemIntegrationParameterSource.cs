@@ -4,6 +4,7 @@ namespace IdentityManagement.Domain.ValueObjects
     {
         Static = 0,
         TenantApiKey = 1,
-        TenantId = 2
+        TenantId = 2,
+        GeneratedSecret = 3
     }
 }
