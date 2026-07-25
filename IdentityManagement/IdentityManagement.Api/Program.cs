@@ -68,6 +68,8 @@ app.UseHttpsRedirection();
 app.UseCors("IdentityManagementCors");
 app.UseArchonApi();
 app.UseAuthentication();
+// Depois da autenticacao de proposito: o tenant sai de claim ja validada.
+app.UseArchonTenantResolution();
 app.UseAuthorization();
 app.UseSessionValidation();
 
