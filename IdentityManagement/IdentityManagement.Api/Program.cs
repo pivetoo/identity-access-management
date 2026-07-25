@@ -71,7 +71,9 @@ app.UseAuthentication();
 // Depois da autenticacao de proposito: o tenant sai de claim ja validada.
 app.UseArchonTenantResolution();
 app.UseAuthorization();
-app.UseSessionValidation();
+// UseSessionValidation() removido: nao existe implementacao de ISessionValidator no ecossistema,
+// entao a chamada rodava sem validar nada e dava falsa impressao de barrar sessao revogada.
+// Reativar junto com a implementacao (a tabela loginsessions ja existe aqui, falta o endpoint).
 
 app.MapControllers();
 
