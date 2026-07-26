@@ -8,6 +8,7 @@ using IdentityManagement.Application.Localization;
 using IdentityManagement.Domain.Entities;
 using IdentityManagement.Infrastructure.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
@@ -38,6 +39,25 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
+
+// O rate limiting particiona por IP do cliente. Atras de proxy reverso, `RemoteIpAddress` e o IP do
+// PROXY: sem tratar o X-Forwarded-For, todo o trafego cai numa unica particao e o limite viraria um
+// teto global — o proprio limitador derrubaria o login de todo mundo.
+//
+// Confiar no cabecalho e opt-in de proposito: quem consegue falar direto com a aplicacao pode forjar
+// o X-Forwarded-For e escapar do limite. So ligue quando a aplicacao for inalcancavel a nao ser pelo
+// proxy (o caso do container atras do nginx).
+bool trustForwardedHeaders = builder.Configuration.GetValue("ReverseProxy:TrustForwardedHeaders", false);
+if (trustForwardedHeaders)
+{
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        options.ForwardLimit = 1;
+        options.KnownNetworks.Clear();
+        options.KnownProxies.Clear();
+    });
+}
 
 builder.Services.AddRateLimiter(options =>
 {
@@ -118,6 +138,17 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
+}
+
+if (trustForwardedHeaders)
+{
+    // Antes de tudo: o IP do cliente precisa estar resolvido quando o rate limiter partition-ar.
+    app.UseForwardedHeaders();
+}
+else if (!app.Environment.IsDevelopment())
+{
+    app.Logger.LogWarning(
+        "ReverseProxy:TrustForwardedHeaders esta desligado. Se a aplicacao roda atras de proxy, o rate limiting de auth vai particionar pelo IP do proxy — ou seja, um teto unico para todos os usuarios.");
 }
 
 app.UseHttpsRedirection();
