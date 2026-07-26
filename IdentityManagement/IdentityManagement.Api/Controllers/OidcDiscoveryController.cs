@@ -1,10 +1,13 @@
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
 using IdentityManagement.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IdentityManagement.Api.Controllers
 {
+    // Anonimo de proposito: sao os endpoints do protocolo OIDC, chamados antes de existir token.
+    [AllowAnonymous]
     public sealed class OidcDiscoveryController : ApiControllerBase
     {
         private readonly IOidcDiscoveryService oidcDiscoveryService;

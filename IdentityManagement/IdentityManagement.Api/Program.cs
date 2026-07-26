@@ -3,27 +3,56 @@ using Archon.Api.MultiTenancy;
 using Archon.Application.MultiTenancy;
 using Archon.Infrastructure.DependencyInjection;
 using Archon.Infrastructure.MultiTenancy;
+using IdentityManagement.Api;
 using IdentityManagement.Application.Localization;
 using IdentityManagement.Domain.Entities;
 using IdentityManagement.Infrastructure.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
 using Scalar.AspNetCore;
 using System.Security.Cryptography;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 IServiceProvider? rootServiceProvider = null;
 
 builder.Services.AddControllers();
+
+// Origens permitidas por configuracao. `AllowAnyOrigin` num provedor de identidade deixa qualquer
+// pagina da web conversar com /connect/token e /api/auth a partir do navegador da vitima; a lista
+// real e curta e conhecida (as SPAs dos sistemas do ecossistema).
+string[] allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+if (allowedOrigins.Length == 0)
+{
+    throw new InvalidOperationException("Cors:AllowedOrigins is not configured. Informe as origens permitidas explicitamente.");
+}
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("IdentityManagementCors", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins(allowedOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
+});
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    // Endpoints anonimos de credencial: login, troca de token, esqueci/redefinir senha. Sem isso,
+    // o provedor de identidade aceita tentativa de senha sem limite nenhum.
+    options.AddPolicy(RateLimitPolicies.Auth, httpContext => RateLimitPartition.GetFixedWindowLimiter(
+        httpContext.Connection.RemoteIpAddress?.ToString() ?? "sem-ip",
+        _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = builder.Configuration.GetValue("RateLimiting:AuthPermitLimit", 20),
+            Window = TimeSpan.FromMinutes(builder.Configuration.GetValue("RateLimiting:AuthWindowMinutes", 1)),
+            QueueLimit = 0
+        }));
 });
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -49,7 +78,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             RequireSignedTokens = true
         };
     });
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    // Default-deny. Sem isso, endpoint que esquece o [RequireAccess] nasce publico e o sintoma e
+    // silencio: ele funciona, so que para qualquer um. Foi assim que AccessResources/Sync ficou
+    // aberto para POST anonimo.
+    //
+    // A politica tambem aceita requisicao que traz credencial de integracao (Basic / X-Api-Key),
+    // porque quem valida essa credencial e o proprio [RequireAccess], que roda depois daqui —
+    // exigir usuario autenticado aqui derrubaria a comunicacao servico-a-servico.
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAssertion(context =>
+            context.User.Identity?.IsAuthenticated == true ||
+            (context.Resource is HttpContext httpContext && CarriesIntegrationCredential(httpContext.Request)))
+        .Build();
+});
 builder.Services.AddArchonApi(builder.Configuration, typeof(IdentityManagementResource));
 builder.Services.AddIdentityManagementInfrastructure(builder.Configuration);
 builder.Services.AddServicesFromAssembly(typeof(Program).Assembly);
@@ -66,6 +109,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("IdentityManagementCors");
+app.UseRateLimiter();
 app.UseArchonApi();
 app.UseAuthentication();
 // Depois da autenticacao de proposito: o tenant sai de claim ja validada.
@@ -78,6 +122,22 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+/// <summary>
+/// Indica apenas que a requisicao carrega alguma credencial de integracao. A validacao de verdade
+/// e do <c>[RequireAccess]</c>; aqui so evitamos que requisicao sem credencial nenhuma alcance
+/// endpoint que esqueceu a marcacao.
+/// </summary>
+static bool CarriesIntegrationCredential(HttpRequest request)
+{
+    if (!string.IsNullOrWhiteSpace(request.Headers["X-Api-Key"].FirstOrDefault()))
+    {
+        return true;
+    }
+
+    string? authorization = request.Headers.Authorization.FirstOrDefault();
+    return authorization is not null && authorization.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase);
+}
 
 static IEnumerable<SecurityKey> ResolveSigningKeys(IServiceProvider? serviceProvider)
 {

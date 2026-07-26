@@ -27,6 +27,7 @@ namespace IdentityManagement.Api.Controllers
             return Http200(response);
         }
 
+        [RequireAccess]
         [PostEndpoint]
         public async Task<IActionResult> Sync([FromBody] List<AccessResourceModel> resources, CancellationToken cancellationToken)
         {

@@ -4,7 +4,9 @@ using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.Auth;
 using IdentityManagement.Application.Responses.Auth;
 using IdentityManagement.Application.Services;
+using IdentityManagement.Api;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
@@ -27,6 +29,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
         [PostEndpoint]
         public async Task<IActionResult> Identify([FromBody] IdentifyUserRequest request, CancellationToken cancellationToken)
         {
@@ -72,6 +75,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
         [PostEndpoint]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request, CancellationToken cancellationToken)
         {
@@ -81,6 +85,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
         [PostEndpoint]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request, CancellationToken cancellationToken)
         {
@@ -99,6 +104,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
         [GetEndpoint("{token}")]
         public async Task<IActionResult> GetAdminSetup(string token, CancellationToken cancellationToken)
         {
@@ -112,6 +118,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
         [PostEndpoint]
         public async Task<IActionResult> SetupAdmin([FromBody] SetupAdminRequest request, CancellationToken cancellationToken)
         {
@@ -130,6 +137,7 @@ namespace IdentityManagement.Api.Controllers
         }
 
         [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
         [PostEndpoint]
         public async Task<IActionResult> SetupAdminExistingUser([FromBody] SetupAdminExistingUserRequest request, CancellationToken cancellationToken)
         {

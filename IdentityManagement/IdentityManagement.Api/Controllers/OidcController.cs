@@ -2,11 +2,16 @@ using Archon.Api.Attributes;
 using Archon.Api.Controllers;
 using IdentityManagement.Application.Requests.Oidc;
 using IdentityManagement.Application.Services;
+using IdentityManagement.Api;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 
 namespace IdentityManagement.Api.Controllers
 {
+    // Anonimo de proposito: sao os endpoints do protocolo OIDC, chamados antes de existir token.
+    [AllowAnonymous]
     public sealed class OidcController : ApiControllerBase
     {
         private readonly IOidcAuthorizationService oidcAuthorizationService;
@@ -47,6 +52,7 @@ namespace IdentityManagement.Api.Controllers
             });
         }
 
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
         [PostEndpoint("/connect/token")]
         public async Task<IActionResult> Token(CancellationToken cancellationToken)
         {
@@ -160,6 +166,7 @@ namespace IdentityManagement.Api.Controllers
             return await EndSession(request, cancellationToken);
         }
 
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
         [PostEndpoint("complete-authorize")]
         public async Task<IActionResult> CompleteAuthorize([FromBody] OidcCompleteAuthorizeRequest request, CancellationToken cancellationToken)
         {

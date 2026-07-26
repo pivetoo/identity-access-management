@@ -21,6 +21,7 @@
     <ProjectReference Include="../IdentityManagement.Domain/IdentityManagement.Domain.csproj" />
     <ProjectReference Include="../IdentityManagement.Application/IdentityManagement.Application.csproj" />
     <ProjectReference Include="../IdentityManagement.Infrastructure/IdentityManagement.Infrastructure.csproj" />
+    <ProjectReference Include="../IdentityManagement.Api/IdentityManagement.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>
