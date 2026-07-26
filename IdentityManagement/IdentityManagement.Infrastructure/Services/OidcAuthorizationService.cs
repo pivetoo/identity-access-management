@@ -167,7 +167,7 @@ namespace IdentityManagement.Infrastructure.Services
             }
 
             AuthorizationCode? authorizationCode = await dbContext.Set<AuthorizationCode>()
-                .AsTracking()
+                .AsNoTracking()
                 .Include(item => item.User)
                 .Include(item => item.Contract!)
                     .ThenInclude(item => item!.Company)
@@ -201,12 +201,30 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new UnauthorizedAccessException("invalid_client");
             }
 
-            if (!ValidateCodeVerifier(authorizationCode, request.CodeVerifier))
+            if (!ValidateCodeVerifier(client, authorizationCode, request.CodeVerifier))
             {
                 throw new UnauthorizedAccessException("invalid_grant");
             }
 
             await EnsureCompanyNotBlocked(authorizationCode.Contract.CompanyId, cancellationToken);
+
+            // Marca como usado ANTES de emitir, e no proprio banco. Antes o codigo era marcado depois
+            // da emissao: duas trocas simultaneas do mesmo `code` passavam as duas por IsValid() e
+            // saiam com dois conjuntos de token validos. O UPDATE condicional resolve a corrida —
+            // quem perde recebe 0 linhas afetadas.
+            int claimed = await dbContext.Set<AuthorizationCode>()
+                .Where(item => item.Id == authorizationCode.Id && !item.IsUsed && !item.IsRevoked)
+                .ExecuteUpdateAsync(
+                    setters => setters
+                        .SetProperty(item => item.IsUsed, true)
+                        .SetProperty(item => item.UsedAt, DateTimeOffset.UtcNow),
+                    cancellationToken);
+
+            if (claimed == 0)
+            {
+                logger.LogWarning("Authorization code {CodeId} was already consumed; concurrent exchange rejected.", authorizationCode.Id);
+                throw new UnauthorizedAccessException("invalid_grant");
+            }
 
             string accessToken = await jwtService.GenerateAccessToken(
                 authorizationCode.User,
@@ -238,7 +256,14 @@ namespace IdentityManagement.Infrastructure.Services
             }
 
             DateTimeOffset tokenExpiration = jwtService.GetTokenExpiration(accessToken);
-            authorizationCode.MarkAsUsed(tokenExpiration);
+            await dbContext.Set<AuthorizationCode>()
+                .Where(item => item.Id == authorizationCode.Id)
+                .ExecuteUpdateAsync(
+                    setters => setters
+                        .SetProperty(item => item.Success, true)
+                        .SetProperty(item => item.TokenExpiration, tokenExpiration),
+                    cancellationToken);
+
             await dbContext.SaveChangesAsync(cancellationToken);
 
             return new OidcTokenResponse
@@ -281,6 +306,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (existingRefreshToken is null || existingRefreshToken.Contract is null)
             {
+                await HandlePossibleRefreshTokenReuse(request, cancellationToken);
                 throw new UnauthorizedAccessException("invalid_grant");
             }
 
@@ -336,6 +362,36 @@ namespace IdentityManagement.Infrastructure.Services
             };
         }
 
+        /// <summary>
+        /// Reapresentar um refresh token ja revogado e sinal de que a cadeia vazou — a rotacao
+        /// garante que o token legitimo so e usado uma vez. Nesse caso a recomendacao do BCP de
+        /// OAuth 2.0 e derrubar a familia inteira, e nao apenas recusar a requisicao: quem estiver
+        /// com a cadeia valida (atacante ou usuario) perde o acesso e precisa autenticar de novo.
+        /// A familia aqui e a sessao de login, que ja amarra todos os tokens emitidos no fluxo.
+        /// </summary>
+        private async Task HandlePossibleRefreshTokenReuse(OidcTokenRequest request, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(request.RefreshToken))
+            {
+                return;
+            }
+
+            RefreshToken? revokedToken = await dbContext.Set<RefreshToken>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.Token == request.RefreshToken && item.IsRevoked, cancellationToken);
+
+            if (revokedToken is null || string.IsNullOrWhiteSpace(revokedToken.SessionId))
+            {
+                return;
+            }
+
+            logger.LogWarning(
+                "Refresh token revogado foi reapresentado (sessao {SessionId}). Revogando a familia inteira.",
+                revokedToken.SessionId);
+
+            await RevokeSessionTokens(revokedToken.SessionId, cancellationToken);
+        }
+
         public async Task<OidcAuthorizeCompleteResponse> CompleteAuthorize(
             OidcCompleteAuthorizeRequest request,
             string ipAddress,
@@ -355,6 +411,13 @@ namespace IdentityManagement.Infrastructure.Services
             if (!MatchesAuthorizeRequestContext(authorizationSession, request.AuthorizeUrl))
             {
                 throw new UnauthorizedAccessException("invalid_authorization_session");
+            }
+
+            if (string.IsNullOrWhiteSpace(authorizationSession.AuthorizeRequestHash))
+            {
+                logger.LogInformation(
+                    "Sessao de autorizacao {SessionId} concluida sem vinculo de authorize request (fluxo de lancamento entre origens).",
+                    authorizationSession.Id);
             }
 
             var availableContracts = await contractService.GetActiveContractSelectionsByUserId(authorizationSession.UserId, cancellationToken: cancellationToken);
@@ -389,6 +452,10 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException("invalid_client");
             }
 
+            // Sem fallback. Antes havia uma cascata (client_id pedido -> IsDefault -> qualquer ativo):
+            // o navegador pedia autorizacao para o cliente X e podia receber um codigo emitido para
+            // Y, com os lifetimes e as regras de PKCE de Y, sem nenhum registro da troca. Configuracao
+            // errada tem que aparecer, nao virar outro comportamento em silencio.
             OAuthClient? client = await dbContext.Set<OAuthClient>()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(item =>
@@ -399,28 +466,13 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (client is null)
             {
-                client = await dbContext.Set<OAuthClient>()
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(item =>
-                        item.SystemApplicationId == contract.SystemApplicationId &&
-                        item.IsDefault &&
-                        item.IsActive,
-                        cancellationToken);
-            }
+                logger.LogWarning(
+                    "OAuth client '{ClientId}' nao esta ativo para a aplicacao {SystemApplicationId} do contrato {ContractId}.",
+                    requestedClientId,
+                    contract.SystemApplicationId,
+                    contract.Id);
 
-            if (client is null)
-            {
-                client = await dbContext.Set<OAuthClient>()
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(item =>
-                        item.SystemApplicationId == contract.SystemApplicationId &&
-                        item.IsActive,
-                        cancellationToken);
-            }
-
-            if (client is null)
-            {
-                throw new InvalidOperationException("no_active_oauth_client_for_application");
+                throw new InvalidOperationException("invalid_client");
             }
 
             string urlRedirectUri = parameters.GetValueOrDefault("redirect_uri") ?? string.Empty;
@@ -434,9 +486,19 @@ namespace IdentityManagement.Infrastructure.Services
                 .Select(item => item.Uri)
                 .ToListAsync(cancellationToken);
 
-            string redirectUri = allowedRedirectUris.Any(u => string.Equals(u, urlRedirectUri, StringComparison.Ordinal))
-                ? urlRedirectUri
-                : string.Empty;
+            if (!allowedRedirectUris.Any(uri => string.Equals(uri, urlRedirectUri, StringComparison.Ordinal)))
+            {
+                // Antes virava string vazia e o fluxo seguia, falhando la adiante com um
+                // `invalid_request` generico que nao dizia o que tinha acontecido.
+                logger.LogWarning(
+                    "redirect_uri '{RedirectUri}' nao esta na allowlist do cliente '{ClientId}'.",
+                    urlRedirectUri,
+                    client.ClientId);
+
+                throw new UnauthorizedAccessException("invalid_request");
+            }
+
+            string redirectUri = urlRedirectUri;
 
             OidcAuthorizeRequest authorizeRequest = new()
             {
@@ -504,7 +566,10 @@ namespace IdentityManagement.Infrastructure.Services
                 ["name"] = session.User.Name,
                 ["preferred_username"] = session.User.Username,
                 ["email"] = session.User.Email,
-                ["email_verified"] = true,
+                // `email_verified` foi OMITIDO de proposito: nao existe fluxo de verificacao de
+                // e-mail no IdM, e a claim serve justamente para o consumidor decidir se pode
+                // confiar no endereco (por exemplo, para vincular contas). Responder `true` fixo
+                // era afirmar algo que o sistema nao sabe. Voltar quando houver verificacao real.
                 ["contract_id"] = session.Contract.Id,
                 ["company_name"] = session.Contract.Company.LegalName,
                 ["system_application_name"] = session.Contract.SystemApplication.Name
@@ -577,9 +642,18 @@ namespace IdentityManagement.Infrastructure.Services
                 : await TryValidateIdToken(request.IdTokenHint, client.ClientId, cancellationToken);
 
             string? sessionId = principal?.Claims.FirstOrDefault(item => item.Type == "sid")?.Value;
+            bool sessionRevoked = false;
+
             if (!string.IsNullOrWhiteSpace(sessionId))
             {
                 await RevokeSessionTokens(sessionId, cancellationToken);
+                sessionRevoked = true;
+            }
+            else
+            {
+                logger.LogWarning(
+                    "Logout sem sessao identificavel (client_id '{ClientId}'): nada foi revogado no servidor.",
+                    clientId);
             }
 
             string redirectUrl = string.IsNullOrWhiteSpace(request.PostLogoutRedirectUri)
@@ -591,7 +665,8 @@ namespace IdentityManagement.Infrastructure.Services
 
             return new OidcEndSessionResult
             {
-                RedirectUrl = redirectUrl
+                RedirectUrl = redirectUrl,
+                SessionRevoked = sessionRevoked
             };
         }
 
@@ -661,9 +736,11 @@ namespace IdentityManagement.Infrastructure.Services
                 {
                     return new JwtSecurityTokenHandler().ValidateToken(accessToken, parameters, out _);
                 }
-                catch
+                catch (Exception exception)
                 {
-                    // Try the next active signing key.
+                    // Nao e so assinatura errada: audiencia e expiracao caem aqui tambem, e antes as
+                    // tres viravam o mesmo `invalid_token` sem rastro nenhum.
+                    logger.LogDebug(exception, "Access token rejeitado pela chave {KeyId}.", key.KeyId);
                 }
             }
 
@@ -686,9 +763,9 @@ namespace IdentityManagement.Infrastructure.Services
                 {
                     return new JwtSecurityTokenHandler().ValidateToken(idToken, parameters, out _);
                 }
-                catch
+                catch (Exception exception)
                 {
-                    // Try the next active signing key.
+                    logger.LogDebug(exception, "id_token rejeitado pela chave {KeyId}.", key.KeyId);
                 }
             }
 
@@ -719,9 +796,11 @@ namespace IdentityManagement.Infrastructure.Services
                         KeyId = signingKey.KeyId
                     });
                 }
-                catch
+                catch (Exception exception)
                 {
-                    // Ignore invalid persisted keys and continue with other active keys.
+                    // Chave ativa com PEM invalido faz todo token assinado por ela parar de validar.
+                    // Sem este log o sintoma aparece longe da causa e o diagnostico comeca do zero.
+                    logger.LogError(exception, "Chave de assinatura {KeyId} esta ativa mas nao pode ser lida; ignorada.", signingKey.KeyId);
                 }
             }
 
@@ -796,9 +875,19 @@ namespace IdentityManagement.Infrastructure.Services
             return requestedScopes.All(allowedScopes.Contains);
         }
 
+        /// <summary>
+        /// PKCE e obrigatorio para cliente publico, independente da flag <c>RequirePkce</c>: cliente
+        /// publico nao tem segredo, entao o code challenge e a unica coisa que amarra o codigo a
+        /// quem iniciou o fluxo. Depender da flag deixava a protecao a um cadastro de distancia.
+        /// </summary>
+        private static bool RequiresPkce(OAuthClient client)
+        {
+            return client.RequirePkce || client.ClientType != OAuthClientType.Confidential;
+        }
+
         private static bool IsPkceValid(OAuthClient client, OidcAuthorizeRequest request)
         {
-            if (!client.RequirePkce)
+            if (!RequiresPkce(client))
             {
                 return true;
             }
@@ -819,11 +908,12 @@ namespace IdentityManagement.Infrastructure.Services
                    BCrypt.Net.BCrypt.Verify(clientSecret, client.ClientSecretHash);
         }
 
-        private static bool ValidateCodeVerifier(AuthorizationCode authorizationCode, string codeVerifier)
+        private static bool ValidateCodeVerifier(OAuthClient client, AuthorizationCode authorizationCode, string codeVerifier)
         {
             if (string.IsNullOrWhiteSpace(authorizationCode.CodeChallenge))
             {
-                return true;
+                // Codigo sem challenge so passa se o cliente realmente puder dispensar PKCE.
+                return !RequiresPkce(client);
             }
 
             if (string.IsNullOrWhiteSpace(codeVerifier) ||
@@ -966,6 +1056,19 @@ namespace IdentityManagement.Infrastructure.Services
                 .ToDictionary(group => group.Key, group => group.Last().Value, StringComparer.Ordinal);
         }
 
+        /// <summary>
+        /// Quando a sessao guarda o hash, o authorizeUrl apresentado tem que ser exatamente o mesmo.
+        ///
+        /// Sessao SEM hash e aceita de proposito, e isso nao e uma brecha esquecida: no lancamento
+        /// entre origens o usuario se autentica no portal do IdM (sem authorizeUrl) e quem completa
+        /// e a SPA de destino, que monta a propria requisicao de authorize, com o proprio client_id
+        /// e o proprio PKCE. Exigir hash aqui quebraria esse fluxo.
+        ///
+        /// O que sustenta o caso sem hash sao as checagens de <c>CompleteAuthorize</c>: o contrato
+        /// tem que ser do usuario, o client_id tem que pertencer a aplicacao daquele contrato (sem
+        /// fallback, ver IDM-009) e o redirect_uri tem que estar na allowlist do cliente. Com as
+        /// tres, o portador da sessao so consegue concluir para onde ja teria acesso.
+        /// </summary>
         private static bool MatchesAuthorizeRequestContext(PendingAuthorizationSession authorizationSession, string authorizeUrl)
         {
             if (string.IsNullOrWhiteSpace(authorizationSession.AuthorizeRequestHash))
