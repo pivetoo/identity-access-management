@@ -3,6 +3,7 @@ using IdentityManagement.Application.Requests.Clients;
 using IdentityManagement.Application.Responses.Auth;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
+using IdentityManagement.Domain.Security;
 using IdentityManagement.Domain.ValueObjects;
 using IdentityManagement.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -43,11 +44,8 @@ namespace IdentityManagement.IntegrationTests.Services
                 var response = await onboarding.OnboardClient(request, "https://auth.mainstay.com.br");
                 createdDatabases.AddRange(response.DatabaseNames);
 
-                ContractAdminInvitation invitation = await dbContext.Set<ContractAdminInvitation>()
-                    .AsNoTracking()
-                    .FirstAsync(i => i.CompanyId == response.CompanyId);
-
-                invitationToken = invitation.Token;
+                // O token e guardado como hash (IDM-013): o valor em claro so existe no link enviado.
+                invitationToken = NoOpEmailSender.ExtractToken(NoOpEmailSender.LastSetupLink);
             });
 
             await InScopeAsync(async sp =>
@@ -113,7 +111,7 @@ namespace IdentityManagement.IntegrationTests.Services
 
                 ContractAdminInvitation usedInvitation = await dbContext.Set<ContractAdminInvitation>()
                     .AsNoTracking()
-                    .FirstAsync(i => i.Token == invitationToken);
+                    .FirstAsync(i => i.Token == TokenHasher.Hash(invitationToken));
 
                 usedInvitation.IsValid().Should().BeFalse();
             });
@@ -136,14 +134,5 @@ namespace IdentityManagement.IntegrationTests.Services
             return (agencyApp.Id, integrationApp.Id);
         }
 
-        private sealed class NoOpEmailSender : IEmailSender
-        {
-            public Task SendPasswordResetEmailAsync(string toEmail, string toName, string resetLink, CancellationToken cancellationToken = default) => Task.CompletedTask;
-            public Task SendPasswordResetConfirmationEmailAsync(string toEmail, string toName, CancellationToken cancellationToken = default) => Task.CompletedTask;
-            public Task SendPasswordChangedEmailAsync(string toEmail, string toName, CancellationToken cancellationToken = default) => Task.CompletedTask;
-            public Task SendAccountDeactivatedEmailAsync(string toEmail, string toName, CancellationToken cancellationToken = default) => Task.CompletedTask;
-            public Task SendAdminInvitationEmailAsync(string toEmail, string companyName, string systemApplicationName, string setupLink, CancellationToken cancellationToken = default) => Task.CompletedTask;
-            public Task SendClientAdminInvitationEmailAsync(string toEmail, string companyName, IReadOnlyCollection<string> systemNames, string setupLink, CancellationToken cancellationToken = default) => Task.CompletedTask;
-        }
     }
 }

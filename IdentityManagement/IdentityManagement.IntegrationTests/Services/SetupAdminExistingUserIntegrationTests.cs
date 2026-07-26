@@ -2,6 +2,7 @@ using IdentityManagement.Application.Requests.Auth;
 using IdentityManagement.Application.Requests.Clients;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
+using IdentityManagement.Domain.Security;
 using IdentityManagement.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -52,11 +53,8 @@ namespace IdentityManagement.IntegrationTests.Services
                 var response = await onboarding.OnboardClient(request, "https://auth.mainstay.com.br");
                 createdDatabases.AddRange(response.DatabaseNames);
 
-                ContractAdminInvitation invitation = await dbContext.Set<ContractAdminInvitation>()
-                    .AsNoTracking()
-                    .FirstAsync(i => i.CompanyId == response.CompanyId);
-
-                invitationToken = invitation.Token;
+                // O token e guardado como hash (IDM-013): o valor em claro so existe no link enviado.
+                invitationToken = NoOpEmailSender.ExtractToken(NoOpEmailSender.LastSetupLink);
             });
 
             // Etapa 3: remover bancos provisionados (cleanup)
@@ -117,7 +115,7 @@ namespace IdentityManagement.IntegrationTests.Services
                 // O convite deve estar marcado como usado (invalido)
                 ContractAdminInvitation usedInvitation = await dbContext.Set<ContractAdminInvitation>()
                     .AsNoTracking()
-                    .FirstAsync(i => i.Token == invitationToken);
+                    .FirstAsync(i => i.Token == TokenHasher.Hash(invitationToken));
 
                 usedInvitation.IsValid().Should().BeFalse();
             });

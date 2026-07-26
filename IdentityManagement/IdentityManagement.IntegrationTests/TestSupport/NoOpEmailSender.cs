@@ -26,12 +26,27 @@ namespace IdentityManagement.IntegrationTests
 
         public Task SendAdminInvitationEmailAsync(string toEmail, string companyName, string systemApplicationName, string setupLink, CancellationToken cancellationToken = default)
         {
+            LastSetupLink = setupLink;
             return Task.CompletedTask;
         }
 
         public Task SendClientAdminInvitationEmailAsync(string toEmail, string companyName, IReadOnlyCollection<string> systemNames, string setupLink, CancellationToken cancellationToken = default)
         {
+            LastSetupLink = setupLink;
             return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Ultimo link de convite enviado. Depois que o token passou a ser guardado como hash
+        /// (IDM-013), o e-mail e o unico lugar onde o valor em claro aparece — que e exatamente o
+        /// ponto. O teste precisa passar pelo mesmo caminho do usuario real.
+        /// </summary>
+        public static string LastSetupLink { get; private set; } = string.Empty;
+
+        public static string ExtractToken(string setupLink)
+        {
+            int index = setupLink.IndexOf("token=", StringComparison.Ordinal);
+            return index < 0 ? string.Empty : setupLink[(index + "token=".Length)..];
         }
     }
 }
