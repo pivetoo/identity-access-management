@@ -57,6 +57,7 @@ namespace IdentityManagement.Infrastructure.Services
                 join role in dbContext.Set<Role>().AsNoTracking() on userRole.RoleId equals role.Id
                 where userRole.UserId == user.Id &&
                       role.ContractId == contract.Id &&
+                      role.IsActive &&
                       userRole.IsActive &&
                       !userRole.RevokedAt.HasValue
                 select new UserRoleClaimModel
@@ -91,6 +92,7 @@ namespace IdentityManagement.Infrastructure.Services
                 join accessResource in dbContext.Set<AccessResource>().AsNoTracking() on roleAccessResource.AccessResourceId equals accessResource.Id
                 where userRole.UserId == user.Id &&
                       role.ContractId == contract.Id &&
+                      role.IsActive &&
                       userRole.IsActive &&
                       !userRole.RevokedAt.HasValue &&
                       roleAccessResource.IsActive &&
@@ -197,40 +199,11 @@ namespace IdentityManagement.Infrastructure.Services
             return Convert.ToBase64String(randomBytes);
         }
 
-        public bool ValidateToken(string token)
-        {
-            if (string.IsNullOrWhiteSpace(token))
-            {
-                return false;
-            }
-
-            try
-            {
-                JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
-                JwtSecurityToken jwtToken = tokenHandler.ReadJwtToken(token);
-                return jwtToken.ValidTo > DateTime.UtcNow;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public long? GetUserIdFromToken(string token)
-        {
-            try
-            {
-                JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
-                JwtSecurityToken jwtToken = tokenHandler.ReadJwtToken(token);
-                string? userId = jwtToken.Claims.FirstOrDefault(item => item.Type == "user_id")?.Value;
-                return long.TryParse(userId, out long parsedUserId) ? parsedUserId : null;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
+        // ValidateToken e GetUserIdFromToken foram REMOVIDOS. Os dois usavam `ReadJwtToken`, que
+        // decodifica sem verificar assinatura, emissor nem audiencia — um token forjado passava
+        // desde que o `exp` estivesse no futuro. Nao tinham chamador; ficavam como arma carregada na
+        // interface do servico de identidade. Para validar de verdade, use
+        // OidcAuthorizationService.ValidateAccessToken, que resolve as chaves ativas e valida.
         public DateTimeOffset GetTokenExpiration(string token)
         {
             try

@@ -10,10 +10,6 @@ namespace IdentityManagement.Application.Services
 
         string GenerateRefreshToken();
 
-        bool ValidateToken(string token);
-
-        long? GetUserIdFromToken(string token);
-
         DateTimeOffset GetTokenExpiration(string token);
     }
 }

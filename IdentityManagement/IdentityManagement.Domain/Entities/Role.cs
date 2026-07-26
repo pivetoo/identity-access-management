@@ -19,6 +19,8 @@ namespace IdentityManagement.Domain.Entities
 
         public bool IsDefault { get; private set; }
 
+        public bool IsActive { get; private set; } = true;
+
         public IReadOnlyCollection<UserRole> UserRoles => userRoles.AsReadOnly();
 
         public IReadOnlyCollection<RoleAccessResource> RoleAccessResources => roleAccessResources.AsReadOnly();
@@ -42,6 +44,7 @@ namespace IdentityManagement.Domain.Entities
             ContractId = contractId;
             IsRoot = isRoot;
             IsDefault = isDefault;
+            IsActive = true;
         }
 
         public void Update(string name, string description, bool isRoot, bool isDefault)
@@ -58,6 +61,15 @@ namespace IdentityManagement.Domain.Entities
         public void SetDefault(bool isDefault)
         {
             IsDefault = isDefault;
+        }
+
+        /// <summary>
+        /// Desativar um perfil deixa de exigir revogacao usuario a usuario (ou exclusao). As claims
+        /// do token so consideram perfil ativo.
+        /// </summary>
+        public void SetActive(bool isActive)
+        {
+            IsActive = isActive;
         }
     }
 }

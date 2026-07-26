@@ -248,6 +248,7 @@ namespace IdentityManagement.Infrastructure.Services
                 join company in DbContext.Set<Company>().AsNoTracking() on contract.CompanyId equals company.Id
                 join systemApplication in DbContext.Set<SystemApplication>().AsNoTracking() on contract.SystemApplicationId equals systemApplication.Id
                 where userRole.UserId == userId &&
+                      role.IsActive &&
                       userRole.IsActive &&
                       !userRole.RevokedAt.HasValue &&
                       contract.IsActive &&

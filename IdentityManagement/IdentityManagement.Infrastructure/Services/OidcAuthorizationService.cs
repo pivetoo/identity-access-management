@@ -755,6 +755,7 @@ namespace IdentityManagement.Infrastructure.Services
                     .Include(item => item.SystemApplication)
                     .AsNoTracking() on role.ContractId equals contract.Id
                 where userRole.UserId == userId &&
+                      role.IsActive &&
                       userRole.IsActive &&
                       !userRole.RevokedAt.HasValue &&
                       contract.Id == contractId &&

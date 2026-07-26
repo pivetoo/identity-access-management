@@ -133,5 +133,23 @@ namespace IdentityManagement.Testing.Domain.Entities
             Assert.That(role.UserRoles, Is.Empty);
             Assert.That(role.RoleAccessResources, Is.Empty);
         }
+
+        [Test]
+        public void Constructor_ShouldStartActive()
+        {
+            Role role = new Role("Gerente", "Perfil de gerente", 1);
+
+            Assert.That(role.IsActive, Is.True);
+        }
+
+        [Test]
+        public void SetActive_False_ShouldDeactivateRole()
+        {
+            Role role = new Role("Gerente", "Perfil de gerente", 1);
+
+            role.SetActive(false);
+
+            Assert.That(role.IsActive, Is.False);
+        }
     }
 }
