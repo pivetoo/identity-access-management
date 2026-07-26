@@ -1,4 +1,5 @@
 using Archon.Core.Entities;
+using IdentityManagement.Domain.Security;
 
 namespace IdentityManagement.Domain.Entities
 {
@@ -19,7 +20,7 @@ namespace IdentityManagement.Domain.Entities
         public PasswordResetToken(long userId, string token, DateTimeOffset expiresAt)
         {
             UserId = userId;
-            Token = token;
+            Token = TokenHasher.Hash(token);
             ExpiresAt = expiresAt;
         }
 

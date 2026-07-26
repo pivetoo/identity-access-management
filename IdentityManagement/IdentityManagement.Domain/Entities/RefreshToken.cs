@@ -1,10 +1,20 @@
 using Archon.Core.Entities;
+using IdentityManagement.Domain.Security;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace IdentityManagement.Domain.Entities
 {
     public class RefreshToken : Entity
     {
+        /// <summary>Hash do token. O valor em claro nunca e persistido.</summary>
         public string Token { get; private set; } = string.Empty;
+
+        /// <summary>
+        /// Valor em claro, disponivel apenas na instancia que acabou de ser criada — e o que vai para
+        /// o cliente. Depois de recarregar do banco, e nulo, e nao ha como recuperar.
+        /// </summary>
+        [NotMapped]
+        public string? PlainToken { get; private set; }
 
         public long UserId { get; private set; }
 
@@ -43,7 +53,8 @@ namespace IdentityManagement.Domain.Entities
                 throw new ArgumentOutOfRangeException(nameof(userId));
             }
 
-            Token = token.Trim();
+            PlainToken = token.Trim();
+            Token = TokenHasher.Hash(token);
             UserId = userId;
             ContractId = contractId;
             ClientId = clientId.Trim();

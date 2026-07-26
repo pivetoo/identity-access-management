@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
@@ -19,22 +21,46 @@ namespace IdentityManagement.Api.Controllers
 
         private readonly IBillingWebhookService billingWebhookService;
         private readonly AsaasOptions options;
+        private readonly ILogger<BillingWebhookController> logger;
 
-        public BillingWebhookController(IBillingWebhookService billingWebhookService, IOptions<AsaasOptions> options)
+        public BillingWebhookController(IBillingWebhookService billingWebhookService, IOptions<AsaasOptions> options, ILogger<BillingWebhookController> logger)
         {
             this.billingWebhookService = billingWebhookService;
             this.options = options.Value;
+            this.logger = logger;
+        }
+
+        /// <summary>Comparacao de tempo constante: segredo de webhook nao se compara com `string.Equals`.</summary>
+        private static bool FixedTimeEquals(string received, string expected)
+        {
+            byte[] receivedBytes = Encoding.UTF8.GetBytes(received ?? string.Empty);
+            byte[] expectedBytes = Encoding.UTF8.GetBytes(expected);
+
+            return CryptographicOperations.FixedTimeEquals(receivedBytes, expectedBytes);
         }
 
         [AllowAnonymous]
         [PostEndpoint("webhook")]
         public async Task<IActionResult> Receive(CancellationToken cancellationToken)
         {
-            // Token vazio = pula validacao (conveniencia de dev).
-            if (!string.IsNullOrEmpty(options.WebhookToken))
+            // Antes, token vazio pulava a validacao inteira — um esquecimento de deploy deixava este
+            // endpoint anonimo aceitando qualquer POST que marca assinatura como paga. A conveniencia
+            // de desenvolvimento agora e uma opcao declarada (`Asaas:AllowUnauthenticatedWebhook`),
+            // nao o efeito colateral de uma configuracao ausente. Em producao o startup ja falha se o
+            // token nao estiver configurado.
+            if (string.IsNullOrEmpty(options.WebhookToken))
+            {
+                if (!options.AllowUnauthenticatedWebhook)
+                {
+                    return Unauthorized();
+                }
+
+                logger.LogWarning("Webhook de billing aceito SEM validacao de token (AllowUnauthenticatedWebhook habilitado).");
+            }
+            else
             {
                 string receivedToken = Request.Headers[AsaasAccessTokenHeader].ToString();
-                if (!string.Equals(receivedToken, options.WebhookToken, StringComparison.Ordinal))
+                if (!FixedTimeEquals(receivedToken, options.WebhookToken))
                 {
                     return Unauthorized();
                 }

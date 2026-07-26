@@ -1,4 +1,6 @@
 using Archon.Core.Entities;
+using IdentityManagement.Domain.Security;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace IdentityManagement.Domain.Entities
 {
@@ -8,7 +10,12 @@ namespace IdentityManagement.Domain.Entities
 
         public User User { get; private set; } = null!;
 
+        /// <summary>Hash do token. O valor em claro nunca e persistido.</summary>
         public string Token { get; private set; } = string.Empty;
+
+        /// <summary>Valor em claro, disponivel so na instancia recem-criada — e o que vai ao cliente.</summary>
+        [NotMapped]
+        public string? PlainToken { get; private set; }
 
         public string? AuthorizeRequestHash { get; private set; }
 
@@ -41,7 +48,8 @@ namespace IdentityManagement.Domain.Entities
             }
 
             UserId = userId;
-            Token = token.Trim();
+            PlainToken = token.Trim();
+            Token = TokenHasher.Hash(token);
             AuthorizeRequestHash = string.IsNullOrWhiteSpace(authorizeRequestHash) ? null : authorizeRequestHash.Trim();
             ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(expirationMinutes);
         }

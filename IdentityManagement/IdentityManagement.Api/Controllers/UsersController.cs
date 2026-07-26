@@ -56,8 +56,10 @@ namespace IdentityManagement.Api.Controllers
         [PostEndpoint]
         public async Task<IActionResult> RegisterFirst([FromBody] RegisterUserRequest request, CancellationToken cancellationToken)
         {
-            IReadOnlyCollection<IdentityManagement.Application.Responses.Users.UserResponse> existingUsers = await userService.GetActiveUsers(cancellationToken);
-            if (existingUsers.Count > 0)
+            // Conta TODOS os usuarios, nao so os ativos: com a guarda anterior, desativar todo mundo
+            // reabria o endpoint anonimo de criacao do primeiro usuario.
+            bool hasAnyUser = await userService.HasAnyUser(cancellationToken);
+            if (hasAnyUser)
             {
                 return Http403(Localizer["user.firstRegistration.notAllowed"]);
             }

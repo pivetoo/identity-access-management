@@ -1,4 +1,5 @@
 using IdentityManagement.Domain.Entities;
+using IdentityManagement.Domain.Security;
 
 namespace IdentityManagement.Testing.Domain.Entities
 {
@@ -11,7 +12,8 @@ namespace IdentityManagement.Testing.Domain.Entities
             PendingAuthorizationSession session = new(1, "token-value");
 
             Assert.That(session.UserId, Is.EqualTo(1));
-            Assert.That(session.Token, Is.EqualTo("token-value"));
+            Assert.That(session.Token, Is.EqualTo(TokenHasher.Hash("token-value")));
+            Assert.That(session.PlainToken, Is.EqualTo("token-value"));
             Assert.That(session.IsUsed, Is.False);
             Assert.That(session.IsRevoked, Is.False);
             Assert.That(session.UsedAt, Is.Null);
@@ -37,7 +39,8 @@ namespace IdentityManagement.Testing.Domain.Entities
         {
             PendingAuthorizationSession session = new(1, "  token-value  ");
 
-            Assert.That(session.Token, Is.EqualTo("token-value"));
+            Assert.That(session.Token, Is.EqualTo(TokenHasher.Hash("token-value")));
+            Assert.That(session.PlainToken, Is.EqualTo("token-value"));
         }
 
         [Test]

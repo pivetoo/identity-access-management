@@ -149,6 +149,11 @@ namespace IdentityManagement.Infrastructure.Services
             return user;
         }
 
+        public Task<bool> HasAnyUser(CancellationToken cancellationToken = default)
+        {
+            return DbContext.Set<User>().AsNoTracking().AnyAsync(cancellationToken);
+        }
+
         public async Task<bool> ChangePassword(long userId, string currentPassword, string newPassword, CancellationToken cancellationToken = default)
         {
             User? user = await (

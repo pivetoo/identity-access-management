@@ -1,4 +1,5 @@
 using IdentityManagement.Domain.Entities;
+using IdentityManagement.Domain.Security;
 
 namespace IdentityManagement.Testing.Domain.Entities
 {
@@ -10,7 +11,7 @@ namespace IdentityManagement.Testing.Domain.Entities
         {
             AuthorizationCode code = CreateCode();
 
-            Assert.That(code.Code, Is.EqualTo("auth_code"));
+            Assert.That(code.Code, Is.EqualTo(TokenHasher.Hash("auth_code")));
             Assert.That(code.UserId, Is.EqualTo(1));
             Assert.That(code.ClientId, Is.EqualTo("client_id"));
             Assert.That(code.Scopes, Is.EqualTo("read write"));
@@ -125,7 +126,7 @@ namespace IdentityManagement.Testing.Domain.Entities
                 redirectUri: "  https://app.com/callback  ",
                 sessionId: "  session_id  ");
 
-            Assert.That(code.Code, Is.EqualTo("auth_code"));
+            Assert.That(code.Code, Is.EqualTo(TokenHasher.Hash("auth_code")));
             Assert.That(code.ClientId, Is.EqualTo("client_id"));
             Assert.That(code.Scopes, Is.EqualTo("read write"));
             Assert.That(code.RedirectUri, Is.EqualTo("https://app.com/callback"));

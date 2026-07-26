@@ -5,6 +5,7 @@ using IdentityManagement.Application.Responses.Contracts;
 using IdentityManagement.Application.Responses.Users;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
+using IdentityManagement.Domain.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Localization;
@@ -64,7 +65,7 @@ namespace IdentityManagement.Infrastructure.Services
                 UserId = user.Id,
                 UserName = user.Name,
                 UserEmail = user.Email,
-                AuthorizationSessionToken = authorizationSession.Token,
+                AuthorizationSessionToken = authorizationSession.PlainToken ?? string.Empty,
                 AvailableContracts = availableContracts.ToList()
             };
         }
@@ -106,10 +107,11 @@ namespace IdentityManagement.Infrastructure.Services
 
         public async Task<bool> ResetPasswordAsync(ResetPasswordRequest request, CancellationToken cancellationToken = default)
         {
+            string resetTokenHash = TokenHasher.Hash(request.Token);
             var resetToken = await dbContext.Set<PasswordResetToken>()
                 .AsTracking()
                 .Include(t => t.User)
-                .FirstOrDefaultAsync(t => t.Token == request.Token, cancellationToken);
+                .FirstOrDefaultAsync(t => t.Token == resetTokenHash, cancellationToken);
 
             if (resetToken is null || !resetToken.IsValid()) return false;
 
@@ -129,11 +131,12 @@ namespace IdentityManagement.Infrastructure.Services
 
         public async Task<AdminInvitationInfoResponse?> ValidateAdminInvitation(string token, CancellationToken cancellationToken = default)
         {
+            string invitationTokenHash = TokenHasher.Hash(token);
             ContractAdminInvitation? invitation = await dbContext.Set<ContractAdminInvitation>()
                 .AsNoTracking()
                 .Include(i => i.Contract).ThenInclude(c => c.Company)
                 .Include(i => i.Contract).ThenInclude(c => c.SystemApplication)
-                .FirstOrDefaultAsync(i => i.Token == token, cancellationToken);
+                .FirstOrDefaultAsync(i => i.Token == invitationTokenHash, cancellationToken);
 
             if (invitation is null || !invitation.IsValid())
             {
@@ -186,9 +189,10 @@ namespace IdentityManagement.Infrastructure.Services
 
         public async Task<bool> SetupAdmin(SetupAdminRequest request, CancellationToken cancellationToken = default)
         {
+            string invitationTokenHash = TokenHasher.Hash(request.Token);
             ContractAdminInvitation? invitation = await dbContext.Set<ContractAdminInvitation>()
                 .AsTracking()
-                .FirstOrDefaultAsync(i => i.Token == request.Token, cancellationToken);
+                .FirstOrDefaultAsync(i => i.Token == invitationTokenHash, cancellationToken);
 
             if (invitation is null || !invitation.IsValid())
             {
@@ -280,9 +284,10 @@ namespace IdentityManagement.Infrastructure.Services
         public async Task<bool> SetupAdminExistingUser(SetupAdminExistingUserRequest request, CancellationToken cancellationToken = default)
         {
             // Verificacao inicial sem transacao: convite valido?
+            string invitationTokenHash = TokenHasher.Hash(request.Token);
             ContractAdminInvitation? invitation = await dbContext.Set<ContractAdminInvitation>()
                 .AsNoTracking()
-                .FirstOrDefaultAsync(i => i.Token == request.Token, cancellationToken);
+                .FirstOrDefaultAsync(i => i.Token == invitationTokenHash, cancellationToken);
 
             if (invitation is null || !invitation.IsValid())
             {

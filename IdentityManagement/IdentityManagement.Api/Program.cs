@@ -101,6 +101,19 @@ builder.Services.AddHostedService<IdentityManagement.Api.BackgroundJobs.Subscrip
 var app = builder.Build();
 rootServiceProvider = app.Services;
 
+// Falha no startup, e nao no primeiro webhook: fora de Development o token e obrigatorio, a menos
+// que alguem tenha declarado explicitamente que aceita webhook sem autenticacao.
+if (!app.Environment.IsDevelopment())
+{
+    bool allowUnauthenticatedWebhook = builder.Configuration.GetValue("Asaas:AllowUnauthenticatedWebhook", false);
+    string webhookToken = builder.Configuration["Asaas:WebhookToken"] ?? string.Empty;
+
+    if (string.IsNullOrEmpty(webhookToken) && !allowUnauthenticatedWebhook)
+    {
+        throw new InvalidOperationException("Asaas:WebhookToken is not configured. O webhook de billing altera estado de assinatura e nao pode ficar anonimo.");
+    }
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();

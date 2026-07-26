@@ -2,6 +2,7 @@ using IdentityManagement.Application.Requests.Oidc;
 using IdentityManagement.Application.Responses.Oidc;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
+using IdentityManagement.Domain.Security;
 using IdentityManagement.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -166,6 +167,12 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException("unsupported_grant_type");
             }
 
+            if (string.IsNullOrWhiteSpace(request.Code))
+            {
+                throw new UnauthorizedAccessException("invalid_grant");
+            }
+
+            string authorizationCodeHash = TokenHasher.Hash(request.Code);
             AuthorizationCode? authorizationCode = await dbContext.Set<AuthorizationCode>()
                 .AsNoTracking()
                 .Include(item => item.User)
@@ -173,7 +180,7 @@ namespace IdentityManagement.Infrastructure.Services
                     .ThenInclude(item => item!.Company)
                 .Include(item => item.Contract!)
                     .ThenInclude(item => item!.SystemApplication)
-                .FirstOrDefaultAsync(item => item.Code == request.Code, cancellationToken);
+                .FirstOrDefaultAsync(item => item.Code == authorizationCodeHash, cancellationToken);
 
             if (authorizationCode is null || !authorizationCode.IsValid() || authorizationCode.Contract is null)
             {
@@ -270,7 +277,7 @@ namespace IdentityManagement.Infrastructure.Services
             {
                 AccessToken = accessToken,
                 IdToken = idToken,
-                RefreshToken = refreshToken?.Token,
+                RefreshToken = refreshToken?.PlainToken,
                 TokenType = "Bearer",
                 ExpiresIn = Math.Max(0, Convert.ToInt32((tokenExpiration - DateTimeOffset.UtcNow).TotalSeconds)),
                 Scope = authorizationCode.Scopes
@@ -290,6 +297,12 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new UnauthorizedAccessException("invalid_client");
             }
 
+            if (string.IsNullOrWhiteSpace(request.RefreshToken))
+            {
+                throw new UnauthorizedAccessException("invalid_grant");
+            }
+
+            string refreshTokenHash = TokenHasher.Hash(request.RefreshToken);
             RefreshToken? existingRefreshToken = await dbContext.Set<RefreshToken>()
                 .AsTracking()
                 .Include(item => item.User)
@@ -298,7 +311,7 @@ namespace IdentityManagement.Infrastructure.Services
                 .Include(item => item.Contract!)
                     .ThenInclude(item => item!.SystemApplication)
                 .FirstOrDefaultAsync(
-                    item => item.Token == request.RefreshToken &&
+                    item => item.Token == refreshTokenHash &&
                             item.ClientId == request.ClientId &&
                             !item.IsRevoked &&
                             DateTimeOffset.UtcNow < item.ExpiresAt,
@@ -355,7 +368,7 @@ namespace IdentityManagement.Infrastructure.Services
             {
                 AccessToken = accessToken,
                 IdToken = idToken,
-                RefreshToken = newRefreshToken.Token,
+                RefreshToken = newRefreshToken.PlainToken ?? string.Empty,
                 TokenType = "Bearer",
                 ExpiresIn = Math.Max(0, Convert.ToInt32((tokenExpiration - DateTimeOffset.UtcNow).TotalSeconds)),
                 Scope = existingRefreshToken.Scopes
@@ -376,9 +389,10 @@ namespace IdentityManagement.Infrastructure.Services
                 return;
             }
 
+            string reusedTokenHash = TokenHasher.Hash(request.RefreshToken);
             RefreshToken? revokedToken = await dbContext.Set<RefreshToken>()
                 .AsNoTracking()
-                .FirstOrDefaultAsync(item => item.Token == request.RefreshToken && item.IsRevoked, cancellationToken);
+                .FirstOrDefaultAsync(item => item.Token == reusedTokenHash && item.IsRevoked, cancellationToken);
 
             if (revokedToken is null || string.IsNullOrWhiteSpace(revokedToken.SessionId))
             {
@@ -398,10 +412,16 @@ namespace IdentityManagement.Infrastructure.Services
             string userAgent,
             CancellationToken cancellationToken = default)
         {
+            if (string.IsNullOrWhiteSpace(request.AuthorizationSessionToken))
+            {
+                throw new UnauthorizedAccessException("invalid_authorization_session");
+            }
+
+            string authorizationSessionHash = TokenHasher.Hash(request.AuthorizationSessionToken);
             PendingAuthorizationSession? authorizationSession = await dbContext.Set<PendingAuthorizationSession>()
                 .AsTracking()
                 .Include(item => item.User)
-                .FirstOrDefaultAsync(item => item.Token == request.AuthorizationSessionToken, cancellationToken);
+                .FirstOrDefaultAsync(item => item.Token == authorizationSessionHash, cancellationToken);
 
             if (authorizationSession is null || !authorizationSession.IsValid() || !authorizationSession.User.IsActive)
             {
@@ -589,10 +609,11 @@ namespace IdentityManagement.Infrastructure.Services
                 return;
             }
 
+            string revocationTokenHash = TokenHasher.Hash(request.Token);
             RefreshToken? refreshToken = await dbContext.Set<RefreshToken>()
                 .AsTracking()
                 .FirstOrDefaultAsync(
-                    item => item.Token == request.Token &&
+                    item => item.Token == revocationTokenHash &&
                             item.ClientId == client.ClientId &&
                             !item.IsRevoked,
                     cancellationToken);

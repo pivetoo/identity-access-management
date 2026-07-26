@@ -1,4 +1,5 @@
 using Archon.Core.Entities;
+using IdentityManagement.Domain.Security;
 
 namespace IdentityManagement.Domain.Entities
 {
@@ -27,7 +28,7 @@ namespace IdentityManagement.Domain.Entities
         public ContractAdminInvitation(long contractId, string token, DateTimeOffset expiresAt)
         {
             ContractId = contractId;
-            Token = token;
+            Token = TokenHasher.Hash(token);
             ExpiresAt = expiresAt;
         }
 
@@ -35,7 +36,7 @@ namespace IdentityManagement.Domain.Entities
         {
             ContractId = null;
             CompanyId = companyId;
-            Token = token;
+            Token = TokenHasher.Hash(token);
             ExpiresAt = expiresAt;
         }
 

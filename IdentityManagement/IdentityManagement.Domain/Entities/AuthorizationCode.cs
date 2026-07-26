@@ -1,9 +1,11 @@
 using Archon.Core.Entities;
+using IdentityManagement.Domain.Security;
 
 namespace IdentityManagement.Domain.Entities
 {
     public class AuthorizationCode : Entity
     {
+        /// <summary>Hash do codigo. O valor em claro so existe no redirect de volta ao cliente.</summary>
         public string Code { get; private set; } = string.Empty;
 
         public long UserId { get; private set; }
@@ -68,7 +70,7 @@ namespace IdentityManagement.Domain.Entities
                 throw new ArgumentOutOfRangeException(nameof(userId));
             }
 
-            Code = code.Trim();
+            Code = TokenHasher.Hash(code);
             UserId = userId;
             ContractId = contractId;
             ClientId = clientId.Trim();

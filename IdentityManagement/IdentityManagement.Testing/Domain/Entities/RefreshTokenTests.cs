@@ -1,4 +1,5 @@
 using IdentityManagement.Domain.Entities;
+using IdentityManagement.Domain.Security;
 
 namespace IdentityManagement.Testing.Domain.Entities
 {
@@ -10,7 +11,8 @@ namespace IdentityManagement.Testing.Domain.Entities
         {
             RefreshToken token = CreateToken();
 
-            Assert.That(token.Token, Is.EqualTo("token_string"));
+            Assert.That(token.Token, Is.EqualTo(TokenHasher.Hash("token_string")));
+            Assert.That(token.PlainToken, Is.EqualTo("token_string"));
             Assert.That(token.UserId, Is.EqualTo(1));
             Assert.That(token.SessionId, Is.EqualTo("session_id"));
             Assert.That(token.Scopes, Is.EqualTo("read write"));
@@ -95,7 +97,8 @@ namespace IdentityManagement.Testing.Domain.Entities
                 scopes: "  read write  ",
                 clientId: "  client_id  ");
 
-            Assert.That(token.Token, Is.EqualTo("token_string"));
+            Assert.That(token.Token, Is.EqualTo(TokenHasher.Hash("token_string")));
+            Assert.That(token.PlainToken, Is.EqualTo("token_string"));
             Assert.That(token.SessionId, Is.EqualTo("session_id"));
             Assert.That(token.Scopes, Is.EqualTo("read write"));
             Assert.That(token.ClientId, Is.EqualTo("client_id"));
@@ -161,6 +164,24 @@ namespace IdentityManagement.Testing.Domain.Entities
             string clientId = "client_id")
         {
             return new RefreshToken(token, userId, sessionId, scopes, expirationDays, contractId, clientId);
+        }
+
+        [Test]
+        public void Constructor_ShouldNotPersistThePlainValue()
+        {
+            RefreshToken token = new RefreshToken("segredo-do-portador", 1, "session-1", "openid", 30, 1, "client-1");
+
+            Assert.That(token.Token, Is.Not.EqualTo("segredo-do-portador"));
+            Assert.That(token.Token, Does.Not.Contain("segredo"));
+        }
+
+        [Test]
+        public void Hash_ShouldBeDeterministic_SoLookupByHashWorks()
+        {
+            RefreshToken first = new RefreshToken("mesmo-valor", 1, "session-1", "openid", 30, 1, "client-1");
+            RefreshToken second = new RefreshToken("mesmo-valor", 2, "session-2", "openid", 30, 2, "client-2");
+
+            Assert.That(first.Token, Is.EqualTo(second.Token));
         }
     }
 }

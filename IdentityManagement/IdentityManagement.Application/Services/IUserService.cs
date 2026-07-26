@@ -33,6 +33,8 @@ namespace IdentityManagement.Application.Services
 
         Task<IReadOnlyCollection<UserResponse>> GetActiveUsers(CancellationToken cancellationToken = default);
 
+        Task<bool> HasAnyUser(CancellationToken cancellationToken = default);
+
         Task<ContractUserResponse> CreateUserInContract(CreateUserInContractRequest request, long contractId, CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<ContractUserResponse>> GetUsersByContract(long contractId, CancellationToken cancellationToken = default);
