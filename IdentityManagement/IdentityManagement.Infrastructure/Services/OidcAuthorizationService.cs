@@ -680,31 +680,12 @@ namespace IdentityManagement.Infrastructure.Services
                 .FirstOrDefaultAsync(item => item.ClientId == clientId && item.IsActive, cancellationToken);
         }
 
-        private async Task RevokeSessionTokens(string sessionId, CancellationToken cancellationToken)
+        // Delega para o LoginSessionService: revogar sessao e revogar os refresh tokens dela e a
+        // mesma operacao, e ter duas implementacoes disso foi o que deixou o reset de senha revogando
+        // metade das coisas.
+        private Task RevokeSessionTokens(string sessionId, CancellationToken cancellationToken)
         {
-            LoginSession? session = await dbContext.Set<LoginSession>()
-                .AsTracking()
-                .FirstOrDefaultAsync(item => item.SessionId == sessionId && item.IsActive, cancellationToken);
-
-            if (session is not null)
-            {
-                session.Revoke();
-            }
-
-            List<RefreshToken> refreshTokens = await dbContext.Set<RefreshToken>()
-                .AsTracking()
-                .Where(item => item.SessionId == sessionId && !item.IsRevoked)
-                .ToListAsync(cancellationToken);
-
-            foreach (RefreshToken refreshToken in refreshTokens)
-            {
-                refreshToken.Revoke();
-            }
-
-            if (session is not null || refreshTokens.Count > 0)
-            {
-                await dbContext.SaveChangesAsync(cancellationToken);
-            }
+            return loginSessionService.RevokeSession(sessionId, cancellationToken);
         }
 
         private async Task<ClaimsPrincipal> ValidateAccessToken(string accessToken, CancellationToken cancellationToken)

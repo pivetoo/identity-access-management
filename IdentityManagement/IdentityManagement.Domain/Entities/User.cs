@@ -23,6 +23,10 @@ namespace IdentityManagement.Domain.Entities
 
         public DateTimeOffset? LastLoginAt { get; private set; }
 
+        public int FailedLoginAttempts { get; private set; }
+
+        public DateTimeOffset? LockedUntil { get; private set; }
+
         public Language PreferredLanguage { get; private set; } = Language.PtBr;
 
         public IReadOnlyCollection<AuthorizationCode> AuthorizationCodes => authorizationCodes.AsReadOnly();
@@ -46,6 +50,38 @@ namespace IdentityManagement.Domain.Entities
         public void RegisterLogin()
         {
             LastLoginAt = DateTimeOffset.UtcNow;
+            FailedLoginAttempts = 0;
+            LockedUntil = null;
+        }
+
+        /// <summary>
+        /// Bloqueio temporario apos tentativas seguidas de senha errada. O custo do BCrypt sozinho
+        /// nao e politica de bloqueio: com paralelismo o ataque continua viavel, e ainda vira DoS de
+        /// CPU contra o provedor de identidade inteiro.
+        /// </summary>
+        public void RegisterFailedLogin(int maxAttempts, TimeSpan lockDuration)
+        {
+            FailedLoginAttempts += 1;
+
+            if (FailedLoginAttempts >= maxAttempts)
+            {
+                LockedUntil = DateTimeOffset.UtcNow.Add(lockDuration);
+            }
+        }
+
+        public bool IsLockedOut(DateTimeOffset now)
+        {
+            return LockedUntil.HasValue && now < LockedUntil.Value;
+        }
+
+        /// <summary>
+        /// Senha trocada zera o bloqueio: quem provou posse da conta pelo fluxo de recuperacao nao
+        /// deve ficar preso ao contador de quem estava tentando adivinhar.
+        /// </summary>
+        public void ClearLockout()
+        {
+            FailedLoginAttempts = 0;
+            LockedUntil = null;
         }
 
         public void Update(string username, string email, string name, bool isActive, string? avatarUrl = null)
@@ -59,6 +95,7 @@ namespace IdentityManagement.Domain.Entities
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(passwordHash);
             PasswordHash = passwordHash.Trim();
+            ClearLockout();
         }
 
         public void UpdateAvatar(string? avatarUrl)

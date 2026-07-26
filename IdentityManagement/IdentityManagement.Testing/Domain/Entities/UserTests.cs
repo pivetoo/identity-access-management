@@ -225,5 +225,64 @@ namespace IdentityManagement.Testing.Domain.Entities
             Assert.That(user.RefreshTokens, Is.Empty);
             Assert.That(user.UserRoles, Is.Empty);
         }
+
+        [Test]
+        public void RegisterFailedLogin_BelowLimit_ShouldNotLock()
+        {
+            User user = CreateUser();
+
+            for (int attempt = 0; attempt < 9; attempt++)
+            {
+                user.RegisterFailedLogin(10, TimeSpan.FromMinutes(15));
+            }
+
+            Assert.That(user.FailedLoginAttempts, Is.EqualTo(9));
+            Assert.That(user.IsLockedOut(DateTimeOffset.UtcNow), Is.False);
+        }
+
+        [Test]
+        public void RegisterFailedLogin_AtLimit_ShouldLockForTheDuration()
+        {
+            User user = CreateUser();
+
+            for (int attempt = 0; attempt < 10; attempt++)
+            {
+                user.RegisterFailedLogin(10, TimeSpan.FromMinutes(15));
+            }
+
+            Assert.That(user.IsLockedOut(DateTimeOffset.UtcNow), Is.True);
+            Assert.That(user.IsLockedOut(DateTimeOffset.UtcNow.AddMinutes(16)), Is.False);
+        }
+
+        [Test]
+        public void RegisterLogin_ShouldResetFailureCounter()
+        {
+            User user = CreateUser();
+            user.RegisterFailedLogin(10, TimeSpan.FromMinutes(15));
+
+            user.RegisterLogin();
+
+            Assert.That(user.FailedLoginAttempts, Is.Zero);
+            Assert.That(user.IsLockedOut(DateTimeOffset.UtcNow), Is.False);
+        }
+
+        [Test]
+        public void ChangePassword_ShouldReleaseLockout()
+        {
+            User user = CreateUser();
+            for (int attempt = 0; attempt < 10; attempt++)
+            {
+                user.RegisterFailedLogin(10, TimeSpan.FromMinutes(15));
+            }
+
+            user.ChangePassword("novo-hash");
+
+            Assert.That(user.IsLockedOut(DateTimeOffset.UtcNow), Is.False);
+        }
+
+        private static User CreateUser()
+        {
+            return new User("usuario", "usuario@teste.com", "hash", "Usuario de Teste");
+        }
     }
 }

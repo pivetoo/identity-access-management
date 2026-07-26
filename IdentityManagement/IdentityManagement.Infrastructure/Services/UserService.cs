@@ -6,6 +6,7 @@ using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Infrastructure.Services
@@ -14,11 +15,15 @@ namespace IdentityManagement.Infrastructure.Services
     {
         private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
         private readonly IEmailSender emailSender;
+        private readonly int maxFailedLoginAttempts;
+        private readonly TimeSpan lockoutDuration;
 
-        public UserService(DbContext dbContext, IStringLocalizer<IdentityManagementResource> Localizer, IEmailSender emailSender) : base(dbContext)
+        public UserService(DbContext dbContext, IStringLocalizer<IdentityManagementResource> Localizer, IEmailSender emailSender, IConfiguration configuration) : base(dbContext)
         {
             this.Localizer = Localizer;
             this.emailSender = emailSender;
+            maxFailedLoginAttempts = configuration.GetValue("Lockout:MaxFailedAttempts", 10);
+            lockoutDuration = TimeSpan.FromMinutes(configuration.GetValue("Lockout:DurationMinutes", 15));
         }
 
         public async Task<UserResponse> CreateUser(RegisterUserRequest request, CancellationToken cancellationToken = default)
@@ -108,8 +113,17 @@ namespace IdentityManagement.Infrastructure.Services
                 return null;
             }
 
+            // Conta bloqueada nem chega a verificar a senha: alem de barrar a tentativa, evita gastar
+            // o custo do BCrypt a cada chute, que era o outro lado do problema.
+            if (user.IsLockedOut(DateTimeOffset.UtcNow))
+            {
+                return null;
+            }
+
             if (!VerifyPassword(password, user.PasswordHash))
             {
+                user.RegisterFailedLogin(maxFailedLoginAttempts, lockoutDuration);
+                await Update(user, cancellationToken);
                 return null;
             }
 

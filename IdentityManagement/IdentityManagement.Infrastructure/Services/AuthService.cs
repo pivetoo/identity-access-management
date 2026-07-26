@@ -20,14 +20,16 @@ namespace IdentityManagement.Infrastructure.Services
         private readonly IUserService userService;
         private readonly IContractService contractService;
         private readonly IEmailSender emailSender;
+        private readonly ILoginSessionService loginSessionService;
         private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
 
-        public AuthService(DbContext dbContext, IUserService userService, IContractService contractService, IEmailSender emailSender, IStringLocalizer<IdentityManagementResource> Localizer)
+        public AuthService(DbContext dbContext, IUserService userService, IContractService contractService, IEmailSender emailSender, ILoginSessionService loginSessionService, IStringLocalizer<IdentityManagementResource> Localizer)
         {
             this.dbContext = dbContext;
             this.userService = userService;
             this.contractService = contractService;
             this.emailSender = emailSender;
+            this.loginSessionService = loginSessionService;
             this.Localizer = Localizer;
         }
 
@@ -67,9 +69,15 @@ namespace IdentityManagement.Infrastructure.Services
             };
         }
 
-        public Task<bool> ChangePassword(ChangePasswordRequest request, CancellationToken cancellationToken = default)
+        public async Task<bool> ChangePassword(ChangePasswordRequest request, CancellationToken cancellationToken = default)
         {
-            return userService.ChangePassword(request.UserId, request.CurrentPassword, request.NewPassword, cancellationToken);
+            bool changed = await userService.ChangePassword(request.UserId, request.CurrentPassword, request.NewPassword, cancellationToken);
+            if (changed)
+            {
+                await loginSessionService.RevokeAllUserSessions(request.UserId, cancellationToken);
+            }
+
+            return changed;
         }
 
         public async Task<UserResponse?> GetUserByUsername(string username, CancellationToken cancellationToken = default)
@@ -109,6 +117,10 @@ namespace IdentityManagement.Infrastructure.Services
             resetToken.User.ChangePassword(passwordHash);
             resetToken.MarkAsUsed();
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            // Trocar a senha e o gesto universal de "tira o invasor de dentro". Sem esta revogacao
+            // ele nao tirava ninguem: as sessoes e os refresh tokens ativos seguiam validos.
+            await loginSessionService.RevokeAllUserSessions(resetToken.UserId, cancellationToken);
 
             await emailSender.SendPasswordResetConfirmationEmailAsync(resetToken.User.Email, resetToken.User.Name, cancellationToken);
 

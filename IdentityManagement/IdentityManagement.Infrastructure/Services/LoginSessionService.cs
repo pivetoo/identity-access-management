@@ -33,13 +33,15 @@ namespace IdentityManagement.Infrastructure.Services
                 select item)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (session is null)
+            if (session is not null)
             {
-                return;
+                session.Revoke();
+                await Update(session, cancellationToken);
             }
 
-            session.Revoke();
-            await Update(session, cancellationToken);
+            // Fora do `if` de proposito: sessao ausente ou ja inativa nao significa que os refresh
+            // tokens dela morreram junto — e sao eles que mantem o acesso vivo por 30 dias.
+            await RevokeRefreshTokens(item => item.SessionId == sessionId, cancellationToken);
         }
 
         public async Task RevokeAllUserSessions(long userId, CancellationToken cancellationToken = default)
@@ -59,6 +61,36 @@ namespace IdentityManagement.Infrastructure.Services
             {
                 await DbContext.SaveChangesAsync(cancellationToken);
             }
+
+            await RevokeRefreshTokens(item => item.UserId == userId, cancellationToken);
+        }
+
+        /// <summary>
+        /// Revogar a sessao sem revogar o refresh token nao encerra nada: o portador do refresh
+        /// continua renovando access token normalmente (30 dias, nos clientes de producao). As duas
+        /// revogacoes andam juntas — e por isso ficam num lugar so, e nao repetidas em cada chamador.
+        /// </summary>
+        private async Task RevokeRefreshTokens(
+            System.Linq.Expressions.Expression<Func<RefreshToken, bool>> predicate,
+            CancellationToken cancellationToken)
+        {
+            List<RefreshToken> refreshTokens = await DbContext.Set<RefreshToken>()
+                .AsTracking()
+                .Where(predicate)
+                .Where(item => !item.IsRevoked)
+                .ToListAsync(cancellationToken);
+
+            if (refreshTokens.Count == 0)
+            {
+                return;
+            }
+
+            foreach (RefreshToken refreshToken in refreshTokens)
+            {
+                refreshToken.Revoke();
+            }
+
+            await DbContext.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<IReadOnlyCollection<LoginSession>> GetActiveUserSessions(long userId, CancellationToken cancellationToken = default)
