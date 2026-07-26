@@ -14,8 +14,8 @@
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Resend" Version="0.5.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
-    <ProjectReference Include="..\..\..\..\frameworks\archon-framework\Archon\Archon.Core\Archon.Core.csproj" />
-    <ProjectReference Include="..\..\..\..\frameworks\archon-framework\Archon\Archon.Infrastructure\Archon.Infrastructure.csproj" />
+    <ProjectReference Include="$(ArchonProjectsPath)/Archon.Core\Archon.Core.csproj" />
+    <ProjectReference Include="$(ArchonProjectsPath)/Archon.Infrastructure\Archon.Infrastructure.csproj" />
     <ProjectReference Include="..\IdentityManagement.Domain\IdentityManagement.Domain.csproj" />
     <ProjectReference Include="..\IdentityManagement.Application\IdentityManagement.Application.csproj" />
   </ItemGroup>

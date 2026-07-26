@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\frameworks\archon-framework\Archon\Archon.Core\Archon.Core.csproj" />
+    <ProjectReference Include="$(ArchonProjectsPath)/Archon.Core\Archon.Core.csproj" />
   </ItemGroup>
 
 </Project>

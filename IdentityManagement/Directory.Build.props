@@ -1,0 +1,38 @@
+<Project>
+
+  <!--
+    Resolve onde o archon-framework esta, em vez de assumir que o repositorio mora exatamente em
+    <monorepo>/system/<sistema>/. Antes, cada .csproj trazia "..\..\..\..\frameworks\..." embutido:
+    a referencia saia do repositorio git e so funcionava se a pasta estivesse na posicao exata do
+    monorepo. Qualquer git worktree criado fora dali nao compilava.
+
+    Ordem de resolucao:
+      1. propriedade ArchonFrameworkPath (ex.: dotnet build -p:ArchonFrameworkPath=/caminho)
+      2. variavel de ambiente ARCHON_FRAMEWORK_PATH
+      3. deteccao pela posicao padrao no monorepo
+
+    IMPORTANTE: o caminho tem que ser CANONICO. Apontar para um symlink faz o MSBuild enxergar os
+    projetos do framework por dois nomes diferentes, construir as duas versoes e as duas brigarem
+    pelo mesmo obj/. Por isso a resolucao termina em GetFullPath.
+  -->
+
+  <PropertyGroup Condition="'$(ArchonFrameworkPath)' == '' AND '$(ARCHON_FRAMEWORK_PATH)' != ''">
+    <ArchonFrameworkPath>$(ARCHON_FRAMEWORK_PATH)</ArchonFrameworkPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(ArchonFrameworkPath)' == ''">
+    <ArchonFrameworkPath>$(MSBuildThisFileDirectory)..\..\..\frameworks\archon-framework</ArchonFrameworkPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ArchonFrameworkPath>$([System.IO.Path]::GetFullPath('$(ArchonFrameworkPath)'))</ArchonFrameworkPath>
+    <ArchonProjectsPath>$(ArchonFrameworkPath)/Archon</ArchonProjectsPath>
+  </PropertyGroup>
+
+  <Target Name="ValidateArchonFrameworkPath" BeforeTargets="PrepareForBuild">
+    <Error
+      Condition="!Exists('$(ArchonProjectsPath)/Archon.Core/Archon.Core.csproj')"
+      Text="archon-framework nao encontrado em '$(ArchonFrameworkPath)'. Informe o caminho com -p:ArchonFrameworkPath=... ou pela variavel de ambiente ARCHON_FRAMEWORK_PATH." />
+  </Target>
+
+</Project>
