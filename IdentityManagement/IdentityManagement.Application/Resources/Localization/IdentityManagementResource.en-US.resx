@@ -607,4 +607,11 @@
   <data name="systemRoleTemplates.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de um perfil padrão de aplicação.</value></data>
   <data name="systemRoleTemplates.getBySystemApplicationId.description" xml:space="preserve"><value>Permite listar os perfis padrão de uma aplicação específica.</value></data>
   <data name="systemRoleTemplates.update.description" xml:space="preserve"><value>Permite atualizar um perfil padrão de aplicação.</value></data>
+  <data name="asaas.subscription.missingId" xml:space="preserve"><value>The billing provider did not return the subscription id.</value></data>
+  <data name="onboarding.centralSystemNotAllowed" xml:space="preserve"><value>The central system cannot be contracted during client onboarding.</value></data>
+  <data name="plan.inactive" xml:space="preserve"><value>Inactive plan. Choose an active plan for the subscription.</value></data>
+  <data name="plan.notFound" xml:space="preserve"><value>Plan not found.</value></data>
+  <data name="subscription.alreadyExists" xml:space="preserve"><value>This company already has an active subscription.</value></data>
+  <data name="subscription.notFound" xml:space="preserve"><value>Subscription not found.</value></data>
+  <data name="subscription.transition.invalid" xml:space="preserve"><value>A cancelled subscription does not accept status changes.</value></data>
 </root>

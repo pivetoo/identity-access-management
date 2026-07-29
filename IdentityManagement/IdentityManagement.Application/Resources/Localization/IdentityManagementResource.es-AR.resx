@@ -599,4 +599,11 @@
   <data name="systemRoleTemplates.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de um perfil padrão de aplicação.</value></data>
   <data name="systemRoleTemplates.getBySystemApplicationId.description" xml:space="preserve"><value>Permite listar os perfis padrão de uma aplicação específica.</value></data>
   <data name="systemRoleTemplates.update.description" xml:space="preserve"><value>Permite atualizar um perfil padrão de aplicação.</value></data>
+  <data name="asaas.subscription.missingId" xml:space="preserve"><value>El proveedor de cobro no devolvio el identificador de la suscripcion.</value></data>
+  <data name="onboarding.centralSystemNotAllowed" xml:space="preserve"><value>El sistema central no puede contratarse en el onboarding de cliente.</value></data>
+  <data name="plan.inactive" xml:space="preserve"><value>Plan inactivo. Elija un plan activo para la suscripcion.</value></data>
+  <data name="plan.notFound" xml:space="preserve"><value>Plan no encontrado.</value></data>
+  <data name="subscription.alreadyExists" xml:space="preserve"><value>Esta empresa ya tiene una suscripcion activa.</value></data>
+  <data name="subscription.notFound" xml:space="preserve"><value>Suscripcion no encontrada.</value></data>
+  <data name="subscription.transition.invalid" xml:space="preserve"><value>Una suscripcion cancelada no acepta cambios de estado.</value></data>
 </root>

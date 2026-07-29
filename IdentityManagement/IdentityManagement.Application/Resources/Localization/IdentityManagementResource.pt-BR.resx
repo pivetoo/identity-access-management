@@ -865,4 +865,11 @@
   <data name="systemRoleTemplates.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de um perfil padrão de aplicação.</value></data>
   <data name="systemRoleTemplates.getBySystemApplicationId.description" xml:space="preserve"><value>Permite listar os perfis padrão de uma aplicação específica.</value></data>
   <data name="systemRoleTemplates.update.description" xml:space="preserve"><value>Permite atualizar um perfil padrão de aplicação.</value></data>
+  <data name="asaas.subscription.missingId" xml:space="preserve"><value>O provedor de cobranca nao devolveu o identificador da assinatura.</value></data>
+  <data name="onboarding.centralSystemNotAllowed" xml:space="preserve"><value>Sistema central nao pode ser contratado no onboarding de cliente.</value></data>
+  <data name="plan.inactive" xml:space="preserve"><value>Plano inativo. Escolha um plano ativo para a assinatura.</value></data>
+  <data name="plan.notFound" xml:space="preserve"><value>Plano nao encontrado.</value></data>
+  <data name="subscription.alreadyExists" xml:space="preserve"><value>Esta empresa ja tem uma assinatura ativa.</value></data>
+  <data name="subscription.notFound" xml:space="preserve"><value>Assinatura nao encontrada.</value></data>
+  <data name="subscription.transition.invalid" xml:space="preserve"><value>Assinatura cancelada nao aceita mudanca de status.</value></data>
 </root>
