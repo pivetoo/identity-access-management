@@ -124,12 +124,17 @@ export default function AdministrationLayout() {
       title={t('layout.title')}
       subtitle="by Mainstay"
       navbarCompanyName={contract?.companyName}
+      // Placa branca sob o logo: a marca e navy sobre fundo transparente e sumia no tema escuro,
+      // onde o rail usa --card 220 13% 15%. No tema claro o card e branco puro, entao a placa
+      // fica invisivel e nada muda.
       logo={
-        <img
-          src={logoEmpresa}
-          alt="Mainstay"
-          style={{ width: 28, height: 28, objectFit: 'contain' }}
-        />
+        <span className="flex items-center justify-center rounded-md bg-white p-0.5">
+          <img
+            src={logoEmpresa}
+            alt="Mainstay"
+            style={{ width: 28, height: 28, objectFit: 'contain' }}
+          />
+        </span>
       }
       user={user}
       onLogout={handleLogout}
