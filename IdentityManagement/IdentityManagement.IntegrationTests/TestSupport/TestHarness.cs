@@ -53,6 +53,9 @@ namespace IdentityManagement.IntegrationTests
 
             ServiceCollection services = new();
             services.AddLogging();
+            // No app real o host registra IConfiguration; servicos como UserService a injetam
+            // (Lockout:MaxFailedAttempts). Sem isso o container nao consegue ativa-los.
+            services.AddSingleton(configuration);
             // IStringLocalizer e usado por varios servicos; no app real vem do AddArchonApi.
             services.AddLocalization();
             // Roda as migrations contra o container e registra persistencia + servicos reais.
