@@ -222,30 +222,31 @@ namespace IdentityManagement.Infrastructure.Services
                     .Where(integration => integration.IsActive)
                     .ToList();
 
-                if (string.IsNullOrWhiteSpace(systemApp.BaseUrl) || activeIntegrations.Count == 0)
+                apiKeyByAudience.TryGetValue(systemApp.Audience, out string? systemApiKey);
+
+                string? skipReason = ResolveBootstrapSkipReason(systemApp.BaseUrl, !string.IsNullOrWhiteSpace(systemApiKey));
+                if (skipReason is not null)
                 {
                     logger.LogWarning(
-                        "Skipping tenant bootstrap for system '{System}' (audience '{Audience}'): blueprint not configured (baseUrl empty or no active integrations).",
+                        "Skipping tenant bootstrap for system '{System}' (audience '{Audience}'): {Reason}. The tenant database will have NO schema.",
                         systemApp.Name,
-                        systemApp.Audience);
+                        systemApp.Audience,
+                        skipReason);
 
                     result.Skipped = true;
-                    result.Detail = "blueprint.notConfigured";
+                    result.Detail = skipReason;
                     results.Add(result);
                     continue;
                 }
 
-                if (!apiKeyByAudience.TryGetValue(systemApp.Audience, out string? systemApiKey))
+                // Blueprint vazio nao impede o bootstrap: e ele que roda a migration do banco do tenant.
+                // Sem integracao pra semear, o bootstrap so migra (seed 0) e o tenant nasce utilizavel.
+                if (activeIntegrations.Count == 0)
                 {
                     logger.LogWarning(
-                        "Skipping tenant bootstrap for system '{System}' (audience '{Audience}'): no provisioned apiKey for this tenant.",
+                        "No blueprint integrations to seed for system '{System}' (audience '{Audience}'): running tenant migration only.",
                         systemApp.Name,
                         systemApp.Audience);
-
-                    result.Skipped = true;
-                    result.Detail = "apiKey.notProvisioned";
-                    results.Add(result);
-                    continue;
                 }
 
                 TenantBootstrapRequest body = BuildBootstrapRequest(activeIntegrations, apiKeyByAudience, company, generatedSecretByKey);
@@ -355,6 +356,24 @@ namespace IdentityManagement.Infrastructure.Services
             }
 
             return request;
+        }
+
+        // Decide se o bootstrap do tenant pode ser pulado. Retorna null quando deve rodar.
+        // Nao considera a quantidade de integracoes do blueprint de proposito: o bootstrap tambem roda
+        // a migration do banco do tenant, entao pular por blueprint vazio deixava o tenant sem schema.
+        internal static string? ResolveBootstrapSkipReason(string? baseUrl, bool apiKeyProvisioned)
+        {
+            if (string.IsNullOrWhiteSpace(baseUrl))
+            {
+                return "baseUrl.notConfigured";
+            }
+
+            if (!apiKeyProvisioned)
+            {
+                return "apiKey.notProvisioned";
+            }
+
+            return null;
         }
 
         // Resolve um GeneratedSecret compartilhado por chave: gera uma vez por Key e reusa no mesmo onboarding,
