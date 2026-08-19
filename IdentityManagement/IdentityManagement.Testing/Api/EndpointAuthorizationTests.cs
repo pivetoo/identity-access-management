@@ -18,10 +18,18 @@ namespace IdentityManagement.Testing.Api
     {
         private static IEnumerable<MethodInfo> ActionMethods()
         {
-            Assembly apiAssembly = typeof(IdentityManagement.Api.RateLimitPolicies).Assembly;
+            // O Archon registra controllers proprios (Localization, Health, Audit...) nas rotas deste
+            // app, e o FallbackPolicy vale para eles igual. Varrer so o assembly do IdM deixou o
+            // catalogo de localizacao sem marcacao: ele passou a devolver 401 e a tela de login
+            // entrou em loop, porque consome o catalogo antes de existir sessao.
+            Assembly[] apiAssemblies =
+            [
+                typeof(IdentityManagement.Api.RateLimitPolicies).Assembly,
+                typeof(ApiControllerBase).Assembly
+            ];
 
-            return apiAssembly
-                .GetTypes()
+            return apiAssemblies
+                .SelectMany(assembly => assembly.GetTypes())
                 .Where(type => type.IsSubclassOf(typeof(ApiControllerBase)) && !type.IsAbstract)
                 .SelectMany(type => type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
                 .Where(method => !method.IsSpecialName && method.GetCustomAttributes<HttpMethodAttribute>(inherit: true).Any());
