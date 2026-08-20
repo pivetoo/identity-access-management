@@ -289,6 +289,11 @@ namespace IdentityManagement.Infrastructure.Services
                     ContractId = group.Key.ContractId,
                     SystemApplicationName = group.Key.SystemApplicationName,
                     CompanyName = group.Key.CompanyName,
+                    // Constantes dentro do grupo: o agrupamento e por contrato, e contrato tem uma
+                    // empresa e uma aplicacao so. Esquecer de trafegar aqui devolve campo zerado,
+                    // porque este Select reconstroi o item e nao herda nada da projecao da query.
+                    Audience = group.Select(item => item.Audience).FirstOrDefault() ?? string.Empty,
+                    TenantId = group.Select(item => item.TenantId).FirstOrDefault(),
                     RoleName = group.Select(item => item.RoleName).FirstOrDefault() ?? string.Empty,
                     PortalUrl = ResolvePortalUrl(group.Select(item => item.PortalUrl).FirstOrDefault(item => !string.IsNullOrWhiteSpace(item)))
                 })
