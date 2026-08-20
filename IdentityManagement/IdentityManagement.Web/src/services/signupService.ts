@@ -25,6 +25,11 @@ async function signup(payload: SignupPayload): Promise<SignupResult> {
     body: JSON.stringify(payload),
   });
 
+  // 429 vem do rate limiter, antes do controller, entao nao tem envelope nem mensagem traduzida.
+  if (response.status === 429) {
+    throw new Error('Muitas tentativas de cadastro deste endereço. Aguarde alguns minutos e tente de novo.');
+  }
+
   const body = await response.json().catch(() => ({}));
 
   if (!response.ok) {
