@@ -75,6 +75,18 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new ConflictException("signup.company.alreadyExists");
             }
 
+            // companies.email tem indice UNICO. Sem esta checagem a colisao so aparecia no
+            // SaveChanges, como 500 cru: quem tentou cadastrar uma segunda agencia com o mesmo
+            // e-mail via uma falha generica em vez do motivo real.
+            bool emailInUse = await dbContext.Set<Company>()
+                .AsNoTracking()
+                .AnyAsync(company => company.Email == email, cancellationToken);
+
+            if (emailInUse)
+            {
+                throw new ConflictException("signup.email.alreadyExists");
+            }
+
             Plan plan = await ResolvePlanAsync(request.Annual, cancellationToken);
             List<long> systemApplicationIds = await ResolveSystemApplicationIdsAsync(cancellationToken);
 

@@ -104,6 +104,27 @@ namespace IdentityManagement.IntegrationTests.Services
         }
 
         [Test]
+        public async Task Signup_is_refused_when_the_email_belongs_to_another_company()
+        {
+            // companies.email tem indice UNICO: sem esta trava a colisao so estourava no
+            // SaveChanges, como 500 cru, depois de ja ter passado por todas as validacoes.
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                dbContext.Set<Company>().Add(new Company("Outra Empresa LTDA", "Outra Empresa", "11222333000181", "contato@signup.example", "11999990000"));
+                await dbContext.SaveChangesAsync();
+
+                SelfServiceSignupService subject = CreateSubject(sp);
+
+                Func<Task> act = () => subject.SignupAsync(ValidRequest(), "https://auth.example");
+
+                await act.Should().ThrowAsync<ConflictException>();
+
+                (await dbContext.Set<Company>().CountAsync()).Should().Be(1, "a empresa nova nao pode ser provisionada");
+            });
+        }
+
+        [Test]
         public async Task Signup_is_refused_when_configured_plan_is_inactive()
         {
             // Plano inativo nao pode ser contratado pela porta publica — e assim que o plano

@@ -629,4 +629,5 @@
   <data name="asaas.checkout.callbackNotConfigured" xml:space="preserve"><value>Card payment unavailable: checkout callback is not configured.</value></data>
   <data name="asaas.customer.missingId" xml:space="preserve"><value>Could not identify the company at the payment provider.</value></data>
   <data name="company.billingAddress.missing" xml:space="preserve"><value>Provide the billing address before adding a card.</value></data>
+  <data name="signup.email.alreadyExists" xml:space="preserve"><value>This email is already used by another agency. Use a different email or sign in with the existing account.</value></data>
 </root>

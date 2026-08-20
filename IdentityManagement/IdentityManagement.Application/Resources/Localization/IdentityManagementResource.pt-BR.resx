@@ -887,4 +887,5 @@
   <data name="asaas.checkout.callbackNotConfigured" xml:space="preserve"><value>Pagamento com cartao indisponivel: retorno do checkout nao configurado.</value></data>
   <data name="asaas.customer.missingId" xml:space="preserve"><value>Nao foi possivel identificar a empresa no provedor de pagamento.</value></data>
   <data name="company.billingAddress.missing" xml:space="preserve"><value>Informe o endereco de cobranca antes de cadastrar o cartao.</value></data>
+  <data name="signup.email.alreadyExists" xml:space="preserve"><value>Este e-mail ja esta em uso por outra agencia. Use outro e-mail ou entre com a conta existente.</value></data>
 </root>
