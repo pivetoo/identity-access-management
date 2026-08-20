@@ -170,25 +170,30 @@ export default function Signup() {
               </div>
 
               <fieldset className="flex flex-col gap-2">
-                <legend className="text-sm font-medium text-foreground mb-1">Cobrança</legend>
+                <legend className="text-sm font-medium text-foreground mb-1">Plano Essencial</legend>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setAnnual(false)}
                     aria-pressed={!annual}
-                    className={`rounded-md border px-4 py-2.5 text-sm font-medium transition-colors ${!annual ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:bg-muted'}`}
+                    className={`flex flex-col items-start rounded-md border px-4 py-3 text-left transition-colors ${!annual ? 'border-primary bg-primary/10' : 'border-border hover:bg-muted'}`}
                   >
-                    Mensal
+                    <span className={`text-sm font-medium ${!annual ? 'text-primary' : 'text-foreground'}`}>Mensal</span>
+                    <span className="text-xs text-muted-foreground">R$ 497 por mês</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setAnnual(true)}
                     aria-pressed={annual}
-                    className={`rounded-md border px-4 py-2.5 text-sm font-medium transition-colors ${annual ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:bg-muted'}`}
+                    className={`flex flex-col items-start rounded-md border px-4 py-3 text-left transition-colors ${annual ? 'border-primary bg-primary/10' : 'border-border hover:bg-muted'}`}
                   >
-                    Anual <span className="text-xs font-normal">(2 meses grátis)</span>
+                    <span className={`text-sm font-medium ${annual ? 'text-primary' : 'text-foreground'}`}>Anual</span>
+                    <span className="text-xs text-muted-foreground">R$ 4.970 por ano (2 meses grátis)</span>
                   </button>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Tudo incluído, até 100 creators ativos. A cobrança só começa depois dos 14 dias.
+                </p>
               </fieldset>
 
               <label className="flex items-start gap-2.5 text-sm text-muted-foreground cursor-pointer">
