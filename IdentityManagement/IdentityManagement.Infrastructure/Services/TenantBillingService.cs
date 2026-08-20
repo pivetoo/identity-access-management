@@ -190,7 +190,10 @@ namespace IdentityManagement.Infrastructure.Services
                 PaymentMethod = subscription.PaymentMethod,
                 TrialEndsAt = subscription.TrialEndsAt,
                 CurrentPeriodEnd = subscription.CurrentPeriodEnd,
-                IsBlocked = subscription.IsBlocked,
+                // Estado EFETIVO, nao a flag da coluna: teste vencido nao liga `IsBlocked`, mas o
+                // gate ja recusa o acesso. Expor so a flag faria a tela dizer que esta tudo certo
+                // enquanto o resto do sistema responde 402.
+                IsBlocked = subscription.IsBlocked || !subscription.GrantsAccess(DateTimeOffset.UtcNow),
                 HasBillingAddress = address is not null,
                 BillingAddress = address is null ? null : new TenantBillingAddressResponse
                 {

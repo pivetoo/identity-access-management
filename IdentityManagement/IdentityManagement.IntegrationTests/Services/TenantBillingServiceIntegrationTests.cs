@@ -93,6 +93,34 @@ namespace IdentityManagement.IntegrationTests.Services
         }
 
         [Test]
+        public async Task Teste_vencido_aparece_como_bloqueado_mesmo_sem_a_flag()
+        {
+            // O gate de acesso recusa trial vencido sem ligar `IsBlocked`. Se a tela olhasse so a
+            // flag, o cliente veria "tudo certo" com o sistema inteiro respondendo 402.
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                Company company = await SeedAsync(dbContext, "11777888000145", "billing6@example.com");
+
+                Subscription subscription = await dbContext.Set<Subscription>()
+                    .AsTracking()
+                    .FirstAsync(item => item.CompanyId == company.Id);
+
+                typeof(Subscription)
+                    .GetProperty(nameof(Subscription.TrialEndsAt))!
+                    .SetValue(subscription, DateTimeOffset.UtcNow.AddDays(-1));
+
+                await dbContext.SaveChangesAsync();
+
+                TenantBillingService subject = CreateSubject(dbContext);
+                TenantSubscriptionResponse response = await subject.GetSubscriptionAsync(company.TenantId);
+
+                response.Status.Should().Be(nameof(SubscriptionStatus.Trialing));
+                response.IsBlocked.Should().BeTrue();
+            });
+        }
+
+        [Test]
         public async Task Endereco_incompleto_e_recusado()
         {
             await InScopeAsync(async sp =>
