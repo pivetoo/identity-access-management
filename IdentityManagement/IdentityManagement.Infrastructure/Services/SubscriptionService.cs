@@ -69,8 +69,9 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (gatewayResult is not null)
             {
+                // gatewayResult so vem nao-nulo do gateway real (o no-op devolve null).
                 subscription.LinkGateway(
-                    "noop",
+                    "asaas",
                     gatewayResult.ExternalCustomerId ?? string.Empty,
                     gatewayResult.ExternalSubscriptionId);
             }
