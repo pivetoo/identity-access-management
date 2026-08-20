@@ -40,8 +40,10 @@ namespace IdentityManagement.IntegrationTests.Services
         }
 
         [Test]
-        public async Task Company_with_no_subscription_is_not_blocked()
+        public async Task Company_with_no_subscription_is_blocked()
         {
+            // Inversao do fail-open da fase pre-billing: com contratacao self-service, empresa sem
+            // assinatura nao acessa. Tenants da casa ganham assinatura Ativa no plano Interno.
             await InScopeAsync(async sp =>
             {
                 DbContext dbContext = sp.GetRequiredService<DbContext>();
@@ -51,7 +53,7 @@ namespace IdentityManagement.IntegrationTests.Services
 
                 bool blocked = await subscriptionService.IsCompanyBlockedAsync(company.Id, DateTimeOffset.UtcNow);
 
-                blocked.Should().BeFalse();
+                blocked.Should().BeTrue();
             });
         }
 

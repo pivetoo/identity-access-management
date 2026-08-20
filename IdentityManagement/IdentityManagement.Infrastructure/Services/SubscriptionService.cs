@@ -249,9 +249,13 @@ namespace IdentityManagement.Infrastructure.Services
                 .OrderByDescending(s => s.Id)
                 .FirstOrDefaultAsync(cancellationToken);
 
+            // Sem assinatura = bloqueado. O fail-open original ("sem-sub = liberado") era da fase
+            // pre-billing; com contratacao self-service, empresa sem assinatura nao pode ter acesso,
+            // senao trial expirado se resolve apagando a assinatura. Tenants da casa nao caem aqui:
+            // a migracao de lancamento deu a eles assinatura Ativa no plano Interno.
             if (subscription is null)
             {
-                return false;
+                return true;
             }
 
             return subscription.IsBlocked || !subscription.GrantsAccess(now);
