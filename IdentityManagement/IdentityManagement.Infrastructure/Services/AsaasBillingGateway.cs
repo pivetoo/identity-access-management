@@ -45,7 +45,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             string url = $"{BaseUrl}/customers";
             RestResponse<AsaasCustomerResponse> resp = await restApi.Fetch<AsaasCustomerResponse>(
-                RestRequest.Post(url, body).WithHeader("access_token", options.ApiKey), ct);
+                RestRequest.Post(url, body).WithHeader("access_token", options.ApiKey).WithHeader("User-Agent", "Mainstay-IdM"), ct);
 
             if (!resp.Ok)
             {
@@ -82,7 +82,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             string url = $"{BaseUrl}/subscriptions";
             RestResponse<AsaasSubscriptionResponse> resp = await restApi.Fetch<AsaasSubscriptionResponse>(
-                RestRequest.Post(url, body).WithHeader("access_token", options.ApiKey), ct);
+                RestRequest.Post(url, body).WithHeader("access_token", options.ApiKey).WithHeader("User-Agent", "Mainstay-IdM"), ct);
 
             if (!resp.Ok)
             {
@@ -102,7 +102,7 @@ namespace IdentityManagement.Infrastructure.Services
         {
             string url = $"{BaseUrl}/subscriptions/{externalSubscriptionId}";
             RestResponse<object> resp = await restApi.Fetch<object>(
-                RestRequest.Delete(url).WithHeader("access_token", options.ApiKey), ct);
+                RestRequest.Delete(url).WithHeader("access_token", options.ApiKey).WithHeader("User-Agent", "Mainstay-IdM"), ct);
 
             // 404 = assinatura ja removida no Asaas; tratamos como sucesso idempotente.
             if (resp.Status == 404)
