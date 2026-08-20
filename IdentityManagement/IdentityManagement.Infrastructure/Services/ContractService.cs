@@ -260,6 +260,8 @@ namespace IdentityManagement.Infrastructure.Services
                 {
                     ContractId = contract.Id,
                     SystemApplicationName = systemApplication.Name,
+                    Audience = systemApplication.Audience,
+                    TenantId = company.TenantId,
                     CompanyName = company.LegalName,
                     RoleName = role.Name,
                     PortalUrl = (
