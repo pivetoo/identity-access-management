@@ -29,7 +29,7 @@ namespace IdentityManagement.Infrastructure.Services
             this.configuration = configuration;
         }
 
-        public async Task<string> GenerateAccessToken(User user, Contract contract, int lifetimeSeconds, string? sessionId = null, string? authorizedClientId = null, CancellationToken cancellationToken = default)
+        public async Task<string> GenerateAccessToken(User user, Contract contract, int lifetimeSeconds, string? sessionId = null, string? authorizedClientId = null, bool subscriptionBlocked = false, CancellationToken cancellationToken = default)
         {
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
 
@@ -104,6 +104,14 @@ namespace IdentityManagement.Infrastructure.Services
             foreach (string accessResource in accessResources)
             {
                 claims.Add(new Claim("permission", accessResource));
+            }
+
+            // Empresa com assinatura pendente entra, mas o app consumidor precisa saber para
+            // restringir a navegacao ao pagamento. Sem esta claim o token seria indistinguivel de
+            // um token normal, e o bloqueio deixaria de existir.
+            if (subscriptionBlocked)
+            {
+                claims.Add(new Claim("subscription_blocked", "true"));
             }
 
             if (!string.IsNullOrWhiteSpace(sessionId))

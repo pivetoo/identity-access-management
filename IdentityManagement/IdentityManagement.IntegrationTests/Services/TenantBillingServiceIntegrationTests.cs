@@ -33,6 +33,12 @@ namespace IdentityManagement.IntegrationTests.Services
 
             public Task<IReadOnlyList<GatewaySubscriptionSummary>> ListActiveCardSubscriptionsAsync(string externalCustomerId, CancellationToken ct = default)
                 => Task.FromResult<IReadOnlyList<GatewaySubscriptionSummary>>([]);
+
+            public Task<GatewayPendingCharge?> GetPendingChargeAsync(string externalSubscriptionId, CancellationToken ct = default)
+                => Task.FromResult(PendingCharge);
+
+            public GatewayPendingCharge? PendingCharge { get; set; }
+
         }
 
         private static UpdateBillingAddressRequest ValidAddress() => new()

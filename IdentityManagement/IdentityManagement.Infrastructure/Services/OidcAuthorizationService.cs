@@ -38,7 +38,16 @@ namespace IdentityManagement.Infrastructure.Services
             this.logger = logger;
         }
 
-        private async Task EnsureCompanyNotBlocked(long companyId, CancellationToken cancellationToken)
+        /// <summary>
+        /// Porta de assinatura. Empresa em dia passa direto.
+        ///
+        /// Empresa bloqueada e recusada, COM UMA EXCECAO: aplicacoes listadas em
+        /// <c>Subscription:RestrictedAccessAudiences</c> recebem o token com a claim
+        /// <c>subscription_blocked</c> e se encarregam de restringir a navegacao ao pagamento.
+        /// Sem essa valvula o cliente inadimplente nao consegue nem entrar para pagar — beco sem
+        /// saida. So vale para quem sabe tratar a claim; para os demais o bloqueio segue total.
+        /// </summary>
+        private async Task<bool> ResolveSubscriptionBlockAsync(long companyId, string? audience, CancellationToken cancellationToken)
         {
             bool blocked;
             try
@@ -48,13 +57,32 @@ namespace IdentityManagement.Infrastructure.Services
             catch (Exception exception)
             {
                 logger.LogError(exception, "Subscription gate check failed for company {CompanyId}; allowing access (fail-open).", companyId);
-                blocked = false;
+                return false;
             }
 
-            if (blocked)
+            if (!blocked)
+            {
+                return false;
+            }
+
+            string[] restrictedAudiences = configuration
+                .GetSection("Subscription:RestrictedAccessAudiences")
+                .Get<string[]>() ?? [];
+
+            bool allowsRestrictedAccess = !string.IsNullOrWhiteSpace(audience)
+                && restrictedAudiences.Contains(audience, StringComparer.OrdinalIgnoreCase);
+
+            if (!allowsRestrictedAccess)
             {
                 throw new UnauthorizedAccessException("access_denied");
             }
+
+            logger.LogInformation(
+                "Empresa {CompanyId} esta bloqueada por assinatura; token emitido em modo restrito para {Audience}.",
+                companyId,
+                audience);
+
+            return true;
         }
 
         public async Task<OidcAuthorizeResult> Authorize(
@@ -213,7 +241,10 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new UnauthorizedAccessException("invalid_grant");
             }
 
-            await EnsureCompanyNotBlocked(authorizationCode.Contract.CompanyId, cancellationToken);
+            bool subscriptionBlocked = await ResolveSubscriptionBlockAsync(
+                authorizationCode.Contract.CompanyId,
+                authorizationCode.Contract.SystemApplication?.Audience,
+                cancellationToken);
 
             // Marca como usado ANTES de emitir, e no proprio banco. Antes o codigo era marcado depois
             // da emissao: duas trocas simultaneas do mesmo `code` passavam as duas por IsValid() e
@@ -239,6 +270,7 @@ namespace IdentityManagement.Infrastructure.Services
                 client.AccessTokenLifetime,
                 authorizationCode.SessionId,
                 client.ClientId,
+                subscriptionBlocked,
                 cancellationToken);
             string idToken = await jwtService.GenerateIdToken(
                 authorizationCode.User,
@@ -328,7 +360,10 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new UnauthorizedAccessException("invalid_grant");
             }
 
-            await EnsureCompanyNotBlocked(existingRefreshToken.Contract.CompanyId, cancellationToken);
+            bool subscriptionBlocked = await ResolveSubscriptionBlockAsync(
+                existingRefreshToken.Contract.CompanyId,
+                existingRefreshToken.Contract.SystemApplication?.Audience,
+                cancellationToken);
 
             existingRefreshToken.Revoke();
             existingRefreshToken.MarkAsUsed();
@@ -339,6 +374,7 @@ namespace IdentityManagement.Infrastructure.Services
                 client.AccessTokenLifetime,
                 existingRefreshToken.SessionId,
                 client.ClientId,
+                subscriptionBlocked,
                 cancellationToken);
 
             string idToken = HasScope(existingRefreshToken.Scopes, "openid")

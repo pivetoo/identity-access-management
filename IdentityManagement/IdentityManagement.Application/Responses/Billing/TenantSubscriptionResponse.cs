@@ -31,6 +31,31 @@ namespace IdentityManagement.Application.Responses.Billing
         public bool HasBillingAddress { get; set; }
 
         public TenantBillingAddressResponse? BillingAddress { get; set; }
+
+        /// <summary>Cobranca em aberto, quando existe. E por onde a agencia paga.</summary>
+        public TenantPendingChargeResponse? PendingCharge { get; set; }
+    }
+
+    public sealed class TenantPendingChargeResponse
+    {
+        public decimal Value { get; set; }
+
+        public DateTimeOffset? DueDate { get; set; }
+
+        /// <summary>PIX, CREDIT_CARD, BOLETO...</summary>
+        public string BillingType { get; set; } = string.Empty;
+
+        /// <summary>PENDING ou OVERDUE.</summary>
+        public string Status { get; set; } = string.Empty;
+
+        /// <summary>Fatura hospedada pelo provedor, com todos os meios de pagamento.</summary>
+        public string? InvoiceUrl { get; set; }
+
+        /// <summary>Copia e cola do PIX.</summary>
+        public string? PixPayload { get; set; }
+
+        /// <summary>QR code do PIX em PNG base64 (sem o prefixo data:).</summary>
+        public string? PixQrCodeBase64 { get; set; }
     }
 
     public sealed class TenantBillingAddressResponse

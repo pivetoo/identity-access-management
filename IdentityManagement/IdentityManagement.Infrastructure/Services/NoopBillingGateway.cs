@@ -32,5 +32,10 @@ namespace IdentityManagement.Infrastructure.Services
         {
             return Task.FromResult<IReadOnlyList<GatewaySubscriptionSummary>>([]);
         }
+
+        public Task<GatewayPendingCharge?> GetPendingChargeAsync(string externalSubscriptionId, CancellationToken ct = default)
+        {
+            return Task.FromResult<GatewayPendingCharge?>(null);
+        }
     }
 }

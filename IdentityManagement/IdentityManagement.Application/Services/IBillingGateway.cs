@@ -21,6 +21,14 @@ namespace IdentityManagement.Application.Services
         /// id da assinatura que ele criou, entao a correlacao e feita consultando o cliente depois.
         /// </summary>
         Task<IReadOnlyList<GatewaySubscriptionSummary>> ListActiveCardSubscriptionsAsync(string externalCustomerId, CancellationToken ct = default);
+
+        /// <summary>
+        /// Cobranca em aberto (pendente ou vencida) da assinatura, com o que o cliente precisa para
+        /// pagar: link da fatura e, no PIX, o copia e cola e o QR code.
+        ///
+        /// Sem isso a agencia nao tem onde pagar dentro do sistema — sobra so o e-mail do provedor.
+        /// </summary>
+        Task<GatewayPendingCharge?> GetPendingChargeAsync(string externalSubscriptionId, CancellationToken ct = default);
     }
 
     public sealed record GatewaySubscriptionResult(string ExternalSubscriptionId, string? ExternalCustomerId, string PaymentMethod);
@@ -28,4 +36,14 @@ namespace IdentityManagement.Application.Services
     public sealed record GatewayCheckoutResult(string CheckoutId, string CheckoutUrl, DateTimeOffset ExpiresAt);
 
     public sealed record GatewaySubscriptionSummary(string ExternalSubscriptionId, string BillingType, string Status, DateTimeOffset? CreatedAt);
+
+    public sealed record GatewayPendingCharge(
+        string ExternalPaymentId,
+        decimal Value,
+        DateTimeOffset? DueDate,
+        string BillingType,
+        string Status,
+        string? InvoiceUrl,
+        string? PixPayload,
+        string? PixQrCodeBase64);
 }

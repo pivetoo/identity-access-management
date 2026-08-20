@@ -29,7 +29,53 @@ namespace IdentityManagement.Infrastructure.Services
         public async Task<TenantSubscriptionResponse> GetSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken = default)
         {
             (Company company, Subscription subscription, Plan plan) = await LoadAsync(tenantId, cancellationToken);
-            return Build(company, subscription, plan);
+
+            TenantSubscriptionResponse response = Build(company, subscription, plan);
+            response.PendingCharge = await LoadPendingChargeAsync(subscription, cancellationToken);
+
+            return response;
+        }
+
+        /// <summary>
+        /// A cobranca em aberto vem do provedor a cada carregamento (link e QR expiram, e o status
+        /// muda fora do nosso banco). Falha aqui NAO derruba a tela: sem a cobranca o cliente ainda
+        /// ve plano, status e a opcao de cartao — derrubar tudo por causa do provedor seria pior.
+        /// </summary>
+        private async Task<TenantPendingChargeResponse?> LoadPendingChargeAsync(Subscription subscription, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(subscription.ExternalSubscriptionId))
+            {
+                return null;
+            }
+
+            try
+            {
+                GatewayPendingCharge? charge = await billingGateway.GetPendingChargeAsync(subscription.ExternalSubscriptionId, cancellationToken);
+                if (charge is null)
+                {
+                    return null;
+                }
+
+                return new TenantPendingChargeResponse
+                {
+                    Value = charge.Value,
+                    DueDate = charge.DueDate,
+                    BillingType = charge.BillingType,
+                    Status = charge.Status,
+                    InvoiceUrl = charge.InvoiceUrl,
+                    PixPayload = charge.PixPayload,
+                    PixQrCodeBase64 = charge.PixQrCodeBase64
+                };
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(
+                    exception,
+                    "Falha ao consultar a cobranca em aberto da assinatura {SubscriptionId} no provedor.",
+                    subscription.ExternalSubscriptionId);
+
+                return null;
+            }
         }
 
         public async Task<TenantSubscriptionResponse> UpdateBillingAddressAsync(Guid tenantId, UpdateBillingAddressRequest request, CancellationToken cancellationToken = default)

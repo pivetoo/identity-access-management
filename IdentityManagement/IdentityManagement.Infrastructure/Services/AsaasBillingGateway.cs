@@ -254,7 +254,70 @@ namespace IdentityManagement.Infrastructure.Services
                 .ToList();
         }
 
+        public async Task<GatewayPendingCharge?> GetPendingChargeAsync(string externalSubscriptionId, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(externalSubscriptionId))
+            {
+                return null;
+            }
+
+            string url = $"{BaseUrl}/subscriptions/{externalSubscriptionId}/payments?limit=20";
+            RestResponse<AsaasPaymentListResponse> resp = await restApi.Fetch<AsaasPaymentListResponse>(
+                RestRequest.Get(url).WithHeader("access_token", options.ApiKey).WithHeader("User-Agent", "Mainstay-IdM"), ct);
+
+            if (!resp.Ok || resp.Data?.Data is null)
+            {
+                throw new InvalidOperationException(
+                    $"Asaas ListSubscriptionPayments falhou ({resp.Status}): {string.Join("; ", resp.Errors)}");
+            }
+
+            // A mais antiga em aberto primeiro: e a que vence antes e a que trava o acesso.
+            AsaasPaymentListItem? pending = resp.Data.Data
+                .Where(item => item.Id is not null && OpenStatuses.Contains(item.Status ?? string.Empty))
+                .OrderBy(item => item.DueDate ?? DateTimeOffset.MaxValue)
+                .FirstOrDefault();
+
+            if (pending is null)
+            {
+                return null;
+            }
+
+            string? pixPayload = null;
+            string? pixImage = null;
+
+            if (string.Equals(pending.BillingType, "PIX", StringComparison.OrdinalIgnoreCase))
+            {
+                (pixPayload, pixImage) = await GetPixQrCodeAsync(pending.Id!, ct);
+            }
+
+            return new GatewayPendingCharge(
+                pending.Id!,
+                pending.Value,
+                pending.DueDate,
+                pending.BillingType ?? string.Empty,
+                pending.Status ?? string.Empty,
+                pending.InvoiceUrl,
+                pixPayload,
+                pixImage);
+        }
+
+        private async Task<(string? Payload, string? EncodedImage)> GetPixQrCodeAsync(string paymentId, CancellationToken ct)
+        {
+            RestResponse<AsaasPixQrCodeResponse> resp = await restApi.Fetch<AsaasPixQrCodeResponse>(
+                RestRequest.Get($"{BaseUrl}/payments/{paymentId}/pixQrCode").WithHeader("access_token", options.ApiKey).WithHeader("User-Agent", "Mainstay-IdM"), ct);
+
+            // QR indisponivel nao invalida a cobranca: o link da fatura continua servindo.
+            if (!resp.Ok || resp.Data?.Success != true)
+            {
+                return (null, null);
+            }
+
+            return (resp.Data.Payload, resp.Data.EncodedImage);
+        }
+
         private string BaseUrl => options.BaseUrl.TrimEnd('/');
+
+        private static readonly string[] OpenStatuses = ["PENDING", "OVERDUE", "AWAITING_RISK_ANALYSIS"];
 
         private static string DigitsOnly(string? value)
         {
@@ -373,6 +436,35 @@ namespace IdentityManagement.Infrastructure.Services
             public string CancelUrl { get; set; } = string.Empty;
 
             public string ExpiredUrl { get; set; } = string.Empty;
+        }
+
+        private sealed class AsaasPaymentListResponse
+        {
+            public List<AsaasPaymentListItem>? Data { get; set; }
+        }
+
+        private sealed class AsaasPaymentListItem
+        {
+            public string? Id { get; set; }
+
+            public string? Status { get; set; }
+
+            public decimal Value { get; set; }
+
+            public DateTimeOffset? DueDate { get; set; }
+
+            public string? BillingType { get; set; }
+
+            public string? InvoiceUrl { get; set; }
+        }
+
+        private sealed class AsaasPixQrCodeResponse
+        {
+            public bool Success { get; set; }
+
+            public string? Payload { get; set; }
+
+            public string? EncodedImage { get; set; }
         }
 
         private sealed class AsaasCheckoutResponse

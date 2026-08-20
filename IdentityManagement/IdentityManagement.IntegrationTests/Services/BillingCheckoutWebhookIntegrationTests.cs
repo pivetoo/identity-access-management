@@ -49,6 +49,12 @@ namespace IdentityManagement.IntegrationTests.Services
 
             public Task<IReadOnlyList<GatewaySubscriptionSummary>> ListActiveCardSubscriptionsAsync(string externalCustomerId, CancellationToken ct = default)
                 => Task.FromResult<IReadOnlyList<GatewaySubscriptionSummary>>(cardSubscriptions);
+
+            public Task<GatewayPendingCharge?> GetPendingChargeAsync(string externalSubscriptionId, CancellationToken ct = default)
+                => Task.FromResult(PendingCharge);
+
+            public GatewayPendingCharge? PendingCharge { get; set; }
+
         }
 
         private static async Task<Subscription> SeedPixSubscriptionAsync(DbContext dbContext, string document, string email)
