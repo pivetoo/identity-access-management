@@ -606,4 +606,11 @@
   <data name="subscription.alreadyExists" xml:space="preserve"><value>Esta empresa ya tiene una suscripcion activa.</value></data>
   <data name="subscription.notFound" xml:space="preserve"><value>Suscripcion no encontrada.</value></data>
   <data name="subscription.transition.invalid" xml:space="preserve"><value>Una suscripcion cancelada no acepta cambios de estado.</value></data>
+  <data name="signup.created" xml:space="preserve"><value>Registro creado. Enviamos el enlace de acceso al correo informado.</value></data>
+  <data name="signup.disabled" xml:space="preserve"><value>El registro publico no esta disponible en este momento.</value></data>
+  <data name="signup.termsNotAccepted" xml:space="preserve"><value>Es necesario aceptar los terminos de uso para continuar.</value></data>
+  <data name="signup.document.invalid" xml:space="preserve"><value>CNPJ invalido. Revise los numeros e intente nuevamente.</value></data>
+  <data name="signup.company.alreadyExists" xml:space="preserve"><value>Ya existe una cuenta para este CNPJ. Use la pantalla de acceso o contacte al soporte.</value></data>
+  <data name="signup.plan.notConfigured" xml:space="preserve"><value>El registro publico no esta disponible en este momento. Intente mas tarde.</value></data>
+  <data name="signup.systems.notConfigured" xml:space="preserve"><value>El registro publico no esta disponible en este momento. Intente mas tarde.</value></data>
 </root>

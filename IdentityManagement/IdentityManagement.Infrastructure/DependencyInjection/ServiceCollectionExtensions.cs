@@ -4,6 +4,7 @@ using Archon.Infrastructure.Migrations;
 using Archon.Infrastructure.MultiTenancy;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Infrastructure.Billing;
+using IdentityManagement.Infrastructure.Signup;
 using IdentityManagement.Infrastructure.MultiTenancy;
 using IdentityManagement.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
@@ -32,6 +33,7 @@ namespace IdentityManagement.Infrastructure.DependencyInjection
             // Gateway de cobranca: usa o Asaas quando ha ApiKey configurada; senao mantem o no-op.
             // Registro manual porque o nome nao termina em "Service" (nao e auto-descoberto).
             services.Configure<AsaasOptions>(configuration.GetSection(AsaasOptions.SectionName));
+            services.Configure<SignupOptions>(configuration.GetSection(SignupOptions.SectionName));
 
             string asaasApiKey = configuration[$"{AsaasOptions.SectionName}:ApiKey"] ?? string.Empty;
             if (!string.IsNullOrWhiteSpace(asaasApiKey))

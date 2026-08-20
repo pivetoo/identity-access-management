@@ -21,6 +21,7 @@ import Payments from '../modules/Administration/Payments';
 import ForgotPassword from '../modules/Authentication/ForgotPassword';
 import ResetPassword from '../modules/Authentication/ResetPassword';
 import SetupAdmin from '../modules/Authentication/SetupAdmin';
+import Signup from '../modules/Authentication/Signup';
 import Login from '../modules/Authentication/Login';
 
 const identityManagementUrl = (import.meta.env.VITE_IDENTITY_MANAGEMENT_URL || import.meta.env.VITE_API_BASE_URL?.replace(/\/api\/?$/, '') || '').replace(/\/+$/, '');
@@ -87,6 +88,7 @@ function AppRoutes() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/setup-admin" element={<SetupAdmin />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/logout" element={<LogoutEntry />} />
         <Route
           path="/callback"

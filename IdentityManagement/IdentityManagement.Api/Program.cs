@@ -73,6 +73,17 @@ builder.Services.AddRateLimiter(options =>
             Window = TimeSpan.FromMinutes(builder.Configuration.GetValue("RateLimiting:AuthWindowMinutes", 1)),
             QueueLimit = 0
         }));
+
+    // Cadastro publico: cada sucesso provisiona um banco de tenant. O custo de uma chamada aqui e
+    // ordens de grandeza maior que o de uma tentativa de login, entao a janela e por hora.
+    options.AddPolicy(RateLimitPolicies.Signup, httpContext => RateLimitPartition.GetFixedWindowLimiter(
+        httpContext.Connection.RemoteIpAddress?.ToString() ?? "sem-ip",
+        _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = builder.Configuration.GetValue("RateLimiting:SignupPermitLimit", 3),
+            Window = TimeSpan.FromMinutes(builder.Configuration.GetValue("RateLimiting:SignupWindowMinutes", 60)),
+            QueueLimit = 0
+        }));
 });
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

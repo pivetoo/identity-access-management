@@ -7,5 +7,12 @@ namespace IdentityManagement.Api
     public static class RateLimitPolicies
     {
         public const string Auth = "auth";
+
+        /// <summary>
+        /// Cadastro publico. Bem mais estreita que <c>Auth</c> de proposito: cada chamada bem
+        /// sucedida cria empresa, contratos e um BANCO de tenant no Postgres. Com o limite de
+        /// credencial (20/min) um unico IP conseguiria provisionar milhares de bancos por hora.
+        /// </summary>
+        public const string Signup = "signup";
     }
 }
