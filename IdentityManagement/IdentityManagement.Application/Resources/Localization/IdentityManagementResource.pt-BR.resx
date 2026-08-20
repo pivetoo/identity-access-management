@@ -879,4 +879,12 @@
   <data name="signup.company.alreadyExists" xml:space="preserve"><value>Ja existe uma conta para este CNPJ. Use a tela de acesso ou fale com o suporte.</value></data>
   <data name="signup.plan.notConfigured" xml:space="preserve"><value>Cadastro publico indisponivel no momento. Tente novamente mais tarde.</value></data>
   <data name="signup.systems.notConfigured" xml:space="preserve"><value>Cadastro publico indisponivel no momento. Tente novamente mais tarde.</value></data>
+  <data name="billing.address.updated" xml:space="preserve"><value>Endereco de cobranca atualizado.</value></data>
+  <data name="billing.address.incomplete" xml:space="preserve"><value>Endereco de cobranca incompleto. Confira CEP, logradouro, numero, bairro, cidade e UF.</value></data>
+  <data name="billing.address.required" xml:space="preserve"><value>Informe o endereco de cobranca antes de cadastrar o cartao.</value></data>
+  <data name="billing.subscription.canceled" xml:space="preserve"><value>Esta assinatura esta cancelada. Fale com o suporte para reativar.</value></data>
+  <data name="billing.gateway.notConfigured" xml:space="preserve"><value>Pagamento indisponivel no momento. Tente novamente mais tarde.</value></data>
+  <data name="asaas.checkout.callbackNotConfigured" xml:space="preserve"><value>Pagamento com cartao indisponivel: retorno do checkout nao configurado.</value></data>
+  <data name="asaas.customer.missingId" xml:space="preserve"><value>Nao foi possivel identificar a empresa no provedor de pagamento.</value></data>
+  <data name="company.billingAddress.missing" xml:space="preserve"><value>Informe o endereco de cobranca antes de cadastrar o cartao.</value></data>
 </root>

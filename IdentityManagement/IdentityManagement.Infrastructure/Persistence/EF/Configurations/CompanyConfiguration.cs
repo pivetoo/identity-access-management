@@ -32,6 +32,14 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.TenantId)
                 .IsRequired();
 
+            builder.Property(entity => entity.BillingPostalCode).HasMaxLength(8);
+            builder.Property(entity => entity.BillingStreet).HasMaxLength(255);
+            builder.Property(entity => entity.BillingNumber).HasMaxLength(20);
+            builder.Property(entity => entity.BillingComplement).HasMaxLength(100);
+            builder.Property(entity => entity.BillingDistrict).HasMaxLength(100);
+            builder.Property(entity => entity.BillingCity).HasMaxLength(100);
+            builder.Property(entity => entity.BillingState).HasMaxLength(2);
+
             builder.HasIndex(entity => entity.TenantId)
                 .IsUnique();
 

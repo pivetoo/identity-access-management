@@ -20,5 +20,17 @@ namespace IdentityManagement.Infrastructure.Services
         {
             return Task.CompletedTask;
         }
+
+        // Sem gateway configurado nao existe pagina de checkout para onde mandar o cliente. Falhar
+        // aqui e melhor que devolver URL vazia: o erro aparece no ato, e nao numa tela em branco.
+        public Task<GatewayCheckoutResult> CreateRecurringCardCheckoutAsync(long companyId, long planId, CancellationToken ct = default)
+        {
+            throw new InvalidOperationException("billing.gateway.notConfigured");
+        }
+
+        public Task<IReadOnlyList<GatewaySubscriptionSummary>> ListActiveCardSubscriptionsAsync(string externalCustomerId, CancellationToken ct = default)
+        {
+            return Task.FromResult<IReadOnlyList<GatewaySubscriptionSummary>>([]);
+        }
     }
 }

@@ -7,6 +7,20 @@ namespace IdentityManagement.Application.Requests.Billing
         public string Event { get; set; } = string.Empty;
 
         public AsaasPaymentInfo Payment { get; set; } = new AsaasPaymentInfo();
+
+        /// <summary>Presente nos eventos CHECKOUT_*; nulo nos eventos de pagamento.</summary>
+        public AsaasCheckoutInfo? Checkout { get; set; }
+    }
+
+    public sealed class AsaasCheckoutInfo
+    {
+        public string Id { get; set; } = string.Empty;
+
+        public string? Status { get; set; }
+
+        public string? Customer { get; set; }
+
+        public string? ExternalReference { get; set; }
     }
 
     public sealed class AsaasPaymentInfo

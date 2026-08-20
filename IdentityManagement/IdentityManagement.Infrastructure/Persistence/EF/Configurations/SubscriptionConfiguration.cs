@@ -39,6 +39,9 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.ProviderName)
                 .HasMaxLength(120);
 
+            builder.Property(entity => entity.PaymentMethod)
+                .HasMaxLength(20);
+
             builder.Property(entity => entity.IsBlocked)
                 .IsRequired();
 

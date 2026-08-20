@@ -95,7 +95,7 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException("asaas.subscription.missingId");
             }
 
-            return new GatewaySubscriptionResult(resp.Data.Id, externalCustomerId);
+            return new GatewaySubscriptionResult(resp.Data.Id, externalCustomerId, options.BillingType);
         }
 
         public async Task CancelSubscriptionAsync(string externalSubscriptionId, CancellationToken ct = default)
@@ -115,6 +115,143 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException(
                     $"Asaas CancelSubscription falhou ({resp.Status}): {string.Join("; ", resp.Errors)}");
             }
+        }
+
+        public async Task<GatewayCheckoutResult> CreateRecurringCardCheckoutAsync(long companyId, long planId, CancellationToken ct = default)
+        {
+            Company company = await dbContext.Set<Company>().AsNoTracking().FirstOrDefaultAsync(c => c.Id == companyId, ct)
+                ?? throw new InvalidOperationException("company.notFound");
+
+            Plan plan = await dbContext.Set<Plan>().AsNoTracking().FirstOrDefaultAsync(p => p.Id == planId, ct)
+                ?? throw new InvalidOperationException("plan.notFound");
+
+            BillingAddress address = company.GetBillingAddress()
+                ?? throw new InvalidOperationException("company.billingAddress.missing");
+
+            if (string.IsNullOrWhiteSpace(options.CheckoutSuccessUrl))
+            {
+                throw new InvalidOperationException("asaas.checkout.callbackNotConfigured");
+            }
+
+            string cycle = plan.BillingPeriod == BillingPeriod.Yearly ? "YEARLY" : "MONTHLY";
+
+            // Primeira cobranca do cartao no fim do periodo ja pago. Cobrar hoje seria cobrar duas
+            // vezes o mesmo mes de quem esta migrando do PIX no meio do ciclo.
+            Subscription? current = await dbContext.Set<Subscription>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.CompanyId == companyId, ct);
+
+            string customerId = current?.ExternalCustomerId ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(customerId))
+            {
+                customerId = await CreateCustomerAsync(companyId, ct) ?? throw new InvalidOperationException("asaas.customer.missingId");
+            }
+
+            // O provedor so aceita vincular um cliente ao checkout se o cadastro dele estiver
+            // completo (endereco inclusive). Como o endereco chega depois do cadastro, o cliente
+            // precisa ser atualizado agora.
+            await UpdateCustomerAddressAsync(customerId, company, address, ct);
+
+            DateTime nextDue = (current?.CurrentPeriodEnd ?? DateTimeOffset.UtcNow).UtcDateTime.Date;
+            if (nextDue <= DateTime.UtcNow.Date)
+            {
+                nextDue = DateTime.UtcNow.Date.AddDays(1);
+            }
+
+            AsaasCheckoutRequest body = new AsaasCheckoutRequest
+            {
+                BillingTypes = ["CREDIT_CARD"],
+                ChargeTypes = ["RECURRENT"],
+                MinutesToExpire = options.CheckoutMinutesToExpire,
+                ExternalReference = $"company:{companyId}",
+                Items =
+                [
+                    new AsaasCheckoutItem
+                    {
+                        Name = $"Mainstay {plan.Name}",
+                        Quantity = 1,
+                        Value = plan.PriceAmount
+                    }
+                ],
+                Subscription = new AsaasCheckoutSubscription
+                {
+                    Cycle = cycle,
+                    NextDueDate = nextDue.ToString("yyyy-MM-dd")
+                },
+                // Vincula o cliente que JA temos, em vez de mandar customerData. E o que torna a
+                // correlacao possivel depois: a assinatura que o checkout criar nasce sob este
+                // mesmo cliente, entao o webhook consegue encontra-la consultando por ele.
+                // Mandar customerData criaria um cliente novo e a assinatura ficaria orfa.
+                Customer = customerId,
+                Callback = new AsaasCheckoutCallback
+                {
+                    SuccessUrl = options.CheckoutSuccessUrl,
+                    CancelUrl = string.IsNullOrWhiteSpace(options.CheckoutCancelUrl) ? options.CheckoutSuccessUrl : options.CheckoutCancelUrl,
+                    ExpiredUrl = string.IsNullOrWhiteSpace(options.CheckoutExpiredUrl) ? options.CheckoutSuccessUrl : options.CheckoutExpiredUrl
+                }
+            };
+
+            RestResponse<AsaasCheckoutResponse> resp = await restApi.Fetch<AsaasCheckoutResponse>(
+                RestRequest.Post($"{BaseUrl}/checkouts", body).WithHeader("access_token", options.ApiKey).WithHeader("User-Agent", "Mainstay-IdM"), ct);
+
+            if (!resp.Ok || resp.Data?.Id is null || string.IsNullOrWhiteSpace(resp.Data.Link))
+            {
+                throw new InvalidOperationException(
+                    $"Asaas CreateCheckout falhou ({resp.Status}): {string.Join("; ", resp.Errors)}");
+            }
+
+            return new GatewayCheckoutResult(
+                resp.Data.Id,
+                resp.Data.Link,
+                DateTimeOffset.UtcNow.AddMinutes(options.CheckoutMinutesToExpire));
+        }
+
+        private async Task UpdateCustomerAddressAsync(string customerId, Company company, BillingAddress address, CancellationToken ct)
+        {
+            AsaasCustomerRequest body = new AsaasCustomerRequest
+            {
+                Name = string.IsNullOrWhiteSpace(company.TradeName) ? company.LegalName : company.TradeName,
+                CpfCnpj = DigitsOnly(company.Document),
+                Email = company.Email,
+                MobilePhone = DigitsOnly(company.PhoneNumber),
+                PostalCode = address.PostalCode,
+                Address = address.Street,
+                AddressNumber = address.Number,
+                Complement = address.Complement,
+                Province = address.District
+            };
+
+            RestResponse<AsaasCustomerResponse> resp = await restApi.Fetch<AsaasCustomerResponse>(
+                RestRequest.Post($"{BaseUrl}/customers/{customerId}", body).WithHeader("access_token", options.ApiKey).WithHeader("User-Agent", "Mainstay-IdM"), ct);
+
+            if (!resp.Ok)
+            {
+                throw new InvalidOperationException(
+                    $"Asaas UpdateCustomer falhou ({resp.Status}): {string.Join("; ", resp.Errors)}");
+            }
+        }
+
+        public async Task<IReadOnlyList<GatewaySubscriptionSummary>> ListActiveCardSubscriptionsAsync(string externalCustomerId, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(externalCustomerId))
+            {
+                return [];
+            }
+
+            string url = $"{BaseUrl}/subscriptions?customer={Uri.EscapeDataString(externalCustomerId)}&status=ACTIVE&limit=100";
+            RestResponse<AsaasSubscriptionListResponse> resp = await restApi.Fetch<AsaasSubscriptionListResponse>(
+                RestRequest.Get(url).WithHeader("access_token", options.ApiKey).WithHeader("User-Agent", "Mainstay-IdM"), ct);
+
+            if (!resp.Ok || resp.Data?.Data is null)
+            {
+                throw new InvalidOperationException(
+                    $"Asaas ListSubscriptions falhou ({resp.Status}): {string.Join("; ", resp.Errors)}");
+            }
+
+            return resp.Data.Data
+                .Where(item => !item.Deleted && item.Id is not null && string.Equals(item.BillingType, "CREDIT_CARD", StringComparison.OrdinalIgnoreCase))
+                .Select(item => new GatewaySubscriptionSummary(item.Id!, item.BillingType ?? string.Empty, item.Status ?? string.Empty, item.DateCreated))
+                .ToList();
         }
 
         private string BaseUrl => options.BaseUrl.TrimEnd('/');
@@ -138,6 +275,16 @@ namespace IdentityManagement.Infrastructure.Services
             public string Email { get; set; } = string.Empty;
 
             public string? MobilePhone { get; set; }
+
+            public string? PostalCode { get; set; }
+
+            public string? Address { get; set; }
+
+            public string? AddressNumber { get; set; }
+
+            public string? Complement { get; set; }
+
+            public string? Province { get; set; }
         }
 
         private sealed class AsaasCustomerResponse
@@ -163,6 +310,76 @@ namespace IdentityManagement.Infrastructure.Services
         private sealed class AsaasSubscriptionResponse
         {
             public string? Id { get; set; }
+        }
+
+        private sealed class AsaasSubscriptionListResponse
+        {
+            public List<AsaasSubscriptionListItem>? Data { get; set; }
+        }
+
+        private sealed class AsaasSubscriptionListItem
+        {
+            public string? Id { get; set; }
+
+            public string? BillingType { get; set; }
+
+            public string? Status { get; set; }
+
+            public bool Deleted { get; set; }
+
+            public DateTimeOffset? DateCreated { get; set; }
+        }
+
+        private sealed class AsaasCheckoutRequest
+        {
+            public List<string> BillingTypes { get; set; } = [];
+
+            public List<string> ChargeTypes { get; set; } = [];
+
+            public int MinutesToExpire { get; set; }
+
+            public string? ExternalReference { get; set; }
+
+            public List<AsaasCheckoutItem> Items { get; set; } = [];
+
+            public AsaasCheckoutSubscription? Subscription { get; set; }
+
+            public string? Customer { get; set; }
+
+            public AsaasCheckoutCallback? Callback { get; set; }
+        }
+
+        private sealed class AsaasCheckoutItem
+        {
+            public string Name { get; set; } = string.Empty;
+
+            public int Quantity { get; set; }
+
+            public decimal Value { get; set; }
+        }
+
+        private sealed class AsaasCheckoutSubscription
+        {
+            public string Cycle { get; set; } = string.Empty;
+
+            public string NextDueDate { get; set; } = string.Empty;
+        }
+
+
+        private sealed class AsaasCheckoutCallback
+        {
+            public string SuccessUrl { get; set; } = string.Empty;
+
+            public string CancelUrl { get; set; } = string.Empty;
+
+            public string ExpiredUrl { get; set; } = string.Empty;
+        }
+
+        private sealed class AsaasCheckoutResponse
+        {
+            public string? Id { get; set; }
+
+            public string? Link { get; set; }
         }
     }
 }

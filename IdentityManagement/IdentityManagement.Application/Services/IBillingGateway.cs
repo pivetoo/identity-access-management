@@ -4,10 +4,28 @@ namespace IdentityManagement.Application.Services
     {
         Task<string?> CreateCustomerAsync(long companyId, CancellationToken ct = default);
 
+        Task CancelSubscriptionAsync(string externalSubscriptionId, CancellationToken ct = default);
+
         Task<GatewaySubscriptionResult?> CreateSubscriptionAsync(long companyId, long planId, string? externalCustomerId, CancellationToken ct = default);
 
-        Task CancelSubscriptionAsync(string externalSubscriptionId, CancellationToken ct = default);
+        /// <summary>
+        /// Abre um checkout hospedado de assinatura RECORRENTE no cartao.
+        ///
+        /// Os dados de cartao nunca passam por aqui: o cliente e redirecionado para a pagina do
+        /// provedor. Por isso a operacao devolve so uma URL — quem confirma o pagamento e o webhook.
+        /// </summary>
+        Task<GatewayCheckoutResult> CreateRecurringCardCheckoutAsync(long companyId, long planId, CancellationToken ct = default);
+
+        /// <summary>
+        /// Assinaturas ATIVAS de cartao do cliente no provedor. O evento de checkout pago nao traz o
+        /// id da assinatura que ele criou, entao a correlacao e feita consultando o cliente depois.
+        /// </summary>
+        Task<IReadOnlyList<GatewaySubscriptionSummary>> ListActiveCardSubscriptionsAsync(string externalCustomerId, CancellationToken ct = default);
     }
 
-    public sealed record GatewaySubscriptionResult(string ExternalSubscriptionId, string? ExternalCustomerId);
+    public sealed record GatewaySubscriptionResult(string ExternalSubscriptionId, string? ExternalCustomerId, string PaymentMethod);
+
+    public sealed record GatewayCheckoutResult(string CheckoutId, string CheckoutUrl, DateTimeOffset ExpiresAt);
+
+    public sealed record GatewaySubscriptionSummary(string ExternalSubscriptionId, string BillingType, string Status, DateTimeOffset? CreatedAt);
 }

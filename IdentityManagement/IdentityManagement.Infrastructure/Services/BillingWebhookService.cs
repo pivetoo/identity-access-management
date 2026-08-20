@@ -12,11 +12,13 @@ namespace IdentityManagement.Infrastructure.Services
     public sealed class BillingWebhookService : IBillingWebhookService
     {
         private readonly DbContext dbContext;
+        private readonly IBillingGateway billingGateway;
         private readonly ILogger<BillingWebhookService> logger;
 
-        public BillingWebhookService(DbContext dbContext, ILogger<BillingWebhookService> logger)
+        public BillingWebhookService(DbContext dbContext, IBillingGateway billingGateway, ILogger<BillingWebhookService> logger)
         {
             this.dbContext = dbContext;
+            this.billingGateway = billingGateway;
             this.logger = logger;
         }
 
@@ -30,6 +32,15 @@ namespace IdentityManagement.Infrastructure.Services
             if (alreadyProcessed)
             {
                 return false;
+            }
+
+            // Evento de checkout nao carrega pagamento: trata em caminho proprio, antes do upsert.
+            if (payload.Event.StartsWith("CHECKOUT_", StringComparison.Ordinal))
+            {
+                string checkoutOutcome = await ProcessCheckoutEventAsync(payload, ct);
+                RecordEvent(payload, checkoutOutcome, rawPayload);
+                await dbContext.SaveChangesAsync(ct);
+                return checkoutOutcome.EndsWith(".migrated_to_card", StringComparison.Ordinal);
             }
 
             PaymentStatus paymentStatus = MapPaymentStatus(payload.Event);
@@ -75,6 +86,113 @@ namespace IdentityManagement.Infrastructure.Services
             await dbContext.SaveChangesAsync(ct);
 
             return applied;
+        }
+
+        /// <summary>
+        /// Checkout pago = o cliente cadastrou cartao. A assinatura recorrente que o provedor acabou
+        /// de criar precisa substituir a de PIX, e a antiga precisa ser cancelada — senao a empresa
+        /// passa a ser cobrada DUAS vezes por ciclo, uma em cada assinatura.
+        ///
+        /// O evento nao traz o id da assinatura criada, entao ela e localizada pelo cliente: o
+        /// checkout foi aberto vinculado ao mesmo cliente do provedor que ja guardamos.
+        /// </summary>
+        private async Task<string> ProcessCheckoutEventAsync(AsaasWebhookPayload payload, CancellationToken ct)
+        {
+            if (!string.Equals(payload.Event, "CHECKOUT_PAID", StringComparison.Ordinal))
+            {
+                return BuildOutcome(payload.Event, "ignored.not_paid");
+            }
+
+            Subscription? subscription = await FindSubscriptionForCheckoutAsync(payload.Checkout, ct);
+            if (subscription is null)
+            {
+                logger.LogWarning(
+                    "Checkout pago {CheckoutId} sem assinatura correspondente (customer {Customer}, ref {Reference}).",
+                    payload.Checkout?.Id,
+                    payload.Checkout?.Customer,
+                    payload.Checkout?.ExternalReference);
+
+                return BuildOutcome(payload.Event, "ignored.unknown_subscription");
+            }
+
+            string customerId = subscription.ExternalCustomerId ?? string.Empty;
+            IReadOnlyList<GatewaySubscriptionSummary> cardSubscriptions = await billingGateway.ListActiveCardSubscriptionsAsync(customerId, ct);
+
+            GatewaySubscriptionSummary? card = cardSubscriptions
+                .Where(item => !string.Equals(item.ExternalSubscriptionId, subscription.ExternalSubscriptionId, StringComparison.Ordinal))
+                .OrderByDescending(item => item.CreatedAt ?? DateTimeOffset.MinValue)
+                .FirstOrDefault();
+
+            if (card is null)
+            {
+                // Propositalmente NAO registra o evento: sem registro o provedor reenvia, e a
+                // proxima tentativa encontra a assinatura. Engolir aqui deixaria a empresa sendo
+                // cobrada no cartao com a cobranca de PIX ainda ativa.
+                throw new InvalidOperationException(
+                    $"Checkout {payload.Checkout?.Id} pago, mas nenhuma assinatura de cartao encontrada para o cliente {customerId}.");
+            }
+
+            string? previousSubscriptionId = subscription.ExternalSubscriptionId;
+
+            subscription.LinkGateway("asaas", customerId, card.ExternalSubscriptionId);
+            subscription.SetPaymentMethod("CREDIT_CARD");
+
+            if (!string.IsNullOrWhiteSpace(previousSubscriptionId) &&
+                !string.Equals(previousSubscriptionId, card.ExternalSubscriptionId, StringComparison.Ordinal))
+            {
+                try
+                {
+                    await billingGateway.CancelSubscriptionAsync(previousSubscriptionId, ct);
+                }
+                catch (Exception exception)
+                {
+                    // A troca ja aconteceu do nosso lado; falhar aqui faria o provedor reenviar e
+                    // reprocessar tudo. Registrar alto e suficiente: sobra uma assinatura de PIX
+                    // ativa la, que o suporte cancela na mao.
+                    logger.LogError(
+                        exception,
+                        "Assinatura de cartao {NewSubscription} vinculada, mas o cancelamento da anterior {OldSubscription} falhou. CANCELAR NO PROVEDOR para evitar cobranca dupla.",
+                        card.ExternalSubscriptionId,
+                        previousSubscriptionId);
+                }
+            }
+
+            logger.LogInformation(
+                "Empresa {CompanyId} migrou para cartao recorrente (assinatura {SubscriptionId}).",
+                subscription.CompanyId,
+                card.ExternalSubscriptionId);
+
+            return BuildOutcome(payload.Event, "applied.migrated_to_card");
+        }
+
+        private async Task<Subscription?> FindSubscriptionForCheckoutAsync(AsaasCheckoutInfo? checkout, CancellationToken ct)
+        {
+            if (checkout is null)
+            {
+                return null;
+            }
+
+            // externalReference e nosso: "company:{id}". Quando presente, e o caminho mais direto.
+            if (!string.IsNullOrWhiteSpace(checkout.ExternalReference) &&
+                checkout.ExternalReference.StartsWith("company:", StringComparison.Ordinal) &&
+                long.TryParse(checkout.ExternalReference["company:".Length..], out long companyId))
+            {
+                Subscription? byCompany = await dbContext.Set<Subscription>()
+                    .FirstOrDefaultAsync(item => item.CompanyId == companyId, ct);
+
+                if (byCompany is not null)
+                {
+                    return byCompany;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(checkout.Customer))
+            {
+                return null;
+            }
+
+            return await dbContext.Set<Subscription>()
+                .FirstOrDefaultAsync(item => item.ExternalCustomerId == checkout.Customer, ct);
         }
 
         private async Task<Payment> UpsertPaymentAsync(

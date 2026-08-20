@@ -27,6 +27,11 @@ namespace IdentityManagement.Domain.Entities
 
         public string? ProviderName { get; private set; }
 
+        // Forma de pagamento vigente no provedor: PIX (cobranca por ciclo, paga na mao) ou
+        // CREDIT_CARD (debito automatico). Guardado aqui para a tela nao precisar perguntar ao
+        // Asaas a cada carregamento.
+        public string? PaymentMethod { get; private set; }
+
         public bool IsBlocked { get; private set; }
 
         public SubscriptionBlockReason BlockReason { get; private set; } = SubscriptionBlockReason.None;
@@ -158,6 +163,11 @@ namespace IdentityManagement.Domain.Entities
             }
 
             PlanId = planId;
+        }
+
+        public void SetPaymentMethod(string? paymentMethod)
+        {
+            PaymentMethod = string.IsNullOrWhiteSpace(paymentMethod) ? null : paymentMethod.Trim().ToUpperInvariant();
         }
 
         public void LinkGateway(string providerName, string externalCustomerId, string externalSubscriptionId)

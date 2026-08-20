@@ -74,6 +74,10 @@ namespace IdentityManagement.Infrastructure.Services
                     "asaas",
                     gatewayResult.ExternalCustomerId ?? string.Empty,
                     gatewayResult.ExternalSubscriptionId);
+
+                // Toda assinatura nasce na forma de pagamento padrao do gateway (hoje PIX). Cartao
+                // so entra depois, pelo checkout, porque exige o cliente digitar o cartao.
+                subscription.SetPaymentMethod(gatewayResult.PaymentMethod);
             }
 
             bool success = await Insert(cancellationToken, subscription);

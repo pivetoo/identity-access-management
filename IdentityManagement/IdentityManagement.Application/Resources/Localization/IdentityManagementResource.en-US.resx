@@ -621,4 +621,12 @@
   <data name="signup.company.alreadyExists" xml:space="preserve"><value>An account already exists for this company tax id. Use the sign-in page or contact support.</value></data>
   <data name="signup.plan.notConfigured" xml:space="preserve"><value>Public signup is currently unavailable. Please try again later.</value></data>
   <data name="signup.systems.notConfigured" xml:space="preserve"><value>Public signup is currently unavailable. Please try again later.</value></data>
+  <data name="billing.address.updated" xml:space="preserve"><value>Billing address updated.</value></data>
+  <data name="billing.address.incomplete" xml:space="preserve"><value>Incomplete billing address. Check postal code, street, number, district, city and state.</value></data>
+  <data name="billing.address.required" xml:space="preserve"><value>Provide the billing address before adding a card.</value></data>
+  <data name="billing.subscription.canceled" xml:space="preserve"><value>This subscription is canceled. Contact support to reactivate it.</value></data>
+  <data name="billing.gateway.notConfigured" xml:space="preserve"><value>Payment is unavailable right now. Please try again later.</value></data>
+  <data name="asaas.checkout.callbackNotConfigured" xml:space="preserve"><value>Card payment unavailable: checkout callback is not configured.</value></data>
+  <data name="asaas.customer.missingId" xml:space="preserve"><value>Could not identify the company at the payment provider.</value></data>
+  <data name="company.billingAddress.missing" xml:space="preserve"><value>Provide the billing address before adding a card.</value></data>
 </root>

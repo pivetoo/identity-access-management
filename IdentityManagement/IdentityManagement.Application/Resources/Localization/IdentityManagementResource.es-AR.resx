@@ -613,4 +613,12 @@
   <data name="signup.company.alreadyExists" xml:space="preserve"><value>Ya existe una cuenta para este CNPJ. Use la pantalla de acceso o contacte al soporte.</value></data>
   <data name="signup.plan.notConfigured" xml:space="preserve"><value>El registro publico no esta disponible en este momento. Intente mas tarde.</value></data>
   <data name="signup.systems.notConfigured" xml:space="preserve"><value>El registro publico no esta disponible en este momento. Intente mas tarde.</value></data>
+  <data name="billing.address.updated" xml:space="preserve"><value>Domicilio de facturacion actualizado.</value></data>
+  <data name="billing.address.incomplete" xml:space="preserve"><value>Domicilio de facturacion incompleto. Revise codigo postal, calle, numero, barrio, ciudad y provincia.</value></data>
+  <data name="billing.address.required" xml:space="preserve"><value>Informe el domicilio de facturacion antes de cargar la tarjeta.</value></data>
+  <data name="billing.subscription.canceled" xml:space="preserve"><value>Esta suscripcion esta cancelada. Contacte al soporte para reactivarla.</value></data>
+  <data name="billing.gateway.notConfigured" xml:space="preserve"><value>El pago no esta disponible en este momento. Intente mas tarde.</value></data>
+  <data name="asaas.checkout.callbackNotConfigured" xml:space="preserve"><value>Pago con tarjeta no disponible: el retorno del checkout no esta configurado.</value></data>
+  <data name="asaas.customer.missingId" xml:space="preserve"><value>No se pudo identificar la empresa en el proveedor de pagos.</value></data>
+  <data name="company.billingAddress.missing" xml:space="preserve"><value>Informe el domicilio de facturacion antes de cargar la tarjeta.</value></data>
 </root>

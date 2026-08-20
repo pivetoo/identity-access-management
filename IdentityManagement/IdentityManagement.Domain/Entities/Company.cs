@@ -1,4 +1,5 @@
 using Archon.Core.Entities;
+using IdentityManagement.Domain.ValueObjects;
 
 namespace IdentityManagement.Domain.Entities
 {
@@ -19,6 +20,23 @@ namespace IdentityManagement.Domain.Entities
         public Guid TenantId { get; private set; }
 
         public bool IsActive { get; private set; } = true;
+
+        // Endereco de cobranca. Fica nulo ate a empresa ir pagar: o cadastro publico nao pede
+        // endereco de proposito (atrito na porta de entrada), e o PIX por cobranca nao precisa.
+        // Quem exige e o checkout recorrente de cartao do Asaas.
+        public string? BillingPostalCode { get; private set; }
+
+        public string? BillingStreet { get; private set; }
+
+        public string? BillingNumber { get; private set; }
+
+        public string? BillingComplement { get; private set; }
+
+        public string? BillingDistrict { get; private set; }
+
+        public string? BillingCity { get; private set; }
+
+        public string? BillingState { get; private set; }
 
         public IReadOnlyCollection<Contract> Contracts => contracts.AsReadOnly();
 
@@ -42,6 +60,36 @@ namespace IdentityManagement.Domain.Entities
             Email = email.Trim();
             PhoneNumber = phoneNumber.Trim();
             IsActive = isActive;
+        }
+
+        public void SetBillingAddress(BillingAddress address)
+        {
+            ArgumentNullException.ThrowIfNull(address);
+
+            BillingPostalCode = BillingAddress.NormalizePostalCode(address.PostalCode);
+            BillingStreet = address.Street.Trim();
+            BillingNumber = address.Number.Trim();
+            BillingComplement = string.IsNullOrWhiteSpace(address.Complement) ? null : address.Complement.Trim();
+            BillingDistrict = address.District.Trim();
+            BillingCity = address.City.Trim();
+            BillingState = address.State.Trim().ToUpperInvariant();
+        }
+
+        public BillingAddress? GetBillingAddress()
+        {
+            if (string.IsNullOrWhiteSpace(BillingPostalCode))
+            {
+                return null;
+            }
+
+            return new BillingAddress(
+                BillingPostalCode,
+                BillingStreet ?? string.Empty,
+                BillingNumber ?? string.Empty,
+                BillingComplement,
+                BillingDistrict ?? string.Empty,
+                BillingCity ?? string.Empty,
+                BillingState ?? string.Empty);
         }
 
         public void Deactivate()

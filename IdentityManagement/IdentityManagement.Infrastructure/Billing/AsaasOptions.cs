@@ -18,5 +18,17 @@ namespace IdentityManagement.Infrastructure.Billing
         /// um esquecimento de deploy em endpoint anonimo que altera estado de assinatura.
         /// </summary>
         public bool AllowUnauthenticatedWebhook { get; set; }
+
+        /// <summary>
+        /// Para onde o Asaas devolve o cliente ao fim do checkout. Vem de CONFIGURACAO, nunca do
+        /// corpo da requisicao: URL de retorno vinda do cliente e redirecionamento aberto.
+        /// </summary>
+        public string CheckoutSuccessUrl { get; set; } = string.Empty;
+
+        public string CheckoutCancelUrl { get; set; } = string.Empty;
+
+        public string CheckoutExpiredUrl { get; set; } = string.Empty;
+
+        public int CheckoutMinutesToExpire { get; set; } = 60;
     }
 }
