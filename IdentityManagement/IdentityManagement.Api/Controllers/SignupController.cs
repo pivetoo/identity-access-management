@@ -1,5 +1,6 @@
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.Signup;
 using IdentityManagement.Application.Responses.Signup;
 using IdentityManagement.Application.Services;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Api.Controllers
 {
@@ -24,10 +26,15 @@ namespace IdentityManagement.Api.Controllers
         private readonly ISelfServiceSignupService signupService;
         private readonly IConfiguration configuration;
 
-        public SignupController(ISelfServiceSignupService signupService, IConfiguration configuration)
+        // O Localizer do ApiControllerBase aponta para o resource do FRAMEWORK: chave do sistema
+        // passada por ele volta crua na resposta. Por isso o localizador proprio.
+        private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
+
+        public SignupController(ISelfServiceSignupService signupService, IConfiguration configuration, IStringLocalizer<IdentityManagementResource> localizer)
         {
             this.signupService = signupService;
             this.configuration = configuration;
+            Localizer = localizer;
         }
 
         [AllowAnonymous]

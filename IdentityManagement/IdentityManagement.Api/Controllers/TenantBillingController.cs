@@ -2,8 +2,10 @@ using Archon.Api.Attributes;
 using Archon.Api.Controllers;
 using IdentityManagement.Application.Requests.Billing;
 using IdentityManagement.Application.Responses.Billing;
+using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace IdentityManagement.Api.Controllers
 {
@@ -19,9 +21,14 @@ namespace IdentityManagement.Api.Controllers
     {
         private readonly ITenantBillingService tenantBillingService;
 
-        public TenantBillingController(ITenantBillingService tenantBillingService)
+        // O Localizer do ApiControllerBase aponta para o resource do FRAMEWORK: chave do sistema
+        // passada por ele volta crua na resposta. Por isso o localizador proprio.
+        private new readonly IStringLocalizer<IdentityManagementResource> Localizer;
+
+        public TenantBillingController(ITenantBillingService tenantBillingService, IStringLocalizer<IdentityManagementResource> localizer)
         {
             this.tenantBillingService = tenantBillingService;
+            Localizer = localizer;
         }
 
         [RequireAccess]
