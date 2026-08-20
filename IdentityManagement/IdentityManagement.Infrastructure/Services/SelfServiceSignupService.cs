@@ -107,6 +107,23 @@ namespace IdentityManagement.Infrastructure.Services
                     result.Subscription?.Detail ?? "sem detalhe");
             }
 
+            // Bootstrap malsucedido nao derruba o cadastro (a empresa ja existe), mas deixa o banco do
+            // tenant vazio — a agencia entra e encontra um sistema sem dado nenhum. Ja aconteceu, e o
+            // sintoma so aparece no primeiro login. Registrar alto para o suporte agir antes disso.
+            string[] brokenBootstraps = result.BootstrapResults
+                .Where(bootstrap => !bootstrap.Success)
+                .Select(bootstrap => $"{bootstrap.Audience}: {(bootstrap.Skipped ? "pulado" : "falhou")} ({bootstrap.Detail ?? "sem detalhe"})")
+                .ToArray();
+
+            if (brokenBootstraps.Length > 0)
+            {
+                logger.LogError(
+                    "Signup provisionou a empresa {CompanyId} mas o bootstrap nao concluiu em {Count} sistema(s): {Detail}. O banco do tenant pode estar vazio.",
+                    result.CompanyId,
+                    brokenBootstraps.Length,
+                    string.Join(" | ", brokenBootstraps));
+            }
+
             logger.LogInformation(
                 "Signup publico: empresa {CompanyId} criada no plano {Plan} com {Contracts} contrato(s); assinatura ativa: {SubscriptionActive}.",
                 result.CompanyId,
