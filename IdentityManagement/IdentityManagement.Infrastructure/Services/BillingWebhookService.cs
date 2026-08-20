@@ -177,7 +177,10 @@ namespace IdentityManagement.Infrastructure.Services
                 checkout.ExternalReference.StartsWith("company:", StringComparison.Ordinal) &&
                 long.TryParse(checkout.ExternalReference["company:".Length..], out long companyId))
             {
+                // AsTracking obrigatorio: o DbContext do Archon e NoTracking por padrao, e sem isso
+                // a entidade volta solta — a troca de assinatura seria perdida no SaveChanges.
                 Subscription? byCompany = await dbContext.Set<Subscription>()
+                    .AsTracking()
                     .FirstOrDefaultAsync(item => item.CompanyId == companyId, ct);
 
                 if (byCompany is not null)
@@ -192,6 +195,7 @@ namespace IdentityManagement.Infrastructure.Services
             }
 
             return await dbContext.Set<Subscription>()
+                .AsTracking()
                 .FirstOrDefaultAsync(item => item.ExternalCustomerId == checkout.Customer, ct);
         }
 

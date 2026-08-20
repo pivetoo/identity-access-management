@@ -50,7 +50,11 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new BusinessRuleException("billing.address.incomplete");
             }
 
-            Company? company = await dbContext.Set<Company>().FirstOrDefaultAsync(item => item.TenantId == tenantId, cancellationToken);
+            // AsTracking obrigatorio: o DbContext do Archon e NoTracking por padrao, entao sem isso
+            // a entidade volta solta e o endereco nao chega ao banco.
+            Company? company = await dbContext.Set<Company>()
+                .AsTracking()
+                .FirstOrDefaultAsync(item => item.TenantId == tenantId, cancellationToken);
             if (company is null)
             {
                 throw new NotFoundException("company.notFound");
