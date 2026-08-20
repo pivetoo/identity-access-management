@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Building2, CheckCircle2, MailCheck, Rocket } from 'lucide-react';
+import { ArrowLeft, Building2, CheckCircle2, MailCheck } from 'lucide-react';
 import { Button, Card, CardContent, Input, useToast } from 'archon-ui';
 import { signupService, formatDocument, isValidDocument, type SignupResult } from '../../../services/signupService';
+import logoEmpresa from '../../../assets/logo-empresa.png';
 
 /**
  * Cadastro publico da agencia.
@@ -120,8 +121,10 @@ export default function Signup() {
         <Card className="border-0 shadow-md">
           <CardContent className="pt-5">
             <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-                <Rocket className="h-10 w-10 text-primary" />
+              {/* Placa branca sob a marca, como no AdministrationLayout: o logo e navy sobre fundo
+                  transparente e sumiria no tema escuro. */}
+              <div className="w-20 h-20 rounded-full bg-white ring-1 ring-border flex items-center justify-center">
+                <img src={logoEmpresa} alt="Mainstay" className="h-11 w-11 object-contain" />
               </div>
             </div>
 
