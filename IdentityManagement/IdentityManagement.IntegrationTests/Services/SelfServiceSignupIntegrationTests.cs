@@ -273,9 +273,11 @@ namespace IdentityManagement.IntegrationTests.Services
         }
 
         [Test]
-        public async Task Confirm_twice_provisions_only_once()
+        public async Task Confirm_twice_provisions_once_and_reissues_the_setup_token()
         {
-            // Clique duplo no link do e-mail (ou aba reaberta) nao pode disparar dois onboardings.
+            // Abrir o link de novo (aba fechada no meio, e-mail reaberto) nao pode disparar um
+            // segundo onboarding — mas TAMBEM nao pode dar erro: e o unico caminho de volta ate a
+            // senha, e e o que permite mandar um e-mail so em vez de dois.
             List<string> createdDatabases = new();
 
             await InScopeAsync(async sp =>
@@ -289,12 +291,46 @@ namespace IdentityManagement.IntegrationTests.Services
                 string token = NoOpEmailSender.ExtractConfirmToken(NoOpEmailSender.LastConfirmLink);
                 SignupConfirmRequest request = new() { Token = token };
 
-                await subject.ConfirmAsync(request, "https://auth.example");
+                SignupConfirmResponse primeira = await subject.ConfirmAsync(request, "https://auth.example");
+                SignupConfirmResponse segunda = await subject.ConfirmAsync(request, "https://auth.example");
 
-                Func<Task> segundaVez = () => subject.ConfirmAsync(request, "https://auth.example");
-                await segundaVez.Should().ThrowAsync<ConflictException>();
+                segunda.SetupToken.Should().NotBeEmpty();
+                segunda.SetupToken.Should().NotBe(primeira.SetupToken, "o token fica com hash, entao o reenvio emite outro");
 
-                (await dbContext.Set<Company>().CountAsync()).Should().Be(1);
+                (await dbContext.Set<Company>().CountAsync()).Should().Be(1, "o segundo clique nao pode provisionar de novo");
+                (await dbContext.Set<Contract>().CountAsync()).Should().Be(1);
+
+                // O convite anterior tem de ser revogado, para nao sobrar dois validos na caixa.
+                List<ContractAdminInvitation> convites = await dbContext.Set<ContractAdminInvitation>().AsNoTracking().ToListAsync();
+                convites.Count(item => item.IsValid()).Should().Be(1);
+
+                createdDatabases.AddRange(await dbContext.Set<TenantDatabase>().AsNoTracking().Select(item => item.ConnectionString).ToListAsync());
+            });
+
+            await DropCreatedDatabasesAsync(createdDatabases);
+        }
+
+        [Test]
+        public async Task Confirm_does_not_send_the_invitation_email_on_the_public_path()
+        {
+            // A causa dos dois e-mails: o onboarding mandava o convite mesmo quando a pessoa ja
+            // estava na tela de senha.
+            List<string> createdDatabases = new();
+
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                await SeedForOnboardingAsync(dbContext);
+
+                SelfServiceSignupService subject = CreateSubject(sp, SingleAudienceOptions());
+                await subject.SignupAsync(ValidRequest(), "https://auth.example", null);
+
+                NoOpEmailSender.ResetLastSetupLink();
+
+                string token = NoOpEmailSender.ExtractConfirmToken(NoOpEmailSender.LastConfirmLink);
+                await subject.ConfirmAsync(new SignupConfirmRequest { Token = token }, "https://auth.example");
+
+                NoOpEmailSender.LastSetupLink.Should().BeEmpty("o cadastro publico manda um e-mail so");
 
                 createdDatabases.AddRange(await dbContext.Set<TenantDatabase>().AsNoTracking().Select(item => item.ConnectionString).ToListAsync());
             });

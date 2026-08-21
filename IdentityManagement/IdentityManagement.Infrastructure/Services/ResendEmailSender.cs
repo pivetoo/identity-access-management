@@ -112,7 +112,7 @@ namespace IdentityManagement.Infrastructure.Services
                               </td>
                             </tr>
                           </table>
-                          <p style="margin:28px 0 0;color:#6b7280;font-size:13px;line-height:1.6;">Este link expira em <strong>{expiresInHours} horas</strong>. Se você não fez este cadastro, ignore este e-mail — nada foi criado e nada será cobrado.</p>
+                          <p style="margin:28px 0 0;color:#6b7280;font-size:13px;line-height:1.6;">Você tem <strong>{expiresInHours} horas</strong> para confirmar. Guarde este e-mail: se fechar a página no meio, é por ele que você volta. Se não fez este cadastro, ignore — nada foi criado e nada será cobrado.</p>
                         </td>
                       </tr>
                       <tr>

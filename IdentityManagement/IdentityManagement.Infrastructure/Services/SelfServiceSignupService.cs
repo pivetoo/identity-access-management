@@ -35,6 +35,9 @@ namespace IdentityManagement.Infrastructure.Services
     {
         private const string CentralSystemAudience = "identity-management";
 
+        /// <summary>Validade do convite de administrador, igual a usada no ClientOnboardingService.</summary>
+        private const int InvitationDays = 7;
+
         private readonly DbContext dbContext;
         private readonly IClientOnboardingService onboarding;
         private readonly IEmailSender emailSender;
@@ -150,9 +153,20 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new NotFoundException("signup.confirm.invalidToken");
             }
 
+            // Ja provisionado. O link do e-mail passa a ser o caminho de VOLTA ate a senha existir —
+            // e o que permite mandar um unico e-mail em vez de dois. Sem isto, fechar a aba durante
+            // o provisionamento deixaria a pessoa trancada do lado de fora com o CNPJ ja ocupado,
+            // que e exatamente a armadilha que este desenho veio eliminar.
+            if (pending.CompanyId is not null)
+            {
+                return await ReissueSetupAsync(pending, cancellationToken);
+            }
+
             if (pending.ConsumedAt is not null)
             {
-                throw new ConflictException("signup.confirm.alreadyUsed");
+                // Reivindicado e ainda sem empresa: outra aba esta provisionando agora, ou o processo
+                // caiu no meio (o PendingSignupCleanupJob devolve a reserva em ate 30 min).
+                throw new ConflictException("signup.confirm.inProgress");
             }
 
             if (DateTimeOffset.UtcNow >= pending.ExpiresAt)
@@ -171,7 +185,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (claimed == 0)
             {
-                throw new ConflictException("signup.confirm.alreadyUsed");
+                throw new ConflictException("signup.confirm.inProgress");
             }
 
             try
@@ -196,7 +210,10 @@ namespace IdentityManagement.Infrastructure.Services
                         .ToList()
                 };
 
-                OnboardClientResponse result = await onboarding.OnboardClient(onboardRequest, setupBaseUrl, cancellationToken);
+                // sendInvitationEmail: false — a pessoa acabou de clicar no link do e-mail de
+                // confirmacao e cai direto na tela de senha. Um segundo e-mail chegaria junto com o
+                // primeiro dizendo quase a mesma coisa.
+                OnboardClientResponse result = await onboarding.OnboardClient(onboardRequest, setupBaseUrl, sendInvitationEmail: false, ct: cancellationToken);
 
                 await dbContext.Set<PendingSignup>()
                     .Where(item => item.Id == pending.Id)
@@ -255,6 +272,65 @@ namespace IdentityManagement.Infrastructure.Services
                 await ReleaseClaimAsync(pending.Id, cancellationToken);
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Emite um convite novo para uma empresa que ja foi provisionada por este cadastro.
+        ///
+        /// Os tokens ficam com hash, entao nao ha como reapresentar o anterior: emite outro e revoga
+        /// os que ainda valiam, para nao deixar convite solto.
+        /// </summary>
+        private async Task<SignupConfirmResponse> ReissueSetupAsync(PendingSignup pending, CancellationToken cancellationToken)
+        {
+            long companyId = pending.CompanyId!.Value;
+
+            // Limite: o link nao vale para sempre. Espelha a validade do proprio convite (7 dias),
+            // para um e-mail antigo nao virar acesso de administrador meses depois.
+            if (pending.ConsumedAt is not null && DateTimeOffset.UtcNow > pending.ConsumedAt.Value.AddDays(InvitationDays))
+            {
+                throw new BusinessRuleException("signup.confirm.expired");
+            }
+
+            bool jaConfigurado = await dbContext.Set<ContractAdminInvitation>()
+                .AsNoTracking()
+                .AnyAsync(item => item.CompanyId == companyId && item.UsedAt != null, cancellationToken);
+
+            if (jaConfigurado)
+            {
+                throw new ConflictException("signup.confirm.alreadySetUp");
+            }
+
+            await dbContext.Set<ContractAdminInvitation>()
+                .Where(item => item.CompanyId == companyId && item.UsedAt == null && item.RevokedAt == null)
+                .ExecuteUpdateAsync(
+                    setters => setters.SetProperty(item => item.RevokedAt, DateTimeOffset.UtcNow),
+                    cancellationToken);
+
+            string token = GenerateOpaqueToken();
+            ContractAdminInvitation invitation = new ContractAdminInvitation(companyId, token, DateTimeOffset.UtcNow.AddDays(InvitationDays), true);
+            await dbContext.Set<ContractAdminInvitation>().AddAsync(invitation, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            Subscription? subscription = await dbContext.Set<Subscription>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.CompanyId == companyId, cancellationToken);
+
+            Plan? plan = subscription is null
+                ? null
+                : await dbContext.Set<Plan>().AsNoTracking().FirstOrDefaultAsync(item => item.Id == subscription.PlanId, cancellationToken);
+
+            logger.LogInformation(
+                "Signup: link de confirmacao reaproveitado pela empresa {CompanyId}; convite anterior revogado e novo emitido.",
+                companyId);
+
+            return new SignupConfirmResponse
+            {
+                SetupToken = token,
+                CompanyName = pending.TradeName,
+                PlanName = plan?.Name ?? string.Empty,
+                TrialEndsAt = subscription?.TrialEndsAt,
+                SubscriptionActive = subscription is not null
+            };
         }
 
         private void EnsureEnabled()

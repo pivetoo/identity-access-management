@@ -633,7 +633,8 @@
   <data name="signup.confirmed" xml:space="preserve"><value>Email confirmed and environment created successfully.</value></data>
   <data name="signup.confirm.invalidToken" xml:space="preserve"><value>Invalid confirmation link. Check that you copied the full address from the email.</value></data>
   <data name="signup.confirm.expired" xml:space="preserve"><value>This confirmation link has expired. Sign up again to receive a new one.</value></data>
-  <data name="signup.confirm.alreadyUsed" xml:space="preserve"><value>This link has already been used. Use the "Set up your access" email to define your password.</value></data>
+  <data name="signup.confirm.inProgress" xml:space="preserve"><value>We are creating your account. Wait a few seconds and reload this page.</value></data>
+  <data name="signup.confirm.alreadySetUp" xml:space="preserve"><value>Your account is already set up. Use the sign-in screen to log in.</value></data>
   <data name="signup.verification.emailFailed" xml:space="preserve"><value>We could not send the confirmation email. Please try again in a few minutes.</value></data>
   <data name="billing.paymentMethod.notCard" xml:space="preserve"><value>This subscription is not billed to a card.</value></data>
   <data name="billing.paymentMethod.switchFailed" xml:space="preserve"><value>Could not change the payment method right now. Try again in a few minutes.</value></data>

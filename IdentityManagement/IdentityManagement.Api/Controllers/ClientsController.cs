@@ -23,7 +23,7 @@ namespace IdentityManagement.Api.Controllers
         public async Task<IActionResult> Onboard([FromBody] OnboardClientRequest request, CancellationToken cancellationToken)
         {
             string setupBaseUrl = configuration["Oidc:Issuer"] ?? string.Empty;
-            var response = await clientOnboardingService.OnboardClient(request, setupBaseUrl, cancellationToken);
+            var response = await clientOnboardingService.OnboardClient(request, setupBaseUrl, ct: cancellationToken);
             return Http200(response);
         }
     }

@@ -56,6 +56,9 @@ namespace IdentityManagement.IntegrationTests
 
         public static string ExtractConfirmToken(string confirmLink) => ExtractToken(confirmLink);
 
+        /// <summary>Zera o link de convite para um teste poder afirmar que NENHUM foi enviado.</summary>
+        public static void ResetLastSetupLink() => LastSetupLink = string.Empty;
+
         public static string ExtractToken(string setupLink)
         {
             int index = setupLink.IndexOf("token=", StringComparison.Ordinal);

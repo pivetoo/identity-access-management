@@ -48,7 +48,7 @@ namespace IdentityManagement.Infrastructure.Services
             this.logger = logger;
         }
 
-        public async Task<OnboardClientResponse> OnboardClient(OnboardClientRequest request, string setupBaseUrl, CancellationToken ct = default)
+        public async Task<OnboardClientResponse> OnboardClient(OnboardClientRequest request, string setupBaseUrl, bool sendInvitationEmail = true, CancellationToken ct = default)
         {
             List<(string Db, string Audience)> plannedDatabases = new();
             List<long> contractIds = new();
@@ -149,7 +149,10 @@ namespace IdentityManagement.Infrastructure.Services
 
             SubscriptionProvisionResult subscription = await ProvisionSubscriptionAsync(request, company.Id, ct);
 
-            await emailSender.SendClientAdminInvitationEmailAsync(company.Email, company.LegalName, systemNames, setupLink, ct);
+            if (sendInvitationEmail)
+            {
+                await emailSender.SendClientAdminInvitationEmailAsync(company.Email, company.LegalName, systemNames, setupLink, ct);
+            }
 
             return new OnboardClientResponse
             {
