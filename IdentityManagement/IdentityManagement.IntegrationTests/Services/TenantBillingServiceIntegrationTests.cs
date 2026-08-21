@@ -56,7 +56,8 @@ namespace IdentityManagement.IntegrationTests.Services
             Number = "1000",
             District = "Bela Vista",
             City = "Sao Paulo",
-            State = "SP"
+            State = "SP",
+            PhoneNumber = "11999990001"
         };
 
         private static async Task<Company> SeedAsync(DbContext dbContext, string document, string email)
@@ -153,6 +154,29 @@ namespace IdentityManagement.IntegrationTests.Services
             {
                 DbContext dbContext = sp.GetRequiredService<DbContext>();
                 Company company = await SeedAsync(dbContext, "11333444000172", "billing3@example.com");
+
+                TenantBillingService subject = CreateSubject(dbContext);
+
+                Func<Task> act = () => subject.StartCardCheckoutAsync(company.TenantId);
+
+                await act.Should().ThrowAsync<BusinessRuleException>();
+            });
+        }
+
+        [Test]
+        public async Task Checkout_de_cartao_exige_telefone()
+        {
+            // O provedor recusa vincular o cliente ao checkout sem telefone, e o cadastro publico
+            // nao pede esse campo. Sem esta trava o erro chegava como 500 cru na tela.
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                Company company = await SeedAsync(dbContext, "11444555000199", "billing10@example.com");
+
+                Company tracked = await dbContext.Set<Company>().AsTracking().FirstAsync(item => item.Id == company.Id);
+                tracked.SetBillingAddress(new BillingAddress("01310100", "Avenida Paulista", "1000", null, "Bela Vista", "Sao Paulo", "SP"));
+                typeof(Company).GetProperty(nameof(Company.PhoneNumber))!.SetValue(tracked, string.Empty);
+                await dbContext.SaveChangesAsync();
 
                 TenantBillingService subject = CreateSubject(dbContext);
 

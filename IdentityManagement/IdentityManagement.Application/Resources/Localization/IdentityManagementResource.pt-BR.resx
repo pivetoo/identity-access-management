@@ -891,4 +891,5 @@
   <data name="billing.paymentMethod.notCard" xml:space="preserve"><value>A cobranca desta assinatura nao esta no cartao.</value></data>
   <data name="billing.paymentMethod.switchFailed" xml:space="preserve"><value>Nao foi possivel trocar a forma de pagamento agora. Tente novamente em alguns minutos.</value></data>
   <data name="billing.paymentMethod.switchedToPix" xml:space="preserve"><value>Cobranca voltou para PIX.</value></data>
+  <data name="billing.phone.required" xml:space="preserve"><value>Informe o telefone de contato antes de cadastrar o cartao.</value></data>
 </root>

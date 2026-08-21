@@ -30,6 +30,9 @@ namespace IdentityManagement.Application.Responses.Billing
         /// <summary>Endereco de cobranca ja preenchido? O checkout de cartao depende dele.</summary>
         public bool HasBillingAddress { get; set; }
 
+        /// <summary>Telefone de contato da empresa; o checkout de cartao nao abre sem ele.</summary>
+        public string? PhoneNumber { get; set; }
+
         public TenantBillingAddressResponse? BillingAddress { get; set; }
 
         /// <summary>Cobranca em aberto, quando existe. E por onde a agencia paga.</summary>

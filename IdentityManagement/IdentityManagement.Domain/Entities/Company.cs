@@ -62,6 +62,14 @@ namespace IdentityManagement.Domain.Entities
             IsActive = isActive;
         }
 
+        // O telefone e opcional no cadastro publico, mas o provedor de pagamento exige para vincular
+        // o cliente ao checkout de cartao. Por isso ele pode ser completado depois, sozinho.
+        public void SetContactPhone(string phoneNumber)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(phoneNumber);
+            PhoneNumber = phoneNumber.Trim();
+        }
+
         public void SetBillingAddress(BillingAddress address)
         {
             ArgumentNullException.ThrowIfNull(address);

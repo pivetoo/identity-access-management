@@ -30,5 +30,13 @@ namespace IdentityManagement.Application.Requests.Billing
         [Required]
         [StringLength(2, MinimumLength = 2)]
         public string State { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Exigido pelo provedor para vincular o cliente ao checkout de cartao. Vem junto do
+        /// endereco porque e a mesma lacuna: dado que o cadastro publico nao pede.
+        /// </summary>
+        [Required]
+        [StringLength(20, MinimumLength = 10)]
+        public string PhoneNumber { get; set; } = string.Empty;
     }
 }

@@ -213,6 +213,9 @@ namespace IdentityManagement.Infrastructure.Services
                 Name = string.IsNullOrWhiteSpace(company.TradeName) ? company.LegalName : company.TradeName,
                 CpfCnpj = DigitsOnly(company.Document),
                 Email = company.Email,
+                // O provedor exige `phone` (nao so `mobilePhone`) para vincular o cliente ao
+                // checkout. Mandar os dois evita depender de qual deles ele valida.
+                Phone = DigitsOnly(company.PhoneNumber),
                 MobilePhone = DigitsOnly(company.PhoneNumber),
                 PostalCode = address.PostalCode,
                 Address = address.Street,
@@ -338,6 +341,8 @@ namespace IdentityManagement.Infrastructure.Services
             public string Email { get; set; } = string.Empty;
 
             public string? MobilePhone { get; set; }
+
+            public string? Phone { get; set; }
 
             public string? PostalCode { get; set; }
 

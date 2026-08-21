@@ -107,6 +107,7 @@ namespace IdentityManagement.Infrastructure.Services
             }
 
             company.SetBillingAddress(address);
+            company.SetContactPhone(request.PhoneNumber);
             await dbContext.SaveChangesAsync(cancellationToken);
 
             (Company reloaded, Subscription subscription, Plan plan) = await LoadAsync(tenantId, cancellationToken);
@@ -116,6 +117,11 @@ namespace IdentityManagement.Infrastructure.Services
         public async Task<TenantCheckoutResponse> StartCardCheckoutAsync(Guid tenantId, CancellationToken cancellationToken = default)
         {
             (Company company, Subscription subscription, Plan plan) = await LoadAsync(tenantId, cancellationToken);
+
+            if (string.IsNullOrWhiteSpace(company.PhoneNumber))
+            {
+                throw new BusinessRuleException("billing.phone.required");
+            }
 
             if (company.GetBillingAddress() is null)
             {
@@ -252,6 +258,7 @@ namespace IdentityManagement.Infrastructure.Services
                 // enquanto o resto do sistema responde 402.
                 IsBlocked = subscription.IsBlocked || !subscription.GrantsAccess(DateTimeOffset.UtcNow),
                 HasBillingAddress = address is not null,
+                PhoneNumber = string.IsNullOrWhiteSpace(company.PhoneNumber) ? null : company.PhoneNumber,
                 BillingAddress = address is null ? null : new TenantBillingAddressResponse
                 {
                     PostalCode = address.PostalCode,
