@@ -66,6 +66,15 @@ export default function Plans() {
     setIsFormOpen(true)
   }
 
+  const handleToggleSelected = () => {
+    if (selectedPlans.length !== 1) {
+      toast({ variant: 'warning', title: 'Atenção', description: selectedPlans.length === 0 ? 'Selecione um plano para alterar o status.' : 'Selecione apenas um plano para alterar o status.' })
+      return
+    }
+
+    handleToggleStatus(selectedPlans[0])
+  }
+
   const handleEdit = () => {
     if (selectedPlans.length !== 1) {
       toast({ variant: 'warning', title: 'Atenção', description: selectedPlans.length === 0 ? 'Selecione um plano para editar.' : 'Selecione apenas um plano para editar.' })
@@ -115,13 +124,8 @@ export default function Plans() {
       key: 'isActive',
       title: 'Status',
       dataIndex: 'isActive',
-      render: (value: boolean, record: Plan) => (
-        <div className="flex items-center gap-2">
-          <Badge variant={value ? 'success' : 'destructive'}>{value ? 'Ativo' : 'Inativo'}</Badge>
-          <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); handleToggleStatus(record) }}>
-            {value ? 'Desativar' : 'Ativar'}
-          </Button>
-        </div>
+      render: (value: boolean) => (
+        <Badge variant={value ? 'success' : 'destructive'}>{value ? 'Ativo' : 'Inativo'}</Badge>
       ),
     },
   ]
@@ -135,6 +139,16 @@ export default function Plans() {
         onEdit={handleEdit}
         onRefresh={() => loadPlans(true)}
         selectedRowsCount={selectedPlans.length}
+        actions={[
+          {
+            key: 'toggle-status',
+            // Rotulo segue o plano selecionado: com nada selecionado nao ha o que prometer.
+            label: selectedPlans.length === 1 && !selectedPlans[0].isActive ? 'Ativar' : 'Desativar',
+            variant: selectedPlans.length === 1 && !selectedPlans[0].isActive ? 'outline-success' : 'outline-danger',
+            disabled: selectedPlans.length !== 1,
+            onClick: handleToggleSelected,
+          },
+        ]}
       >
         <DataTable
           columns={columns}
