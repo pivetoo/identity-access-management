@@ -150,6 +150,12 @@ namespace IdentityManagement.Infrastructure.Services
             await resend.EmailSendAsync(message, cancellationToken);
         }
 
+        /// <summary>
+        /// <paramref name="name"/> vem do usuario e por isso e escapado. <paramref name="title"/>,
+        /// <paramref name="body"/> e <paramref name="footer"/> NAO sao escapados de proposito: hoje
+        /// todos os chamadores passam literal. Se algum dia entrar dado de usuario por eles, escapar
+        /// tambem — senao o buraco reabre em silencio.
+        /// </summary>
         private static string BuildSecurityAlertHtml(string name, string title, string body, string footer) => $"""
             <!DOCTYPE html>
             <html lang="pt-BR">
