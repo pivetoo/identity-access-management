@@ -204,7 +204,7 @@ namespace IdentityManagement.IntegrationTests.Services
                 DbContext dbContext = sp.GetRequiredService<DbContext>();
                 await SeedForOnboardingAsync(dbContext);
 
-                SelfServiceSignupService subject = CreateSubject(sp);
+                SelfServiceSignupService subject = CreateSubject(sp, SingleAudienceOptions());
 
                 await subject.SignupAsync(ValidRequest(), "https://auth.example", "203.0.113.7");
 
