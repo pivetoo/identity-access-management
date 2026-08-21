@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Badge, Button, DataTable, Modal, ModalContent, ModalHeader, ModalTitle, PageLayout, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tabs, TabsContent, TabsList, TabsTrigger, useApi } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Receipt, Webhook } from 'lucide-react'
+import { Check, Copy, Receipt, Webhook, WrapText } from 'lucide-react'
 import { PaymentService } from '../../../services/paymentService'
 import type { Payment, WebhookEvent } from '../../../types/payment'
 import { PaymentStatus } from '../../../types/payment'
@@ -42,6 +42,8 @@ export default function Payments() {
   const [events, setEvents] = useState<WebhookEvent[]>([])
   const [statusFilter, setStatusFilter] = useState<string>(STATUS_ALL)
   const [payloadEvent, setPayloadEvent] = useState<WebhookEvent | null>(null)
+  const [payloadFormatted, setPayloadFormatted] = useState(true)
+  const [payloadCopied, setPayloadCopied] = useState(false)
 
   const paymentsApi = useApi({
     onSuccess: (data: Payment[]) => setPayments(data),
@@ -157,12 +159,23 @@ export default function Payments() {
       dataIndex: 'rawPayload',
       render: (_: unknown, record: WebhookEvent) =>
         record.rawPayload ? (
-          <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setPayloadEvent(record) }}>
+          <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); setPayloadEvent(record) }}>
             Ver payload
           </Button>
         ) : null,
     },
   ]
+
+  const copyPayload = async () => {
+    const text = payloadFormatted ? prettyPayload(payloadEvent?.rawPayload) : payloadEvent?.rawPayload
+    if (!text) {
+      return
+    }
+
+    await navigator.clipboard.writeText(text)
+    setPayloadCopied(true)
+    window.setTimeout(() => setPayloadCopied(false), 2000)
+  }
 
   const prettyPayload = (raw?: string): string => {
     if (!raw) {
@@ -233,14 +246,45 @@ export default function Payments() {
         </Tabs>
       </PageLayout>
 
-      <Modal open={!!payloadEvent} onOpenChange={(open) => { if (!open) { setPayloadEvent(null) } }}>
-        <ModalContent size="lg">
+      <Modal
+        open={!!payloadEvent}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPayloadEvent(null)
+            setPayloadFormatted(true)
+            setPayloadCopied(false)
+          }
+        }}
+      >
+        <ModalContent size="3xl">
           <ModalHeader>
             <ModalTitle>Payload do evento</ModalTitle>
           </ModalHeader>
+
+          <div className="mb-3 flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              icon={<WrapText />}
+              iconPosition="left"
+              onClick={() => setPayloadFormatted((current) => !current)}
+            >
+              {payloadFormatted ? 'Ver original' : 'Formatar JSON'}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              icon={payloadCopied ? <Check /> : <Copy />}
+              iconPosition="left"
+              onClick={copyPayload}
+            >
+              {payloadCopied ? 'Copiado' : 'Copiar'}
+            </Button>
+          </div>
+
           <div className="max-h-[60vh] overflow-auto rounded-md bg-muted p-4">
             <pre className="font-mono text-xs text-foreground whitespace-pre-wrap break-all">
-              {prettyPayload(payloadEvent?.rawPayload)}
+              {payloadFormatted ? prettyPayload(payloadEvent?.rawPayload) : payloadEvent?.rawPayload}
             </pre>
           </div>
         </ModalContent>
