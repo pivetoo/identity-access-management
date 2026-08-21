@@ -93,6 +93,16 @@ builder.Services.AddRateLimiter(options =>
             Window = TimeSpan.FromMinutes(builder.Configuration.GetValue("RateLimiting:SignupWindowMinutes", 60)),
             QueueLimit = 0
         }));
+
+    // Contato do site: anonimo e dispara e-mail, entao vale a mesma disciplina do cadastro.
+    options.AddPolicy(RateLimitPolicies.Contact, httpContext => RateLimitPartition.GetFixedWindowLimiter(
+        httpContext.Connection.RemoteIpAddress?.ToString() ?? "sem-ip",
+        _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = builder.Configuration.GetValue("RateLimiting:ContactPermitLimit", 5),
+            Window = TimeSpan.FromMinutes(builder.Configuration.GetValue("RateLimiting:ContactWindowMinutes", 60)),
+            QueueLimit = 0
+        }));
 });
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

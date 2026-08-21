@@ -4,6 +4,7 @@ using Archon.Infrastructure.Migrations;
 using Archon.Infrastructure.MultiTenancy;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Infrastructure.Billing;
+using IdentityManagement.Infrastructure.Contact;
 using IdentityManagement.Infrastructure.Signup;
 using IdentityManagement.Infrastructure.MultiTenancy;
 using IdentityManagement.Infrastructure.Services;
@@ -34,6 +35,7 @@ namespace IdentityManagement.Infrastructure.DependencyInjection
             // Registro manual porque o nome nao termina em "Service" (nao e auto-descoberto).
             services.Configure<AsaasOptions>(configuration.GetSection(AsaasOptions.SectionName));
             services.Configure<SignupOptions>(configuration.GetSection(SignupOptions.SectionName));
+            services.Configure<ContactOptions>(configuration.GetSection(ContactOptions.SectionName));
 
             string asaasApiKey = configuration[$"{AsaasOptions.SectionName}:ApiKey"] ?? string.Empty;
             if (!string.IsNullOrWhiteSpace(asaasApiKey))

@@ -626,4 +626,5 @@
   <data name="billing.paymentMethod.switchFailed" xml:space="preserve"><value>No se pudo cambiar el medio de pago ahora. Intente en unos minutos.</value></data>
   <data name="billing.paymentMethod.switchedToPix" xml:space="preserve"><value>El cobro volvio a PIX.</value></data>
   <data name="billing.phone.required" xml:space="preserve"><value>Informe el telefono de contacto antes de cargar la tarjeta.</value></data>
+  <data name="contact.received" xml:space="preserve"><value>Recibimos su mensaje. Responderemos al correo informado.</value></data>
 </root>

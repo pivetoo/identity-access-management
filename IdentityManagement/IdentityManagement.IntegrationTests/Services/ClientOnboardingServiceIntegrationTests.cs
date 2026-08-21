@@ -241,6 +241,8 @@ namespace IdentityManagement.IntegrationTests.Services
             public Task SendAdminInvitationEmailAsync(string toEmail, string companyName, string systemApplicationName, string setupLink, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
             public Task SendClientAdminInvitationEmailAsync(string toEmail, string companyName, IReadOnlyCollection<string> systemNames, string setupLink, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+            public Task SendContactRequestEmailAsync(string toEmail, string contactName, string contactEmail, string? contactPhone, string? companyName, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
         }
     }
 }

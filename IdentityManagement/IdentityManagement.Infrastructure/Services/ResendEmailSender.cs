@@ -209,6 +209,29 @@ namespace IdentityManagement.Infrastructure.Services
             """;
         }
 
+        public async Task SendContactRequestEmailAsync(string toEmail, string contactName, string contactEmail, string? contactPhone, string? companyName, string message, CancellationToken cancellationToken = default)
+        {
+            var email = new EmailMessage();
+            email.From = "no-reply@mainstay.com.br";
+            email.To.Add(toEmail);
+            email.Subject = $"Contato do site — {contactName}";
+
+            // Texto puro de proposito: o conteudo vem de formulario publico, e montar HTML com ele
+            // abriria injecao no corpo do e-mail. Responder vai direto para quem escreveu.
+            email.ReplyTo = contactEmail;
+            email.TextBody = string.Join(
+                "\n",
+                $"Nome: {contactName}",
+                $"E-mail: {contactEmail}",
+                $"Telefone: {(string.IsNullOrWhiteSpace(contactPhone) ? "-" : contactPhone)}",
+                $"Agencia: {(string.IsNullOrWhiteSpace(companyName) ? "-" : companyName)}",
+                string.Empty,
+                "Mensagem:",
+                message);
+
+            await resend.EmailSendAsync(email, cancellationToken);
+        }
+
         private static string BuildHtml(string name, string resetLink) => $"""
             <!DOCTYPE html>
             <html lang="pt-BR">

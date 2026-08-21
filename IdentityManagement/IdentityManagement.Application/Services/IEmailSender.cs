@@ -13,5 +13,13 @@ namespace IdentityManagement.Application.Services
         Task SendAdminInvitationEmailAsync(string toEmail, string companyName, string systemApplicationName, string setupLink, CancellationToken cancellationToken = default);
 
         Task SendClientAdminInvitationEmailAsync(string toEmail, string companyName, IReadOnlyCollection<string> systemNames, string setupLink, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Avisa o time sobre um contato vindo da landing.
+        ///
+        /// <paramref name="toEmail"/> vem de CONFIGURACAO, nunca do formulario: um endpoint anonimo
+        /// que envia para endereco informado pelo visitante e relay de spam aberto.
+        /// </summary>
+        Task SendContactRequestEmailAsync(string toEmail, string contactName, string contactEmail, string? contactPhone, string? companyName, string message, CancellationToken cancellationToken = default);
     }
 }

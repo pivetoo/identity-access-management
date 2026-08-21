@@ -14,5 +14,11 @@ namespace IdentityManagement.Api
         /// credencial (20/min) um unico IP conseguiria provisionar milhares de bancos por hora.
         /// </summary>
         public const string Signup = "signup";
+
+        /// <summary>
+        /// Contato do site. Endpoint anonimo que dispara e-mail e alvo obvio de spam; o limite e
+        /// por IP e estreito, porque contato legitimo e raro por origem.
+        /// </summary>
+        public const string Contact = "contact";
     }
 }

@@ -634,4 +634,5 @@
   <data name="billing.paymentMethod.switchFailed" xml:space="preserve"><value>Could not change the payment method right now. Try again in a few minutes.</value></data>
   <data name="billing.paymentMethod.switchedToPix" xml:space="preserve"><value>Billing switched back to PIX.</value></data>
   <data name="billing.phone.required" xml:space="preserve"><value>Provide the contact phone before adding a card.</value></data>
+  <data name="contact.received" xml:space="preserve"><value>We received your message. We will reply to the email you provided.</value></data>
 </root>

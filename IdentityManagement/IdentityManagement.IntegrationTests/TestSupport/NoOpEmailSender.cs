@@ -36,6 +36,8 @@ namespace IdentityManagement.IntegrationTests
             return Task.CompletedTask;
         }
 
+        public Task SendContactRequestEmailAsync(string toEmail, string contactName, string contactEmail, string? contactPhone, string? companyName, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
         /// <summary>
         /// Ultimo link de convite enviado. Depois que o token passou a ser guardado como hash
         /// (IDM-013), o e-mail e o unico lugar onde o valor em claro aparece — que e exatamente o
