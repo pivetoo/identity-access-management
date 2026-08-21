@@ -1,3 +1,4 @@
+using System.Net;
 using IdentityManagement.Application.Services;
 using Resend;
 
@@ -5,6 +6,16 @@ namespace IdentityManagement.Infrastructure.Services
 {
     public sealed class ResendEmailSender(ResendClient resend) : IEmailSender
     {
+        /// <summary>
+        /// Escapa valor que veio do usuario antes de entrar no HTML do e-mail.
+        ///
+        /// Nao e detalhe de formatacao: o cadastro publico e anonimo e o nome da agencia cai direto
+        /// no corpo. Sem escapar, qualquer um manda HTML — inclusive um link — num e-mail assinado
+        /// por mainstay.com.br, com SPF e DKIM validos, para o endereco que escolher. Isso e relay
+        /// de phishing usando a reputacao do dominio, nao so texto torto.
+        /// </summary>
+        private static string Escape(string? valor) => WebUtility.HtmlEncode(valor ?? string.Empty);
+
         public async Task SendPasswordResetEmailAsync(string toEmail, string toName, string resetLink, CancellationToken cancellationToken = default)
         {
             var message = new EmailMessage();
@@ -86,7 +97,7 @@ namespace IdentityManagement.Infrastructure.Services
             await resend.EmailSendAsync(message, cancellationToken);
         }
 
-        private static string BuildSignupVerificationHtml(string companyName, string confirmLink, int expiresInHours) => $"""
+        internal static string BuildSignupVerificationHtml(string companyName, string confirmLink, int expiresInHours) => $"""
             <!DOCTYPE html>
             <html lang="pt-BR">
             <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /></head>
@@ -103,7 +114,7 @@ namespace IdentityManagement.Infrastructure.Services
                       <tr>
                         <td style="background:#ffffff;border-radius:10px;padding:40px 36px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
                           <h2 style="margin:0 0 8px;color:#1F3B61;font-size:22px;font-weight:700;">Confirme seu e-mail</h2>
-                          <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">Olá, <strong>{companyName}</strong>.</p>
+                          <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">Olá, <strong>{Escape(companyName)}</strong>.</p>
                           <p style="margin:0 0 28px;color:#374151;font-size:15px;line-height:1.6;">Recebemos um cadastro na <strong>Mainstay</strong> com este e-mail. Clique no botão abaixo para confirmar e criar o ambiente da sua agência:</p>
                           <table cellpadding="0" cellspacing="0">
                             <tr>
@@ -156,7 +167,7 @@ namespace IdentityManagement.Infrastructure.Services
                       <tr>
                         <td style="background:#ffffff;border-radius:10px;padding:40px 36px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
                           <h2 style="margin:0 0 8px;color:#1F3B61;font-size:22px;font-weight:700;">{title}</h2>
-                          <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">Olá, {name}.</p>
+                          <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">Olá, {Escape(name)}.</p>
                           <p style="margin:0 0 24px;color:#374151;font-size:15px;line-height:1.6;">{body}</p>
                           <p style="margin:0;padding:16px;background:#fff7ed;border-left:4px solid #f97316;border-radius:4px;color:#9a3412;font-size:13px;line-height:1.6;">{footer}</p>
                         </td>
@@ -191,8 +202,8 @@ namespace IdentityManagement.Infrastructure.Services
                       <tr>
                         <td style="background:#ffffff;border-radius:10px;padding:40px 36px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
                           <h2 style="margin:0 0 8px;color:#1F3B61;font-size:22px;font-weight:700;">Configure seu acesso</h2>
-                          <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">Olá, <strong>{companyName}</strong>.</p>
-                          <p style="margin:0 0 8px;color:#374151;font-size:15px;line-height:1.6;">Um contrato com o sistema <strong>{systemApplicationName}</strong> foi criado para sua empresa.</p>
+                          <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">Olá, <strong>{Escape(companyName)}</strong>.</p>
+                          <p style="margin:0 0 8px;color:#374151;font-size:15px;line-height:1.6;">Um contrato com o sistema <strong>{Escape(systemApplicationName)}</strong> foi criado para sua empresa.</p>
                           <p style="margin:0 0 28px;color:#374151;font-size:15px;line-height:1.6;">Clique no botão abaixo para configurar o usuário <strong>Administrador</strong> e definir suas credenciais de acesso:</p>
                           <table cellpadding="0" cellspacing="0">
                             <tr>
@@ -236,7 +247,7 @@ namespace IdentityManagement.Infrastructure.Services
                       <tr>
                         <td style="background:#ffffff;border-radius:10px;padding:40px 36px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
                           <h2 style="margin:0 0 8px;color:#1F3B61;font-size:22px;font-weight:700;">Configure seu acesso</h2>
-                          <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">Olá, <strong>{companyName}</strong>.</p>
+                          <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">Olá, <strong>{Escape(companyName)}</strong>.</p>
                           <p style="margin:0 0 28px;color:#374151;font-size:15px;line-height:1.6;">Sua conta na <strong>Mainstay</strong> foi criada. Clique no botão abaixo para configurar o usuário <strong>Administrador</strong> e definir suas credenciais de acesso:</p>
                           <table cellpadding="0" cellspacing="0">
                             <tr>
@@ -306,7 +317,7 @@ namespace IdentityManagement.Infrastructure.Services
                       <tr>
                         <td style="background:#ffffff;border-radius:10px;padding:40px 36px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
                           <h2 style="margin:0 0 8px;color:#1F3B61;font-size:22px;font-weight:700;">Recuperação de senha</h2>
-                          <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">Olá, {name}.</p>
+                          <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">Olá, {Escape(name)}.</p>
                           <p style="margin:0 0 28px;color:#374151;font-size:15px;line-height:1.6;">Recebemos uma solicitação para redefinir a senha da sua conta. Clique no botão abaixo para criar uma nova senha:</p>
                           <table cellpadding="0" cellspacing="0">
                             <tr>
