@@ -195,7 +195,7 @@ export default function Signup() {
                   </button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Tudo incluído, até 100 creators ativos. A cobrança só começa depois dos 14 dias.
+                  Tudo incluído, sem limite de creators. A cobrança só começa depois dos 14 dias.
                 </p>
               </fieldset>
 
