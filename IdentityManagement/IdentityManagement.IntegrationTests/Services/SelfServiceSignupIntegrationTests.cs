@@ -155,7 +155,7 @@ namespace IdentityManagement.IntegrationTests.Services
             await InScopeAsync(async sp =>
             {
                 DbContext dbContext = sp.GetRequiredService<DbContext>();
-                dbContext.Set<Plan>().Add(new Plan("Essencial Mensal", 497m, BillingPeriod.Monthly, "BRL", 14, null));
+                dbContext.Set<Plan>().Add(new Plan("Completo Mensal", 497m, BillingPeriod.Monthly, "BRL", 14, null));
                 await dbContext.SaveChangesAsync();
 
                 SelfServiceSignupService subject = CreateSubject(sp, new SignupOptions
