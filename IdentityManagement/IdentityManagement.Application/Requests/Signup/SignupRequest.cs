@@ -19,7 +19,12 @@ namespace IdentityManagement.Application.Requests.Signup
 
         [Required][EmailAddress][StringLength(200)] public string Email { get; set; } = string.Empty;
 
-        [StringLength(20)] public string? PhoneNumber { get; set; }
+        /// <summary>
+        /// Obrigatorio. Alem de ser o unico canal alem do e-mail para falar com a agencia, o
+        /// provedor de cobranca EXIGE telefone no checkout de cartao — deixar opcional aqui adiava
+        /// a falha para semanas depois, na hora de assinar.
+        /// </summary>
+        [Required][StringLength(20, MinimumLength = 10)] public string PhoneNumber { get; set; } = string.Empty;
 
         /// <summary>Cobranca anual (dois meses gratis) em vez de mensal.</summary>
         public bool Annual { get; set; }

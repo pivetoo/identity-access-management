@@ -44,6 +44,7 @@ namespace IdentityManagement.IntegrationTests.Services
             TradeName = "Agencia Signup",
             Document = ValidDocument,
             Email = "contato@signup.example",
+            PhoneNumber = "(11) 90000-0001",
             AcceptedTerms = true
         };
 
@@ -72,6 +73,25 @@ namespace IdentityManagement.IntegrationTests.Services
                 Func<Task> act = () => subject.SignupAsync(request, "https://auth.example", null);
 
                 await act.Should().ThrowAsync<BusinessRuleException>();
+            });
+        }
+
+        [Test]
+        public async Task Signup_is_refused_when_the_phone_is_missing_or_invalid()
+        {
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                SelfServiceSignupService subject = CreateSubject(sp);
+
+                SignupRequest request = ValidRequest();
+                request.PhoneNumber = "1234";
+
+                Func<Task> act = () => subject.SignupAsync(request, "https://auth.example", null);
+
+                await act.Should().ThrowAsync<BusinessRuleException>();
+
+                (await dbContext.Set<PendingSignup>().CountAsync()).Should().Be(0, "recusa acontece antes de qualquer escrita");
             });
         }
 

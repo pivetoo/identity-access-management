@@ -91,6 +91,11 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new BusinessRuleException("signup.document.invalid");
             }
 
+            if (!Phone.IsValid(request.PhoneNumber))
+            {
+                throw new BusinessRuleException("signup.phone.invalid");
+            }
+
             string email = request.Email.Trim();
 
             await EnsureNotTakenAsync(document, email, cancellationToken);
@@ -127,7 +132,7 @@ namespace IdentityManagement.Infrastructure.Services
                 tradeName,
                 document,
                 email,
-                request.PhoneNumber?.Trim(),
+                Phone.Normalize(request.PhoneNumber),
                 request.Annual,
                 token,
                 expiresAt,

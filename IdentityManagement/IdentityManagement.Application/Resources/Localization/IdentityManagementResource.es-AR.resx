@@ -610,6 +610,7 @@
   <data name="signup.disabled" xml:space="preserve"><value>El registro publico no esta disponible en este momento.</value></data>
   <data name="signup.termsNotAccepted" xml:space="preserve"><value>Es necesario aceptar los terminos de uso para continuar.</value></data>
   <data name="signup.document.invalid" xml:space="preserve"><value>CNPJ invalido. Revisa lo que escribiste e intenta de nuevo.</value></data>
+  <data name="signup.phone.invalid" xml:space="preserve"><value>Telefono invalido. Informa el codigo de area y el numero, por ejemplo (11) 90000-0000.</value></data>
   <data name="signup.company.alreadyExists" xml:space="preserve"><value>Ya existe una cuenta para este CNPJ. Use la pantalla de acceso o contacte al soporte.</value></data>
   <data name="signup.plan.notConfigured" xml:space="preserve"><value>El registro publico no esta disponible en este momento. Intente mas tarde.</value></data>
   <data name="signup.systems.notConfigured" xml:space="preserve"><value>El registro publico no esta disponible en este momento. Intente mas tarde.</value></data>

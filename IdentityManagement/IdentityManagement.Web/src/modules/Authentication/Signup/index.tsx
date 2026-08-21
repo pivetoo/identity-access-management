@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Building2, CheckCircle2, MailCheck } from 'lucide-react';
 import { Button, Card, CardContent, Input, useToast } from 'archon-ui';
-import { signupService, formatDocument, isValidDocument, normalizeDocument, type SignupResult } from '../../../services/signupService';
+import { signupService, formatDocument, formatPhone, isValidDocument, isValidPhone, normalizeDocument, type SignupResult } from '../../../services/signupService';
 import logoEmpresa from '../../../assets/logo-empresa.png';
 
 /**
@@ -31,14 +31,18 @@ export default function Signup() {
   const documentTouched = normalizeDocument(document).length >= 14;
   const documentInvalid = documentTouched && !isValidDocument(document);
 
+  const phoneTouched = phoneNumber.replace(/\D/g, '').length >= 10;
+  const phoneInvalid = phoneTouched && !isValidPhone(phoneNumber);
+
   const canSubmit = useMemo(() => {
     return legalName.trim().length >= 3
       && tradeName.trim().length >= 2
       && isValidDocument(document)
       && /.+@.+\..+/.test(email.trim())
+      && isValidPhone(phoneNumber)
       && acceptedTerms
       && !isLoading;
-  }, [legalName, tradeName, document, email, acceptedTerms, isLoading]);
+  }, [legalName, tradeName, document, email, phoneNumber, acceptedTerms, isLoading]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -51,7 +55,7 @@ export default function Signup() {
         tradeName: tradeName.trim(),
         document,
         email: email.trim(),
-        phoneNumber: phoneNumber.trim() || undefined,
+        phoneNumber: phoneNumber.trim(),
         annual,
         acceptedTerms,
         website,
@@ -174,8 +178,21 @@ export default function Signup() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="phoneNumber" className="text-sm font-medium text-foreground">Telefone <span className="text-muted-foreground font-normal">(opcional)</span></label>
-                <Input id="phoneNumber" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="(11) 90000-0000" autoComplete="tel" />
+                <label htmlFor="phoneNumber" className="text-sm font-medium text-foreground">Telefone</label>
+                <Input
+                  id="phoneNumber"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(formatPhone(e.target.value))}
+                  placeholder="(11) 90000-0000"
+                  autoComplete="tel"
+                  inputMode="tel"
+                  aria-invalid={phoneInvalid}
+                  aria-describedby={phoneInvalid ? 'phone-error' : undefined}
+                  required
+                />
+                {phoneInvalid && (
+                  <p id="phone-error" className="text-xs text-destructive">Telefone inválido. Informe DDD e número.</p>
+                )}
               </div>
 
               <fieldset className="flex flex-col gap-2">

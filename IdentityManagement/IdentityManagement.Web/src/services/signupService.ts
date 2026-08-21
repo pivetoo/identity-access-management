@@ -51,6 +51,27 @@ async function signup(payload: SignupPayload): Promise<SignupResult> {
   return body.data as SignupResult;
 }
 
+/** Mascara de telefone BR: (00) 0000-0000 (fixo) ou (00) 00000-0000 (celular). */
+export function formatPhone(value: string): string {
+  const d = (value || '').replace(/\D/g, '').slice(0, 11);
+  if (d.length === 0) return '';
+  if (d.length <= 2) return `(${d}`;
+  const resto = d.slice(2);
+  if (resto.length <= 4) return `(${d.slice(0, 2)}) ${resto}`;
+  if (resto.length <= 8) return `(${d.slice(0, 2)}) ${resto.slice(0, 4)}-${resto.slice(4)}`;
+  return `(${d.slice(0, 2)}) ${resto.slice(0, 5)}-${resto.slice(5)}`;
+}
+
+/** Mesmas regras do backend (Phone.IsValid): DDD a partir de 11, celular comecando em 9. */
+export function isValidPhone(value: string): boolean {
+  const d = (value || '').replace(/\D/g, '');
+  if (d.length !== 10 && d.length !== 11) return false;
+  if (Number(d.slice(0, 2)) < 11) return false;
+  if (d.length === 11 && d[2] !== '9') return false;
+  if (d.length === 10 && (d[2] === '0' || d[2] === '1')) return false;
+  return !d.slice(2).split('').every((c) => c === d[2]);
+}
+
 /**
  * Normaliza para [A-Z0-9] em maiusculo, max 14. O CNPJ alfanumerico da Receita tem letras nas
  * posicoes 1-12, entao descartar nao-digito (como era antes) mutilava o documento e reprovava
