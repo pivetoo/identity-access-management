@@ -18,5 +18,12 @@ namespace IdentityManagement.Application.Services
         Task<TenantSubscriptionResponse> UpdateBillingAddressAsync(Guid tenantId, UpdateBillingAddressRequest request, CancellationToken cancellationToken = default);
 
         Task<TenantCheckoutResponse> StartCardCheckoutAsync(Guid tenantId, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Volta a cobranca para PIX: cancela a assinatura de cartao no provedor e cria outra em
+        /// PIX. Caminho simetrico ao do checkout — sem ele, sair do cartao viraria chamado no
+        /// suporte para uma operacao que o cliente deveria resolver sozinho.
+        /// </summary>
+        Task<TenantSubscriptionResponse> SwitchToPixAsync(Guid tenantId, CancellationToken cancellationToken = default);
     }
 }

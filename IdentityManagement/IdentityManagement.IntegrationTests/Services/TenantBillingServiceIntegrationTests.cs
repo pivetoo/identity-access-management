@@ -23,10 +23,18 @@ namespace IdentityManagement.IntegrationTests.Services
         {
             public Task<string?> CreateCustomerAsync(long companyId, CancellationToken ct = default) => Task.FromResult<string?>("cus_1");
 
-            public Task CancelSubscriptionAsync(string externalSubscriptionId, CancellationToken ct = default) => Task.CompletedTask;
+            public Task CancelSubscriptionAsync(string externalSubscriptionId, CancellationToken ct = default)
+            {
+                Canceled.Add(externalSubscriptionId);
+                return Task.CompletedTask;
+            }
 
             public Task<GatewaySubscriptionResult?> CreateSubscriptionAsync(long companyId, long planId, string? externalCustomerId, CancellationToken ct = default)
-                => Task.FromResult<GatewaySubscriptionResult?>(null);
+                => Task.FromResult(CreatedSubscription);
+
+            public GatewaySubscriptionResult? CreatedSubscription { get; set; } = new GatewaySubscriptionResult("sub_pix_novo", "cus_1", "PIX");
+
+            public List<string> Canceled { get; } = [];
 
             public Task<GatewayCheckoutResult> CreateRecurringCardCheckoutAsync(long companyId, long planId, CancellationToken ct = default)
                 => Task.FromResult(new GatewayCheckoutResult("chk_1", "https://provedor.example/chk_1", DateTimeOffset.UtcNow.AddHours(1)));
@@ -168,6 +176,77 @@ namespace IdentityManagement.IntegrationTests.Services
                 TenantCheckoutResponse checkout = await subject.StartCardCheckoutAsync(company.TenantId);
 
                 checkout.CheckoutUrl.Should().Be("https://provedor.example/chk_1");
+            });
+        }
+
+        [Test]
+        public async Task Voltar_para_pix_troca_a_assinatura_e_cancela_a_de_cartao()
+        {
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                Company company = await SeedAsync(dbContext, "11888999000136", "billing7@example.com");
+
+                Subscription tracked = await dbContext.Set<Subscription>().AsTracking().FirstAsync(item => item.CompanyId == company.Id);
+                tracked.LinkGateway("asaas", "cus_1", "sub_cartao");
+                tracked.SetPaymentMethod("CREDIT_CARD");
+                await dbContext.SaveChangesAsync();
+
+                StubGateway gateway = new();
+                TenantBillingService subject = new(dbContext, gateway, NullLogger<TenantBillingService>.Instance);
+
+                TenantSubscriptionResponse response = await subject.SwitchToPixAsync(company.TenantId);
+
+                response.PaymentMethod.Should().Be("PIX");
+                gateway.Canceled.Should().ContainSingle().Which.Should().Be("sub_cartao");
+
+                Subscription reloaded = await dbContext.Set<Subscription>().AsNoTracking().FirstAsync(item => item.CompanyId == company.Id);
+                reloaded.ExternalSubscriptionId.Should().Be("sub_pix_novo");
+            });
+        }
+
+        [Test]
+        public async Task Voltar_para_pix_e_recusado_quando_ja_esta_em_pix()
+        {
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                Company company = await SeedAsync(dbContext, "11999000000127", "billing8@example.com");
+
+                StubGateway gateway = new();
+                TenantBillingService subject = new(dbContext, gateway, NullLogger<TenantBillingService>.Instance);
+
+                Func<Task> act = () => subject.SwitchToPixAsync(company.TenantId);
+
+                await act.Should().ThrowAsync<BusinessRuleException>();
+                gateway.Canceled.Should().BeEmpty();
+            });
+        }
+
+        [Test]
+        public async Task Voltar_para_pix_nao_cancela_o_cartao_se_a_nova_nao_for_criada()
+        {
+            // Cancelar antes de ter substituta deixaria o tenant sem forma de pagamento nenhuma.
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                Company company = await SeedAsync(dbContext, "11000111000118", "billing9@example.com");
+
+                Subscription tracked = await dbContext.Set<Subscription>().AsTracking().FirstAsync(item => item.CompanyId == company.Id);
+                tracked.LinkGateway("asaas", "cus_1", "sub_cartao");
+                tracked.SetPaymentMethod("CREDIT_CARD");
+                await dbContext.SaveChangesAsync();
+
+                StubGateway gateway = new() { CreatedSubscription = null };
+                TenantBillingService subject = new(dbContext, gateway, NullLogger<TenantBillingService>.Instance);
+
+                Func<Task> act = () => subject.SwitchToPixAsync(company.TenantId);
+
+                await act.Should().ThrowAsync<BusinessRuleException>();
+                gateway.Canceled.Should().BeEmpty();
+
+                Subscription reloaded = await dbContext.Set<Subscription>().AsNoTracking().FirstAsync(item => item.CompanyId == company.Id);
+                reloaded.PaymentMethod.Should().Be("CREDIT_CARD");
             });
         }
 

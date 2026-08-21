@@ -60,5 +60,13 @@ namespace IdentityManagement.Api.Controllers
             TenantCheckoutResponse response = await tenantBillingService.StartCardCheckoutAsync(tenantId, cancellationToken);
             return Http200(response);
         }
+
+        [RequireAccess]
+        [PostEndpoint("{tenantId:guid}")]
+        public async Task<IActionResult> SwitchToPix(Guid tenantId, CancellationToken cancellationToken)
+        {
+            TenantSubscriptionResponse response = await tenantBillingService.SwitchToPixAsync(tenantId, cancellationToken);
+            return Http200(response, Localizer["billing.paymentMethod.switchedToPix"]);
+        }
     }
 }

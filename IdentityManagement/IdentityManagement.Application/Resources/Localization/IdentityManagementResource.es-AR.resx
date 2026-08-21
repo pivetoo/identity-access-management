@@ -622,4 +622,7 @@
   <data name="asaas.customer.missingId" xml:space="preserve"><value>No se pudo identificar la empresa en el proveedor de pagos.</value></data>
   <data name="company.billingAddress.missing" xml:space="preserve"><value>Informe el domicilio de facturacion antes de cargar la tarjeta.</value></data>
   <data name="signup.email.alreadyExists" xml:space="preserve"><value>Este correo ya esta en uso por otra agencia. Use otro correo o ingrese con la cuenta existente.</value></data>
+  <data name="billing.paymentMethod.notCard" xml:space="preserve"><value>Esta suscripcion no se cobra con tarjeta.</value></data>
+  <data name="billing.paymentMethod.switchFailed" xml:space="preserve"><value>No se pudo cambiar el medio de pago ahora. Intente en unos minutos.</value></data>
+  <data name="billing.paymentMethod.switchedToPix" xml:space="preserve"><value>El cobro volvio a PIX.</value></data>
 </root>

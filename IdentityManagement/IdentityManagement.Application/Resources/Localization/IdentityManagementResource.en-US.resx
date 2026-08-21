@@ -630,4 +630,7 @@
   <data name="asaas.customer.missingId" xml:space="preserve"><value>Could not identify the company at the payment provider.</value></data>
   <data name="company.billingAddress.missing" xml:space="preserve"><value>Provide the billing address before adding a card.</value></data>
   <data name="signup.email.alreadyExists" xml:space="preserve"><value>This email is already used by another agency. Use a different email or sign in with the existing account.</value></data>
+  <data name="billing.paymentMethod.notCard" xml:space="preserve"><value>This subscription is not billed to a card.</value></data>
+  <data name="billing.paymentMethod.switchFailed" xml:space="preserve"><value>Could not change the payment method right now. Try again in a few minutes.</value></data>
+  <data name="billing.paymentMethod.switchedToPix" xml:space="preserve"><value>Billing switched back to PIX.</value></data>
 </root>

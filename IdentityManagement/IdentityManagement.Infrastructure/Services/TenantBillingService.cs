@@ -144,6 +144,63 @@ namespace IdentityManagement.Infrastructure.Services
             };
         }
 
+        public async Task<TenantSubscriptionResponse> SwitchToPixAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        {
+            (Company company, Subscription subscription, Plan plan) = await LoadAsync(tenantId, cancellationToken);
+
+            if (!string.Equals(subscription.PaymentMethod, "CREDIT_CARD", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new BusinessRuleException("billing.paymentMethod.notCard");
+            }
+
+            string? cardSubscriptionId = subscription.ExternalSubscriptionId;
+
+            // Cria a nova ANTES de cancelar a antiga: se a criacao falhar, a empresa continua com
+            // uma forma de pagamento ativa. Na ordem inversa, uma falha deixaria o tenant sem
+            // nenhuma cobranca — e o gate de acesso o bloquearia no proximo ciclo.
+            GatewaySubscriptionResult? pix = await billingGateway.CreateSubscriptionAsync(
+                company.Id,
+                plan.Id,
+                subscription.ExternalCustomerId,
+                cancellationToken);
+
+            if (pix is null)
+            {
+                throw new BusinessRuleException("billing.paymentMethod.switchFailed");
+            }
+
+            Subscription tracked = await dbContext.Set<Subscription>()
+                .AsTracking()
+                .FirstAsync(item => item.Id == subscription.Id, cancellationToken);
+
+            tracked.LinkGateway("asaas", pix.ExternalCustomerId ?? subscription.ExternalCustomerId ?? string.Empty, pix.ExternalSubscriptionId);
+            tracked.SetPaymentMethod(pix.PaymentMethod);
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            if (!string.IsNullOrWhiteSpace(cardSubscriptionId))
+            {
+                try
+                {
+                    await billingGateway.CancelSubscriptionAsync(cardSubscriptionId, cancellationToken);
+                }
+                catch (Exception exception)
+                {
+                    // A troca ja valeu do nosso lado. Sobra uma assinatura de cartao ativa no
+                    // provedor, que cobraria em duplicidade — por isso o log e de erro.
+                    logger.LogError(
+                        exception,
+                        "Empresa {CompanyId} voltou para PIX, mas o cancelamento da assinatura de cartao {SubscriptionId} falhou. CANCELAR NO PROVEDOR.",
+                        company.Id,
+                        cardSubscriptionId);
+                }
+            }
+
+            logger.LogInformation("Empresa {CompanyId} voltou a cobranca para PIX (assinatura {SubscriptionId}).", company.Id, pix.ExternalSubscriptionId);
+
+            return await GetSubscriptionAsync(tenantId, cancellationToken);
+        }
+
         private async Task<(Company Company, Subscription Subscription, Plan Plan)> LoadAsync(Guid tenantId, CancellationToken cancellationToken)
         {
             Company? company = await dbContext.Set<Company>()
