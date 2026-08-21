@@ -635,4 +635,7 @@
   <data name="billing.paymentMethod.switchedToPix" xml:space="preserve"><value>Billing switched back to PIX.</value></data>
   <data name="billing.phone.required" xml:space="preserve"><value>Provide the contact phone before adding a card.</value></data>
   <data name="contact.received" xml:space="preserve"><value>We received your message. We will reply to the email you provided.</value></data>
+  <data name="contact.notFound" xml:space="preserve"><value>Contact not found.</value></data>
+  <data name="contact.handled" xml:space="preserve"><value>Contact marked as handled.</value></data>
+  <data name="contact.reopened" xml:space="preserve"><value>Contact reopened.</value></data>
 </root>

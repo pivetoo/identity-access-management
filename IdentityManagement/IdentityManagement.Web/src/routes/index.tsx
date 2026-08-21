@@ -18,6 +18,7 @@ import SystemRoleTemplates from '../modules/Administration/SystemRoleTemplates';
 import UserRoles from '../modules/Administration/UserRoles';
 import Plans from '../modules/Administration/Plans'
 import Payments from '../modules/Administration/Payments';
+import Contacts from '../modules/Administration/Contacts';
 import ForgotPassword from '../modules/Authentication/ForgotPassword';
 import ResetPassword from '../modules/Authentication/ResetPassword';
 import SetupAdmin from '../modules/Authentication/SetupAdmin';
@@ -130,6 +131,7 @@ function AppRoutes() {
           <Route path="user-roles" element={<UserRoles />} />
           <Route path="plans" element={<Plans />} />
           <Route path="payments" element={<Payments />} />
+          <Route path="contacts" element={<Contacts />} />
         </Route>
       </Routes>
     </BrowserRouter>

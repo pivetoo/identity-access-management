@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useLocation, useNavigate, Outlet, matchPath } from 'react-router-dom';
-import { Home, Users, Building2, Layers, ShieldCheck, KeyRound, CreditCard, Receipt } from 'lucide-react';
+import { Home, Users, Building2, Layers, ShieldCheck, KeyRound, CreditCard, Receipt, Mail } from 'lucide-react';
 import { AppLayout, useAuth, useAppNavigation, useI18n } from 'archon-ui';
 import type { BreadcrumbItem } from 'archon-ui';
 import logoEmpresa from '../assets/logo-empresa.png';
@@ -55,6 +55,7 @@ export default function AdministrationLayout() {
     { key: 'oauth-clients', label: 'OAuth Clients', path: '/oauth-clients', icon: <KeyRound size={20} /> },
     { key: 'plans', label: 'Planos', path: '/plans', icon: <CreditCard size={20} /> },
     { key: 'payments', label: 'Pagamentos', path: '/payments', icon: <Receipt size={20} /> },
+    { key: 'contacts', label: 'Contatos do site', path: '/contacts', icon: <Mail size={20} /> },
   ]);
 
   const systemGroup = createMenuGroup(t('layout.menu.configuration'), [
@@ -76,6 +77,7 @@ export default function AdministrationLayout() {
       '/management/oauth-clients': 'OAuth Clients',
       '/management/plans': 'Planos',
       '/management/payments': 'Pagamentos',
+      '/management/contacts': 'Contatos do site',
       '/management/system-role-templates': t('layout.menu.systemRoleTemplates'),
     };
 

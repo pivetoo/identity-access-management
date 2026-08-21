@@ -2,6 +2,7 @@ using Archon.Api.Attributes;
 using Archon.Api.Controllers;
 using IdentityManagement.Application.Localization;
 using IdentityManagement.Application.Requests.Contact;
+using IdentityManagement.Application.Responses.Contact;
 using IdentityManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -46,6 +47,22 @@ namespace IdentityManagement.Api.Controllers
             await contactRequestService.SubmitAsync(request, sourceIp, cancellationToken);
 
             return Http200(new { received = true }, Localizer["contact.received"]);
+        }
+
+        [RequireAccess]
+        [GetEndpoint]
+        public async Task<IActionResult> List([FromQuery] bool? pending, [FromQuery] int? take, CancellationToken cancellationToken)
+        {
+            IReadOnlyList<ContactRequestResponse> contacts = await contactRequestService.ListAsync(pending, take, cancellationToken);
+            return Http200(contacts);
+        }
+
+        [RequireAccess]
+        [PutEndpoint("{id:long}/handled")]
+        public async Task<IActionResult> Handled(long id, [FromQuery] bool handled, CancellationToken cancellationToken)
+        {
+            ContactRequestResponse contact = await contactRequestService.SetHandledAsync(id, handled, cancellationToken);
+            return Http200(contact, Localizer[handled ? "contact.handled" : "contact.reopened"]);
         }
     }
 }

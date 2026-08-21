@@ -18,6 +18,7 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.SourceIp).HasMaxLength(64);
 
             builder.HasIndex(entity => entity.CreatedAt);
+            builder.HasIndex(entity => entity.HandledAt);
         }
     }
 }

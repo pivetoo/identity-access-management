@@ -27,6 +27,12 @@ namespace IdentityManagement.Domain.Entities
 
         public DateTimeOffset? NotificationSentAt { get; private set; }
 
+        /// <summary>
+        /// Quando o time deu retorno. Sem isso a lista so cresce e ninguem sabe o que falta —
+        /// caixa de entrada que nao marca lido para de ser aberta.
+        /// </summary>
+        public DateTimeOffset? HandledAt { get; private set; }
+
         private ContactRequest()
         {
         }
@@ -49,6 +55,16 @@ namespace IdentityManagement.Domain.Entities
         {
             NotificationSent = true;
             NotificationSentAt = now;
+        }
+
+        public void MarkHandled(DateTimeOffset now)
+        {
+            HandledAt = now;
+        }
+
+        public void Reopen()
+        {
+            HandledAt = null;
         }
     }
 }
