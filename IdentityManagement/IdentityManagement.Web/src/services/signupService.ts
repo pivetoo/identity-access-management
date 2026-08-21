@@ -10,8 +10,17 @@ export interface SignupPayload {
   acceptedTerms: boolean;
 }
 
+/** Etapa 1. Nada foi provisionado ainda: so existe um cadastro pendente e um e-mail a caminho. */
 export interface SignupResult {
   email: string;
+  companyName: string;
+  planName: string;
+  verificationExpiresAt: string;
+}
+
+/** Etapa 2. Aqui o ambiente ja existe, e o setupToken emenda direto na definicao de senha. */
+export interface SignupConfirmResult {
+  setupToken: string;
   companyName: string;
   planName: string;
   trialEndsAt: string | null;
@@ -67,4 +76,24 @@ export function isValidDocument(value: string): boolean {
     && check([6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]) === Number(digits[13]);
 }
 
-export const signupService = { signup };
+async function confirm(token: string): Promise<SignupConfirmResult> {
+  const response = await fetch(`${apiBaseUrl}/Signup/Confirm`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token }),
+  });
+
+  if (response.status === 429) {
+    throw new Error('Muitas tentativas a partir deste endereço. Aguarde um instante e recarregue a página.');
+  }
+
+  const body = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(body?.message || 'Não foi possível confirmar seu e-mail. Tente novamente.');
+  }
+
+  return body.data as SignupConfirmResult;
+}
+
+export const signupService = { signup, confirm };

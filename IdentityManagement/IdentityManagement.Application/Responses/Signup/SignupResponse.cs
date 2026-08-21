@@ -1,27 +1,22 @@
 namespace IdentityManagement.Application.Responses.Signup
 {
     /// <summary>
-    /// Resposta do cadastro publico. NAO devolve id de empresa, nome de banco de tenant, chave de
-    /// API nem resultado de bootstrap: o onboarding administrativo devolve tudo isso, e nada disso
-    /// pode vazar para um endpoint anonimo. O que a tela precisa e so para onde o convite foi e
-    /// ate quando vai o teste.
+    /// Resposta da PRIMEIRA etapa do cadastro publico. Neste ponto nada foi provisionado: existe
+    /// apenas uma linha pendente e um e-mail de confirmacao a caminho.
+    ///
+    /// NAO devolve id, nome de banco de tenant nem chave de API — nada disso pode vazar por um
+    /// endpoint anonimo. O que a tela precisa e para onde o link foi e ate quando ele vale.
     /// </summary>
     public sealed class SignupResponse
     {
-        /// <summary>E-mail que recebeu o convite de administrador (o link de acesso vai por ele).</summary>
+        /// <summary>E-mail que recebeu o link de confirmacao.</summary>
         public string Email { get; set; } = string.Empty;
 
         public string CompanyName { get; set; } = string.Empty;
 
         public string PlanName { get; set; } = string.Empty;
 
-        public DateTimeOffset? TrialEndsAt { get; set; }
-
-        /// <summary>
-        /// Falso quando a empresa foi criada mas a assinatura nao pode ser concluida (falha do
-        /// provedor de cobranca). A conta existe e NAO consegue entrar ate a assinatura existir —
-        /// a tela precisa dizer que o suporte vai finalizar, em vez de mandar o usuario tentar logar.
-        /// </summary>
-        public bool SubscriptionActive { get; set; }
+        /// <summary>Quando o link de confirmacao deixa de valer.</summary>
+        public DateTimeOffset VerificationExpiresAt { get; set; }
     }
 }

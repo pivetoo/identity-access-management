@@ -16,6 +16,12 @@ namespace IdentityManagement.Infrastructure.Signup
         public string AnnualPlanName { get; set; } = "Completo Anual";
 
         /// <summary>
+        /// Validade do link de confirmacao de e-mail. Curto o bastante para a tabela de pendentes
+        /// nao acumular, longo o bastante para quem so olha o e-mail no dia seguinte.
+        /// </summary>
+        public int VerificationLinkHours { get; set; } = 24;
+
+        /// <summary>
         /// Audiences provisionadas no cadastro. O Mainstay precisa de agency-campaign E
         /// integration-platform: o blueprint do AgencyCampaign injeta a chave de API do
         /// IntegrationPlatform (ValueSource TenantApiKey, SourceAudience integration-platform),

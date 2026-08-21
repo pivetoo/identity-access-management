@@ -10,6 +10,13 @@ namespace IdentityManagement.Application.Services
 
         Task SendAccountDeactivatedEmailAsync(string toEmail, string toName, CancellationToken cancellationToken = default);
 
+        /// <summary>
+        /// Confirmacao do cadastro publico. E o unico e-mail que sai ANTES de existir qualquer
+        /// coisa provisionada: o clique neste link e que autoriza criar empresa, contratos e os
+        /// bancos de tenant.
+        /// </summary>
+        Task SendSignupVerificationEmailAsync(string toEmail, string companyName, string confirmLink, int expiresInHours, CancellationToken cancellationToken = default);
+
         Task SendAdminInvitationEmailAsync(string toEmail, string companyName, string systemApplicationName, string setupLink, CancellationToken cancellationToken = default);
 
         Task SendClientAdminInvitationEmailAsync(string toEmail, string companyName, IReadOnlyCollection<string> systemNames, string setupLink, CancellationToken cancellationToken = default);

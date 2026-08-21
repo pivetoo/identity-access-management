@@ -7,6 +7,13 @@ namespace IdentityManagement.Application.Responses.Clients
         public string[] DatabaseNames { get; set; } = Array.Empty<string>();
         public List<SystemBootstrapResult> BootstrapResults { get; set; } = new();
         public SubscriptionProvisionResult? Subscription { get; set; }
+
+        /// <summary>
+        /// Token do convite de administrador em claro. Existe para o cadastro publico emendar a
+        /// confirmacao do e-mail direto na tela de senha, sem uma segunda ida a caixa de entrada.
+        /// O convite tambem segue por e-mail, entao isto e atalho, nao unico caminho.
+        /// </summary>
+        public string? SetupToken { get; set; }
     }
 
     public sealed class SubscriptionProvisionResult

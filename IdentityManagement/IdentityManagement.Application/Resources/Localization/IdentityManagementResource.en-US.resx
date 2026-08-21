@@ -614,7 +614,7 @@
   <data name="subscription.alreadyExists" xml:space="preserve"><value>This company already has an active subscription.</value></data>
   <data name="subscription.notFound" xml:space="preserve"><value>Subscription not found.</value></data>
   <data name="subscription.transition.invalid" xml:space="preserve"><value>A cancelled subscription does not accept status changes.</value></data>
-  <data name="signup.created" xml:space="preserve"><value>Account created. We sent the access link to the e-mail provided.</value></data>
+  <data name="signup.created" xml:space="preserve"><value>Signup received. We sent a confirmation link to the email address you provided.</value></data>
   <data name="signup.disabled" xml:space="preserve"><value>Public signup is currently unavailable.</value></data>
   <data name="signup.termsNotAccepted" xml:space="preserve"><value>You must accept the terms of use to continue.</value></data>
   <data name="signup.document.invalid" xml:space="preserve"><value>Invalid company tax id. Check the numbers and try again.</value></data>
@@ -630,6 +630,11 @@
   <data name="asaas.customer.missingId" xml:space="preserve"><value>Could not identify the company at the payment provider.</value></data>
   <data name="company.billingAddress.missing" xml:space="preserve"><value>Provide the billing address before adding a card.</value></data>
   <data name="signup.email.alreadyExists" xml:space="preserve"><value>This email is already used by another agency. Use a different email or sign in with the existing account.</value></data>
+  <data name="signup.confirmed" xml:space="preserve"><value>Email confirmed and environment created successfully.</value></data>
+  <data name="signup.confirm.invalidToken" xml:space="preserve"><value>Invalid confirmation link. Check that you copied the full address from the email.</value></data>
+  <data name="signup.confirm.expired" xml:space="preserve"><value>This confirmation link has expired. Sign up again to receive a new one.</value></data>
+  <data name="signup.confirm.alreadyUsed" xml:space="preserve"><value>This link has already been used. Use the "Set up your access" email to define your password.</value></data>
+  <data name="signup.verification.emailFailed" xml:space="preserve"><value>We could not send the confirmation email. Please try again in a few minutes.</value></data>
   <data name="billing.paymentMethod.notCard" xml:space="preserve"><value>This subscription is not billed to a card.</value></data>
   <data name="billing.paymentMethod.switchFailed" xml:space="preserve"><value>Could not change the payment method right now. Try again in a few minutes.</value></data>
   <data name="billing.paymentMethod.switchedToPix" xml:space="preserve"><value>Billing switched back to PIX.</value></data>

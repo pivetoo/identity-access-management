@@ -147,6 +147,7 @@ builder.Services.AddArchonApi(builder.Configuration, typeof(IdentityManagementRe
 builder.Services.AddIdentityManagementInfrastructure(builder.Configuration);
 builder.Services.AddServicesFromAssembly(typeof(Program).Assembly);
 builder.Services.AddHostedService<IdentityManagement.Api.BackgroundJobs.SubscriptionDunningJob>();
+builder.Services.AddHostedService<IdentityManagement.Api.BackgroundJobs.PendingSignupCleanupJob>();
 
 var app = builder.Build();
 rootServiceProvider = app.Services;

@@ -27,6 +27,8 @@ namespace IdentityManagement.IntegrationTests.Services
             public Task SendPasswordResetConfirmationEmailAsync(string toEmail, string toName, CancellationToken ct = default) => Task.CompletedTask;
             public Task SendPasswordChangedEmailAsync(string toEmail, string toName, CancellationToken ct = default) => Task.CompletedTask;
             public Task SendAccountDeactivatedEmailAsync(string toEmail, string toName, CancellationToken ct = default) => Task.CompletedTask;
+            public Task SendSignupVerificationEmailAsync(string toEmail, string companyName, string confirmLink, int expiresInHours, CancellationToken ct = default) => Task.CompletedTask;
+
             public Task SendAdminInvitationEmailAsync(string toEmail, string companyName, string systemApplicationName, string setupLink, CancellationToken ct = default) => Task.CompletedTask;
             public Task SendClientAdminInvitationEmailAsync(string toEmail, string companyName, IReadOnlyCollection<string> systemNames, string setupLink, CancellationToken ct = default) => Task.CompletedTask;
 

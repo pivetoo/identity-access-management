@@ -59,6 +59,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             Company company = new Company(request.LegalName, request.TradeName, request.Document, request.Email, request.PhoneNumber ?? string.Empty);
             string setupLink = string.Empty;
+            string setupToken = string.Empty;
 
             // A Subscription so e criada DEPOIS que esta transacao confirma: AssignAsync (CrudService)
             // abre transacao propria, e o commit acima ja limpa a CurrentTransaction do EF.
@@ -113,6 +114,7 @@ namespace IdentityManagement.Infrastructure.Services
                 string token = GenerateOpaqueToken();
                 ContractAdminInvitation invitation = new ContractAdminInvitation(company.Id, token, DateTimeOffset.UtcNow.AddDays(7), true);
                 dbContext.Set<ContractAdminInvitation>().Add(invitation);
+                setupToken = token;
                 setupLink = $"{setupBaseUrl.TrimEnd('/')}/setup-admin?token={token}";
 
                 await dbContext.SaveChangesAsync(ct);
@@ -155,7 +157,8 @@ namespace IdentityManagement.Infrastructure.Services
                 ContractIds = contractIds.ToArray(),
                 DatabaseNames = plannedDatabases.Select(pair => pair.Db).ToArray(),
                 BootstrapResults = bootstrapResults,
-                Subscription = subscription
+                Subscription = subscription,
+                SetupToken = setupToken
             };
         }
 

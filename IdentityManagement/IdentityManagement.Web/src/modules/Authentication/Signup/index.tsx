@@ -75,10 +75,10 @@ export default function Signup() {
                 </div>
               </div>
 
-              <h1 className="text-center text-2xl font-bold text-foreground mb-2">Confira seu e-mail</h1>
+              <h1 className="text-center text-2xl font-bold text-foreground mb-2">Confirme seu e-mail</h1>
               <p className="text-center text-sm text-muted-foreground">
-                Enviamos o link de acesso para <span className="font-medium text-foreground">{result.email}</span>.
-                É por ele que você cria o usuário administrador de <span className="font-medium text-foreground">{result.companyName}</span>.
+                Enviamos um link de confirmação para <span className="font-medium text-foreground">{result.email}</span>.
+                Clique nele para criar o ambiente de <span className="font-medium text-foreground">{result.companyName}</span>.
               </p>
 
               <div className="mt-6 rounded-lg border border-primary/10 bg-primary/5 p-4 flex flex-col gap-2 text-sm">
@@ -87,23 +87,19 @@ export default function Signup() {
                   <span className="text-muted-foreground">Plano:</span>
                   <span className="font-medium text-foreground">{result.planName}</span>
                 </div>
-                {result.trialEndsAt && (
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-                    <span className="text-muted-foreground">Teste grátis até:</span>
-                    <span className="font-medium text-foreground">
-                      {new Date(result.trialEndsAt).toLocaleDateString('pt-BR')}
-                    </span>
-                  </div>
-                )}
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                  <span className="text-muted-foreground">O link vale até:</span>
+                  <span className="font-medium text-foreground">
+                    {new Date(result.verificationExpiresAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+                  </span>
+                </div>
               </div>
 
-              {!result.subscriptionActive && (
-                <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-900">
-                  Sua conta foi criada, mas ainda estamos finalizando a assinatura. Nosso time conclui
-                  isso e avisa você pelo mesmo e-mail — não é preciso cadastrar de novo.
-                </p>
-              )}
+              <p className="mt-4 text-center text-xs leading-relaxed text-muted-foreground">
+                Até você confirmar, nada foi criado e nada será cobrado. Não recebeu? Verifique o spam
+                ou faça o cadastro de novo depois que o link expirar.
+              </p>
 
               <Button variant="ghost" className="mt-6" fullWidth icon={<ArrowLeft />} iconPosition="left" onClick={() => navigate('/login')}>
                 Ir para o acesso

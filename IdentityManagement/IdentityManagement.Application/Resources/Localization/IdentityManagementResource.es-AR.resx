@@ -606,7 +606,7 @@
   <data name="subscription.alreadyExists" xml:space="preserve"><value>Esta empresa ya tiene una suscripcion activa.</value></data>
   <data name="subscription.notFound" xml:space="preserve"><value>Suscripcion no encontrada.</value></data>
   <data name="subscription.transition.invalid" xml:space="preserve"><value>Una suscripcion cancelada no acepta cambios de estado.</value></data>
-  <data name="signup.created" xml:space="preserve"><value>Registro creado. Enviamos el enlace de acceso al correo informado.</value></data>
+  <data name="signup.created" xml:space="preserve"><value>Registro recibido. Enviamos un enlace de confirmacion al correo indicado.</value></data>
   <data name="signup.disabled" xml:space="preserve"><value>El registro publico no esta disponible en este momento.</value></data>
   <data name="signup.termsNotAccepted" xml:space="preserve"><value>Es necesario aceptar los terminos de uso para continuar.</value></data>
   <data name="signup.document.invalid" xml:space="preserve"><value>CNPJ invalido. Revise los numeros e intente nuevamente.</value></data>
@@ -622,6 +622,11 @@
   <data name="asaas.customer.missingId" xml:space="preserve"><value>No se pudo identificar la empresa en el proveedor de pagos.</value></data>
   <data name="company.billingAddress.missing" xml:space="preserve"><value>Informe el domicilio de facturacion antes de cargar la tarjeta.</value></data>
   <data name="signup.email.alreadyExists" xml:space="preserve"><value>Este correo ya esta en uso por otra agencia. Use otro correo o ingrese con la cuenta existente.</value></data>
+  <data name="signup.confirmed" xml:space="preserve"><value>Correo confirmado y entorno creado con exito.</value></data>
+  <data name="signup.confirm.invalidToken" xml:space="preserve"><value>Enlace de confirmacion invalido. Verifica que hayas copiado la direccion completa del correo.</value></data>
+  <data name="signup.confirm.expired" xml:space="preserve"><value>Este enlace de confirmacion vencio. Registrate de nuevo para recibir uno nuevo.</value></data>
+  <data name="signup.confirm.alreadyUsed" xml:space="preserve"><value>Este enlace ya fue usado. Usa el correo "Configura tu acceso" para definir tu contrasena.</value></data>
+  <data name="signup.verification.emailFailed" xml:space="preserve"><value>No pudimos enviar el correo de confirmacion. Intenta de nuevo en unos minutos.</value></data>
   <data name="billing.paymentMethod.notCard" xml:space="preserve"><value>Esta suscripcion no se cobra con tarjeta.</value></data>
   <data name="billing.paymentMethod.switchFailed" xml:space="preserve"><value>No se pudo cambiar el medio de pago ahora. Intente en unos minutos.</value></data>
   <data name="billing.paymentMethod.switchedToPix" xml:space="preserve"><value>El cobro volvio a PIX.</value></data>

@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Archon.Core.Exceptions;
 using IdentityManagement.Application.Requests.Clients;
 using IdentityManagement.Application.Requests.Signup;
@@ -5,21 +6,30 @@ using IdentityManagement.Application.Responses.Clients;
 using IdentityManagement.Application.Responses.Signup;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
+using IdentityManagement.Domain.Security;
 using IdentityManagement.Domain.ValueObjects;
 using IdentityManagement.Infrastructure.Signup;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace IdentityManagement.Infrastructure.Services
 {
     /// <summary>
-    /// Cadastro publico de agencia. Reusa o ClientOnboardingService (transacional, com compensacao)
-    /// e adiciona por cima o que so o fluxo anonimo precisa: validacao de CNPJ, recusa de empresa
-    /// duplicada, resolucao de plano e sistemas pela CONFIGURACAO e resposta sem dado interno.
+    /// Cadastro publico de agencia, em DUAS etapas.
     ///
-    /// Ordem deliberada: tudo que da para recusar e recusado ANTES do onboarding, porque a partir
-    /// dele ja existe empresa, contrato e banco de tenant provisionado.
+    /// Etapa 1 (<see cref="SignupAsync"/>) valida e grava uma linha em <c>pendingsignups</c>, e manda
+    /// o link de confirmacao. Etapa 2 (<see cref="ConfirmAsync"/>) e a unica que provisiona.
+    ///
+    /// A ordem e deliberada. Provisionar na etapa 1 significava que cada chamada anonima criava
+    /// empresa, contratos e DOIS bancos no Postgres antes de qualquer prova de que o e-mail era
+    /// real — o que quebrava de dois jeitos: e-mail digitado errado trancava a agencia do lado de
+    /// fora com o CNPJ ocupado (so saia apagando banco na mao), e o rate limit por IP nao segura
+    /// ataque distribuido contra um Postgres que e compartilhado por todos os sistemas.
+    ///
+    /// O usuario legitimo nao paga nada por isso: o numero de passos e o mesmo de antes
+    /// (formulario, e-mail, clique, senha) — so mudou o instante em que os bancos nascem.
     /// </summary>
     public sealed class SelfServiceSignupService : ISelfServiceSignupService
     {
@@ -27,29 +37,29 @@ namespace IdentityManagement.Infrastructure.Services
 
         private readonly DbContext dbContext;
         private readonly IClientOnboardingService onboarding;
+        private readonly IEmailSender emailSender;
         private readonly SignupOptions options;
         private readonly ILogger<SelfServiceSignupService> logger;
 
         public SelfServiceSignupService(
             DbContext dbContext,
             IClientOnboardingService onboarding,
+            IEmailSender emailSender,
             IOptions<SignupOptions> options,
             ILogger<SelfServiceSignupService> logger)
         {
             this.dbContext = dbContext;
             this.onboarding = onboarding;
+            this.emailSender = emailSender;
             this.options = options.Value;
             this.logger = logger;
         }
 
-        public async Task<SignupResponse> SignupAsync(SignupRequest request, string setupBaseUrl, CancellationToken cancellationToken = default)
+        public async Task<SignupResponse> SignupAsync(SignupRequest request, string confirmBaseUrl, string? sourceIp, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(request);
 
-            if (!options.Enabled)
-            {
-                throw new NotFoundException("signup.disabled");
-            }
+            EnsureEnabled();
 
             if (!request.AcceptedTerms)
             {
@@ -64,6 +74,216 @@ namespace IdentityManagement.Infrastructure.Services
 
             string email = request.Email.Trim();
 
+            await EnsureNotTakenAsync(document, email, cancellationToken);
+
+            // Resolvido JA na etapa 1 mesmo sem provisionar: plano mal configurado e falha de
+            // operacao, e descobrir isso so depois que a pessoa confirmou o e-mail seria pior —
+            // ela ja teria gasto o clique e nao teria como tentar de novo.
+            Plan plan = await ResolvePlanAsync(request.Annual, cancellationToken);
+            await ResolveSystemApplicationIdsAsync(cancellationToken);
+
+            string token = GenerateOpaqueToken();
+            DateTimeOffset expiresAt = DateTimeOffset.UtcNow.AddHours(options.VerificationLinkHours);
+
+            PendingSignup pending = new PendingSignup(
+                request.LegalName.Trim(),
+                request.TradeName.Trim(),
+                document,
+                email,
+                request.PhoneNumber?.Trim(),
+                request.Annual,
+                token,
+                expiresAt,
+                sourceIp);
+
+            await dbContext.Set<PendingSignup>().AddAsync(pending, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            string confirmLink = $"{confirmBaseUrl.TrimEnd('/')}/signup/confirmar?token={token}";
+
+            try
+            {
+                await emailSender.SendSignupVerificationEmailAsync(
+                    email,
+                    pending.TradeName,
+                    confirmLink,
+                    options.VerificationLinkHours,
+                    cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                // O e-mail E o fluxo aqui: sem ele o cadastro nao tem como continuar. Diferente do
+                // contato do site, nao da para engolir a falha e seguir dizendo que deu certo.
+                logger.LogError(exception, "Signup: falha ao enviar o e-mail de confirmacao para {Email}.", email);
+                throw new BusinessRuleException("signup.verification.emailFailed");
+            }
+
+            logger.LogInformation(
+                "Signup publico: cadastro pendente {PendingId} registrado para {Document}; confirmacao valida ate {ExpiresAt}.",
+                pending.Id,
+                document,
+                expiresAt);
+
+            return new SignupResponse
+            {
+                Email = email,
+                CompanyName = pending.TradeName,
+                PlanName = plan.Name,
+                VerificationExpiresAt = expiresAt
+            };
+        }
+
+        public async Task<SignupConfirmResponse> ConfirmAsync(SignupConfirmRequest request, string setupBaseUrl, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(request);
+
+            EnsureEnabled();
+
+            string tokenHash = TokenHasher.Hash(request.Token);
+
+            PendingSignup? pending = await dbContext.Set<PendingSignup>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.Token == tokenHash, cancellationToken);
+
+            if (pending is null)
+            {
+                throw new NotFoundException("signup.confirm.invalidToken");
+            }
+
+            if (pending.ConsumedAt is not null)
+            {
+                throw new ConflictException("signup.confirm.alreadyUsed");
+            }
+
+            if (DateTimeOffset.UtcNow >= pending.ExpiresAt)
+            {
+                throw new BusinessRuleException("signup.confirm.expired");
+            }
+
+            // Trava contra clique duplo. A checagem acima e so para produzir mensagem boa; a decisao
+            // de quem provisiona e ESTE update condicional, resolvido pelo banco. Sem ele, dois
+            // cliques simultaneos disparam dois provisionamentos do mesmo CNPJ.
+            int claimed = await dbContext.Set<PendingSignup>()
+                .Where(item => item.Id == pending.Id && item.ConsumedAt == null)
+                .ExecuteUpdateAsync(
+                    setters => setters.SetProperty(item => item.ConsumedAt, DateTimeOffset.UtcNow),
+                    cancellationToken);
+
+            if (claimed == 0)
+            {
+                throw new ConflictException("signup.confirm.alreadyUsed");
+            }
+
+            try
+            {
+                // De novo, e nao so na etapa 1: entre o cadastro e o clique alguem pode ter tomado o
+                // CNPJ ou o e-mail — inclusive outro cadastro pendente que confirmou primeiro.
+                await EnsureNotTakenAsync(pending.Document, pending.Email, cancellationToken);
+
+                Plan plan = await ResolvePlanAsync(pending.Annual, cancellationToken);
+                List<long> systemApplicationIds = await ResolveSystemApplicationIdsAsync(cancellationToken);
+
+                OnboardClientRequest onboardRequest = new OnboardClientRequest
+                {
+                    LegalName = pending.LegalName,
+                    TradeName = pending.TradeName,
+                    Document = pending.Document,
+                    Email = pending.Email,
+                    PhoneNumber = pending.PhoneNumber,
+                    PlanId = plan.Id,
+                    Systems = systemApplicationIds
+                        .Select(id => new OnboardClientSystemItem { SystemApplicationId = id, StartDate = DateTimeOffset.UtcNow })
+                        .ToList()
+                };
+
+                OnboardClientResponse result = await onboarding.OnboardClient(onboardRequest, setupBaseUrl, cancellationToken);
+
+                await dbContext.Set<PendingSignup>()
+                    .Where(item => item.Id == pending.Id)
+                    .ExecuteUpdateAsync(
+                        setters => setters.SetProperty(item => item.CompanyId, result.CompanyId),
+                        cancellationToken);
+
+                bool subscriptionActive = result.Subscription?.Success == true;
+
+                if (!subscriptionActive)
+                {
+                    // A empresa JA existe neste ponto (o onboarding commitou). Sem assinatura ela nao
+                    // passa no gate de acesso, entao isso e incidente, nao detalhe.
+                    logger.LogError(
+                        "Signup concluiu o provisionamento da empresa {CompanyId} ({Document}) mas NAO criou a assinatura: {Detail}. A conta nao consegue entrar ate a assinatura existir.",
+                        result.CompanyId,
+                        pending.Document,
+                        result.Subscription?.Detail ?? "sem detalhe");
+                }
+
+                string[] brokenBootstraps = result.BootstrapResults
+                    .Where(bootstrap => !bootstrap.Success)
+                    .Select(bootstrap => $"{bootstrap.Audience}: {(bootstrap.Skipped ? "pulado" : "falhou")} ({bootstrap.Detail ?? "sem detalhe"})")
+                    .ToArray();
+
+                if (brokenBootstraps.Length > 0)
+                {
+                    logger.LogError(
+                        "Signup provisionou a empresa {CompanyId} mas o bootstrap nao concluiu em {Count} sistema(s): {Detail}. O banco do tenant pode estar vazio.",
+                        result.CompanyId,
+                        brokenBootstraps.Length,
+                        string.Join(" | ", brokenBootstraps));
+                }
+
+                logger.LogInformation(
+                    "Signup publico confirmado: empresa {CompanyId} criada no plano {Plan} com {Contracts} contrato(s); assinatura ativa: {SubscriptionActive}.",
+                    result.CompanyId,
+                    plan.Name,
+                    result.ContractIds.Length,
+                    subscriptionActive);
+
+                return new SignupConfirmResponse
+                {
+                    SetupToken = result.SetupToken ?? string.Empty,
+                    CompanyName = pending.TradeName,
+                    PlanName = plan.Name,
+                    TrialEndsAt = result.Subscription?.TrialEndsAt,
+                    SubscriptionActive = subscriptionActive
+                };
+            }
+            catch
+            {
+                // O onboarding e transacional e compensa o que criou, entao devolver a linha ao
+                // estado pendente e correto: o link volta a valer e a pessoa pode tentar de novo.
+                // Sem isto, uma falha do provedor de cobranca queimaria o cadastro em definitivo.
+                await ReleaseClaimAsync(pending.Id, cancellationToken);
+                throw;
+            }
+        }
+
+        private void EnsureEnabled()
+        {
+            if (!options.Enabled)
+            {
+                throw new NotFoundException("signup.disabled");
+            }
+        }
+
+        private async Task ReleaseClaimAsync(long pendingSignupId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await dbContext.Set<PendingSignup>()
+                    .Where(item => item.Id == pendingSignupId)
+                    .ExecuteUpdateAsync(
+                        setters => setters.SetProperty(item => item.ConsumedAt, (DateTimeOffset?)null),
+                        cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                // Nao pode mascarar a excecao original que trouxe o fluxo ate aqui.
+                logger.LogError(exception, "Signup: falha ao liberar o cadastro pendente {PendingId} apos erro no provisionamento.", pendingSignupId);
+            }
+        }
+
+        private async Task EnsureNotTakenAsync(string document, string email, CancellationToken cancellationToken)
+        {
             bool companyExists = await dbContext.Set<Company>()
                 .AsNoTracking()
                 .AnyAsync(company => company.Document == document, cancellationToken);
@@ -76,8 +296,7 @@ namespace IdentityManagement.Infrastructure.Services
             }
 
             // companies.email tem indice UNICO. Sem esta checagem a colisao so aparecia no
-            // SaveChanges, como 500 cru: quem tentou cadastrar uma segunda agencia com o mesmo
-            // e-mail via uma falha generica em vez do motivo real.
+            // SaveChanges, como 500 cru.
             bool emailInUse = await dbContext.Set<Company>()
                 .AsNoTracking()
                 .AnyAsync(company => company.Email == email, cancellationToken);
@@ -86,71 +305,6 @@ namespace IdentityManagement.Infrastructure.Services
             {
                 throw new ConflictException("signup.email.alreadyExists");
             }
-
-            Plan plan = await ResolvePlanAsync(request.Annual, cancellationToken);
-            List<long> systemApplicationIds = await ResolveSystemApplicationIdsAsync(cancellationToken);
-
-            OnboardClientRequest onboardRequest = new OnboardClientRequest
-            {
-                LegalName = request.LegalName.Trim(),
-                TradeName = request.TradeName.Trim(),
-                Document = document,
-                Email = email,
-                PhoneNumber = request.PhoneNumber?.Trim(),
-                PlanId = plan.Id,
-                Systems = systemApplicationIds
-                    .Select(id => new OnboardClientSystemItem { SystemApplicationId = id, StartDate = DateTimeOffset.UtcNow })
-                    .ToList()
-            };
-
-            OnboardClientResponse result = await onboarding.OnboardClient(onboardRequest, setupBaseUrl, cancellationToken);
-
-            bool subscriptionActive = result.Subscription?.Success == true;
-
-            if (!subscriptionActive)
-            {
-                // A empresa JA existe neste ponto (o onboarding commitou). Sem assinatura ela nao
-                // passa no gate de acesso, entao isso e incidente, nao detalhe: registra alto para
-                // o suporte concluir a assinatura manualmente.
-                logger.LogError(
-                    "Signup concluiu o provisionamento da empresa {CompanyId} ({Document}) mas NAO criou a assinatura: {Detail}. A conta nao consegue entrar ate a assinatura existir.",
-                    result.CompanyId,
-                    document,
-                    result.Subscription?.Detail ?? "sem detalhe");
-            }
-
-            // Bootstrap malsucedido nao derruba o cadastro (a empresa ja existe), mas deixa o banco do
-            // tenant vazio — a agencia entra e encontra um sistema sem dado nenhum. Ja aconteceu, e o
-            // sintoma so aparece no primeiro login. Registrar alto para o suporte agir antes disso.
-            string[] brokenBootstraps = result.BootstrapResults
-                .Where(bootstrap => !bootstrap.Success)
-                .Select(bootstrap => $"{bootstrap.Audience}: {(bootstrap.Skipped ? "pulado" : "falhou")} ({bootstrap.Detail ?? "sem detalhe"})")
-                .ToArray();
-
-            if (brokenBootstraps.Length > 0)
-            {
-                logger.LogError(
-                    "Signup provisionou a empresa {CompanyId} mas o bootstrap nao concluiu em {Count} sistema(s): {Detail}. O banco do tenant pode estar vazio.",
-                    result.CompanyId,
-                    brokenBootstraps.Length,
-                    string.Join(" | ", brokenBootstraps));
-            }
-
-            logger.LogInformation(
-                "Signup publico: empresa {CompanyId} criada no plano {Plan} com {Contracts} contrato(s); assinatura ativa: {SubscriptionActive}.",
-                result.CompanyId,
-                plan.Name,
-                result.ContractIds.Length,
-                subscriptionActive);
-
-            return new SignupResponse
-            {
-                Email = email,
-                CompanyName = onboardRequest.TradeName,
-                PlanName = plan.Name,
-                TrialEndsAt = result.Subscription?.TrialEndsAt,
-                SubscriptionActive = subscriptionActive
-            };
         }
 
         private async Task<Plan> ResolvePlanAsync(bool annual, CancellationToken cancellationToken)
@@ -198,6 +352,12 @@ namespace IdentityManagement.Infrastructure.Services
             }
 
             return applications.Select(application => application.Id).ToList();
+        }
+
+        private static string GenerateOpaqueToken()
+        {
+            byte[] bytes = RandomNumberGenerator.GetBytes(32);
+            return Base64UrlEncoder.Encode(bytes);
         }
     }
 }

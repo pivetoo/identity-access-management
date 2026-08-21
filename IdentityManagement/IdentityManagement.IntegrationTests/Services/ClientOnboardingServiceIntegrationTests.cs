@@ -238,6 +238,8 @@ namespace IdentityManagement.IntegrationTests.Services
 
             public Task SendAccountDeactivatedEmailAsync(string toEmail, string toName, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
+            public Task SendSignupVerificationEmailAsync(string toEmail, string companyName, string confirmLink, int expiresInHours, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
             public Task SendAdminInvitationEmailAsync(string toEmail, string companyName, string systemApplicationName, string setupLink, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
             public Task SendClientAdminInvitationEmailAsync(string toEmail, string companyName, IReadOnlyCollection<string> systemNames, string setupLink, CancellationToken cancellationToken = default) => Task.CompletedTask;

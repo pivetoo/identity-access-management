@@ -1,7 +1,9 @@
 using Archon.Core.Exceptions;
 using IdentityManagement.Application.Requests.Signup;
+using IdentityManagement.Application.Responses.Signup;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
+using IdentityManagement.Domain.Security;
 using IdentityManagement.Domain.ValueObjects;
 using IdentityManagement.Infrastructure.Services;
 using IdentityManagement.Infrastructure.Signup;
@@ -13,9 +15,11 @@ using Microsoft.Extensions.Options;
 namespace IdentityManagement.IntegrationTests.Services
 {
     /// <summary>
-    /// Travas do cadastro publico. Todos os casos aqui recusam ANTES do onboarding — nenhum chega a
-    /// provisionar empresa ou banco de tenant, que e exatamente a propriedade que se quer garantir:
-    /// o unico endpoint anonimo que cria infraestrutura so cria depois de passar por todas.
+    /// Travas do cadastro publico.
+    ///
+    /// A propriedade central: o endpoint anonimo NAO provisiona. Depois do desenho em duas etapas,
+    /// nem o caminho feliz cria empresa ou banco — isso agora e exclusividade do Confirm, que exige
+    /// um token que so existe dentro da caixa de entrada.
     /// </summary>
     [TestFixture]
     public sealed class SelfServiceSignupIntegrationTests : IntegrationTestBase
@@ -24,12 +28,12 @@ namespace IdentityManagement.IntegrationTests.Services
 
         private static SelfServiceSignupService CreateSubject(IServiceProvider sp, SignupOptions? options = null)
         {
-            // O onboarding real nao e exercitado nestes casos: todos falham antes de chama-lo.
             IClientOnboardingService onboarding = sp.GetRequiredService<IClientOnboardingService>();
 
             return new SelfServiceSignupService(
                 sp.GetRequiredService<DbContext>(),
                 onboarding,
+                new NoOpEmailSender(),
                 Options.Create(options ?? new SignupOptions { Enabled = true }),
                 NullLogger<SelfServiceSignupService>.Instance);
         }
@@ -50,7 +54,7 @@ namespace IdentityManagement.IntegrationTests.Services
             {
                 SelfServiceSignupService subject = CreateSubject(sp, new SignupOptions { Enabled = false });
 
-                Func<Task> act = () => subject.SignupAsync(ValidRequest(), "https://auth.example");
+                Func<Task> act = () => subject.SignupAsync(ValidRequest(), "https://auth.example", null);
 
                 await act.Should().ThrowAsync<NotFoundException>();
             });
@@ -65,7 +69,7 @@ namespace IdentityManagement.IntegrationTests.Services
                 SignupRequest request = ValidRequest();
                 request.AcceptedTerms = false;
 
-                Func<Task> act = () => subject.SignupAsync(request, "https://auth.example");
+                Func<Task> act = () => subject.SignupAsync(request, "https://auth.example", null);
 
                 await act.Should().ThrowAsync<BusinessRuleException>();
             });
@@ -80,7 +84,7 @@ namespace IdentityManagement.IntegrationTests.Services
                 SignupRequest request = ValidRequest();
                 request.Document = "11444777000160";
 
-                Func<Task> act = () => subject.SignupAsync(request, "https://auth.example");
+                Func<Task> act = () => subject.SignupAsync(request, "https://auth.example", null);
 
                 await act.Should().ThrowAsync<BusinessRuleException>();
             });
@@ -97,7 +101,7 @@ namespace IdentityManagement.IntegrationTests.Services
 
                 SelfServiceSignupService subject = CreateSubject(sp);
 
-                Func<Task> act = () => subject.SignupAsync(ValidRequest(), "https://auth.example");
+                Func<Task> act = () => subject.SignupAsync(ValidRequest(), "https://auth.example", null);
 
                 await act.Should().ThrowAsync<ConflictException>();
             });
@@ -116,7 +120,7 @@ namespace IdentityManagement.IntegrationTests.Services
 
                 SelfServiceSignupService subject = CreateSubject(sp);
 
-                Func<Task> act = () => subject.SignupAsync(ValidRequest(), "https://auth.example");
+                Func<Task> act = () => subject.SignupAsync(ValidRequest(), "https://auth.example", null);
 
                 await act.Should().ThrowAsync<ConflictException>();
 
@@ -143,7 +147,7 @@ namespace IdentityManagement.IntegrationTests.Services
                     MonthlyPlanName = "Plano Fechado"
                 });
 
-                Func<Task> act = () => subject.SignupAsync(ValidRequest(), "https://auth.example");
+                Func<Task> act = () => subject.SignupAsync(ValidRequest(), "https://auth.example", null);
 
                 await act.Should().ThrowAsync<BusinessRuleException>();
             });
@@ -164,7 +168,7 @@ namespace IdentityManagement.IntegrationTests.Services
                     SystemAudiences = ["agency-campaign", "audience-que-nao-existe"]
                 });
 
-                Func<Task> act = () => subject.SignupAsync(ValidRequest(), "https://auth.example");
+                Func<Task> act = () => subject.SignupAsync(ValidRequest(), "https://auth.example", null);
 
                 await act.Should().ThrowAsync<BusinessRuleException>();
             });
@@ -180,11 +184,227 @@ namespace IdentityManagement.IntegrationTests.Services
                 SignupRequest request = ValidRequest();
                 request.Document = "00000000000000";
 
-                Func<Task> act = () => subject.SignupAsync(request, "https://auth.example");
+                Func<Task> act = () => subject.SignupAsync(request, "https://auth.example", null);
                 await act.Should().ThrowAsync<BusinessRuleException>();
 
                 (await dbContext.Set<Company>().CountAsync()).Should().Be(0);
                 (await dbContext.Set<Contract>().CountAsync()).Should().Be(0);
+            });
+        }
+        // ---------------------------------------------------------------------------------------
+        // Desenho em duas etapas. O que estes casos protegem: nenhuma chamada anonima sem token
+        // pode criar empresa, contrato ou banco de tenant.
+        // ---------------------------------------------------------------------------------------
+
+        [Test]
+        public async Task Signup_registers_a_pending_row_and_provisions_nothing()
+        {
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                await SeedForOnboardingAsync(dbContext);
+
+                SelfServiceSignupService subject = CreateSubject(sp);
+
+                await subject.SignupAsync(ValidRequest(), "https://auth.example", "203.0.113.7");
+
+                (await dbContext.Set<PendingSignup>().CountAsync()).Should().Be(1);
+
+                (await dbContext.Set<Company>().CountAsync()).Should().Be(0, "o caminho feliz tambem nao pode provisionar antes da confirmacao");
+                (await dbContext.Set<Contract>().CountAsync()).Should().Be(0);
+                (await dbContext.Set<TenantDatabase>().CountAsync()).Should().Be(0);
+            });
+        }
+
+        [Test]
+        public async Task Signup_stores_only_the_token_hash()
+        {
+            // O link do e-mail e a unica copia em claro. Um SELECT na tabela nao pode entregar
+            // tokens prontos para confirmar cadastros alheios.
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                await SeedForOnboardingAsync(dbContext);
+
+                SelfServiceSignupService subject = CreateSubject(sp, SingleAudienceOptions());
+                await subject.SignupAsync(ValidRequest(), "https://auth.example", null);
+
+                string token = NoOpEmailSender.ExtractConfirmToken(NoOpEmailSender.LastConfirmLink);
+                token.Should().NotBeEmpty();
+
+                PendingSignup pending = await dbContext.Set<PendingSignup>().AsNoTracking().SingleAsync();
+                pending.Token.Should().NotBe(token);
+                pending.Token.Should().Be(TokenHasher.Hash(token));
+            });
+        }
+
+        [Test]
+        public async Task Confirm_provisions_the_tenant_and_returns_the_setup_token()
+        {
+            List<string> createdDatabases = new();
+
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                await SeedForOnboardingAsync(dbContext);
+
+                SelfServiceSignupService subject = CreateSubject(sp, SingleAudienceOptions());
+                await subject.SignupAsync(ValidRequest(), "https://auth.example", null);
+
+                string token = NoOpEmailSender.ExtractConfirmToken(NoOpEmailSender.LastConfirmLink);
+
+                SignupConfirmResponse response = await subject.ConfirmAsync(
+                    new SignupConfirmRequest { Token = token },
+                    "https://auth.example");
+
+                response.SetupToken.Should().NotBeEmpty("a tela emenda direto na definicao de senha");
+
+                (await dbContext.Set<Company>().CountAsync()).Should().Be(1);
+                (await dbContext.Set<Contract>().CountAsync()).Should().Be(1);
+
+                PendingSignup pending = await dbContext.Set<PendingSignup>().AsNoTracking().SingleAsync();
+                pending.ConsumedAt.Should().NotBeNull();
+                pending.CompanyId.Should().NotBeNull();
+
+                createdDatabases.AddRange(await dbContext.Set<TenantDatabase>().AsNoTracking().Select(item => item.ConnectionString).ToListAsync());
+            });
+
+            await DropCreatedDatabasesAsync(createdDatabases);
+        }
+
+        [Test]
+        public async Task Confirm_twice_provisions_only_once()
+        {
+            // Clique duplo no link do e-mail (ou aba reaberta) nao pode disparar dois onboardings.
+            List<string> createdDatabases = new();
+
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                await SeedForOnboardingAsync(dbContext);
+
+                SelfServiceSignupService subject = CreateSubject(sp, SingleAudienceOptions());
+                await subject.SignupAsync(ValidRequest(), "https://auth.example", null);
+
+                string token = NoOpEmailSender.ExtractConfirmToken(NoOpEmailSender.LastConfirmLink);
+                SignupConfirmRequest request = new() { Token = token };
+
+                await subject.ConfirmAsync(request, "https://auth.example");
+
+                Func<Task> segundaVez = () => subject.ConfirmAsync(request, "https://auth.example");
+                await segundaVez.Should().ThrowAsync<ConflictException>();
+
+                (await dbContext.Set<Company>().CountAsync()).Should().Be(1);
+
+                createdDatabases.AddRange(await dbContext.Set<TenantDatabase>().AsNoTracking().Select(item => item.ConnectionString).ToListAsync());
+            });
+
+            await DropCreatedDatabasesAsync(createdDatabases);
+        }
+
+        [Test]
+        public async Task Confirm_is_refused_with_an_unknown_token()
+        {
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                SelfServiceSignupService subject = CreateSubject(sp);
+
+                Func<Task> act = () => subject.ConfirmAsync(
+                    new SignupConfirmRequest { Token = "token-que-nunca-existiu-mas-tem-tamanho" },
+                    "https://auth.example");
+
+                await act.Should().ThrowAsync<NotFoundException>();
+
+                (await dbContext.Set<Company>().CountAsync()).Should().Be(0);
+            });
+        }
+
+        [Test]
+        public async Task Confirm_is_refused_when_the_link_expired()
+        {
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                await SeedForOnboardingAsync(dbContext);
+
+                string token = "token-expirado-de-teste-com-tamanho-suficiente";
+                dbContext.Set<PendingSignup>().Add(new PendingSignup(
+                    "Agencia Expirada LTDA", "Agencia Expirada", ValidDocument, "expirada@signup.example",
+                    null, false, token, DateTimeOffset.UtcNow.AddHours(-1), null));
+                await dbContext.SaveChangesAsync();
+
+                SelfServiceSignupService subject = CreateSubject(sp, SingleAudienceOptions());
+
+                Func<Task> act = () => subject.ConfirmAsync(new SignupConfirmRequest { Token = token }, "https://auth.example");
+
+                await act.Should().ThrowAsync<BusinessRuleException>();
+
+                (await dbContext.Set<Company>().CountAsync()).Should().Be(0, "link vencido nao provisiona");
+            });
+        }
+
+        [Test]
+        public async Task Confirm_is_refused_when_the_document_was_taken_in_the_meantime()
+        {
+            // Duas pessoas cadastram o mesmo CNPJ antes de qualquer confirmacao: quem confirmar
+            // primeiro leva. A segunda checagem existe por isso — a da etapa 1 ja esta velha aqui.
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                await SeedForOnboardingAsync(dbContext);
+
+                SelfServiceSignupService subject = CreateSubject(sp, SingleAudienceOptions());
+                await subject.SignupAsync(ValidRequest(), "https://auth.example", null);
+                string token = NoOpEmailSender.ExtractConfirmToken(NoOpEmailSender.LastConfirmLink);
+
+                dbContext.Set<Company>().Add(new Company("Chegou Antes LTDA", "Chegou Antes", ValidDocument, "antes@signup.example", "11999990000"));
+                await dbContext.SaveChangesAsync();
+
+                Func<Task> act = () => subject.ConfirmAsync(new SignupConfirmRequest { Token = token }, "https://auth.example");
+                await act.Should().ThrowAsync<ConflictException>();
+
+                // Falhar nao pode queimar o cadastro: a linha volta a ficar pendente.
+                PendingSignup pending = await dbContext.Set<PendingSignup>().AsNoTracking().SingleAsync();
+                pending.ConsumedAt.Should().BeNull("provisionamento que falha devolve o link ao estado utilizavel");
+            });
+        }
+
+        private static async Task SeedForOnboardingAsync(DbContext dbContext)
+        {
+            SystemApplication agencyApp = new("AgencyCampaign", "Mainstay", "agency-campaign", ApplicationType.External);
+            dbContext.Set<SystemApplication>().Add(agencyApp);
+            dbContext.Set<Plan>().Add(new Plan("Completo Mensal", 497m, BillingPeriod.Monthly, "BRL", 14, null));
+            await dbContext.SaveChangesAsync();
+
+            dbContext.Set<SystemRoleTemplate>().Add(new SystemRoleTemplate(agencyApp.Id, "Administrador", "Papel raiz", true, true));
+            await dbContext.SaveChangesAsync();
+        }
+
+        private static SignupOptions SingleAudienceOptions() => new()
+        {
+            Enabled = true,
+            SystemAudiences = ["agency-campaign"]
+        };
+
+        private async Task DropCreatedDatabasesAsync(List<string> connectionStrings)
+        {
+            await InScopeAsync(async sp =>
+            {
+                ITenantProvisioner provisioner = sp.GetRequiredService<ITenantProvisioner>();
+
+                foreach (string connectionString in connectionStrings)
+                {
+                    string? nome = connectionString
+                        .Split(';', StringSplitOptions.RemoveEmptyEntries)
+                        .FirstOrDefault(parte => parte.TrimStart().StartsWith("Database=", StringComparison.OrdinalIgnoreCase))
+                        ?.Split('=', 2)[1];
+
+                    if (!string.IsNullOrWhiteSpace(nome))
+                    {
+                        await provisioner.DropDatabaseAsync(nome);
+                    }
+                }
             });
         }
     }

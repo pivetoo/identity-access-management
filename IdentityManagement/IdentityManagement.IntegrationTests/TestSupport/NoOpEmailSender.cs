@@ -24,6 +24,12 @@ namespace IdentityManagement.IntegrationTests
             return Task.CompletedTask;
         }
 
+        public Task SendSignupVerificationEmailAsync(string toEmail, string companyName, string confirmLink, int expiresInHours, CancellationToken cancellationToken = default)
+        {
+            LastConfirmLink = confirmLink;
+            return Task.CompletedTask;
+        }
+
         public Task SendAdminInvitationEmailAsync(string toEmail, string companyName, string systemApplicationName, string setupLink, CancellationToken cancellationToken = default)
         {
             LastSetupLink = setupLink;
@@ -44,6 +50,11 @@ namespace IdentityManagement.IntegrationTests
         /// ponto. O teste precisa passar pelo mesmo caminho do usuario real.
         /// </summary>
         public static string LastSetupLink { get; private set; } = string.Empty;
+
+        /// <summary>Ultimo link de confirmacao de cadastro publico. Mesma logica do LastSetupLink.</summary>
+        public static string LastConfirmLink { get; private set; } = string.Empty;
+
+        public static string ExtractConfirmToken(string confirmLink) => ExtractToken(confirmLink);
 
         public static string ExtractToken(string setupLink)
         {
