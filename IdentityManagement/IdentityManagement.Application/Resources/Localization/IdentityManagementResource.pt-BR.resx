@@ -875,7 +875,7 @@
   <data name="signup.created" xml:space="preserve"><value>Cadastro recebido. Enviamos um link de confirmacao para o e-mail informado.</value></data>
   <data name="signup.disabled" xml:space="preserve"><value>Cadastro publico indisponivel no momento.</value></data>
   <data name="signup.termsNotAccepted" xml:space="preserve"><value>E necessario aceitar os termos de uso para continuar.</value></data>
-  <data name="signup.document.invalid" xml:space="preserve"><value>CNPJ invalido. Confira os numeros e tente novamente.</value></data>
+  <data name="signup.document.invalid" xml:space="preserve"><value>CNPJ invalido. Confira o que digitou e tente novamente.</value></data>
   <data name="signup.company.alreadyExists" xml:space="preserve"><value>Ja existe uma conta para este CNPJ. Use a tela de acesso ou fale com o suporte.</value></data>
   <data name="signup.plan.notConfigured" xml:space="preserve"><value>Cadastro publico indisponivel no momento. Tente novamente mais tarde.</value></data>
   <data name="signup.systems.notConfigured" xml:space="preserve"><value>Cadastro publico indisponivel no momento. Tente novamente mais tarde.</value></data>

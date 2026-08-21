@@ -115,7 +115,9 @@ namespace IdentityManagement.Domain.Entities
         /// </summary>
         private static string NormalizeDocument(string document)
         {
-            return new string((document ?? string.Empty).Where(char.IsDigit).ToArray());
+            // Delega para o Cnpj: manter duas normalizacoes era como o CNPJ alfanumerico entrava
+            // aqui e perdia as letras em silencio, gravando um documento diferente do informado.
+            return Cnpj.Normalize(document);
         }
 
         private void SetNames(string legalName, string tradeName)

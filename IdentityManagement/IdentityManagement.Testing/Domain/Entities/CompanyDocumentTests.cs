@@ -19,6 +19,19 @@ namespace IdentityManagement.Testing.Domain.Entities
             Assert.That(company.Document, Is.EqualTo("64224591000163"));
         }
 
+        /// <summary>
+        /// Regressao: a normalizacao descartava tudo que nao fosse digito, entao um CNPJ
+        /// alfanumerico era gravado MUTILADO — documento diferente do informado, em silencio.
+        /// </summary>
+        [TestCase("12.ABC.345/01DE-35")]
+        [TestCase("12abc34501de35")]
+        public void Alphanumeric_document_keeps_its_letters(string entrada)
+        {
+            Company company = new("Empresa LTDA", "Empresa", entrada, "a@b.com", "11999990000");
+
+            Assert.That(company.Document, Is.EqualTo("12ABC34501DE35"));
+        }
+
         [Test]
         public void Update_also_normalizes_the_document()
         {

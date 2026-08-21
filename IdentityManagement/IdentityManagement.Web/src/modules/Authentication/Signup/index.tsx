@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Building2, CheckCircle2, MailCheck } from 'lucide-react';
 import { Button, Card, CardContent, Input, useToast } from 'archon-ui';
-import { signupService, formatDocument, isValidDocument, type SignupResult } from '../../../services/signupService';
+import { signupService, formatDocument, isValidDocument, normalizeDocument, type SignupResult } from '../../../services/signupService';
 import logoEmpresa from '../../../assets/logo-empresa.png';
 
 /**
@@ -28,7 +28,7 @@ export default function Signup() {
   const [result, setResult] = useState<SignupResult | null>(null);
   const [website, setWebsite] = useState('');
 
-  const documentTouched = document.replace(/\D/g, '').length >= 14;
+  const documentTouched = normalizeDocument(document).length >= 14;
   const documentInvalid = documentTouched && !isValidDocument(document);
 
   const canSubmit = useMemo(() => {
@@ -155,13 +155,15 @@ export default function Signup() {
                   value={document}
                   onChange={(e) => setDocument(formatDocument(e.target.value))}
                   placeholder="00.000.000/0001-00"
-                  inputMode="numeric"
+                  autoCapitalize="characters"
+                  autoCorrect="off"
+                  spellCheck={false}
                   aria-invalid={documentInvalid}
                   aria-describedby={documentInvalid ? 'document-error' : undefined}
                   required
                 />
                 {documentInvalid && (
-                  <p id="document-error" className="text-xs text-destructive">CNPJ inválido. Confira os números.</p>
+                  <p id="document-error" className="text-xs text-destructive">CNPJ inválido. Confira o que digitou.</p>
                 )}
               </div>
 
