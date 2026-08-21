@@ -19,6 +19,15 @@ using System.Threading.RateLimiting;
 var builder = WebApplication.CreateBuilder(args);
 IServiceProvider? rootServiceProvider = null;
 
+// Credenciais em arquivo separado do resto da configuracao: quem rotaciona segredo mexe num
+// arquivo de poucas linhas, e nao no meio de URLs, CORS e flags. Opcional de proposito — em
+// desenvolvimento nao existe, e o appsettings normal continua bastando.
+//
+// Fica DEPOIS das fontes padrao para sobrepor o que estiver no appsettings; e ANTES das variaveis
+// de ambiente, que seguem tendo a ultima palavra.
+builder.Configuration.AddJsonFile("secrets.Production.json", optional: true, reloadOnChange: false);
+builder.Configuration.AddEnvironmentVariables();
+
 builder.Services.AddControllers();
 
 // Origens permitidas por configuracao. `AllowAnyOrigin` num provedor de identidade deixa qualquer

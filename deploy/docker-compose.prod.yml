@@ -7,6 +7,9 @@ services:
       - "127.0.0.1:8090:8080"
     volumes:
       - ./config/appsettings.Production.json:/app/appsettings.Production.json:ro
+      # Credenciais separadas da configuracao. Opcional no codigo: se o arquivo nao existir, o
+      # appsettings.Production.json continua respondendo por tudo.
+      - ./config/secrets.Production.json:/app/secrets.Production.json:ro
 
   web:
     image: ghcr.io/pivetoo/identity-management-web:latest
