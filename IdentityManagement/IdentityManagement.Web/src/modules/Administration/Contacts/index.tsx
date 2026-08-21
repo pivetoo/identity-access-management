@@ -103,7 +103,6 @@ export default function Contacts() {
         onRefresh={load}
       >
         <div className="mb-4 flex items-center gap-3">
-          <span className="text-sm text-muted-foreground">Mostrar</span>
           <Select value={filtro} onValueChange={(value) => setFiltro(value as Filtro)}>
             <SelectTrigger className="w-48">
               <SelectValue />
