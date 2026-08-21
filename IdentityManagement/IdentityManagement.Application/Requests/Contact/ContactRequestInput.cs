@@ -20,7 +20,7 @@ namespace IdentityManagement.Application.Requests.Contact
         public string? CompanyName { get; set; }
 
         [Required]
-        [StringLength(4000, MinimumLength = 10)]
+        [StringLength(4000, MinimumLength = 5)]
         public string Message { get; set; } = string.Empty;
 
         /// <summary>
