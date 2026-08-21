@@ -47,7 +47,7 @@ namespace IdentityManagement.Domain.Entities
         public Company(string legalName, string tradeName, string document, string email, string phoneNumber)
         {
             SetNames(legalName, tradeName);
-            Document = document.Trim();
+            Document = NormalizeDocument(document);
             Email = email.Trim();
             PhoneNumber = phoneNumber.Trim();
             TenantId = Guid.NewGuid();
@@ -56,7 +56,7 @@ namespace IdentityManagement.Domain.Entities
         public void Update(string legalName, string tradeName, string document, string email, string phoneNumber, bool isActive)
         {
             SetNames(legalName, tradeName);
-            Document = document.Trim();
+            Document = NormalizeDocument(document);
             Email = email.Trim();
             PhoneNumber = phoneNumber.Trim();
             IsActive = isActive;
@@ -103,6 +103,19 @@ namespace IdentityManagement.Domain.Entities
         public void Deactivate()
         {
             IsActive = false;
+        }
+
+        /// <summary>
+        /// Documento sempre so com digitos.
+        ///
+        /// O cadastro publico normaliza antes de comparar, mas o console de administracao gravava o
+        /// que o usuario digitasse — inclusive com mascara. Com formatos diferentes na mesma coluna,
+        /// a checagem de CNPJ duplicado do signup nao enxerga a empresa existente, e o indice unico
+        /// tambem nao: "64.224.591/0001-63" e "64224591000163" sao valores distintos para o banco.
+        /// </summary>
+        private static string NormalizeDocument(string document)
+        {
+            return new string((document ?? string.Empty).Where(char.IsDigit).ToArray());
         }
 
         private void SetNames(string legalName, string tradeName)
