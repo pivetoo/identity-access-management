@@ -26,5 +26,13 @@ namespace IdentityManagement.Application.Requests.Signup
 
         /// <summary>Aceite dos termos de uso. Sem aceite explicito nao ha contratacao.</summary>
         public bool AcceptedTerms { get; set; }
+
+        /// <summary>
+        /// Armadilha: campo escondido no formulario, que pessoa nao ve e robo preenche. Vindo com
+        /// conteudo, a requisicao e descartada em silencio — responder "recusado" ensinaria o robo
+        /// a contornar. Mesmo padrao do formulario de contato.
+        /// </summary>
+        [StringLength(200)]
+        public string? Website { get; set; }
     }
 }

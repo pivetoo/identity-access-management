@@ -22,6 +22,10 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
             // vira varredura sequencial no caminho quente do cadastro.
             builder.HasIndex(entity => entity.Token).IsUnique();
             builder.HasIndex(entity => entity.ExpiresAt);
+
+            // As travas de envio contam por destinatario (24h) e no total (1h) a cada cadastro.
+            builder.HasIndex(entity => new { entity.Email, entity.CreatedAt });
+            builder.HasIndex(entity => entity.CreatedAt);
         }
     }
 }

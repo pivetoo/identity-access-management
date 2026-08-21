@@ -26,6 +26,7 @@ export default function Signup() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SignupResult | null>(null);
+  const [website, setWebsite] = useState('');
 
   const documentTouched = document.replace(/\D/g, '').length >= 14;
   const documentInvalid = documentTouched && !isValidDocument(document);
@@ -53,6 +54,7 @@ export default function Signup() {
         phoneNumber: phoneNumber.trim() || undefined,
         annual,
         acceptedTerms,
+        website,
       });
       setResult(created);
     } catch (failure: unknown) {
@@ -130,6 +132,12 @@ export default function Signup() {
             </p>
 
             <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+              {/* Isca: pessoa nao ve, robo ingenuo preenche. Fora da tela em vez de display:none,
+                  que alguns robos detectam. */}
+              <div className="absolute -left-[9999px]" aria-hidden="true">
+                <label>Website<input type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} /></label>
+              </div>
+
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="legalName" className="text-sm font-medium text-foreground">Razão social</label>
                 <Input id="legalName" value={legalName} onChange={(e) => setLegalName(e.target.value)} placeholder="Agência Exemplo LTDA" autoComplete="organization" required />

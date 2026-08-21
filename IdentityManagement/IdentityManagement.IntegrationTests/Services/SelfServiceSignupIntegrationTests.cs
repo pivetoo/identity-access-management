@@ -453,6 +453,86 @@ namespace IdentityManagement.IntegrationTests.Services
             await DropCreatedDatabasesAsync(createdDatabases);
         }
 
+        // ---------------------------------------------------------------------------------------
+        // Travas de ENVIO. Protegem a reputacao do dominio, nao o disco: o cadastro dispara e-mail
+        // para o endereco que o visitante digitar, e limite por IP nao ve bombardeio distribuido
+        // contra um unico destinatario.
+        // ---------------------------------------------------------------------------------------
+
+        [Test]
+        public async Task Signup_caught_by_the_honeypot_is_discarded_without_touching_the_database()
+        {
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                await SeedForOnboardingAsync(dbContext);
+
+                SelfServiceSignupService subject = CreateSubject(sp, SingleAudienceOptions());
+
+                SignupRequest request = ValidRequest();
+                request.Website = "http://robo.example";
+
+                SignupResponse resposta = await subject.SignupAsync(request, "https://auth.example", null);
+
+                // Resposta de SUCESSO: dizer "recusado" ensina o robo a contornar na proxima.
+                resposta.Email.Should().Be(request.Email);
+
+                (await dbContext.Set<PendingSignup>().CountAsync()).Should().Be(0, "robo nao grava nada");
+            });
+        }
+
+        [Test]
+        public async Task Signup_stops_sending_after_the_daily_limit_for_the_same_address()
+        {
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                await SeedForOnboardingAsync(dbContext);
+
+                SignupOptions options = SingleAudienceOptions();
+                options.MaxVerificationEmailsPerAddressPerDay = 2;
+
+                SelfServiceSignupService subject = CreateSubject(sp, options);
+
+                await subject.SignupAsync(ValidRequest(), "https://auth.example", null);
+                await subject.SignupAsync(ValidRequest(), "https://auth.example", null);
+
+                SignupResponse terceira = await subject.SignupAsync(ValidRequest(), "https://auth.example", null);
+
+                // Mesma resposta das anteriores: uma diferente viraria oraculo para o atacante
+                // descobrir quais enderecos ja estao em jogo.
+                terceira.Email.Should().Be(ValidRequest().Email);
+
+                (await dbContext.Set<PendingSignup>().CountAsync()).Should().Be(2, "a terceira nao envia, entao nao grava");
+            });
+        }
+
+        [Test]
+        public async Task Signup_stops_sending_when_the_global_hourly_email_limit_is_reached()
+        {
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                await SeedForOnboardingAsync(dbContext);
+
+                SignupOptions options = SingleAudienceOptions();
+                options.GlobalHourlyVerificationEmailLimit = 1;
+
+                SelfServiceSignupService subject = CreateSubject(sp, options);
+
+                await subject.SignupAsync(ValidRequest(), "https://auth.example", null);
+
+                // Endereco DIFERENTE: quem barra aqui e o teto global, nao o limite por destinatario.
+                SignupRequest outro = ValidRequest();
+                outro.Document = "33444555000181";
+                outro.Email = "terceira@signup.example";
+
+                await subject.SignupAsync(outro, "https://auth.example", null);
+
+                (await dbContext.Set<PendingSignup>().CountAsync()).Should().Be(1);
+            });
+        }
+
         private static async Task SeedForOnboardingAsync(DbContext dbContext)
         {
             SystemApplication agencyApp = new("AgencyCampaign", "Mainstay", "agency-campaign", ApplicationType.External);

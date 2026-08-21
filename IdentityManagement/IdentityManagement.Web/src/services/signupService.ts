@@ -8,6 +8,8 @@ export interface SignupPayload {
   phoneNumber?: string;
   annual: boolean;
   acceptedTerms: boolean;
+  /** Isca do honeypot. Sempre vazio para gente; robo preenche e o backend descarta em silencio. */
+  website?: string;
 }
 
 /** Etapa 1. Nada foi provisionado ainda: so existe um cadastro pendente e um e-mail a caminho. */

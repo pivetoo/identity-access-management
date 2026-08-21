@@ -36,6 +36,25 @@ namespace IdentityManagement.Infrastructure.Signup
         public int GlobalHourlyProvisioningLimit { get; set; } = 20;
 
         /// <summary>
+        /// Quantos e-mails de confirmacao um MESMO endereco pode receber em 24h.
+        ///
+        /// Existe contra bombardeio de inscricao: o ataque mira um endereco a partir de muitos IPs,
+        /// entao limite por IP nao enxerga o padrao — so um limite chaveado no destino enxerga.
+        /// Retentativa honesta e uma ou duas; bombardeio e centena.
+        /// </summary>
+        public int MaxVerificationEmailsPerAddressPerDay { get; set; } = 5;
+
+        /// <summary>
+        /// Teto GLOBAL de e-mails de confirmacao por hora, independente de IP e de destinatario.
+        ///
+        /// Ultima linha: se as camadas de cima forem furadas, isto limita o estrago na reputacao do
+        /// dominio. Vale porque o dano aqui e assimetrico — disco cheio se resolve comprando espaco,
+        /// mas dominio em blocklist derruba redefinicao de senha, convite e regua de cobranca, e
+        /// leva semanas para recuperar.
+        /// </summary>
+        public int GlobalHourlyVerificationEmailLimit { get; set; } = 60;
+
+        /// <summary>
         /// Audiences provisionadas no cadastro. O Mainstay precisa de agency-campaign E
         /// integration-platform: o blueprint do AgencyCampaign injeta a chave de API do
         /// IntegrationPlatform (ValueSource TenantApiKey, SourceAudience integration-platform),

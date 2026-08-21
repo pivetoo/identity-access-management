@@ -64,6 +64,22 @@ namespace IdentityManagement.Infrastructure.Services
 
             EnsureEnabled();
 
+            if (!string.IsNullOrWhiteSpace(request.Website))
+            {
+                // Descarte SILENCIOSO, com resposta de sucesso: dizer "recusado" ensina o robo a
+                // contornar na proxima tentativa. O nome do plano sai da configuracao, sem ida ao
+                // banco — robo nao merece consulta.
+                logger.LogInformation("Cadastro publico descartado pelo honeypot (origem {SourceIp}).", sourceIp);
+
+                return new SignupResponse
+                {
+                    Email = request.Email.Trim(),
+                    CompanyName = request.TradeName.Trim(),
+                    PlanName = request.Annual ? options.AnnualPlanName : options.MonthlyPlanName,
+                    VerificationExpiresAt = DateTimeOffset.UtcNow.AddHours(options.VerificationLinkHours)
+                };
+            }
+
             if (!request.AcceptedTerms)
             {
                 throw new BusinessRuleException("signup.termsNotAccepted");
@@ -85,12 +101,30 @@ namespace IdentityManagement.Infrastructure.Services
             Plan plan = await ResolvePlanAsync(request.Annual, cancellationToken);
             await ResolveSystemApplicationIdsAsync(cancellationToken);
 
-            string token = GenerateOpaqueToken();
+            string tradeName = request.TradeName.Trim();
             DateTimeOffset expiresAt = DateTimeOffset.UtcNow.AddHours(options.VerificationLinkHours);
+
+            SignupResponse resposta = new SignupResponse
+            {
+                Email = email,
+                CompanyName = tradeName,
+                PlanName = plan.Name,
+                VerificationExpiresAt = expiresAt
+            };
+
+            if (!await CanSendVerificationEmailAsync(email, cancellationToken))
+            {
+                // Resposta IDENTICA a do envio bem-sucedido, e de proposito: uma resposta diferente
+                // viraria oraculo para o atacante descobrir quais enderecos ja estao em jogo. Nao
+                // grava a linha pendente tampouco — sem e-mail entregue, o token nasceria inutil.
+                return resposta;
+            }
+
+            string token = GenerateOpaqueToken();
 
             PendingSignup pending = new PendingSignup(
                 request.LegalName.Trim(),
-                request.TradeName.Trim(),
+                tradeName,
                 document,
                 email,
                 request.PhoneNumber?.Trim(),
@@ -127,13 +161,64 @@ namespace IdentityManagement.Infrastructure.Services
                 document,
                 expiresAt);
 
-            return new SignupResponse
+            return resposta;
+        }
+
+        /// <summary>
+        /// Duas travas de ENVIO, conferidas juntas porque a resposta e a mesma nos dois casos.
+        ///
+        /// Elas nao protegem o disco (disso cuida o teto de provisionamento) e sim a reputacao do
+        /// dominio: o cadastro dispara e-mail para o endereco que o visitante digitar, e o limite
+        /// por IP nao segura bombardeio vindo de muitos IPs contra um unico destinatario.
+        /// </summary>
+        private async Task<bool> CanSendVerificationEmailAsync(string email, CancellationToken cancellationToken)
+        {
+            DateTimeOffset agora = DateTimeOffset.UtcNow;
+
+            int limitePorEndereco = options.MaxVerificationEmailsPerAddressPerDay;
+
+            if (limitePorEndereco > 0)
             {
-                Email = email,
-                CompanyName = pending.TradeName,
-                PlanName = plan.Name,
-                VerificationExpiresAt = expiresAt
-            };
+                DateTimeOffset umDiaAtras = agora.AddDays(-1);
+
+                int noEndereco = await dbContext.Set<PendingSignup>()
+                    .AsNoTracking()
+                    .CountAsync(item => item.Email == email && item.CreatedAt >= umDiaAtras, cancellationToken);
+
+                if (noEndereco >= limitePorEndereco)
+                {
+                    logger.LogWarning(
+                        "Signup: {Endereco} ja recebeu {Limite} confirmacoes em 24h; envio suprimido.",
+                        email,
+                        limitePorEndereco);
+
+                    return false;
+                }
+            }
+
+            int limiteGlobal = options.GlobalHourlyVerificationEmailLimit;
+
+            if (limiteGlobal > 0)
+            {
+                DateTimeOffset umaHoraAtras = agora.AddHours(-1);
+
+                int naUltimaHora = await dbContext.Set<PendingSignup>()
+                    .AsNoTracking()
+                    .CountAsync(item => item.CreatedAt >= umaHoraAtras, cancellationToken);
+
+                if (naUltimaHora >= limiteGlobal)
+                {
+                    // Nivel de erro: ou viralizou, ou tem ataque em curso. Os dois querem olho agora.
+                    logger.LogError(
+                        "Signup: teto global de e-mails de confirmacao atingido ({Atual} na ultima hora, limite {Limite}). Envios suprimidos ate a janela abrir.",
+                        naUltimaHora,
+                        limiteGlobal);
+
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public async Task<SignupConfirmResponse> ConfirmAsync(SignupConfirmRequest request, string setupBaseUrl, CancellationToken cancellationToken = default)
