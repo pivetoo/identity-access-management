@@ -188,6 +188,13 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new ConflictException("signup.confirm.inProgress");
             }
 
+            // Teto global, conferido DEPOIS da reserva de proposito: a reserva e atomica, entao
+            // contar reservas da ultima hora (incluindo a que acabou de ser feita) da um numero
+            // muito mais proximo do real do que conferir antes. Nao e exato sob concorrencia alta —
+            // duas confirmacoes simultaneas podem passar juntas — mas o excedente e da ordem de
+            // requisicoes em voo, nao do tamanho do pool de IPs do atacante, que e o ponto.
+            await EnsureGlobalCapacityAsync(pending.Id, cancellationToken);
+
             try
             {
                 // De novo, e nao so na etapa 1: entre o cadastro e o clique alguem pode ter tomado o
@@ -331,6 +338,39 @@ namespace IdentityManagement.Infrastructure.Services
                 TrialEndsAt = subscription?.TrialEndsAt,
                 SubscriptionActive = subscription is not null
             };
+        }
+
+        private async Task EnsureGlobalCapacityAsync(long pendingSignupId, CancellationToken cancellationToken)
+        {
+            int limite = options.GlobalHourlyProvisioningLimit;
+
+            if (limite <= 0)
+            {
+                return;
+            }
+
+            DateTimeOffset janela = DateTimeOffset.UtcNow.AddHours(-1);
+
+            int naUltimaHora = await dbContext.Set<PendingSignup>()
+                .AsNoTracking()
+                .CountAsync(item => item.ConsumedAt != null && item.ConsumedAt >= janela, cancellationToken);
+
+            if (naUltimaHora <= limite)
+            {
+                return;
+            }
+
+            // Devolve a reserva: o cadastro continua valido e a pessoa pode reabrir o link depois.
+            await ReleaseClaimAsync(pendingSignupId, cancellationToken);
+
+            // Nivel de erro de proposito: ou o produto viralizou, ou esta acontecendo um ataque.
+            // Os dois casos precisam de olho humano agora, nao no relatorio de amanha.
+            logger.LogError(
+                "Signup: teto global de provisionamento atingido ({NaUltimaHora} na ultima hora, limite {Limite}). Confirmacoes recusadas ate a janela abrir.",
+                naUltimaHora,
+                limite);
+
+            throw new BusinessRuleException("signup.confirm.capacityReached");
         }
 
         private void EnsureEnabled()

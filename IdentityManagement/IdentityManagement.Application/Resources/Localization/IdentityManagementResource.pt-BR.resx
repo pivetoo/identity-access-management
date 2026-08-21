@@ -891,6 +891,7 @@
   <data name="signup.confirmed" xml:space="preserve"><value>E-mail confirmado e ambiente criado com sucesso.</value></data>
   <data name="signup.confirm.invalidToken" xml:space="preserve"><value>Link de confirmacao invalido. Verifique se copiou o endereco completo do e-mail.</value></data>
   <data name="signup.confirm.expired" xml:space="preserve"><value>Este link de confirmacao expirou. Faca o cadastro novamente para receber um novo.</value></data>
+  <data name="signup.confirm.capacityReached" xml:space="preserve"><value>Estamos com um volume de cadastros acima do normal. Aguarde alguns minutos e abra o link do e-mail de novo — seu cadastro continua valendo.</value></data>
   <data name="signup.confirm.inProgress" xml:space="preserve"><value>Estamos criando sua conta. Aguarde alguns segundos e recarregue esta pagina.</value></data>
   <data name="signup.confirm.alreadySetUp" xml:space="preserve"><value>Sua conta ja esta configurada. Use a tela de acesso para entrar.</value></data>
   <data name="signup.verification.emailFailed" xml:space="preserve"><value>Nao foi possivel enviar o e-mail de confirmacao. Tente novamente em alguns minutos.</value></data>

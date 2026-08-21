@@ -406,6 +406,53 @@ namespace IdentityManagement.IntegrationTests.Services
             });
         }
 
+        [Test]
+        public async Task Confirm_is_refused_when_the_global_hourly_cap_is_reached()
+        {
+            // O teto existe porque rate limit e captcha so encarecem o ataque: com IPs e caixas de
+            // entrada suficientes o volume passa. Isto limita o ESTRAGO, nao o custo do atacante.
+            List<string> createdDatabases = new();
+
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                await SeedForOnboardingAsync(dbContext);
+
+                SignupOptions options = SingleAudienceOptions();
+                options.GlobalHourlyProvisioningLimit = 1;
+
+                SelfServiceSignupService subject = CreateSubject(sp, options);
+
+                SignupRequest primeiro = ValidRequest();
+                await subject.SignupAsync(primeiro, "https://auth.example", null);
+                string tokenPrimeiro = NoOpEmailSender.ExtractConfirmToken(NoOpEmailSender.LastConfirmLink);
+
+                SignupRequest segundo = ValidRequest();
+                segundo.Document = "22333444000181";
+                segundo.Email = "outra@signup.example";
+                segundo.TradeName = "Outra Agencia";
+                await subject.SignupAsync(segundo, "https://auth.example", null);
+                string tokenSegundo = NoOpEmailSender.ExtractConfirmToken(NoOpEmailSender.LastConfirmLink);
+
+                await subject.ConfirmAsync(new SignupConfirmRequest { Token = tokenPrimeiro }, "https://auth.example");
+
+                Func<Task> acimaDoTeto = () => subject.ConfirmAsync(new SignupConfirmRequest { Token = tokenSegundo }, "https://auth.example");
+                await acimaDoTeto.Should().ThrowAsync<BusinessRuleException>();
+
+                (await dbContext.Set<Company>().CountAsync()).Should().Be(1, "o teto tem de barrar o segundo provisionamento");
+
+                // Recusar por capacidade nao pode queimar o cadastro de quem estava na fila.
+                PendingSignup barrado = await dbContext.Set<PendingSignup>().AsNoTracking()
+                    .SingleAsync(item => item.Document == "22333444000181");
+                barrado.ConsumedAt.Should().BeNull("a reserva volta, para a pessoa reabrir o link depois");
+                barrado.CompanyId.Should().BeNull();
+
+                createdDatabases.AddRange(await dbContext.Set<TenantDatabase>().AsNoTracking().Select(item => item.ConnectionString).ToListAsync());
+            });
+
+            await DropCreatedDatabasesAsync(createdDatabases);
+        }
+
         private static async Task SeedForOnboardingAsync(DbContext dbContext)
         {
             SystemApplication agencyApp = new("AgencyCampaign", "Mainstay", "agency-campaign", ApplicationType.External);

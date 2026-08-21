@@ -625,6 +625,7 @@
   <data name="signup.confirmed" xml:space="preserve"><value>Correo confirmado y entorno creado con exito.</value></data>
   <data name="signup.confirm.invalidToken" xml:space="preserve"><value>Enlace de confirmacion invalido. Verifica que hayas copiado la direccion completa del correo.</value></data>
   <data name="signup.confirm.expired" xml:space="preserve"><value>Este enlace de confirmacion vencio. Registrate de nuevo para recibir uno nuevo.</value></data>
+  <data name="signup.confirm.capacityReached" xml:space="preserve"><value>Estamos recibiendo mas registros de lo normal. Espera unos minutos y abri de nuevo el enlace del correo — tu registro sigue vigente.</value></data>
   <data name="signup.confirm.inProgress" xml:space="preserve"><value>Estamos creando tu cuenta. Espera unos segundos y recarga esta pagina.</value></data>
   <data name="signup.confirm.alreadySetUp" xml:space="preserve"><value>Tu cuenta ya esta configurada. Usa la pantalla de acceso para entrar.</value></data>
   <data name="signup.verification.emailFailed" xml:space="preserve"><value>No pudimos enviar el correo de confirmacion. Intenta de nuevo en unos minutos.</value></data>
