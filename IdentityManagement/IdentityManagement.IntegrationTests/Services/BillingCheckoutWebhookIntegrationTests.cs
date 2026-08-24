@@ -41,10 +41,10 @@ namespace IdentityManagement.IntegrationTests.Services
                 return Task.CompletedTask;
             }
 
-            public Task<GatewaySubscriptionResult?> CreateSubscriptionAsync(long companyId, long planId, string? externalCustomerId, CancellationToken ct = default)
+            public Task<GatewaySubscriptionResult?> CreateSubscriptionAsync(long companyId, long planId, decimal priceAmount, string? externalCustomerId, CancellationToken ct = default)
                 => Task.FromResult<GatewaySubscriptionResult?>(new GatewaySubscriptionResult(PixSubscriptionId, CustomerId, "PIX"));
 
-            public Task<GatewayCheckoutResult> CreateRecurringCardCheckoutAsync(long companyId, long planId, CancellationToken ct = default)
+            public Task<GatewayCheckoutResult> CreateRecurringCardCheckoutAsync(long companyId, long planId, decimal priceAmount, CancellationToken ct = default)
                 => Task.FromResult(new GatewayCheckoutResult("chk_1", "https://provedor.example/checkout/chk_1", DateTimeOffset.UtcNow.AddHours(1)));
 
             public Task<IReadOnlyList<GatewaySubscriptionSummary>> ListActiveCardSubscriptionsAsync(string externalCustomerId, CancellationToken ct = default)
