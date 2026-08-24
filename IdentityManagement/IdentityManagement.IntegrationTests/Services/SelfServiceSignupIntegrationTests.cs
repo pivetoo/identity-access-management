@@ -179,7 +179,7 @@ namespace IdentityManagement.IntegrationTests.Services
             await InScopeAsync(async sp =>
             {
                 DbContext dbContext = sp.GetRequiredService<DbContext>();
-                dbContext.Set<Plan>().Add(new Plan("Completo Mensal", 497m, BillingPeriod.Monthly, "BRL", 14, null));
+                dbContext.Set<Plan>().Add(new Plan("Essencial Mensal", 497m, BillingPeriod.Monthly, "BRL", 14, null));
                 await dbContext.SaveChangesAsync();
 
                 SelfServiceSignupService subject = CreateSubject(sp, new SignupOptions
@@ -557,7 +557,7 @@ namespace IdentityManagement.IntegrationTests.Services
         {
             SystemApplication agencyApp = new("AgencyCampaign", "Mainstay", "agency-campaign", ApplicationType.External);
             dbContext.Set<SystemApplication>().Add(agencyApp);
-            dbContext.Set<Plan>().Add(new Plan("Completo Mensal", 497m, BillingPeriod.Monthly, "BRL", 14, null));
+            dbContext.Set<Plan>().Add(new Plan("Essencial Mensal", 497m, BillingPeriod.Monthly, "BRL", 14, null));
             await dbContext.SaveChangesAsync();
 
             dbContext.Set<SystemRoleTemplate>().Add(new SystemRoleTemplate(agencyApp.Id, "Administrador", "Papel raiz", true, true));
