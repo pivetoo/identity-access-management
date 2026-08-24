@@ -33,6 +33,13 @@ namespace IdentityManagement.Api.Controllers
 
         [RequireAccess]
         [GetEndpoint("{tenantId:guid}")]
+        public async Task<IActionResult> CompanyProfile(Guid tenantId, CancellationToken cancellationToken)
+        {
+            return Http200(await tenantBillingService.GetCompanyProfileAsync(tenantId, cancellationToken));
+        }
+
+        [RequireAccess]
+        [GetEndpoint("{tenantId:guid}")]
         public async Task<IActionResult> Subscription(Guid tenantId, CancellationToken cancellationToken)
         {
             TenantSubscriptionResponse response = await tenantBillingService.GetSubscriptionAsync(tenantId, cancellationToken);

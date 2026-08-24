@@ -15,6 +15,10 @@ namespace IdentityManagement.Application.Services
     {
         Task<TenantSubscriptionResponse> GetSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken = default);
 
+        // Perfil cadastral da empresa (sem depender de assinatura): o consumidor usa para pre-popular
+        // a configuracao da agencia no primeiro acesso do tenant.
+        Task<TenantCompanyProfileResponse> GetCompanyProfileAsync(Guid tenantId, CancellationToken cancellationToken = default);
+
         Task<TenantSubscriptionResponse> UpdateBillingAddressAsync(Guid tenantId, UpdateBillingAddressRequest request, CancellationToken cancellationToken = default);
 
         Task<TenantCheckoutResponse> StartCardCheckoutAsync(Guid tenantId, CancellationToken cancellationToken = default);

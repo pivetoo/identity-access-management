@@ -26,6 +26,34 @@ namespace IdentityManagement.Infrastructure.Services
             this.logger = logger;
         }
 
+        public async Task<TenantCompanyProfileResponse> GetCompanyProfileAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        {
+            Company? company = await dbContext.Set<Company>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.TenantId == tenantId, cancellationToken);
+
+            if (company is null)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            return new TenantCompanyProfileResponse
+            {
+                LegalName = company.LegalName,
+                TradeName = company.TradeName,
+                Document = company.Document,
+                Email = company.Email,
+                PhoneNumber = company.PhoneNumber,
+                BillingPostalCode = company.BillingPostalCode,
+                BillingStreet = company.BillingStreet,
+                BillingNumber = company.BillingNumber,
+                BillingComplement = company.BillingComplement,
+                BillingDistrict = company.BillingDistrict,
+                BillingCity = company.BillingCity,
+                BillingState = company.BillingState,
+            };
+        }
+
         public async Task<TenantSubscriptionResponse> GetSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken = default)
         {
             (Company company, Subscription subscription, Plan plan) = await LoadAsync(tenantId, cancellationToken);
