@@ -19,6 +19,30 @@ namespace IdentityManagement.Domain.Entities
 
         public bool IsActive { get; private set; } = true;
 
+        // Condicao de lancamento: preco reduzido para assinaturas criadas ate LaunchPriceUntil.
+        // Depois da data, vale PriceAmount (tabela). O preco CONTRATADO fica na Subscription.
+        public decimal? LaunchPriceAmount { get; private set; }
+
+        public DateTimeOffset? LaunchPriceUntil { get; private set; }
+
+        public decimal EffectivePriceAt(DateTimeOffset now)
+        {
+            return LaunchPriceAmount.HasValue && LaunchPriceUntil.HasValue && now <= LaunchPriceUntil.Value
+                ? LaunchPriceAmount.Value
+                : PriceAmount;
+        }
+
+        public void SetLaunchPrice(decimal? amount, DateTimeOffset? until)
+        {
+            if (amount.HasValue && (amount.Value < 0 || amount.Value > PriceAmount))
+            {
+                throw new ArgumentOutOfRangeException(nameof(amount));
+            }
+
+            LaunchPriceAmount = amount;
+            LaunchPriceUntil = amount.HasValue ? until : null;
+        }
+
         private Plan()
         {
         }

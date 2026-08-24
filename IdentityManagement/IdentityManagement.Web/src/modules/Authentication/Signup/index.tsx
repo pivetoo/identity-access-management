@@ -196,7 +196,7 @@ export default function Signup() {
               </div>
 
               <fieldset className="flex flex-col gap-2">
-                <legend className="text-sm font-medium text-foreground mb-1">Plano Completo</legend>
+                <legend className="text-sm font-medium text-foreground mb-1">Plano Essencial — condição de lançamento</legend>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
@@ -205,7 +205,7 @@ export default function Signup() {
                     className={`flex flex-col items-start rounded-md border px-4 py-3 text-left transition-colors ${!annual ? 'border-primary bg-primary/10' : 'border-border hover:bg-muted'}`}
                   >
                     <span className={`text-sm font-medium ${!annual ? 'text-primary' : 'text-foreground'}`}>Mensal</span>
-                    <span className="text-xs text-muted-foreground">R$ 497 por mês</span>
+                    <span className="text-xs text-muted-foreground">R$ 497 por mês <span className="line-through opacity-60">R$ 997</span></span>
                   </button>
                   <button
                     type="button"
@@ -214,11 +214,11 @@ export default function Signup() {
                     className={`flex flex-col items-start rounded-md border px-4 py-3 text-left transition-colors ${annual ? 'border-primary bg-primary/10' : 'border-border hover:bg-muted'}`}
                   >
                     <span className={`text-sm font-medium ${annual ? 'text-primary' : 'text-foreground'}`}>Anual</span>
-                    <span className="text-xs text-muted-foreground">R$ 4.970 por ano (2 meses grátis)</span>
+                    <span className="text-xs text-muted-foreground">R$ 4.970 por ano <span className="line-through opacity-60">R$ 9.970</span></span>
                   </button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Tudo incluído, sem limite de creators. A cobrança só começa depois dos 14 dias.
+                  Condição de lançamento para contas criadas até dez/2026 — preço garantido enquanto a assinatura estiver ativa. Tudo incluído; a cobrança só começa depois dos 14 dias.
                 </p>
               </fieldset>
 

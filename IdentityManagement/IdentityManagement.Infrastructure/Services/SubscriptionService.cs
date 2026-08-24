@@ -51,8 +51,24 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException("subscription.alreadyExists");
             }
 
+            // Preco contratado: tabela ou condicao de lancamento vigente. Fundador que CANCELOU e volta
+            // em ate 3 meses mantem o preco antigo no MESMO plano; acima de 3 meses, paga a tabela.
+            decimal priceAmount = plan.EffectivePriceAt(DateTimeOffset.UtcNow);
+            Subscription? lastCanceled = await DbContext.Set<Subscription>()
+                .AsNoTracking()
+                .Where(s => s.CompanyId == request.CompanyId && s.Status == SubscriptionStatus.Canceled && s.PlanId == request.PlanId && s.PriceAmount > 0)
+                .OrderByDescending(s => s.CanceledAt)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (lastCanceled?.CanceledAt is not null
+                && lastCanceled.CanceledAt.Value >= DateTimeOffset.UtcNow.AddMonths(-3)
+                && lastCanceled.PriceAmount < priceAmount)
+            {
+                priceAmount = lastCanceled.PriceAmount;
+            }
+
             string? externalCustomerId = await gateway.CreateCustomerAsync(request.CompanyId, cancellationToken);
-            GatewaySubscriptionResult? gatewayResult = await gateway.CreateSubscriptionAsync(request.CompanyId, request.PlanId, externalCustomerId, cancellationToken);
+            GatewaySubscriptionResult? gatewayResult = await gateway.CreateSubscriptionAsync(request.CompanyId, request.PlanId, priceAmount, externalCustomerId, cancellationToken);
 
             DateTimeOffset now = DateTimeOffset.UtcNow;
             Subscription subscription;
@@ -66,6 +82,8 @@ namespace IdentityManagement.Infrastructure.Services
                 DateTimeOffset periodEnd = ComputePeriodEnd(now, plan.BillingPeriod);
                 subscription = Subscription.StartActive(request.CompanyId, request.PlanId, now, periodEnd);
             }
+
+            subscription.SetPrice(priceAmount);
 
             if (gatewayResult is not null)
             {
@@ -117,6 +135,7 @@ namespace IdentityManagement.Infrastructure.Services
             }
 
             subscription.ChangePlan(request.PlanId);
+            subscription.SetPrice(newPlan.EffectivePriceAt(DateTimeOffset.UtcNow));
 
             Subscription? result = await Update(subscription, cancellationToken);
             if (result is null)

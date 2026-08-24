@@ -21,6 +21,9 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
                 .IsRequired()
                 .HasColumnType("numeric(14,2)");
 
+            builder.Property(entity => entity.LaunchPriceAmount)
+                .HasColumnType("numeric(14,2)");
+
             builder.Property(entity => entity.Currency)
                 .IsRequired()
                 .HasMaxLength(3);

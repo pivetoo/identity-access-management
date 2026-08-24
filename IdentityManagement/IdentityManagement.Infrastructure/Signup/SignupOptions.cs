@@ -11,9 +11,9 @@ namespace IdentityManagement.Infrastructure.Signup
         /// <summary>Chave geral. Desligado, o endpoint responde 404 — sem pista de que existe.</summary>
         public bool Enabled { get; set; }
 
-        public string MonthlyPlanName { get; set; } = "Completo Mensal";
+        public string MonthlyPlanName { get; set; } = "Essencial Mensal";
 
-        public string AnnualPlanName { get; set; } = "Completo Anual";
+        public string AnnualPlanName { get; set; } = "Essencial Anual";
 
         /// <summary>
         /// Validade do link de confirmacao de e-mail. Curto o bastante para a tabela de pendentes

@@ -21,6 +21,10 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.Status)
                 .IsRequired();
 
+            builder.Property(entity => entity.PriceAmount)
+                .IsRequired()
+                .HasColumnType("numeric(14,2)");
+
             builder.Property(entity => entity.StartedAt)
                 .IsRequired();
 

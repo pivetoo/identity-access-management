@@ -6,7 +6,7 @@ namespace IdentityManagement.Application.Services
 
         Task CancelSubscriptionAsync(string externalSubscriptionId, CancellationToken ct = default);
 
-        Task<GatewaySubscriptionResult?> CreateSubscriptionAsync(long companyId, long planId, string? externalCustomerId, CancellationToken ct = default);
+        Task<GatewaySubscriptionResult?> CreateSubscriptionAsync(long companyId, long planId, decimal priceAmount, string? externalCustomerId, CancellationToken ct = default);
 
         /// <summary>
         /// Abre um checkout hospedado de assinatura RECORRENTE no cartao.
@@ -14,7 +14,7 @@ namespace IdentityManagement.Application.Services
         /// Os dados de cartao nunca passam por aqui: o cliente e redirecionado para a pagina do
         /// provedor. Por isso a operacao devolve so uma URL — quem confirma o pagamento e o webhook.
         /// </summary>
-        Task<GatewayCheckoutResult> CreateRecurringCardCheckoutAsync(long companyId, long planId, CancellationToken ct = default);
+        Task<GatewayCheckoutResult> CreateRecurringCardCheckoutAsync(long companyId, long planId, decimal priceAmount, CancellationToken ct = default);
 
         /// <summary>
         /// Assinaturas ATIVAS de cartao do cliente no provedor. O evento de checkout pago nao traz o

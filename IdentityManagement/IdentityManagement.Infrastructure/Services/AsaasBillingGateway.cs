@@ -56,7 +56,7 @@ namespace IdentityManagement.Infrastructure.Services
             return resp.Data?.Id;
         }
 
-        public async Task<GatewaySubscriptionResult?> CreateSubscriptionAsync(long companyId, long planId, string? externalCustomerId, CancellationToken ct = default)
+        public async Task<GatewaySubscriptionResult?> CreateSubscriptionAsync(long companyId, long planId, decimal priceAmount, string? externalCustomerId, CancellationToken ct = default)
         {
             Plan? plan = await dbContext.Set<Plan>()
                 .AsNoTracking()
@@ -74,7 +74,7 @@ namespace IdentityManagement.Infrastructure.Services
             {
                 Customer = externalCustomerId,
                 BillingType = options.BillingType,
-                Value = plan.PriceAmount,
+                Value = priceAmount,
                 Cycle = cycle,
                 NextDueDate = nextDueDate,
                 Description = plan.Name
@@ -117,7 +117,7 @@ namespace IdentityManagement.Infrastructure.Services
             }
         }
 
-        public async Task<GatewayCheckoutResult> CreateRecurringCardCheckoutAsync(long companyId, long planId, CancellationToken ct = default)
+        public async Task<GatewayCheckoutResult> CreateRecurringCardCheckoutAsync(long companyId, long planId, decimal priceAmount, CancellationToken ct = default)
         {
             Company company = await dbContext.Set<Company>().AsNoTracking().FirstOrDefaultAsync(c => c.Id == companyId, ct)
                 ?? throw new InvalidOperationException("company.notFound");
@@ -170,7 +170,7 @@ namespace IdentityManagement.Infrastructure.Services
                     {
                         Name = $"Mainstay {plan.Name}",
                         Quantity = 1,
-                        Value = plan.PriceAmount
+                        Value = priceAmount
                     }
                 ],
                 Subscription = new AsaasCheckoutSubscription

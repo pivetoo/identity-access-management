@@ -30,6 +30,10 @@ namespace IdentityManagement.Domain.Entities
         // Forma de pagamento vigente no provedor: PIX (cobranca por ciclo, paga na mao) ou
         // CREDIT_CARD (debito automatico). Guardado aqui para a tela nao precisar perguntar ao
         // Asaas a cada carregamento.
+        // Preco CONTRATADO desta assinatura (pode ser o de lancamento). E o valor cobrado no gateway;
+        // o preco de tabela vigente fica no Plan.
+        public decimal PriceAmount { get; private set; }
+
         public string? PaymentMethod { get; private set; }
 
         public bool IsBlocked { get; private set; }
@@ -163,6 +167,16 @@ namespace IdentityManagement.Domain.Entities
             }
 
             PlanId = planId;
+        }
+
+        public void SetPrice(decimal priceAmount)
+        {
+            if (priceAmount < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(priceAmount));
+            }
+
+            PriceAmount = priceAmount;
         }
 
         public void SetPaymentMethod(string? paymentMethod)

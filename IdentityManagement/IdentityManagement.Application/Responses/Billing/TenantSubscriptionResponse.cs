@@ -10,6 +10,11 @@ namespace IdentityManagement.Application.Responses.Billing
 
         public decimal PriceAmount { get; set; }
 
+        // Preco de tabela do plano e se o contratado e condicao de lancamento (Fundador).
+        public decimal ListPriceAmount { get; set; }
+
+        public bool IsLaunchPrice { get; set; }
+
         public string Currency { get; set; } = "BRL";
 
         /// <summary>Monthly ou Yearly.</summary>

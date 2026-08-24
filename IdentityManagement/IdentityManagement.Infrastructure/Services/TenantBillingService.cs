@@ -163,7 +163,8 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new BusinessRuleException("billing.subscription.canceled");
             }
 
-            GatewayCheckoutResult checkout = await billingGateway.CreateRecurringCardCheckoutAsync(company.Id, plan.Id, cancellationToken);
+            decimal checkoutPrice = subscription.PriceAmount > 0 ? subscription.PriceAmount : plan.PriceAmount;
+            GatewayCheckoutResult checkout = await billingGateway.CreateRecurringCardCheckoutAsync(company.Id, plan.Id, checkoutPrice, cancellationToken);
 
             logger.LogInformation(
                 "Checkout de cartao aberto para a empresa {CompanyId} no plano {Plan} (checkout {CheckoutId}).",
@@ -195,6 +196,7 @@ namespace IdentityManagement.Infrastructure.Services
             GatewaySubscriptionResult? pix = await billingGateway.CreateSubscriptionAsync(
                 company.Id,
                 plan.Id,
+                subscription.PriceAmount > 0 ? subscription.PriceAmount : plan.PriceAmount,
                 subscription.ExternalCustomerId,
                 cancellationToken);
 
@@ -274,7 +276,9 @@ namespace IdentityManagement.Infrastructure.Services
             return new TenantSubscriptionResponse
             {
                 PlanName = plan.Name,
-                PriceAmount = plan.PriceAmount,
+                PriceAmount = subscription.PriceAmount > 0 ? subscription.PriceAmount : plan.PriceAmount,
+                ListPriceAmount = plan.PriceAmount,
+                IsLaunchPrice = subscription.PriceAmount > 0 && subscription.PriceAmount < plan.PriceAmount,
                 Currency = plan.Currency,
                 BillingPeriod = plan.BillingPeriod.ToString(),
                 Status = subscription.Status.ToString(),

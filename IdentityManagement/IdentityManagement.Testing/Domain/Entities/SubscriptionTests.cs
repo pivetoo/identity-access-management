@@ -7,6 +7,17 @@ namespace IdentityManagement.Testing.Domain.Entities
     public class SubscriptionTests
     {
         [Test]
+        public void SetPrice_stores_the_contracted_amount_and_rejects_negative()
+        {
+            Subscription subscription = Subscription.StartTrialing(1, 1, DateTimeOffset.UtcNow, 14);
+
+            subscription.SetPrice(497m);
+            Assert.That(subscription.PriceAmount, Is.EqualTo(497m));
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => subscription.SetPrice(-1m));
+        }
+
+        [Test]
         public void GrantsAccess_WhenActive_ReturnsTrue()
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
