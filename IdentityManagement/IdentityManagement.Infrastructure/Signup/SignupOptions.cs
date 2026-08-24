@@ -16,6 +16,17 @@ namespace IdentityManagement.Infrastructure.Signup
         public string AnnualPlanName { get; set; } = "Essencial Anual";
 
         /// <summary>
+        /// Plano da condicao de lancamento (Fundador): enquanto agora &lt;= LaunchUntil, o cadastro
+        /// publico contrata este plano no lugar do padrao. Se o plano nao existir, cai no padrao.
+        /// </summary>
+        public string LaunchMonthlyPlanName { get; set; } = "Fundador Mensal";
+
+        public string LaunchAnnualPlanName { get; set; } = "Fundador Anual";
+
+        // 31/12/2026 23:59:59 em Brasilia.
+        public DateTimeOffset? LaunchUntil { get; set; } = new DateTimeOffset(2027, 1, 1, 2, 59, 59, TimeSpan.Zero);
+
+        /// <summary>
         /// Validade do link de confirmacao de e-mail. Curto o bastante para a tabela de pendentes
         /// nao acumular, longo o bastante para quem so olha o e-mail no dia seguinte.
         /// </summary>

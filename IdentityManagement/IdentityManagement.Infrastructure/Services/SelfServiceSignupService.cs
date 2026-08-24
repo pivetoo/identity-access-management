@@ -515,6 +515,21 @@ namespace IdentityManagement.Infrastructure.Services
 
         private async Task<Plan> ResolvePlanAsync(bool annual, CancellationToken cancellationToken)
         {
+            // Dentro da janela de lancamento o cadastro contrata o plano Fundador; fora dela (ou se
+            // o plano Fundador nao existir), o plano padrao da tabela.
+            if (options.LaunchUntil.HasValue && DateTimeOffset.UtcNow <= options.LaunchUntil.Value)
+            {
+                string launchName = annual ? options.LaunchAnnualPlanName : options.LaunchMonthlyPlanName;
+                Plan? launch = await dbContext.Set<Plan>()
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(item => item.Name == launchName && item.IsActive, cancellationToken);
+
+                if (launch is not null)
+                {
+                    return launch;
+                }
+            }
+
             string planName = annual ? options.AnnualPlanName : options.MonthlyPlanName;
 
             Plan? plan = await dbContext.Set<Plan>()

@@ -52,11 +52,12 @@ namespace IdentityManagement.Infrastructure.Services
             }
 
             // Preco contratado: tabela ou condicao de lancamento vigente. Fundador que CANCELOU e volta
-            // em ate 3 meses mantem o preco antigo no MESMO plano; acima de 3 meses, paga a tabela.
+            // em ate 3 meses mantem o preco antigo (mesmo que agora assine o plano de tabela);
+            // acima de 3 meses, paga o preco normal.
             decimal priceAmount = plan.EffectivePriceAt(DateTimeOffset.UtcNow);
             Subscription? lastCanceled = await DbContext.Set<Subscription>()
                 .AsNoTracking()
-                .Where(s => s.CompanyId == request.CompanyId && s.Status == SubscriptionStatus.Canceled && s.PlanId == request.PlanId && s.PriceAmount > 0)
+                .Where(s => s.CompanyId == request.CompanyId && s.Status == SubscriptionStatus.Canceled && s.PriceAmount > 0)
                 .OrderByDescending(s => s.CanceledAt)
                 .FirstOrDefaultAsync(cancellationToken);
 

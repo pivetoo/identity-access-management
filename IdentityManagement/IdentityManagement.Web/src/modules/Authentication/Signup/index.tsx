@@ -196,7 +196,7 @@ export default function Signup() {
               </div>
 
               <fieldset className="flex flex-col gap-2">
-                <legend className="text-sm font-medium text-foreground mb-1">Plano Essencial — condição de lançamento</legend>
+                <legend className="text-sm font-medium text-foreground mb-1">Plano Fundador — condição de lançamento</legend>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
@@ -218,7 +218,7 @@ export default function Signup() {
                   </button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Condição de lançamento para contas criadas até dez/2026 — preço garantido enquanto a assinatura estiver ativa. Tudo incluído; a cobrança só começa depois dos 14 dias.
+                  Plano Fundador para contas criadas até dez/2026 — preço garantido enquanto a assinatura estiver ativa (tabela: Essencial R$ 997/mês). Tudo incluído; a cobrança só começa depois dos 14 dias.
                 </p>
               </fieldset>
 
