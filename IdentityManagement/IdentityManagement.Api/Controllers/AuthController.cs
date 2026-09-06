@@ -37,6 +37,22 @@ namespace IdentityManagement.Api.Controllers
             return Http200(response);
         }
 
+        // Sem [RequireAccess]: o endpoint e de autoatendimento e qualquer usuario autenticado pode usar a
+        // propria sessao para entrar em outra aplicacao (SSO). A permissao por contrato continua sendo
+        // validada no complete-authorize.
+        [Authorize]
+        [PostEndpoint]
+        public async Task<IActionResult> IdentifySession([FromBody] IdentifySessionRequest request, CancellationToken cancellationToken)
+        {
+            if (CurrentUserId is null)
+            {
+                return Http401();
+            }
+
+            var response = await authService.IdentifyUserBySession(CurrentUserId.Value, request.AuthorizeUrl, cancellationToken);
+            return Http200(response);
+        }
+
         [RequireAccess]
         [Authorize]
         [PostEndpoint("{sessionId}")]

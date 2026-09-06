@@ -9,6 +9,8 @@ namespace IdentityManagement.Application.Services
     {
         Task<ContractSelectionResponse> IdentifyUser(IdentifyUserRequest request, CancellationToken cancellationToken = default);
 
+        Task<ContractSelectionResponse> IdentifyUserBySession(long userId, string? authorizeUrl, CancellationToken cancellationToken = default);
+
         Task<bool> ChangePassword(ChangePasswordRequest request, CancellationToken cancellationToken = default);
 
         Task<UserResponse?> GetUserByUsername(string username, CancellationToken cancellationToken = default);

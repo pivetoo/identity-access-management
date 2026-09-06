@@ -42,7 +42,25 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new UnauthorizedAccessException(Localizer["auth.invalidCredentials"]);
             }
 
-            long? requestedSystemApplicationId = await GetRequestedSystemApplicationId(request.AuthorizeUrl, cancellationToken);
+            return await BuildContractSelection(user, request.AuthorizeUrl, cancellationToken);
+        }
+
+        // SSO: quem ja tem sessao valida no IdentityManagement nao precisa provar a senha de novo para
+        // entrar em outra aplicacao; o token ja identifica o usuario. O restante do fluxo e o mesmo.
+        public async Task<ContractSelectionResponse> IdentifyUserBySession(long userId, string? authorizeUrl, CancellationToken cancellationToken = default)
+        {
+            User? user = await userService.GetById(userId, cancellationToken);
+            if (user is null || !user.IsActive)
+            {
+                throw new UnauthorizedAccessException(Localizer["auth.session.userInactive"]);
+            }
+
+            return await BuildContractSelection(user, authorizeUrl, cancellationToken);
+        }
+
+        private async Task<ContractSelectionResponse> BuildContractSelection(User user, string? authorizeUrl, CancellationToken cancellationToken)
+        {
+            long? requestedSystemApplicationId = await GetRequestedSystemApplicationId(authorizeUrl, cancellationToken);
             IReadOnlyCollection<ContractSelectionResponseItem> availableContracts = await contractService.GetActiveContractSelectionsByUserId(user.Id, requestedSystemApplicationId, cancellationToken);
             if (availableContracts.Count == 0)
             {
@@ -51,9 +69,9 @@ namespace IdentityManagement.Infrastructure.Services
 
             await RevokeActivePendingAuthorizationSessions(user.Id, cancellationToken);
 
-            string? authorizeRequestHash = string.IsNullOrWhiteSpace(request.AuthorizeUrl)
+            string? authorizeRequestHash = string.IsNullOrWhiteSpace(authorizeUrl)
                 ? null
-                : ComputeAuthorizeRequestHash(request.AuthorizeUrl);
+                : ComputeAuthorizeRequestHash(authorizeUrl);
 
             PendingAuthorizationSession authorizationSession = new(user.Id, GenerateOpaqueToken(), authorizeRequestHash);
             dbContext.Set<PendingAuthorizationSession>().Add(authorizationSession);

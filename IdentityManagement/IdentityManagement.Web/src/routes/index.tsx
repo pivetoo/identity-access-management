@@ -25,6 +25,7 @@ import SetupAdmin from '../modules/Authentication/SetupAdmin';
 import Signup from '../modules/Authentication/Signup';
 import SignupConfirm from '../modules/Authentication/SignupConfirm';
 import Login from '../modules/Authentication/Login';
+import { getOidcAuthorizeUrl } from '../utils/oidcReturnUrl';
 
 const identityManagementUrl = (import.meta.env.VITE_IDENTITY_MANAGEMENT_URL || import.meta.env.VITE_API_BASE_URL?.replace(/\/api\/?$/, '') || '').replace(/\/+$/, '');
 const oidcClientId = import.meta.env.VITE_OIDC_CLIENT_ID || 'identity-management-web';
@@ -41,8 +42,11 @@ function LoginEntry() {
   }, []);
 
   const hasAuthorizationSessionToken = hashParams.has('authorizationSessionToken');
+  // Com returnUrl de authorize, a sessao do admin nao manda para /management: o Login usa essa sessao
+  // para completar o authorize da outra aplicacao (SSO) em vez de descartar o pedido.
+  const hasAuthorizeReturnUrl = useMemo(() => !!getOidcAuthorizeUrl(), []);
   const hasValidAccessToken = !!accessToken && !AuthService.isTokenExpiringSoon(accessToken, 0);
-  const shouldShowLogin = !hasAuthorizationSessionToken && (!isAuthenticated || !accessToken || !hasValidAccessToken);
+  const shouldShowLogin = !hasAuthorizationSessionToken && (hasAuthorizeReturnUrl || !isAuthenticated || !accessToken || !hasValidAccessToken);
 
   if (!hasAuthorizationSessionToken && accessToken && !hasValidAccessToken) {
     AuthService.logout();
@@ -54,10 +58,10 @@ function LoginEntry() {
       return;
     }
 
-    if (isAuthenticated && hasValidAccessToken) {
+    if (isAuthenticated && hasValidAccessToken && !hasAuthorizeReturnUrl) {
       navigate('/management', { replace: true });
     }
-  }, [hasAuthorizationSessionToken, hasValidAccessToken, isAuthenticated, navigate]);
+  }, [hasAuthorizationSessionToken, hasAuthorizeReturnUrl, hasValidAccessToken, isAuthenticated, navigate]);
 
   if (shouldShowLogin) {
     return <Login />;

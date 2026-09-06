@@ -70,6 +70,17 @@ Este fluxo acontece quando o usuário acessa diretamente a tela de login do Iden
 
 Esse desenho evita que o PKCE seja criado no domínio errado. O `code_verifier` precisa existir no storage da aplicação que receberá o callback.
 
+### 3. Login com sessão existente do Identity Management (SSO)
+
+Acontece quando o usuário já está autenticado na SPA do Identity Management e abre outra aplicação em nova aba.
+
+1. A aplicação redireciona para `/connect/authorize` e o Identity Management devolve `/login?returnUrl=...`, como no fluxo 1.
+2. A tela de login detecta o `returnUrl` de authorize e uma sessão válida no `localStorage`, e chama `POST /api/auth/IdentifySession` com o token atual, em vez de mostrar o formulário.
+3. O backend valida o usuário do token, cria a `PendingAuthorizationSession` e devolve os contratos do sistema solicitante, igual ao `Identify`, só que sem senha.
+4. Com um contrato, o `complete-authorize` é chamado direto e o usuário chega à aplicação sem ver tela nenhuma. Com vários, a central de sistemas pede a empresa.
+
+Sem sessão válida, o fluxo cai no formulário de senha normalmente. As sessões de cada aplicação continuam independentes: sair de uma não encerra as outras.
+
 ## Arquitetura
 
 O backend segue uma organização em camadas:

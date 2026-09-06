@@ -79,6 +79,7 @@
   <data name="systemRoleTemplate.accessResource.invalid" xml:space="preserve"><value>One or more access resources are invalid for this system application.</value></data>
   <data name="auth.invalidCredentials" xml:space="preserve"><value>Invalid credentials.</value></data>
   <data name="auth.user.noActiveContracts" xml:space="preserve"><value>User does not have active contracts.</value></data>
+  <data name="auth.session.userInactive" xml:space="preserve"><value>Invalid session. Please sign in again.</value></data>
   <data name="auth.temporaryToken.invalidOrExpired" xml:space="preserve"><value>Temporary token is invalid or expired.</value></data>
   <data name="auth.user.noAccessToContract" xml:space="preserve"><value>User does not have access to this contract.</value></data>
   <data name="auth.contract.invalid" xml:space="preserve"><value>Contract is invalid.</value></data>

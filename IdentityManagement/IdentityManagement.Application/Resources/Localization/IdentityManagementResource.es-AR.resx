@@ -71,6 +71,7 @@
   <data name="systemRoleTemplate.accessResource.invalid" xml:space="preserve"><value>Uno o más recursos de acceso son inválidos para esta aplicación.</value></data>
   <data name="auth.invalidCredentials" xml:space="preserve"><value>Credenciales inválidas.</value></data>
   <data name="auth.user.noActiveContracts" xml:space="preserve"><value>El usuario no tiene contratos activos.</value></data>
+  <data name="auth.session.userInactive" xml:space="preserve"><value>Sesión inválida. Inicia sesión nuevamente.</value></data>
   <data name="auth.temporaryToken.invalidOrExpired" xml:space="preserve"><value>El token temporal es inválido o expiró.</value></data>
   <data name="auth.user.noAccessToContract" xml:space="preserve"><value>El usuario no tiene acceso a este contrato.</value></data>
   <data name="auth.contract.invalid" xml:space="preserve"><value>El contrato es inválido.</value></data>

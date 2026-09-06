@@ -1,40 +1,13 @@
-import { useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Card, CardContent, GlobalLoader, Input, AuthService, useI18n } from 'archon-ui';
+import { Button, Card, CardContent, GlobalLoader, Input, AuthService, useAuth, useI18n } from 'archon-ui';
 import { User, Lock } from 'lucide-react';
 import type { IdentifyResult, ContractType } from 'archon-ui';
 import SystemCenter from '../SystemCenter';
 import logoEmpresa from '../../../assets/Mainstay/logo-login.png';
 import { OidcService } from '../../../services/oidcService';
 import { generatePkce } from '../../../utils/pkce';
-
-const getOidcAuthorizeUrl = () => {
-  if (typeof window === 'undefined') {
-    return undefined;
-  }
-
-  const rawReturnUrl = new URLSearchParams(window.location.search).get('returnUrl');
-  if (!rawReturnUrl) {
-    return undefined;
-  }
-
-  try {
-    const identityManagementUrl = import.meta.env.VITE_IDENTITY_MANAGEMENT_URL;
-    if (!identityManagementUrl) {
-      return undefined;
-    }
-
-    const parsedUrl = new URL(rawReturnUrl);
-    const identityUrl = new URL(identityManagementUrl);
-    if (parsedUrl.origin !== identityUrl.origin || parsedUrl.pathname !== '/connect/authorize') {
-      return undefined;
-    }
-
-    return parsedUrl.toString();
-  } catch {
-    return undefined;
-  }
-};
+import { getOidcAuthorizeUrl } from '../../../utils/oidcReturnUrl';
 
 export default function Login() {
   const { t } = useI18n()
@@ -173,6 +146,23 @@ export default function Login() {
   const [showContractSelection, setShowContractSelection] = useState(false);
   const [contractData, setContractData] = useState<IdentifyResult | null>(null);
 
+  const { isAuthenticated, accessToken } = useAuth();
+  const canUseCurrentSession = !!oidcAuthorizeUrl && isAuthenticated && !!accessToken && !AuthService.isTokenExpiringSoon(accessToken, 0);
+  const [sessionLoginFailed, setSessionLoginFailed] = useState(false);
+  const sessionLoginAttempted = useRef(false);
+
+  // SSO: com sessao valida do IdentityManagement e um authorize pendente de outra aplicacao,
+  // identifica pelo token em vez de pedir a senha de novo. Qualquer falha cai no formulario.
+  useEffect(() => {
+    if (!canUseCurrentSession || sessionLoginAttempted.current) return;
+    sessionLoginAttempted.current = true;
+
+    AuthService.identifyWithSession(oidcAuthorizeUrl)
+      .then((data) => (data ? handleIdentifyResult(data) : Promise.reject(new Error('empty identify result'))))
+      .catch(() => setSessionLoginFailed(true));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canUseCurrentSession]);
+
   const validateForm = (): boolean => {
     setEmailError('');
     setPasswordError('');
@@ -224,8 +214,8 @@ export default function Login() {
 
       setPassword('');
       await handleIdentifyResult(data);
-    } catch (error: any) {
-      setPasswordError(error.message);
+    } catch (error) {
+      setPasswordError(error instanceof Error ? error.message : String(error));
     } finally {
       setLoading(false);
     }
@@ -267,6 +257,10 @@ export default function Login() {
         </p>
       </div>
     );
+  }
+
+  if (canUseCurrentSession && !sessionLoginFailed) {
+    return <GlobalLoader isVisible={true} className="bg-background" />;
   }
 
   return (

@@ -211,6 +211,7 @@
     <value>Credenciais inválidas.</value>
   </data>
   <data name="auth.user.noActiveContracts" xml:space="preserve">
+  <data name="auth.session.userInactive" xml:space="preserve"><value>Sessão inválida. Faça login novamente.</value></data>
     <value>O usuário não possui contratos ativos.</value>
   </data>
   <data name="auth.temporaryToken.invalidOrExpired" xml:space="preserve">
