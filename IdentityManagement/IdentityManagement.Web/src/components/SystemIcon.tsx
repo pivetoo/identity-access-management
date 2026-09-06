@@ -54,12 +54,17 @@ export function HelpDeskIcon(props: IconProps) {
 }
 
 // Chave e o audience do SystemApplication, que e estavel; o nome de exibicao muda.
+// A comparacao ignora caixa e separadores, entao "help-desk", "helpdesk" e "HelpDesk" sao o mesmo.
 const systemIconByAudience: Record<string, ComponentType<IconProps>> = {
-  'agency-campaign': MainstayIcon,
-  'identity-management': IdentityManagementIcon,
-  'integration-platform': IntegrationPlatformIcon,
-  'help-desk': HelpDeskIcon
+  agencycampaign: MainstayIcon,
+  identitymanagement: IdentityManagementIcon,
+  integrationplatform: IntegrationPlatformIcon,
+  helpdesk: HelpDeskIcon
 };
+
+function normalizeAudience(audience: string) {
+  return audience.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
 
 function getInitials(name: string) {
   const words = name.trim().split(/\s+/).filter(Boolean);
@@ -75,7 +80,7 @@ interface SystemIconProps {
 }
 
 export default function SystemIcon({ audience, name, className }: SystemIconProps) {
-  const Icon = audience ? systemIconByAudience[audience] : undefined;
+  const Icon = audience ? systemIconByAudience[normalizeAudience(audience)] : undefined;
 
   if (Icon) {
     return <Icon className={className} />;
