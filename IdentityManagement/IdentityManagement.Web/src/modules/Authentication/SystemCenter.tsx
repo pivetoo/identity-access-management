@@ -79,7 +79,7 @@ export default function SystemCenter({
         <img
           src={logoEmpresa}
           alt={t('authentication.login.companyLogoAlt')}
-          className="h-20 object-contain dark:brightness-0 dark:invert"
+          className="h-20 object-contain"
         />
         <h1 className="mt-6 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
           {t('authentication.systemCenter.title')}
@@ -128,40 +128,38 @@ export default function SystemCenter({
           className={`grid justify-center gap-4 grid-cols-[repeat(auto-fit,minmax(min(100%,280px),320px))] transition-opacity ${loading ? 'opacity-60' : ''}`}
         >
           {filteredContracts.map((contract) => (
-            <li
-              key={contract.contractId}
-              data-testid="system-center-contract"
-              className="group relative flex items-center gap-3 rounded-xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-background"
-            >
-              <span
-                aria-hidden="true"
-                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-sm font-bold tracking-wider ${avatarClassBySystem.get(contract.systemApplicationName)}`}
-              >
-                {getInitials(contract.systemApplicationName)}
-              </span>
-
-              <div className="min-w-0 flex-1">
-                <h3 className="line-clamp-2 text-base font-semibold leading-tight text-foreground">
-                  {contract.systemApplicationName}
-                </h3>
-                <p className="mt-1 line-clamp-2 text-sm leading-snug text-muted-foreground">
-                  {contract.companyName}
-                </p>
-                {contract.roleName && (
-                  <span className="mt-2 inline-block rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                    {contract.roleName}
-                  </span>
-                )}
-              </div>
-
+            <li key={contract.contractId} data-testid="system-center-contract" className="flex">
               <button
                 type="button"
                 onClick={() => onSelectContract(contract)}
                 disabled={loading}
-                aria-label={`${t('common.action.access')} ${contract.systemApplicationName} - ${contract.companyName}`}
-                className="shrink-0 text-muted-foreground/60 transition-all after:absolute after:inset-0 after:rounded-xl focus-visible:outline-none group-hover:translate-x-1 group-hover:text-primary disabled:pointer-events-none"
+                className="group flex w-full items-center gap-3 rounded-xl border border-border bg-card p-5 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none"
               >
-                <ArrowRight className="h-5 w-5" aria-hidden="true" />
+                <span
+                  aria-hidden="true"
+                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-sm font-bold tracking-wider ${avatarClassBySystem.get(contract.systemApplicationName)}`}
+                >
+                  {getInitials(contract.systemApplicationName)}
+                </span>
+
+                <span className="min-w-0 flex-1">
+                  <span className="line-clamp-2 text-base font-semibold leading-tight text-foreground">
+                    {contract.systemApplicationName}
+                  </span>
+                  <span className="mt-1 line-clamp-2 text-sm leading-snug text-muted-foreground">
+                    {contract.companyName}
+                  </span>
+                  {contract.roleName && (
+                    <span className="mt-2 inline-block rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                      {contract.roleName}
+                    </span>
+                  )}
+                </span>
+
+                <ArrowRight
+                  className="h-5 w-5 shrink-0 text-muted-foreground/60 transition-all group-hover:translate-x-1 group-hover:text-primary"
+                  aria-hidden="true"
+                />
               </button>
             </li>
           ))}
