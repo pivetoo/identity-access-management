@@ -2,8 +2,8 @@ import type { ComponentType, SVGProps } from 'react';
 
 type IconProps = SVGProps<SVGSVGElement>;
 
-// O traco principal usa currentColor (azul-marinho no tema claro, branco no escuro, definido pelo
-// quadrado do card); so o acento ciano e fixo.
+// O traco principal usa currentColor, definido pelo quadrado do card (branco sobre azul-marinho no
+// tema claro, azul-marinho sobre branco no escuro); so o acento ciano e fixo.
 const ACCENT = 'hsl(186 100% 39%)';
 
 const svgProps = { viewBox: '0 0 24 24', fill: 'none', 'aria-hidden': true } as const;
