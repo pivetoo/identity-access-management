@@ -81,6 +81,8 @@ Acontece quando o usuário já está autenticado na SPA do Identity Management e
 
 Sem sessão válida, o fluxo cai no formulário de senha normalmente. As sessões de cada aplicação continuam independentes: sair de uma não encerra as outras.
 
+Depois de um logout explícito, o `archon-ui` marca o próximo redirecionamento com `prompt=login` (parâmetro padrão do OIDC). Com ele, a tela de login ignora a sessão existente e exige a senha, para que sair de uma aplicação não a reautentique sozinha.
+
 ## Arquitetura
 
 O backend segue uma organização em camadas:

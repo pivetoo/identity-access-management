@@ -147,7 +147,13 @@ export default function Login() {
   const [contractData, setContractData] = useState<IdentifyResult | null>(null);
 
   const { isAuthenticated, accessToken } = useAuth();
-  const canUseCurrentSession = !!oidcAuthorizeUrl && isAuthenticated && !!accessToken && !AuthService.isTokenExpiringSoon(accessToken, 0);
+  // prompt=login (OIDC) chega depois de um logout explicito na aplicacao de origem: a senha e obrigatoria.
+  const forcesLogin = useMemo(() => {
+    if (!oidcAuthorizeUrl) return false;
+    const prompt = new URL(oidcAuthorizeUrl).searchParams.get('prompt') ?? '';
+    return prompt.split(/\s+/).includes('login');
+  }, [oidcAuthorizeUrl]);
+  const canUseCurrentSession = !!oidcAuthorizeUrl && !forcesLogin && isAuthenticated && !!accessToken && !AuthService.isTokenExpiringSoon(accessToken, 0);
   const [sessionLoginFailed, setSessionLoginFailed] = useState(false);
   const sessionLoginAttempted = useRef(false);
 
