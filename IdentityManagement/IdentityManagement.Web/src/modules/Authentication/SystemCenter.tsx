@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { ArrowRight, Search } from 'lucide-react';
 import { Input, useI18n } from 'archon-ui';
 import type { ContractType } from 'archon-ui';
+import SystemIcon from '../../components/SystemIcon';
 import logoEmpresa from '../../assets/Mainstay/logo-login.png';
 
 interface SystemCenterProps {
@@ -15,24 +16,6 @@ interface SystemCenterProps {
 
 // Abaixo disso a busca so atrapalha: a maioria dos usuarios tem ate tres contratos.
 const SEARCH_THRESHOLD = 6;
-
-// Cada sistema recebe uma cor pela ordem em que aparece na lista, garantindo cores distintas
-// entre os sistemas de um mesmo usuario (ate esgotar a paleta).
-const avatarPalette = [
-  'bg-primary text-primary-foreground',
-  'bg-secondary text-secondary-foreground',
-  'bg-info text-info-foreground',
-  'bg-success text-success-foreground',
-  'bg-warning text-warning-foreground',
-  'bg-violet-600 text-white'
-];
-
-function getInitials(name: string) {
-  const words = name.trim().split(/\s+/).filter(Boolean);
-  if (words.length === 0) return '?';
-  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
-  return `${words[0][0]}${words[1][0]}`.toUpperCase();
-}
 
 export default function SystemCenter({
   userName,
@@ -49,16 +32,6 @@ export default function SystemCenter({
     () => (Array.isArray(contracts) ? [...contracts].sort((left, right) => left.contractId - right.contractId) : []),
     [contracts]
   );
-
-  const avatarClassBySystem = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const contract of orderedContracts) {
-      if (!map.has(contract.systemApplicationName)) {
-        map.set(contract.systemApplicationName, avatarPalette[map.size % avatarPalette.length]);
-      }
-    }
-    return map;
-  }, [orderedContracts]);
 
   const filteredContracts = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -137,9 +110,9 @@ export default function SystemCenter({
               >
                 <span
                   aria-hidden="true"
-                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-sm font-bold tracking-wider ${avatarClassBySystem.get(contract.systemApplicationName)}`}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-white text-[hsl(214_52%_25%)] dark:border-transparent"
                 >
-                  {getInitials(contract.systemApplicationName)}
+                  <SystemIcon audience={contract.audience} name={contract.systemApplicationName} className="h-7 w-7" />
                 </span>
 
                 <span className="min-w-0 flex-1">
