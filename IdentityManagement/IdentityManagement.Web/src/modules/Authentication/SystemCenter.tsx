@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
-import { Briefcase, ArrowLeft, Search } from 'lucide-react';
-import { Button, Card, CardContent, Input, useI18n } from 'archon-ui';
+import { useMemo, useState } from 'react';
+import { ArrowRight, Search } from 'lucide-react';
+import { Input, useI18n } from 'archon-ui';
 import type { ContractType } from 'archon-ui';
 import logoEmpresa from '../../assets/Mainstay/logo-login.png';
 
@@ -13,127 +13,160 @@ interface SystemCenterProps {
   loading?: boolean;
 }
 
+// Abaixo disso a busca so atrapalha: a maioria dos usuarios tem ate tres contratos.
+const SEARCH_THRESHOLD = 6;
+
+// Cada sistema recebe uma cor pela ordem em que aparece na lista, garantindo cores distintas
+// entre os sistemas de um mesmo usuario (ate esgotar a paleta).
+const avatarPalette = [
+  'bg-primary text-primary-foreground',
+  'bg-secondary text-secondary-foreground',
+  'bg-info text-info-foreground',
+  'bg-success text-success-foreground',
+  'bg-warning text-warning-foreground',
+  'bg-violet-600 text-white'
+];
+
+function getInitials(name: string) {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return '?';
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return `${words[0][0]}${words[1][0]}`.toUpperCase();
+}
+
 export default function SystemCenter({
   userName,
+  userEmail,
   contracts,
   onSelectContract,
   onBack,
   loading = false
 }: SystemCenterProps) {
-  const { t } = useI18n()
+  const { t } = useI18n();
   const [searchTerm, setSearchTerm] = useState('');
 
+  const orderedContracts = useMemo(
+    () => (Array.isArray(contracts) ? [...contracts].sort((left, right) => left.contractId - right.contractId) : []),
+    [contracts]
+  );
+
+  const avatarClassBySystem = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const contract of orderedContracts) {
+      if (!map.has(contract.systemApplicationName)) {
+        map.set(contract.systemApplicationName, avatarPalette[map.size % avatarPalette.length]);
+      }
+    }
+    return map;
+  }, [orderedContracts]);
+
   const filteredContracts = useMemo(() => {
-    if (!contracts || !Array.isArray(contracts)) return [];
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return orderedContracts;
 
-    const orderedContracts = [...contracts].sort((left, right) => left.contractId - right.contractId);
-    if (!searchTerm.trim()) return orderedContracts;
-
-    return orderedContracts.filter(contract =>
-      contract.systemApplicationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contract.companyName.toLowerCase().includes(searchTerm.toLowerCase())
+    return orderedContracts.filter(
+      (contract) =>
+        contract.systemApplicationName.toLowerCase().includes(term) ||
+        contract.companyName.toLowerCase().includes(term)
     );
-  }, [contracts, searchTerm]);
+  }, [orderedContracts, searchTerm]);
+
+  const showSearch = orderedContracts.length > SEARCH_THRESHOLD;
 
   return (
-    <>
-      <div className="w-full max-w-[1000px]">
-        <Card className="border-0 shadow-md">
-        <CardContent className="pt-6">
-          <div className="mb-8 flex flex-col items-stretch">
-            <div className="flex justify-start mb-6">
-              <Button
-                variant="outline"
-                size="sm"
-                icon={<ArrowLeft />}
-                onClick={onBack}
-                disabled={loading}
+    <div className="flex w-full max-w-5xl flex-col gap-8">
+      <header className="flex flex-col items-center text-center">
+        <img
+          src={logoEmpresa}
+          alt={t('authentication.login.companyLogoAlt')}
+          className="h-20 object-contain dark:brightness-0 dark:invert"
+        />
+        <h1 className="mt-6 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          {t('authentication.systemCenter.title')}
+        </h1>
+        <p className="mt-3 text-base leading-relaxed text-muted-foreground">
+          <span className="font-medium text-foreground">
+            {t('authentication.systemCenter.greeting').replace('{0}', userName)}
+          </span>
+          <br />
+          {t('authentication.systemCenter.subtitle')}
+        </p>
+        <p className="mt-3 flex flex-col items-center gap-x-2 gap-y-1 text-sm text-muted-foreground sm:flex-row">
+          {userEmail && <span>{userEmail}</span>}
+          {userEmail && <span aria-hidden="true" className="hidden sm:inline">&middot;</span>}
+          <button
+            type="button"
+            onClick={onBack}
+            disabled={loading}
+            className="font-medium text-primary underline-offset-4 transition-colors hover:underline disabled:pointer-events-none disabled:opacity-50"
+          >
+            {t('authentication.systemCenter.switchAccount')}
+          </button>
+        </p>
+      </header>
+
+      {showSearch && (
+        <div className="relative mx-auto w-full max-w-sm">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder={t('authentication.systemCenter.searchPlaceholder')}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="bg-card pl-10"
+          />
+        </div>
+      )}
+
+      {filteredContracts.length === 0 ? (
+        <p className="py-12 text-center text-base text-muted-foreground">
+          {searchTerm.trim() ? t('authentication.systemCenter.emptyFiltered') : t('authentication.systemCenter.empty')}
+        </p>
+      ) : (
+        <ul
+          aria-busy={loading}
+          className={`grid justify-center gap-4 grid-cols-[repeat(auto-fit,minmax(min(100%,280px),320px))] transition-opacity ${loading ? 'opacity-60' : ''}`}
+        >
+          {filteredContracts.map((contract) => (
+            <li
+              key={contract.contractId}
+              data-testid="system-center-contract"
+              className="group relative flex items-center gap-3 rounded-xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-background"
+            >
+              <span
+                aria-hidden="true"
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-sm font-bold tracking-wider ${avatarClassBySystem.get(contract.systemApplicationName)}`}
               >
-                {t('common.action.back')}
-              </Button>
-            </div>
+                {getInitials(contract.systemApplicationName)}
+              </span>
 
-            <div className="flex flex-col items-center text-center w-full">
-              <h1 className="text-2xl font-bold text-foreground mb-4">
-                {t('authentication.systemCenter.title')}
-              </h1>
-              <p className="text-base text-muted-foreground leading-relaxed">
-                {t('authentication.systemCenter.greeting').replace('{0}', userName)}<br />
-                {t('authentication.systemCenter.subtitle')}
-              </p>
-            </div>
-          </div>
+              <div className="min-w-0 flex-1">
+                <h3 className="line-clamp-2 text-base font-semibold leading-tight text-foreground">
+                  {contract.systemApplicationName}
+                </h3>
+                <p className="mt-1 line-clamp-2 text-sm leading-snug text-muted-foreground">
+                  {contract.companyName}
+                </p>
+                {contract.roleName && (
+                  <span className="mt-2 inline-block rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                    {contract.roleName}
+                  </span>
+                )}
+              </div>
 
-          <div className="mb-6 max-w-[280px]">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-60" />
-              <Input
-                type="text"
-                placeholder={t('authentication.systemCenter.searchPlaceholder')}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-white"
-              />
-            </div>
-          </div>
-
-          {filteredContracts.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground text-base">
-              {searchTerm.trim() ? t('authentication.systemCenter.emptyFiltered') : t('authentication.systemCenter.empty')}
-            </div>
-          ) : (
-            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-thin">
-              {filteredContracts.map((contract) => (
-                <div
-                  key={contract.contractId}
-                  className="border border-border rounded-lg p-6 flex flex-col gap-6 transition-all duration-200 bg-card min-w-[300px] flex-shrink-0 hover:border-secondary hover:shadow-[0_4px_12px_rgba(97,121,183,0.13)] hover:translate-y-0.5"
-                >
-                  <div className="flex items-start gap-4 flex-1">
-                    <Briefcase className="h-6 w-6 text-secondary flex-shrink-0" />
-                    <div>
-                      <h3 className="text-lg font-semibold text-foreground mb-1 leading-tight">
-                        {contract.companyName}
-                      </h3>
-                      <p className="text-base text-secondary font-medium mb-1">
-                        {contract.systemApplicationName}
-                      </p>
-                      {contract.roleName && (
-                        <p className="text-sm text-muted-foreground">
-                          {contract.roleName}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={() => onSelectContract(contract)}
-                    disabled={loading}
-                    className="w-full"
-                  >
-                    {t('common.action.access')}
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              <button
+                type="button"
+                onClick={() => onSelectContract(contract)}
+                disabled={loading}
+                aria-label={`${t('common.action.access')} ${contract.systemApplicationName} - ${contract.companyName}`}
+                className="shrink-0 text-muted-foreground/60 transition-all after:absolute after:inset-0 after:rounded-xl focus-visible:outline-none group-hover:translate-x-1 group-hover:text-primary disabled:pointer-events-none"
+              >
+                <ArrowRight className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
-
-    <a
-      href="https://mainstay.com.br/"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="fixed bottom-8 left-8 hidden md:block"
-    >
-      <img
-        src={logoEmpresa}
-        alt={t('authentication.login.companyLogoAlt')}
-                  className="h-16 opacity-80 hover:opacity-100 transition-opacity cursor-pointer object-contain"
-      />
-    </a>
-  </>
   );
 }

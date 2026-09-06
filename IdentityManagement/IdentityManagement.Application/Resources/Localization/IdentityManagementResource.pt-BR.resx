@@ -493,6 +493,7 @@
   <data name="authentication.systemCenter.searchPlaceholder" xml:space="preserve"><value>Buscar sistemas...</value></data>
   <data name="authentication.systemCenter.emptyFiltered" xml:space="preserve"><value>Nenhum sistema encontrado com esse termo.</value></data>
   <data name="authentication.systemCenter.empty" xml:space="preserve"><value>Nenhum sistema disponível.</value></data>
+  <data name="authentication.systemCenter.switchAccount" xml:space="preserve"><value>Não é você? Voltar ao login</value></data>
   <data name="dashboard.title" xml:space="preserve"><value>Dashboard</value></data>
   <data name="dashboard.subtitle" xml:space="preserve"><value>Sistema de gerenciamento de identidade e acesso com autenticação, autorização e suporte a aplicações multi-tenant.</value></data>
   <data name="dashboard.kpi.activeUsers" xml:space="preserve"><value>Usuários Ativos</value></data>

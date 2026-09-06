@@ -227,6 +227,7 @@
   <data name="authentication.systemCenter.searchPlaceholder" xml:space="preserve"><value>Buscar sistemas...</value></data>
   <data name="authentication.systemCenter.emptyFiltered" xml:space="preserve"><value>No se encontró ningún sistema con ese término.</value></data>
   <data name="authentication.systemCenter.empty" xml:space="preserve"><value>No hay sistemas disponibles.</value></data>
+  <data name="authentication.systemCenter.switchAccount" xml:space="preserve"><value>¿No eres tú? Volver al inicio de sesión</value></data>
   <data name="dashboard.title" xml:space="preserve"><value>Dashboard</value></data>
   <data name="dashboard.subtitle" xml:space="preserve"><value>Sistema de gestión de identidad y acceso con autenticación, autorización y soporte para aplicaciones multi-tenant.</value></data>
   <data name="dashboard.kpi.activeUsers" xml:space="preserve"><value>Usuarios Activos</value></data>

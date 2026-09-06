@@ -235,6 +235,7 @@
   <data name="authentication.systemCenter.searchPlaceholder" xml:space="preserve"><value>Search systems...</value></data>
   <data name="authentication.systemCenter.emptyFiltered" xml:space="preserve"><value>No system found for this term.</value></data>
   <data name="authentication.systemCenter.empty" xml:space="preserve"><value>No systems available.</value></data>
+  <data name="authentication.systemCenter.switchAccount" xml:space="preserve"><value>Not you? Back to login</value></data>
   <data name="dashboard.title" xml:space="preserve"><value>Dashboard</value></data>
   <data name="dashboard.subtitle" xml:space="preserve"><value>Identity and access management system with authentication, authorization, and support for multi-tenant applications.</value></data>
   <data name="dashboard.kpi.activeUsers" xml:space="preserve"><value>Active Users</value></data>
