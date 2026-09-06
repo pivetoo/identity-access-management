@@ -79,7 +79,7 @@ export default function SystemCenter({
         <img
           src={logoEmpresa}
           alt={t('authentication.login.companyLogoAlt')}
-          className="h-20 object-contain"
+          className="h-20 object-contain dark:brightness-0 dark:invert"
         />
         <h1 className="mt-6 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
           {t('authentication.systemCenter.title')}
