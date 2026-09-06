@@ -59,7 +59,8 @@ const systemIconByAudience: Record<string, ComponentType<IconProps>> = {
   agencycampaign: MainstayIcon,
   identitymanagement: IdentityManagementIcon,
   integrationplatform: IntegrationPlatformIcon,
-  helpdesk: HelpDeskIcon
+  helpdesk: HelpDeskIcon,
+  mainstayhelpdesk: HelpDeskIcon
 };
 
 function normalizeAudience(audience: string) {
