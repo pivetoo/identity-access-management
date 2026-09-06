@@ -110,7 +110,7 @@ export default function SystemCenter({
               >
                 <span
                   aria-hidden="true"
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-white text-[hsl(214_52%_25%)] dark:border-transparent"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-white text-[hsl(214_52%_25%)] dark:border-white/10 dark:bg-white/10 dark:text-white"
                 >
                   <SystemIcon audience={contract.audience} name={contract.systemApplicationName} className="h-7 w-7" />
                 </span>

@@ -2,7 +2,8 @@ import type { ComponentType, SVGProps } from 'react';
 
 type IconProps = SVGProps<SVGSVGElement>;
 
-// O quadrado do card e sempre branco, entao as cores da marca sao fixas e nao seguem o tema.
+// O traco principal usa currentColor (azul-marinho no tema claro, branco no escuro, definido pelo
+// quadrado do card); so o acento ciano e fixo.
 const ACCENT = 'hsl(186 100% 39%)';
 
 const svgProps = { viewBox: '0 0 24 24', fill: 'none', 'aria-hidden': true } as const;
