@@ -4,6 +4,7 @@ using IdentityManagement.Application.Requests.Companies;
 using IdentityManagement.Application.Responses.Companies;
 using IdentityManagement.Application.Services;
 using IdentityManagement.Domain.Entities;
+using IdentityManagement.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 
@@ -80,7 +81,21 @@ namespace IdentityManagement.Infrastructure.Services
                     TenantId = company.TenantId,
                     IsActive = company.IsActive,
                     CreatedAt = company.CreatedAt,
-                    UpdatedAt = company.UpdatedAt
+                    UpdatedAt = company.UpdatedAt,
+                    Attribution = company.UtmSource == null && company.UtmMedium == null && company.UtmCampaign == null && company.Gclid == null && company.Fbclid == null && company.Referrer == null && company.LandingPage == null
+                        ? null
+                        : new SignupAttributionResponse
+                        {
+                            Source = company.UtmSource,
+                            Medium = company.UtmMedium,
+                            Campaign = company.UtmCampaign,
+                            Content = company.UtmContent,
+                            Term = company.UtmTerm,
+                            Gclid = company.Gclid,
+                            Fbclid = company.Fbclid,
+                            LandingPage = company.LandingPage,
+                            Referrer = company.Referrer
+                        }
                 })
                 .ToListAsync(cancellationToken);
 
@@ -125,7 +140,31 @@ namespace IdentityManagement.Infrastructure.Services
                 TenantId = company.TenantId,
                 IsActive = company.IsActive,
                 CreatedAt = company.CreatedAt,
-                UpdatedAt = company.UpdatedAt
+                UpdatedAt = company.UpdatedAt,
+                Attribution = ToAttributionResponse(company)
+            };
+        }
+
+        private static SignupAttributionResponse? ToAttributionResponse(Company company)
+        {
+            SignupAttribution? attribution = company.GetSignupAttribution();
+
+            if (attribution is null)
+            {
+                return null;
+            }
+
+            return new SignupAttributionResponse
+            {
+                Source = attribution.Source,
+                Medium = attribution.Medium,
+                Campaign = attribution.Campaign,
+                Content = attribution.Content,
+                Term = attribution.Term,
+                Gclid = attribution.Gclid,
+                Fbclid = attribution.Fbclid,
+                LandingPage = attribution.LandingPage,
+                Referrer = attribution.Referrer
             };
         }
     }

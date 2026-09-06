@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using IdentityManagement.Application.Requests.Signup;
 
 namespace IdentityManagement.Application.Requests.Clients
 {
@@ -13,6 +14,8 @@ namespace IdentityManagement.Application.Requests.Clients
         // (Trialing se o plano tem TrialDays > 0; senao Active) apos provisionar o tenant.
         public long? PlanId { get; set; }
         [Required][MinLength(1)] public List<OnboardClientSystemItem> Systems { get; set; } = new();
+        // Origem do cadastro publico. O onboarding feito pelo admin deixa nulo.
+        public SignupAttributionRequest? Attribution { get; set; }
     }
 
     public sealed class OnboardClientSystemItem

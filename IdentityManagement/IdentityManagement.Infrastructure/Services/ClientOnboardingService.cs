@@ -58,6 +58,13 @@ namespace IdentityManagement.Infrastructure.Services
             Dictionary<string, string> apiKeyByAudience = new();
 
             Company company = new Company(request.LegalName, request.TradeName, request.Document, request.Email, request.PhoneNumber ?? string.Empty);
+
+            if (request.Attribution is not null)
+            {
+                company.SetSignupAttribution(SignupAttribution.Normalize(
+                    request.Attribution.Source, request.Attribution.Medium, request.Attribution.Campaign, request.Attribution.Content, request.Attribution.Term,
+                    request.Attribution.Gclid, request.Attribution.Fbclid, request.Attribution.LandingPage, request.Attribution.Referrer));
+            }
             string setupLink = string.Empty;
             string setupToken = string.Empty;
 

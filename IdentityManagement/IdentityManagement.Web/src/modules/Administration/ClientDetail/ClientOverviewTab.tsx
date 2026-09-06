@@ -78,6 +78,29 @@ export default function ClientOverviewTab({ company, onEdit }: ClientOverviewTab
           </dl>
         </CardContent>
       </Card>
+      {company.attribution && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('clientDetail.overview.attributionTitle')}</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              {t('clientDetail.overview.attributionDescription')}
+            </p>
+          </CardHeader>
+          <CardContent>
+            <dl className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+              {company.attribution.source && <Field label={t('company.attribution.source')} value={company.attribution.source} />}
+              {company.attribution.medium && <Field label={t('company.attribution.medium')} value={company.attribution.medium} />}
+              {company.attribution.campaign && <Field label={t('company.attribution.campaign')} value={company.attribution.campaign} />}
+              {company.attribution.content && <Field label={t('company.attribution.content')} value={company.attribution.content} />}
+              {company.attribution.term && <Field label={t('company.attribution.term')} value={company.attribution.term} />}
+              {company.attribution.gclid && <Field label={t('company.attribution.gclid')} value={company.attribution.gclid} mono />}
+              {company.attribution.fbclid && <Field label={t('company.attribution.fbclid')} value={company.attribution.fbclid} mono />}
+              {company.attribution.landingPage && <Field label={t('company.attribution.landingPage')} value={company.attribution.landingPage} mono />}
+              {company.attribution.referrer && <Field label={t('company.attribution.referrer')} value={company.attribution.referrer} mono />}
+            </dl>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

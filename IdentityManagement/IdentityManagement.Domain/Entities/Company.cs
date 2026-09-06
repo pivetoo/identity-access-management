@@ -38,6 +38,27 @@ namespace IdentityManagement.Domain.Entities
 
         public string? BillingState { get; private set; }
 
+        // Origem do cadastro publico que criou a empresa. Nulo para empresas cadastradas pelo admin.
+        // Ver SignupAttribution.
+
+        public string? UtmSource { get; private set; }
+
+        public string? UtmMedium { get; private set; }
+
+        public string? UtmCampaign { get; private set; }
+
+        public string? UtmContent { get; private set; }
+
+        public string? UtmTerm { get; private set; }
+
+        public string? Gclid { get; private set; }
+
+        public string? Fbclid { get; private set; }
+
+        public string? LandingPage { get; private set; }
+
+        public string? Referrer { get; private set; }
+
         public IReadOnlyCollection<Contract> Contracts => contracts.AsReadOnly();
 
         private Company()
@@ -68,6 +89,32 @@ namespace IdentityManagement.Domain.Entities
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(phoneNumber);
             PhoneNumber = phoneNumber.Trim();
+        }
+
+        public void SetSignupAttribution(SignupAttribution attribution)
+        {
+            ArgumentNullException.ThrowIfNull(attribution);
+
+            if (attribution.IsEmpty)
+            {
+                return;
+            }
+
+            UtmSource = attribution.Source;
+            UtmMedium = attribution.Medium;
+            UtmCampaign = attribution.Campaign;
+            UtmContent = attribution.Content;
+            UtmTerm = attribution.Term;
+            Gclid = attribution.Gclid;
+            Fbclid = attribution.Fbclid;
+            LandingPage = attribution.LandingPage;
+            Referrer = attribution.Referrer;
+        }
+
+        public SignupAttribution? GetSignupAttribution()
+        {
+            SignupAttribution attribution = new SignupAttribution(UtmSource, UtmMedium, UtmCampaign, UtmContent, UtmTerm, Gclid, Fbclid, LandingPage, Referrer);
+            return attribution.IsEmpty ? null : attribution;
         }
 
         public void SetBillingAddress(BillingAddress address)

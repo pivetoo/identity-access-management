@@ -10,6 +10,66 @@ export interface SignupPayload {
   acceptedTerms: boolean;
   /** Isca do honeypot. Sempre vazio para gente; robo preenche e o backend descarta em silencio. */
   website?: string;
+  /** Origem do cadastro (utm_*, gclid, fbclid, pagina de entrada, referrer). Opcional. */
+  attribution?: SignupAttributionPayload;
+}
+
+export interface SignupAttributionPayload {
+  source?: string;
+  medium?: string;
+  campaign?: string;
+  content?: string;
+  term?: string;
+  gclid?: string;
+  fbclid?: string;
+  landingPage?: string;
+  referrer?: string;
+}
+
+const ATTRIBUTION_KEY = 'mainstay.signup.attribution';
+
+/**
+ * Le a origem do cadastro da URL (a landing repassa utm_*, gclid, fbclid, ms_landing e ms_ref) e a
+ * guarda em sessionStorage, para sobreviver a navegacao entre login e cadastro na mesma aba.
+ * Sem nada na URL nem guardado, devolve undefined e o backend grava nulo.
+ */
+export function captureAttribution(): SignupAttributionPayload | undefined {
+  const params = new URLSearchParams(window.location.search);
+  const pick = (name: string) => params.get(name)?.trim().slice(0, 500) || undefined;
+  const fromUrl: SignupAttributionPayload = {
+    source: pick('utm_source'),
+    medium: pick('utm_medium'),
+    campaign: pick('utm_campaign'),
+    content: pick('utm_content'),
+    term: pick('utm_term'),
+    gclid: pick('gclid'),
+    fbclid: pick('fbclid'),
+    landingPage: pick('ms_landing'),
+    referrer: pick('ms_ref'),
+  };
+
+  const hasUrlData = Object.values(fromUrl).some(Boolean);
+
+  try {
+    if (hasUrlData) {
+      sessionStorage.setItem(ATTRIBUTION_KEY, JSON.stringify(fromUrl));
+      return fromUrl;
+    }
+    const stored = sessionStorage.getItem(ATTRIBUTION_KEY);
+    if (stored) {
+      return JSON.parse(stored) as SignupAttributionPayload;
+    }
+  } catch {
+    // sem storage: usa so o que veio na URL
+  }
+
+  if (hasUrlData) {
+    return fromUrl;
+  }
+
+  // Sem campanha: ao menos o referrer externo, quando o navegador informa.
+  const referrer = document.referrer && !document.referrer.includes('mainstay.com.br') ? document.referrer.slice(0, 500) : undefined;
+  return referrer ? { referrer } : undefined;
 }
 
 /** Etapa 1. Nada foi provisionado ainda: so existe um cadastro pendente e um e-mail a caminho. */

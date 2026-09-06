@@ -21,5 +21,7 @@ namespace IdentityManagement.Application.Responses.Companies
         public DateTimeOffset? CreatedAt { get; set; }
 
         public DateTimeOffset? UpdatedAt { get; set; }
+
+        public SignupAttributionResponse? Attribution { get; set; }
     }
 }

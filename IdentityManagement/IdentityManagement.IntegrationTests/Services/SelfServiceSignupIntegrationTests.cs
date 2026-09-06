@@ -553,6 +553,55 @@ namespace IdentityManagement.IntegrationTests.Services
             });
         }
 
+        [Test]
+        public async Task Confirm_copies_the_signup_attribution_to_the_company()
+        {
+            // A origem (utm_*, gclid, fbclid) nasce no cadastro pendente e precisa chegar a empresa,
+            // senao a pergunta "qual anuncio trouxe esta agencia" fica sem resposta depois da confirmacao.
+            List<string> createdDatabases = new();
+
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                await SeedForOnboardingAsync(dbContext);
+
+                SelfServiceSignupService subject = CreateSubject(sp, SingleAudienceOptions());
+
+                SignupRequest request = ValidRequest();
+                request.Attribution = new SignupAttributionRequest
+                {
+                    Source = " meta ",
+                    Medium = "cpc",
+                    Campaign = "lancamento-fundador",
+                    Fbclid = "IwAR0abc",
+                    LandingPage = "https://mainstay.com.br/?utm_source=meta",
+                    Referrer = "https://l.facebook.com/"
+                };
+
+                await subject.SignupAsync(request, "https://auth.example", null);
+
+                PendingSignup pending = await dbContext.Set<PendingSignup>().AsNoTracking().SingleAsync();
+                pending.UtmSource.Should().Be("meta", "a normalizacao apara espacos");
+                pending.Fbclid.Should().Be("IwAR0abc");
+                pending.UtmTerm.Should().BeNull();
+
+                string token = NoOpEmailSender.ExtractConfirmToken(NoOpEmailSender.LastConfirmLink);
+                await subject.ConfirmAsync(new SignupConfirmRequest { Token = token }, "https://auth.example");
+
+                Company company = await dbContext.Set<Company>().AsNoTracking().SingleAsync();
+                company.UtmSource.Should().Be("meta");
+                company.UtmMedium.Should().Be("cpc");
+                company.UtmCampaign.Should().Be("lancamento-fundador");
+                company.Fbclid.Should().Be("IwAR0abc");
+                company.LandingPage.Should().Be("https://mainstay.com.br/?utm_source=meta");
+                company.Referrer.Should().Be("https://l.facebook.com/");
+
+                createdDatabases.AddRange(await dbContext.Set<TenantDatabase>().AsNoTracking().Select(item => item.ConnectionString).ToListAsync());
+            });
+
+            await DropCreatedDatabasesAsync(createdDatabases);
+        }
+
         private static async Task SeedForOnboardingAsync(DbContext dbContext)
         {
             SystemApplication agencyApp = new("AgencyCampaign", "Mainstay", "agency-campaign", ApplicationType.External);

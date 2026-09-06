@@ -506,6 +506,17 @@
   <data name="clientDetail.overview.contactDescription" xml:space="preserve"><value>Canales de soporte y facturación</value></data>
   <data name="clientDetail.overview.tenantTitle" xml:space="preserve"><value>Identidad técnica</value></data>
   <data name="clientDetail.overview.tenantDescription" xml:space="preserve"><value>Identificador del tenant utilizado en las integraciones</value></data>
+  <data name="clientDetail.overview.attributionTitle" xml:space="preserve"><value>Origen del registro</value></data>
+  <data name="clientDetail.overview.attributionDescription" xml:space="preserve"><value>Campaña y canal que trajeron a la agencia, capturados en el registro público</value></data>
+  <data name="company.attribution.source" xml:space="preserve"><value>Origen (utm_source)</value></data>
+  <data name="company.attribution.medium" xml:space="preserve"><value>Medio (utm_medium)</value></data>
+  <data name="company.attribution.campaign" xml:space="preserve"><value>Campaña (utm_campaign)</value></data>
+  <data name="company.attribution.content" xml:space="preserve"><value>Contenido (utm_content)</value></data>
+  <data name="company.attribution.term" xml:space="preserve"><value>Término (utm_term)</value></data>
+  <data name="company.attribution.gclid" xml:space="preserve"><value>Clic de Google (gclid)</value></data>
+  <data name="company.attribution.fbclid" xml:space="preserve"><value>Clic de Meta (fbclid)</value></data>
+  <data name="company.attribution.landingPage" xml:space="preserve"><value>Página de entrada</value></data>
+  <data name="company.attribution.referrer" xml:space="preserve"><value>Referrer</value></data>
   <data name="clientDetail.contracts.heading" xml:space="preserve"><value>Sistemas contratados por la empresa</value></data>
   <data name="clientDetail.contracts.subheading" xml:space="preserve"><value>{0} contratos vinculados</value></data>
   <data name="clientDetail.contracts.addContract" xml:space="preserve"><value>Agregar contrato</value></data>

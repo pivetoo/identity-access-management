@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Building2, CheckCircle2, MailCheck } from 'lucide-react';
 import { Button, Card, CardContent, Input, useToast } from 'archon-ui';
-import { signupService, formatDocument, formatPhone, isValidDocument, isValidPhone, normalizeDocument, type SignupResult } from '../../../services/signupService';
+import { signupService, captureAttribution, formatDocument, formatPhone, isValidDocument, isValidPhone, normalizeDocument, type SignupResult } from '../../../services/signupService';
+import { trackEvent } from '../../../services/analytics';
 import logoEmpresa from '../../../assets/logo-empresa.png';
 
 /**
@@ -27,6 +28,13 @@ export default function Signup() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SignupResult | null>(null);
   const [website, setWebsite] = useState('');
+
+  // Capturada uma vez, na abertura: a URL perde os parametros conforme a pessoa navega.
+  const attribution = useMemo(() => captureAttribution(), []);
+
+  useEffect(() => {
+    trackEvent('cadastro-iniciado', { origem: attribution?.source ?? 'direto' });
+  }, [attribution]);
 
   const documentTouched = normalizeDocument(document).length >= 14;
   const documentInvalid = documentTouched && !isValidDocument(document);
@@ -59,8 +67,10 @@ export default function Signup() {
         annual,
         acceptedTerms,
         website,
+        attribution,
       });
       setResult(created);
+      trackEvent('cadastro-enviado', { origem: attribution?.source ?? 'direto', periodo: annual ? 'anual' : 'mensal' });
     } catch (failure: unknown) {
       const message = failure instanceof Error ? failure.message : 'Não foi possível concluir o cadastro.';
       toast({ variant: 'destructive', title: 'Não foi possível concluir', description: message });

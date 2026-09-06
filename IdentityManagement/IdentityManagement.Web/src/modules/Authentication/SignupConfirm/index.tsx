@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Loader2, TriangleAlert } from 'lucide-react';
 import { Button, Card, CardContent } from 'archon-ui';
 import { signupService } from '../../../services/signupService';
+import { trackEvent } from '../../../services/analytics';
 import logoEmpresa from '../../../assets/logo-empresa.png';
 
 /**
@@ -48,6 +49,7 @@ export default function SignupConfirm() {
 
     signupService.confirm(token)
       .then((resultado) => {
+        trackEvent('cadastro-confirmado', { plano: resultado.planName });
         navigate(`/setup-admin?token=${encodeURIComponent(resultado.setupToken)}`, { replace: true });
       })
       .catch((error) => {

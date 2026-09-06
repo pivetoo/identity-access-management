@@ -136,7 +136,8 @@ namespace IdentityManagement.Infrastructure.Services
                 request.Annual,
                 token,
                 expiresAt,
-                sourceIp);
+                sourceIp,
+                ToAttribution(request.Attribution));
 
             await dbContext.Set<PendingSignup>().AddAsync(pending, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
@@ -226,6 +227,41 @@ namespace IdentityManagement.Infrastructure.Services
             return true;
         }
 
+        private static SignupAttribution? ToAttribution(SignupAttributionRequest? request)
+        {
+            if (request is null)
+            {
+                return null;
+            }
+
+            SignupAttribution attribution = SignupAttribution.Normalize(
+                request.Source, request.Medium, request.Campaign, request.Content, request.Term,
+                request.Gclid, request.Fbclid, request.LandingPage, request.Referrer);
+
+            return attribution.IsEmpty ? null : attribution;
+        }
+
+        private static SignupAttributionRequest? ToAttributionRequest(SignupAttribution? attribution)
+        {
+            if (attribution is null)
+            {
+                return null;
+            }
+
+            return new SignupAttributionRequest
+            {
+                Source = attribution.Source,
+                Medium = attribution.Medium,
+                Campaign = attribution.Campaign,
+                Content = attribution.Content,
+                Term = attribution.Term,
+                Gclid = attribution.Gclid,
+                Fbclid = attribution.Fbclid,
+                LandingPage = attribution.LandingPage,
+                Referrer = attribution.Referrer
+            };
+        }
+
         public async Task<SignupConfirmResponse> ConfirmAsync(SignupConfirmRequest request, string setupBaseUrl, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(request);
@@ -302,6 +338,7 @@ namespace IdentityManagement.Infrastructure.Services
                     Email = pending.Email,
                     PhoneNumber = pending.PhoneNumber,
                     PlanId = plan.Id,
+                    Attribution = ToAttributionRequest(pending.GetAttribution()),
                     Systems = systemApplicationIds
                         .Select(id => new OnboardClientSystemItem { SystemApplicationId = id, StartDate = DateTimeOffset.UtcNow })
                         .ToList()

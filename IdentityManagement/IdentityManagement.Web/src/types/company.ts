@@ -9,6 +9,21 @@ export interface Company {
   isActive: boolean
   createdAt?: string
   updatedAt?: string
+  attribution?: SignupAttribution | null
+}
+
+// Origem do cadastro publico (utm_*, gclid, fbclid, pagina de entrada, referrer). Nulo para
+// empresas cadastradas pelo admin.
+export interface SignupAttribution {
+  source?: string | null
+  medium?: string | null
+  campaign?: string | null
+  content?: string | null
+  term?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  referrer?: string | null
 }
 
 export interface CreateCompanyRequest {

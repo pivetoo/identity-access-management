@@ -1,5 +1,6 @@
 using Archon.Core.Entities;
 using IdentityManagement.Domain.Security;
+using IdentityManagement.Domain.ValueObjects;
 
 namespace IdentityManagement.Domain.Entities
 {
@@ -49,6 +50,27 @@ namespace IdentityManagement.Domain.Entities
 
         public string? SourceIp { get; private set; }
 
+        // Origem do cadastro (utm_*, gclid, fbclid, pagina de entrada, referrer). Copiada para a
+        // empresa na confirmacao. Ver SignupAttribution.
+
+        public string? UtmSource { get; private set; }
+
+        public string? UtmMedium { get; private set; }
+
+        public string? UtmCampaign { get; private set; }
+
+        public string? UtmContent { get; private set; }
+
+        public string? UtmTerm { get; private set; }
+
+        public string? Gclid { get; private set; }
+
+        public string? Fbclid { get; private set; }
+
+        public string? LandingPage { get; private set; }
+
+        public string? Referrer { get; private set; }
+
         private PendingSignup() { }
 
         public PendingSignup(
@@ -60,7 +82,8 @@ namespace IdentityManagement.Domain.Entities
             bool annual,
             string token,
             DateTimeOffset expiresAt,
-            string? sourceIp)
+            string? sourceIp,
+            SignupAttribution? attribution = null)
         {
             LegalName = legalName;
             TradeName = tradeName;
@@ -71,6 +94,31 @@ namespace IdentityManagement.Domain.Entities
             Token = TokenHasher.Hash(token);
             ExpiresAt = expiresAt;
             SourceIp = sourceIp;
+            ApplyAttribution(attribution);
+        }
+
+        public SignupAttribution? GetAttribution()
+        {
+            SignupAttribution attribution = new SignupAttribution(UtmSource, UtmMedium, UtmCampaign, UtmContent, UtmTerm, Gclid, Fbclid, LandingPage, Referrer);
+            return attribution.IsEmpty ? null : attribution;
+        }
+
+        private void ApplyAttribution(SignupAttribution? attribution)
+        {
+            if (attribution is null || attribution.IsEmpty)
+            {
+                return;
+            }
+
+            UtmSource = attribution.Source;
+            UtmMedium = attribution.Medium;
+            UtmCampaign = attribution.Campaign;
+            UtmContent = attribution.Content;
+            UtmTerm = attribution.Term;
+            Gclid = attribution.Gclid;
+            Fbclid = attribution.Fbclid;
+            LandingPage = attribution.LandingPage;
+            Referrer = attribution.Referrer;
         }
 
         public bool IsValid() => ConsumedAt is null && DateTimeOffset.UtcNow < ExpiresAt;

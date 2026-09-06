@@ -39,5 +39,8 @@ namespace IdentityManagement.Application.Requests.Signup
         /// </summary>
         [StringLength(200)]
         public string? Website { get; set; }
+
+        /// <summary>Origem do cadastro (utm_*, gclid, fbclid, pagina de entrada, referrer). Opcional.</summary>
+        public SignupAttributionRequest? Attribution { get; set; }
     }
 }

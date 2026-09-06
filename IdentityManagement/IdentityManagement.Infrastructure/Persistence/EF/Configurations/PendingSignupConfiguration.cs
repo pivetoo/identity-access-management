@@ -17,6 +17,15 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.PhoneNumber).HasMaxLength(20);
             builder.Property(entity => entity.Token).IsRequired().HasMaxLength(64);
             builder.Property(entity => entity.SourceIp).HasMaxLength(64);
+            builder.Property(entity => entity.UtmSource).HasMaxLength(200);
+            builder.Property(entity => entity.UtmMedium).HasMaxLength(200);
+            builder.Property(entity => entity.UtmCampaign).HasMaxLength(200);
+            builder.Property(entity => entity.UtmContent).HasMaxLength(200);
+            builder.Property(entity => entity.UtmTerm).HasMaxLength(200);
+            builder.Property(entity => entity.Gclid).HasMaxLength(200);
+            builder.Property(entity => entity.Fbclid).HasMaxLength(200);
+            builder.Property(entity => entity.LandingPage).HasMaxLength(500);
+            builder.Property(entity => entity.Referrer).HasMaxLength(500);
 
             // A confirmacao busca EXCLUSIVAMENTE por hash de token: sem indice unico aqui a tabela
             // vira varredura sequencial no caminho quente do cadastro.
