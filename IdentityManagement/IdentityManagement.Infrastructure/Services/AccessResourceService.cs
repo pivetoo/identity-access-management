@@ -104,9 +104,25 @@ namespace IdentityManagement.Infrastructure.Services
                 })
                 .ToDictionaryAsync(item => item.Audience, item => item.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
+            // O payload e o catalogo completo APENAS dos sistemas que o enviaram (cada sistema Archon
+            // sincroniza os proprios endpoints na subida). Carregar e desativar por audience impede que
+            // o sync de um sistema apague os recursos dos outros que dividem o mesmo IdentityManagement.
+            HashSet<long> targetSystemApplicationIds = [];
+
+            foreach (string audience in normalizedResources.Select(resource => resource.SystemAudience.Trim()).Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                if (!systemApplicationIdsByAudience.TryGetValue(audience, out long targetSystemApplicationId))
+                {
+                    throw new BusinessRuleException("systemApplication.audience.notFound", audience);
+                }
+
+                targetSystemApplicationIds.Add(targetSystemApplicationId);
+            }
+
             List<AccessResource> existingResources = await (
                 from accessResource in dbContext.Set<AccessResource>().AsTracking()
                     .Include(item => item.SystemApplication)
+                where targetSystemApplicationIds.Contains(accessResource.SystemApplicationId)
                 select accessResource)
                 .ToListAsync(cancellationToken);
 
