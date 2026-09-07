@@ -142,7 +142,7 @@ export default function Signup() {
 
             <h1 className="text-center text-2xl font-bold text-foreground mb-2">Criar conta da agência</h1>
             <p className="text-center text-sm text-muted-foreground mb-6">
-              14 dias grátis, sem cartão de crédito. O link para criar seu acesso vai por e-mail.
+              7 dias grátis, sem cartão de crédito. O link para criar seu acesso vai por e-mail.
             </p>
 
             <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
@@ -228,7 +228,7 @@ export default function Signup() {
                   </button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Plano Fundador para contas criadas até dez/2026 — preço garantido enquanto a assinatura estiver ativa (tabela: Essencial R$ 997/mês). Tudo incluído; a cobrança só começa depois dos 14 dias.
+                  Plano Fundador para contas criadas até dez/2026 — preço garantido enquanto a assinatura estiver ativa (tabela: Essencial R$ 997/mês). Tudo incluído; a cobrança só começa depois dos 7 dias.
                 </p>
               </fieldset>
 
