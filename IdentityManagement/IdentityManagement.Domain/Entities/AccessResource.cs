@@ -24,6 +24,9 @@ namespace IdentityManagement.Domain.Entities
 
         public string Route { get; private set; } = string.Empty;
 
+        // Chaves de capacidade separadas por ";" (ex.: "financeiro.ver;producao.ver").
+        public string Capabilities { get; private set; } = string.Empty;
+
         public bool IsActive { get; private set; } = true;
 
         public IReadOnlyCollection<RoleAccessResource> RoleAccessResources => roleAccessResources.AsReadOnly();
@@ -78,6 +81,41 @@ namespace IdentityManagement.Domain.Entities
             Action = action.Trim();
             HttpMethod = httpMethod.Trim().ToUpperInvariant();
             Route = route.Trim();
+        }
+
+        public const char CapabilitySeparator = ';';
+
+        public static string JoinCapabilities(IEnumerable<string>? capabilities)
+        {
+            if (capabilities is null)
+            {
+                return string.Empty;
+            }
+
+            return string.Join(CapabilitySeparator, capabilities
+                .Where(item => !string.IsNullOrWhiteSpace(item))
+                .Select(item => item.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase));
+        }
+
+        public static IReadOnlyList<string> SplitCapabilities(string? capabilities)
+        {
+            if (string.IsNullOrWhiteSpace(capabilities))
+            {
+                return [];
+            }
+
+            return capabilities.Split(CapabilitySeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        }
+
+        public void SetCapabilities(IEnumerable<string>? capabilities)
+        {
+            Capabilities = JoinCapabilities(capabilities);
+        }
+
+        public IReadOnlyList<string> GetCapabilities()
+        {
+            return SplitCapabilities(Capabilities);
         }
 
         public void Activate()

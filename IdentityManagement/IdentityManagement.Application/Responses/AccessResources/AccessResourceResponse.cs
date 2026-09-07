@@ -19,5 +19,7 @@ namespace IdentityManagement.Application.Responses.AccessResources
         public string HttpMethod { get; set; } = string.Empty;
 
         public string Route { get; set; } = string.Empty;
+
+        public IReadOnlyCollection<string> Capabilities { get; set; } = [];
     }
 }

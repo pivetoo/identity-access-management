@@ -22,25 +22,14 @@ namespace IdentityManagement.Infrastructure.Services
 
         public async Task<IReadOnlyCollection<AccessResourceResponse>> GetActiveResources(CancellationToken cancellationToken = default)
         {
-            List<AccessResourceResponse> resources = await (
+            List<AccessResource> resources = await (
                 from accessResource in dbContext.Set<AccessResource>().AsNoTracking()
                 where accessResource.IsActive
                 orderby accessResource.SystemApplicationId, accessResource.Controller, accessResource.Action, accessResource.HttpMethod
-                select new AccessResourceResponse
-                {
-                    Id = accessResource.Id,
-                    SystemApplicationId = accessResource.SystemApplicationId,
-                    Name = accessResource.Name,
-                    Description = accessResource.Description,
-                    Area = accessResource.Area,
-                    Controller = accessResource.Controller,
-                    Action = accessResource.Action,
-                    HttpMethod = accessResource.HttpMethod,
-                    Route = accessResource.Route
-                })
+                select accessResource)
                 .ToListAsync(cancellationToken);
 
-            return resources;
+            return resources.Select(ToResponse).ToList();
         }
 
         public async Task<IReadOnlyCollection<AccessResourceResponse>> GetActiveResourcesByContract(long contractId, CancellationToken cancellationToken = default)
@@ -56,23 +45,14 @@ namespace IdentityManagement.Infrastructure.Services
                 return Array.Empty<AccessResourceResponse>();
             }
 
-            return await (
+            List<AccessResource> resources = await (
                 from accessResource in dbContext.Set<AccessResource>().AsNoTracking()
                 where accessResource.IsActive && accessResource.SystemApplicationId == systemApplicationId
                 orderby accessResource.Controller, accessResource.Action, accessResource.HttpMethod
-                select new AccessResourceResponse
-                {
-                    Id = accessResource.Id,
-                    SystemApplicationId = accessResource.SystemApplicationId,
-                    Name = accessResource.Name,
-                    Description = accessResource.Description,
-                    Area = accessResource.Area,
-                    Controller = accessResource.Controller,
-                    Action = accessResource.Action,
-                    HttpMethod = accessResource.HttpMethod,
-                    Route = accessResource.Route
-                })
+                select accessResource)
                 .ToListAsync(cancellationToken);
+
+            return resources.Select(ToResponse).ToList();
         }
 
         public async Task<AccessResourceSyncResponse> SyncResources(IReadOnlyCollection<AccessResourceModel> resources, CancellationToken cancellationToken = default)
@@ -140,6 +120,7 @@ namespace IdentityManagement.Infrastructure.Services
                 }
 
                 string resourceKey = CreateResourceKey(resource.SystemAudience, resource.Name);
+                string capabilities = AccessResource.JoinCapabilities(resource.Capabilities);
 
                 if (existingByName.TryGetValue(resourceKey, out AccessResource? existingResource))
                 {
@@ -151,6 +132,7 @@ namespace IdentityManagement.Infrastructure.Services
                         !string.Equals(existingResource.Action, resource.Action, StringComparison.Ordinal) ||
                         !string.Equals(existingResource.HttpMethod, resource.HttpMethod, StringComparison.OrdinalIgnoreCase) ||
                         !string.Equals(existingResource.Route, resource.Route, StringComparison.Ordinal) ||
+                        !string.Equals(existingResource.Capabilities, capabilities, StringComparison.Ordinal) ||
                         !existingResource.IsActive;
 
                     if (!changed)
@@ -159,12 +141,14 @@ namespace IdentityManagement.Infrastructure.Services
                     }
 
                     existingResource.Update(systemApplicationId, resource.Description, resource.Area, resource.Controller, resource.Action, resource.HttpMethod, resource.Route);
+                    existingResource.SetCapabilities(resource.Capabilities);
                     existingResource.Activate();
                     updatedCount++;
                     continue;
                 }
 
                 AccessResource accessResource = new AccessResource(systemApplicationId, resource.Name, resource.Description, resource.Area, resource.Controller, resource.Action, resource.HttpMethod, resource.Route);
+                accessResource.SetCapabilities(resource.Capabilities);
                 await dbContext.Set<AccessResource>().AddAsync(accessResource, cancellationToken);
                 createdCount++;
             }
@@ -196,6 +180,23 @@ namespace IdentityManagement.Infrastructure.Services
                 UpdatedCount = updatedCount,
                 DeactivatedCount = deactivatedCount,
                 TotalCount = normalizedResources.Count
+            };
+        }
+
+        private static AccessResourceResponse ToResponse(AccessResource accessResource)
+        {
+            return new AccessResourceResponse
+            {
+                Id = accessResource.Id,
+                SystemApplicationId = accessResource.SystemApplicationId,
+                Name = accessResource.Name,
+                Description = accessResource.Description,
+                Area = accessResource.Area,
+                Controller = accessResource.Controller,
+                Action = accessResource.Action,
+                HttpMethod = accessResource.HttpMethod,
+                Route = accessResource.Route,
+                Capabilities = accessResource.GetCapabilities()
             };
         }
 

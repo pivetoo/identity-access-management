@@ -14,5 +14,8 @@ namespace IdentityManagement.Application.Requests.Roles
         public bool IsDefault { get; set; }
 
         public List<long> AccessResourceIds { get; set; } = [];
+
+        // Nulo = nao mexer (clientes antigos que so mandam recursos); lista vazia = limpar.
+        public List<string>? CapabilityKeys { get; set; }
     }
 }

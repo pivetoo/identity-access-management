@@ -46,6 +46,8 @@
   <data name="role.contract.systemApplication.notFound" xml:space="preserve"><value>No se encontró la aplicación del sistema del contrato del perfil.</value></data>
   <data name="accessResource.invalid" xml:space="preserve"><value>Uno o más recursos de acceso son inválidos.</value></data>
   <data name="accessResources.sync.completed" xml:space="preserve"><value>Recursos de acceso sincronizados correctamente.</value></data>
+  <data name="accessCapabilities.sync.completed" xml:space="preserve"><value>Permisos por módulo sincronizados correctamente.</value></data>
+  <data name="accessCapability.invalid" xml:space="preserve"><value>Uno o más permisos por módulo son inválidos para esta aplicación.</value></data>
   <data name="user.created" xml:space="preserve"><value>Usuario creado correctamente.</value></data>
   <data name="user.first.created" xml:space="preserve"><value>Primer usuario creado correctamente.</value></data>
   <data name="user.updated" xml:space="preserve"><value>Usuario actualizado correctamente.</value></data>

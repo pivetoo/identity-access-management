@@ -40,6 +40,10 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
                 .IsRequired()
                 .HasMaxLength(500);
 
+            builder.Property(entity => entity.Capabilities)
+                .IsRequired()
+                .HasMaxLength(500);
+
             builder.HasIndex(entity => new { entity.SystemApplicationId, entity.Name })
                 .IsUnique();
         }

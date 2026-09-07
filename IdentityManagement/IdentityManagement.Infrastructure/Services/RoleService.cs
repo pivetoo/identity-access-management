@@ -35,6 +35,7 @@ namespace IdentityManagement.Infrastructure.Services
             }
 
             await SyncAccessResources(role.Id, request.AccessResourceIds, cancellationToken);
+            await SyncCapabilities(role.Id, request.CapabilityKeys, cancellationToken);
 
             return await GetRoleResponse(role.Id, cancellationToken);
         }
@@ -66,87 +67,48 @@ namespace IdentityManagement.Infrastructure.Services
             }
 
             await SyncAccessResources(result.Id, request.AccessResourceIds, cancellationToken);
+            await SyncCapabilities(result.Id, request.CapabilityKeys, cancellationToken);
 
             return await GetRoleResponse(result.Id, cancellationToken);
         }
 
         public async Task<IReadOnlyCollection<RoleResponse>> GetActiveRoles(CancellationToken cancellationToken = default)
         {
-            List<RoleResponse> roles = await (
+            List<Role> roles = await (
                 from role in DbContext.Set<Role>().AsNoTracking()
                 join contract in DbContext.Set<Contract>().AsNoTracking() on role.ContractId equals contract.Id
                 where contract.IsActive
                 orderby role.Name
-                select new RoleResponse
-                {
-                    Id = role.Id,
-                    Name = role.Name,
-                    Description = role.Description,
-                    ContractId = role.ContractId,
-                    IsRoot = role.IsRoot,
-                    IsDefault = role.IsDefault,
-                    AccessResourceIds = DbContext.Set<RoleAccessResource>()
-                        .Where(item => item.RoleId == role.Id && item.IsActive)
-                        .OrderBy(item => item.AccessResourceId)
-                        .Select(item => item.AccessResourceId)
-                        .ToList(),
-                    CreatedAt = role.CreatedAt,
-                    UpdatedAt = role.UpdatedAt
-                })
+                select role)
                 .ToListAsync(cancellationToken);
 
-            return roles;
+            return await ToResponses(roles, cancellationToken);
         }
 
         public async Task<IReadOnlyCollection<RoleResponse>> GetRolesByContract(long contractId, CancellationToken cancellationToken = default)
         {
-            List<RoleResponse> roles = await (
+            List<Role> roles = await (
                 from role in DbContext.Set<Role>().AsNoTracking()
                 where role.ContractId == contractId
                 orderby role.Id
-                select new RoleResponse
-                {
-                    Id = role.Id,
-                    Name = role.Name,
-                    Description = role.Description,
-                    ContractId = role.ContractId,
-                    IsRoot = role.IsRoot,
-                    IsDefault = role.IsDefault,
-                    AccessResourceIds = DbContext.Set<RoleAccessResource>()
-                        .Where(item => item.RoleId == role.Id && item.IsActive)
-                        .OrderBy(item => item.AccessResourceId)
-                        .Select(item => item.AccessResourceId)
-                        .ToList(),
-                    CreatedAt = role.CreatedAt,
-                    UpdatedAt = role.UpdatedAt
-                })
+                select role)
                 .ToListAsync(cancellationToken);
 
-            return roles;
+            return await ToResponses(roles, cancellationToken);
         }
 
         public async Task<RoleResponse?> GetRoleById(long id, CancellationToken cancellationToken = default)
         {
-            return await (
-                from item in DbContext.Set<Role>().AsNoTracking()
-                where item.Id == id
-                select new RoleResponse
-                {
-                    Id = item.Id,
-                    Name = item.Name,
-                    Description = item.Description,
-                    ContractId = item.ContractId,
-                    IsRoot = item.IsRoot,
-                    IsDefault = item.IsDefault,
-                    AccessResourceIds = DbContext.Set<RoleAccessResource>()
-                        .Where(link => link.RoleId == item.Id && link.IsActive)
-                        .OrderBy(link => link.AccessResourceId)
-                        .Select(link => link.AccessResourceId)
-                        .ToList(),
-                    CreatedAt = item.CreatedAt,
-                    UpdatedAt = item.UpdatedAt
-                })
-                .FirstOrDefaultAsync(cancellationToken);
+            Role? role = await DbContext.Set<Role>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (role is null)
+            {
+                return null;
+            }
+
+            return (await ToResponses([role], cancellationToken)).Single();
         }
 
         public async Task DeleteRole(long id, CancellationToken cancellationToken = default)
@@ -179,6 +141,16 @@ namespace IdentityManagement.Infrastructure.Services
                 DbContext.Set<RoleAccessResource>().RemoveRange(links);
             }
 
+            List<RoleCapability> capabilityLinks = await DbContext.Set<RoleCapability>()
+                .AsTracking()
+                .Where(item => item.RoleId == id)
+                .ToListAsync(cancellationToken);
+
+            if (capabilityLinks.Count > 0)
+            {
+                DbContext.Set<RoleCapability>().RemoveRange(capabilityLinks);
+            }
+
             List<UserRole> revokedAssignments = await DbContext.Set<UserRole>()
                 .AsTracking()
                 .Where(item => item.RoleId == id)
@@ -195,26 +167,16 @@ namespace IdentityManagement.Infrastructure.Services
 
         public async Task<RoleResponse?> GetDefaultRoleByContract(long contractId, CancellationToken cancellationToken = default)
         {
-            return await (
-                from role in DbContext.Set<Role>().AsNoTracking()
-                where role.ContractId == contractId && role.IsDefault
-                select new RoleResponse
-                {
-                    Id = role.Id,
-                    Name = role.Name,
-                    Description = role.Description,
-                    ContractId = role.ContractId,
-                    IsRoot = role.IsRoot,
-                    IsDefault = role.IsDefault,
-                    AccessResourceIds = DbContext.Set<RoleAccessResource>()
-                        .Where(item => item.RoleId == role.Id && item.IsActive)
-                        .OrderBy(item => item.AccessResourceId)
-                        .Select(item => item.AccessResourceId)
-                        .ToList(),
-                    CreatedAt = role.CreatedAt,
-                    UpdatedAt = role.UpdatedAt
-                })
-                .FirstOrDefaultAsync(cancellationToken);
+            Role? role = await DbContext.Set<Role>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.ContractId == contractId && item.IsDefault, cancellationToken);
+
+            if (role is null)
+            {
+                return null;
+            }
+
+            return (await ToResponses([role], cancellationToken)).Single();
         }
 
         private async Task EnsureContract(long contractId, CancellationToken cancellationToken)
@@ -245,44 +207,9 @@ namespace IdentityManagement.Infrastructure.Services
             }
         }
 
-        private static RoleResponse ToResponse(Role role)
-        {
-            return new RoleResponse
-            {
-                Id = role.Id,
-                Name = role.Name,
-                Description = role.Description,
-                ContractId = role.ContractId,
-                IsRoot = role.IsRoot,
-                IsDefault = role.IsDefault,
-                AccessResourceIds = [],
-                CreatedAt = role.CreatedAt,
-                UpdatedAt = role.UpdatedAt
-            };
-        }
-
         private async Task<RoleResponse> GetRoleResponse(long id, CancellationToken cancellationToken)
         {
-            RoleResponse? role = await (
-                from item in DbContext.Set<Role>().AsNoTracking()
-                where item.Id == id
-                select new RoleResponse
-                {
-                    Id = item.Id,
-                    Name = item.Name,
-                    Description = item.Description,
-                    ContractId = item.ContractId,
-                    IsRoot = item.IsRoot,
-                    IsDefault = item.IsDefault,
-                    AccessResourceIds = DbContext.Set<RoleAccessResource>()
-                        .Where(link => link.RoleId == item.Id && link.IsActive)
-                        .OrderBy(link => link.AccessResourceId)
-                        .Select(link => link.AccessResourceId)
-                        .ToList(),
-                    CreatedAt = item.CreatedAt,
-                    UpdatedAt = item.UpdatedAt
-                })
-                .FirstOrDefaultAsync(cancellationToken);
+            RoleResponse? role = await GetRoleById(id, cancellationToken);
 
             if (role is null)
             {
@@ -292,7 +219,51 @@ namespace IdentityManagement.Infrastructure.Services
             return role;
         }
 
-        private async Task SyncAccessResources(long roleId, IReadOnlyCollection<long> accessResourceIds, CancellationToken cancellationToken)
+        private async Task<List<RoleResponse>> ToResponses(IReadOnlyCollection<Role> roles, CancellationToken cancellationToken)
+        {
+            if (roles.Count == 0)
+            {
+                return [];
+            }
+
+            List<long> roleIds = roles.Select(role => role.Id).ToList();
+
+            List<RoleAccessResource> resourceLinks = await DbContext.Set<RoleAccessResource>()
+                .AsNoTracking()
+                .Where(link => roleIds.Contains(link.RoleId) && link.IsActive)
+                .ToListAsync(cancellationToken);
+
+            List<RoleCapability> capabilityLinks = await DbContext.Set<RoleCapability>()
+                .AsNoTracking()
+                .Where(link => roleIds.Contains(link.RoleId) && link.IsActive)
+                .ToListAsync(cancellationToken);
+
+            return roles
+                .Select(role => new RoleResponse
+                {
+                    Id = role.Id,
+                    Name = role.Name,
+                    Description = role.Description,
+                    ContractId = role.ContractId,
+                    IsRoot = role.IsRoot,
+                    IsDefault = role.IsDefault,
+                    AccessResourceIds = resourceLinks
+                        .Where(link => link.RoleId == role.Id)
+                        .Select(link => link.AccessResourceId)
+                        .OrderBy(item => item)
+                        .ToList(),
+                    CapabilityKeys = capabilityLinks
+                        .Where(link => link.RoleId == role.Id)
+                        .Select(link => link.CapabilityKey)
+                        .OrderBy(item => item, StringComparer.Ordinal)
+                        .ToList(),
+                    CreatedAt = role.CreatedAt,
+                    UpdatedAt = role.UpdatedAt
+                })
+                .ToList();
+        }
+
+        private async Task<long> GetSystemApplicationId(long roleId, CancellationToken cancellationToken)
         {
             long systemApplicationId = await (
                 from role in DbContext.Set<Role>().AsNoTracking()
@@ -305,6 +276,13 @@ namespace IdentityManagement.Infrastructure.Services
             {
                 throw new InvalidOperationException("role.contract.systemApplication.notFound");
             }
+
+            return systemApplicationId;
+        }
+
+        private async Task SyncAccessResources(long roleId, IReadOnlyCollection<long> accessResourceIds, CancellationToken cancellationToken)
+        {
+            long systemApplicationId = await GetSystemApplicationId(roleId, cancellationToken);
 
             List<long> normalizedIds = accessResourceIds
                 .Where(item => item > 0)
@@ -353,6 +331,74 @@ namespace IdentityManagement.Infrastructure.Services
             if (newLinks.Count > 0)
             {
                 await DbContext.Set<RoleAccessResource>().AddRangeAsync(newLinks, cancellationToken);
+            }
+
+            await DbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        // Nulo = o cliente nao trata capacidades (mantem o que existe); lista = estado final desejado.
+        private async Task SyncCapabilities(long roleId, IReadOnlyCollection<string>? capabilityKeys, CancellationToken cancellationToken)
+        {
+            if (capabilityKeys is null)
+            {
+                return;
+            }
+
+            long systemApplicationId = await GetSystemApplicationId(roleId, cancellationToken);
+
+            List<string> normalizedKeys = capabilityKeys
+                .Where(key => !string.IsNullOrWhiteSpace(key))
+                .Select(key => key.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (normalizedKeys.Count > 0)
+            {
+                List<string> validKeys = await (
+                    from capability in DbContext.Set<AccessCapability>().AsNoTracking()
+                    where capability.IsActive &&
+                          capability.SystemApplicationId == systemApplicationId &&
+                          normalizedKeys.Contains(capability.CapabilityKey)
+                    select capability.CapabilityKey)
+                    .ToListAsync(cancellationToken);
+
+                if (validKeys.Count != normalizedKeys.Count)
+                {
+                    throw new InvalidOperationException("accessCapability.invalid");
+                }
+            }
+
+            List<RoleCapability> existingLinks = await (
+                from link in DbContext.Set<RoleCapability>().AsTracking()
+                where link.RoleId == roleId
+                select link)
+                .ToListAsync(cancellationToken);
+
+            HashSet<string> wanted = normalizedKeys.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            foreach (RoleCapability existingLink in existingLinks)
+            {
+                if (wanted.Contains(existingLink.CapabilityKey))
+                {
+                    existingLink.Activate();
+                    continue;
+                }
+
+                existingLink.Deactivate();
+            }
+
+            HashSet<string> existingKeys = existingLinks
+                .Select(item => item.CapabilityKey)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            List<RoleCapability> newLinks = normalizedKeys
+                .Where(key => !existingKeys.Contains(key))
+                .Select(key => new RoleCapability(roleId, key))
+                .ToList();
+
+            if (newLinks.Count > 0)
+            {
+                await DbContext.Set<RoleCapability>().AddRangeAsync(newLinks, cancellationToken);
             }
 
             await DbContext.SaveChangesAsync(cancellationToken);

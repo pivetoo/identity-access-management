@@ -101,6 +101,58 @@ namespace IdentityManagement.Infrastructure.Services
                 .Distinct()
                 .ToListAsync(cancellationToken);
 
+            // Capacidades do perfil (e as basicas do sistema) viram claims proprias e sao expandidas para
+            // os endpoints que as declaram. A expansao acontece aqui, na emissao, para que endpoint novo
+            // sincronizado depois ja entre no proximo token sem ninguem reeditar o perfil.
+            if (userRoles.Count > 0)
+            {
+                List<string> capabilityKeys = await (
+                    from userRole in dbContext.Set<UserRole>().AsNoTracking()
+                    join role in dbContext.Set<Role>().AsNoTracking() on userRole.RoleId equals role.Id
+                    join roleCapability in dbContext.Set<RoleCapability>().AsNoTracking() on role.Id equals roleCapability.RoleId
+                    where userRole.UserId == user.Id &&
+                          role.ContractId == contract.Id &&
+                          role.IsActive &&
+                          userRole.IsActive &&
+                          !userRole.RevokedAt.HasValue &&
+                          roleCapability.IsActive
+                    select roleCapability.CapabilityKey)
+                    .Distinct()
+                    .ToListAsync(cancellationToken);
+
+                List<string> baselineKeys = await (
+                    from capability in dbContext.Set<AccessCapability>().AsNoTracking()
+                    where capability.SystemApplicationId == contract.SystemApplicationId && capability.IsActive && capability.IsBaseline
+                    select capability.CapabilityKey)
+                    .ToListAsync(cancellationToken);
+
+                HashSet<string> keys = capabilityKeys.Concat(baselineKeys).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                if (keys.Count > 0)
+                {
+                    var capabilityResources = await (
+                        from accessResource in dbContext.Set<AccessResource>().AsNoTracking()
+                        where accessResource.SystemApplicationId == contract.SystemApplicationId &&
+                              accessResource.IsActive &&
+                              accessResource.Capabilities != string.Empty
+                        select new { accessResource.Name, accessResource.Capabilities })
+                        .ToListAsync(cancellationToken);
+
+                    foreach (var capabilityResource in capabilityResources)
+                    {
+                        if (!accessResources.Contains(capabilityResource.Name) && AccessResource.SplitCapabilities(capabilityResource.Capabilities).Any(keys.Contains))
+                        {
+                            accessResources.Add(capabilityResource.Name);
+                        }
+                    }
+
+                    foreach (string key in keys.OrderBy(item => item, StringComparer.Ordinal))
+                    {
+                        claims.Add(new Claim("capability", key));
+                    }
+                }
+            }
+
             foreach (string accessResource in accessResources)
             {
                 claims.Add(new Claim("permission", accessResource));

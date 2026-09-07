@@ -16,6 +16,8 @@ namespace IdentityManagement.Application.Responses.Roles
 
         public IReadOnlyCollection<long> AccessResourceIds { get; set; } = [];
 
+        public IReadOnlyCollection<string> CapabilityKeys { get; set; } = [];
+
         public DateTimeOffset? CreatedAt { get; set; }
 
         public DateTimeOffset? UpdatedAt { get; set; }

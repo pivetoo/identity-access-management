@@ -138,6 +138,12 @@
   <data name="accessResources.sync.completed" xml:space="preserve">
     <value>Recursos de acesso sincronizados com sucesso.</value>
   </data>
+  <data name="accessCapabilities.sync.completed" xml:space="preserve">
+    <value>Permissões por módulo sincronizadas com sucesso.</value>
+  </data>
+  <data name="accessCapability.invalid" xml:space="preserve">
+    <value>Uma ou mais permissões por módulo são inválidas para este sistema.</value>
+  </data>
   <data name="user.created" xml:space="preserve">
     <value>Usuário criado com sucesso.</value>
   </data>
