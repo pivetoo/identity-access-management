@@ -101,9 +101,10 @@ namespace IdentityManagement.Infrastructure.Services
                 .Distinct()
                 .ToListAsync(cancellationToken);
 
-            // Capacidades do perfil (e as basicas do sistema) viram claims proprias e sao expandidas para
-            // os endpoints que as declaram. A expansao acontece aqui, na emissao, para que endpoint novo
-            // sincronizado depois ja entre no proximo token sem ninguem reeditar o perfil.
+            // Capacidades do perfil (e as basicas do sistema) viram claims proprias. NAO sao expandidas em
+            // uma claim por endpoint: quem resolve isso e o RequireAccess, que le as capacidades
+            // declaradas pelo proprio endpoint. Expandir aqui gerava centenas de claims (403 no perfil
+            // Gestor) e o token estourava o limite de cabecalho do proxy.
             if (userRoles.Count > 0)
             {
                 List<string> capabilityKeys = await (
@@ -128,28 +129,9 @@ namespace IdentityManagement.Infrastructure.Services
 
                 HashSet<string> keys = capabilityKeys.Concat(baselineKeys).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-                if (keys.Count > 0)
+                foreach (string key in keys.OrderBy(item => item, StringComparer.Ordinal))
                 {
-                    var capabilityResources = await (
-                        from accessResource in dbContext.Set<AccessResource>().AsNoTracking()
-                        where accessResource.SystemApplicationId == contract.SystemApplicationId &&
-                              accessResource.IsActive &&
-                              accessResource.Capabilities != string.Empty
-                        select new { accessResource.Name, accessResource.Capabilities })
-                        .ToListAsync(cancellationToken);
-
-                    foreach (var capabilityResource in capabilityResources)
-                    {
-                        if (!accessResources.Contains(capabilityResource.Name) && AccessResource.SplitCapabilities(capabilityResource.Capabilities).Any(keys.Contains))
-                        {
-                            accessResources.Add(capabilityResource.Name);
-                        }
-                    }
-
-                    foreach (string key in keys.OrderBy(item => item, StringComparer.Ordinal))
-                    {
-                        claims.Add(new Claim("capability", key));
-                    }
+                    claims.Add(new Claim("capability", key));
                 }
             }
 

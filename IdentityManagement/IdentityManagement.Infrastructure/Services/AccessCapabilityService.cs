@@ -153,29 +153,6 @@ namespace IdentityManagement.Infrastructure.Services
                 .ToList();
         }
 
-        public async Task<IReadOnlyCollection<string>> ExpandResourceNames(long systemApplicationId, IReadOnlyCollection<string> capabilityKeys, CancellationToken cancellationToken = default)
-        {
-            ArgumentNullException.ThrowIfNull(capabilityKeys);
-
-            HashSet<string> keys = capabilityKeys
-                .Where(key => !string.IsNullOrWhiteSpace(key))
-                .Select(key => key.Trim())
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-            if (keys.Count == 0)
-            {
-                return Array.Empty<string>();
-            }
-
-            List<(string Name, string Capabilities)> resources = await LoadResourcesWithCapabilities(systemApplicationId, cancellationToken);
-
-            return resources
-                .Where(resource => AccessResource.SplitCapabilities(resource.Capabilities).Any(keys.Contains))
-                .Select(resource => resource.Name)
-                .Distinct(StringComparer.Ordinal)
-                .ToList();
-        }
-
         private async Task<Dictionary<string, int>> CountResourcesByCapability(long systemApplicationId, CancellationToken cancellationToken)
         {
             List<(string Name, string Capabilities)> resources = await LoadResourcesWithCapabilities(systemApplicationId, cancellationToken);

@@ -198,7 +198,7 @@ namespace IdentityManagement.IntegrationTests.Services
         }
 
         [Test]
-        public async Task Access_token_expands_role_capabilities_and_baseline_into_permissions()
+        public async Task Access_token_carries_capability_claims_without_expanding_them_into_endpoint_permissions()
         {
             await InScopeAsync(async sp =>
             {
@@ -262,8 +262,10 @@ namespace IdentityManagement.IntegrationTests.Services
                 string token = await jwt.GenerateAccessToken(user, loadedContract, 600, null!, null!, false);
                 JwtSecurityToken parsed = new JwtSecurityTokenHandler().ReadJwtToken(token);
 
+                // Uma claim por endpoint fazia o token estourar o limite de cabecalho do proxy: quem
+                // resolve a capacidade agora e o RequireAccess, lendo o que o endpoint declara.
                 List<string> permissions = parsed.Claims.Where(claim => claim.Type == "permission").Select(claim => claim.Value).ToList();
-                permissions.Should().BeEquivalentTo("legacy.get", "financialEntries.get", "campaigns.get", "notifications.get");
+                permissions.Should().Equal("legacy.get");
 
                 List<string> capabilityClaims = parsed.Claims.Where(claim => claim.Type == "capability").Select(claim => claim.Value).ToList();
                 capabilityClaims.Should().BeEquivalentTo("financeiro.ver", "geral.basico");
