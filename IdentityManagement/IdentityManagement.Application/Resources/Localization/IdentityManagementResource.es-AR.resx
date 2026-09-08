@@ -653,4 +653,9 @@
   <data name="contact.notFound" xml:space="preserve"><value>Contacto no encontrado.</value></data>
   <data name="contact.handled" xml:space="preserve"><value>Contacto marcado como atendido.</value></data>
   <data name="contact.reopened" xml:space="preserve"><value>Contacto reabierto.</value></data>
+  <data name="systemRoleTemplate.form.capabilitiesTitle" xml:space="preserve"><value>Permisos por módulo</value></data>
+  <data name="systemRoleTemplate.form.capabilitiesDescription" xml:space="preserve"><value>Marcá lo que este perfil podrá hacer en los contratos provisionados con esta plantilla.</value></data>
+  <data name="systemRoleTemplate.form.capabilitiesModuleAll" xml:space="preserve"><value>Todo el módulo</value></data>
+  <data name="systemRoleTemplate.form.capabilitiesBaseline" xml:space="preserve"><value>Siempre incluido</value></data>
+  <data name="systemRoleTemplate.form.capabilitiesRootHint" xml:space="preserve"><value>Los perfiles con acceso total no necesitan permisos específicos.</value></data>
 </root>

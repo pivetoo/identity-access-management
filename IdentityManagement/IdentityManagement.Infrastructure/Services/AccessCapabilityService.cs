@@ -118,6 +118,11 @@ namespace IdentityManagement.Infrastructure.Services
                 return Array.Empty<AccessCapabilityResponse>();
             }
 
+            return await GetActiveBySystemApplication(systemApplicationId, cancellationToken);
+        }
+
+        public async Task<IReadOnlyCollection<AccessCapabilityResponse>> GetActiveBySystemApplication(long systemApplicationId, CancellationToken cancellationToken = default)
+        {
             List<AccessCapability> capabilities = await (
                 from capability in dbContext.Set<AccessCapability>().AsNoTracking()
                 where capability.SystemApplicationId == systemApplicationId && capability.IsActive

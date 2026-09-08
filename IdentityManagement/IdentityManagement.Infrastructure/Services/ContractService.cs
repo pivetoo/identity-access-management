@@ -398,7 +398,14 @@ namespace IdentityManagement.Infrastructure.Services
                 select link)
                 .ToListAsync(cancellationToken);
 
+            List<SystemRoleTemplateCapability> templateCapabilities = await (
+                from link in DbContext.Set<SystemRoleTemplateCapability>().AsNoTracking()
+                where templateIds.Contains(link.SystemRoleTemplateId) && link.IsActive
+                select link)
+                .ToListAsync(cancellationToken);
+
             List<RoleAccessResource> roleAccessResources = [];
+            List<RoleCapability> roleCapabilities = [];
 
             foreach (SystemRoleTemplate template in templates)
             {
@@ -410,11 +417,26 @@ namespace IdentityManagement.Infrastructure.Services
                     .ToList();
 
                 roleAccessResources.AddRange(currentRoleAccessResources);
+
+                // As capacidades sao copiadas por CHAVE: o catalogo do sistema consumidor e reescrito a
+                // cada sync e o perfil provisionado precisa sobreviver a isso.
+                roleCapabilities.AddRange(templateCapabilities
+                    .Where(item => item.SystemRoleTemplateId == template.Id)
+                    .Select(item => new RoleCapability(role.Id, item.CapabilityKey)));
             }
 
             if (roleAccessResources.Count > 0)
             {
                 await DbContext.Set<RoleAccessResource>().AddRangeAsync(roleAccessResources, cancellationToken);
+            }
+
+            if (roleCapabilities.Count > 0)
+            {
+                await DbContext.Set<RoleCapability>().AddRangeAsync(roleCapabilities, cancellationToken);
+            }
+
+            if (roleAccessResources.Count > 0 || roleCapabilities.Count > 0)
+            {
                 await DbContext.SaveChangesAsync(cancellationToken);
             }
         }

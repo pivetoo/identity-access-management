@@ -661,4 +661,9 @@
   <data name="contact.notFound" xml:space="preserve"><value>Contact not found.</value></data>
   <data name="contact.handled" xml:space="preserve"><value>Contact marked as handled.</value></data>
   <data name="contact.reopened" xml:space="preserve"><value>Contact reopened.</value></data>
+  <data name="systemRoleTemplate.form.capabilitiesTitle" xml:space="preserve"><value>Module permissions</value></data>
+  <data name="systemRoleTemplate.form.capabilitiesDescription" xml:space="preserve"><value>Choose what this role will be able to do in contracts provisioned from this template.</value></data>
+  <data name="systemRoleTemplate.form.capabilitiesModuleAll" xml:space="preserve"><value>Whole module</value></data>
+  <data name="systemRoleTemplate.form.capabilitiesBaseline" xml:space="preserve"><value>Always included</value></data>
+  <data name="systemRoleTemplate.form.capabilitiesRootHint" xml:space="preserve"><value>Roles with full access do not need specific permissions.</value></data>
 </root>

@@ -10,6 +10,8 @@ namespace IdentityManagement.Application.Services
 
         Task<IReadOnlyCollection<AccessCapabilityResponse>> GetActiveByContract(long contractId, CancellationToken cancellationToken = default);
 
+        Task<IReadOnlyCollection<AccessCapabilityResponse>> GetActiveBySystemApplication(long systemApplicationId, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// Nomes dos recursos ativos do sistema cobertos por qualquer uma das capacidades informadas.
         /// </summary>

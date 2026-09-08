@@ -34,5 +34,13 @@ namespace IdentityManagement.Api.Controllers
             var response = await accessCapabilityService.GetActiveByContract(contractId, cancellationToken);
             return Http200(response);
         }
+
+        [RequireAccess]
+        [GetEndpoint("{systemApplicationId:long}")]
+        public async Task<IActionResult> GetBySystemApplication(long systemApplicationId, CancellationToken cancellationToken)
+        {
+            var response = await accessCapabilityService.GetActiveBySystemApplication(systemApplicationId, cancellationToken);
+            return Http200(response);
+        }
     }
 }

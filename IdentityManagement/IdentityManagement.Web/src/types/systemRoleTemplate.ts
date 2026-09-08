@@ -7,6 +7,7 @@ export interface SystemRoleTemplate {
   isDefault: boolean
   isActive: boolean
   accessResourceIds: number[]
+  capabilityKeys: string[]
   createdAt?: string
   updatedAt?: string
 }
@@ -18,6 +19,7 @@ export interface CreateSystemRoleTemplateRequest {
   isRoot: boolean
   isDefault: boolean
   accessResourceIds: number[]
+  capabilityKeys: string[]
 }
 
 export interface UpdateSystemRoleTemplateRequest {
@@ -27,4 +29,5 @@ export interface UpdateSystemRoleTemplateRequest {
   isDefault: boolean
   isActive: boolean
   accessResourceIds: number[]
+  capabilityKeys: string[]
 }
