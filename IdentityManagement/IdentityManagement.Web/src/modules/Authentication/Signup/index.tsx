@@ -142,7 +142,7 @@ export default function Signup() {
 
             <h1 className="text-center text-2xl font-bold text-foreground mb-2">Criar conta da agência</h1>
             <p className="text-center text-sm text-muted-foreground mb-6">
-              7 dias grátis, sem cartão de crédito. O link para criar seu acesso vai por e-mail.
+              30 dias grátis, sem cartão de crédito. O link para criar seu acesso vai por e-mail.
             </p>
 
             <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
