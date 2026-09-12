@@ -24,6 +24,7 @@ export default function SystemApplicationFormModal({
     isActive: true,
     audience: '',
     baseUrl: '',
+    grantsAdminOnSetup: true,
   });
 
   const saveSistemaApi = useApi({
@@ -58,6 +59,7 @@ export default function SystemApplicationFormModal({
           isActive: sistema.isActive,
           audience: sistema.audience,
           baseUrl: sistema.baseUrl || '',
+          grantsAdminOnSetup: sistema.grantsAdminOnSetup ?? true,
         });
       } else {
         setFormData({
@@ -66,6 +68,7 @@ export default function SystemApplicationFormModal({
           isActive: true,
           audience: '',
           baseUrl: '',
+          grantsAdminOnSetup: true,
         });
       }
     }
@@ -87,6 +90,7 @@ export default function SystemApplicationFormModal({
         isActive: formData.isActive,
         audience: formData.audience,
         baseUrl: formData.baseUrl,
+        grantsAdminOnSetup: formData.grantsAdminOnSetup,
       };
       await saveSistemaApi.execute(() => SystemApplicationService.update(sistema.id, updateData));
     } else {
@@ -95,6 +99,7 @@ export default function SystemApplicationFormModal({
         description: formData.description,
         audience: formData.audience,
         baseUrl: formData.baseUrl,
+        grantsAdminOnSetup: formData.grantsAdminOnSetup,
       };
       await saveSistemaApi.execute(() => SystemApplicationService.create(createData));
     }
@@ -154,6 +159,21 @@ export default function SystemApplicationFormModal({
               error={!!getError('description')}
               helperText={getError('description')}
             />
+          </div>
+
+          <div className="flex items-start gap-2 pt-2">
+            <Switch
+              checked={formData.grantsAdminOnSetup}
+              onCheckedChange={(checked) => handleInputChange('grantsAdminOnSetup', checked)}
+            />
+            <div className="flex flex-col">
+              <label className="text-sm font-medium cursor-pointer">
+                {t('systemApplication.field.grantsAdminOnSetup')}
+              </label>
+              <span className="text-xs text-muted-foreground">
+                {t('systemApplication.field.grantsAdminOnSetup.hint')}
+              </span>
+            </div>
           </div>
 
           {sistema && (

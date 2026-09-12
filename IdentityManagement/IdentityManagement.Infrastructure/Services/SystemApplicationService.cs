@@ -22,7 +22,7 @@ namespace IdentityManagement.Infrastructure.Services
         {
             await EnsureUniqueSystemApplication(request.Name, request.Audience, null, cancellationToken);
 
-            SystemApplication systemApplication = new SystemApplication(request.Name, request.Description, request.Audience, request.Type);
+            SystemApplication systemApplication = new SystemApplication(request.Name, request.Description, request.Audience, request.Type, request.GrantsAdminOnSetup);
             bool success = await Insert(cancellationToken, systemApplication);
             if (!success)
             {
@@ -52,7 +52,13 @@ namespace IdentityManagement.Infrastructure.Services
 
             await EnsureUniqueSystemApplication(request.Name, request.Audience, id, cancellationToken);
 
-            systemApplication.Update(request.Name, request.Description, request.Audience, request.Type, request.IsActive);
+            systemApplication.Update(
+                request.Name,
+                request.Description,
+                request.Audience,
+                request.Type,
+                request.IsActive,
+                request.GrantsAdminOnSetup ?? systemApplication.GrantsAdminOnSetup);
             systemApplication.SetBaseUrl(request.BaseUrl);
 
             SystemApplication? result = await Update(systemApplication, cancellationToken);
@@ -80,6 +86,7 @@ namespace IdentityManagement.Infrastructure.Services
                     Type = systemApplication.Type,
                     CatalogApiKey = systemApplication.CatalogApiKey,
                     BaseUrl = systemApplication.BaseUrl,
+                    GrantsAdminOnSetup = systemApplication.GrantsAdminOnSetup,
                     CreatedAt = systemApplication.CreatedAt,
                     UpdatedAt = systemApplication.UpdatedAt
                 })
@@ -125,6 +132,7 @@ namespace IdentityManagement.Infrastructure.Services
                 Type = systemApplication.Type,
                 CatalogApiKey = systemApplication.CatalogApiKey,
                 BaseUrl = systemApplication.BaseUrl,
+                GrantsAdminOnSetup = systemApplication.GrantsAdminOnSetup,
                 CreatedAt = systemApplication.CreatedAt,
                 UpdatedAt = systemApplication.UpdatedAt
             };

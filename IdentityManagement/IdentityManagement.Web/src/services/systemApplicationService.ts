@@ -35,6 +35,7 @@ export class SystemApplicationService {
       audience: sistema.audience,
       type: sistema.type ?? 2,
       baseUrl: sistema.baseUrl ?? '',
+      grantsAdminOnSetup: sistema.grantsAdminOnSetup ?? true,
     })
 
     if (!response.data) {
@@ -53,6 +54,7 @@ export class SystemApplicationService {
       isActive: sistema.isActive,
       type: sistema.type ?? 2,
       baseUrl: sistema.baseUrl ?? '',
+      grantsAdminOnSetup: sistema.grantsAdminOnSetup,
     })
 
     if (!response.data) {

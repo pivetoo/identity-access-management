@@ -16,15 +16,17 @@ namespace IdentityManagement.IntegrationTests.Services
     public sealed class SetupAdminCompanyScopedIntegrationTests : IntegrationTestBase
     {
         [Test]
-        public async Task SetupAdmin_company_scoped_creates_one_user_with_root_role_for_each_contract()
+        public async Task SetupAdmin_company_scoped_creates_one_user_with_root_role_only_for_systems_that_grant_admin()
         {
             List<string> createdDatabases = new();
             string invitationToken = string.Empty;
+            long agencyAppIdForAssert = 0;
 
             await InScopeAsync(async sp =>
             {
                 DbContext dbContext = sp.GetRequiredService<DbContext>();
                 (long agencyAppId, long integrationAppId) = await SeedSystemApplications(dbContext);
+                agencyAppIdForAssert = agencyAppId;
 
                 IClientOnboardingService onboarding = sp.GetRequiredService<IClientOnboardingService>();
 
@@ -65,9 +67,9 @@ namespace IdentityManagement.IntegrationTests.Services
                 AdminInvitationInfoResponse? info = await authService.ValidateAdminInvitation(invitationToken);
 
                 info.Should().NotBeNull();
-                info!.SystemApplicationNames.Should().HaveCount(2);
+                info!.SystemApplicationNames.Should().HaveCount(1, "o convite so pode prometer o que concede");
                 info.SystemApplicationNames.Should().Contain("AgencyCampaign");
-                info.SystemApplicationNames.Should().Contain("IntegrationPlatform");
+                info.SystemApplicationNames.Should().NotContain("IntegrationPlatform");
 
                 SetupAdminRequest setupRequest = new SetupAdminRequest(
                     Token: invitationToken,
@@ -95,8 +97,10 @@ namespace IdentityManagement.IntegrationTests.Services
                     .Where(ur => ur.UserId == createdUser.Id)
                     .ToListAsync();
 
-                userRoles.Should().HaveCount(2);
+                userRoles.Should().HaveCount(1, "o IntegrationPlatform e o motor de integracoes: acesso so por concessao manual");
 
+                // Os dois papeis raiz continuam existindo — o provisionamento nao mudou. O que mudou
+                // e quem recebe: o do IntegrationPlatform fica sem dono ate alguem conceder.
                 List<Role> rootRoles = await dbContext.Set<Role>()
                     .AsNoTracking()
                     .Where(r => r.IsRoot)
@@ -104,10 +108,14 @@ namespace IdentityManagement.IntegrationTests.Services
 
                 rootRoles.Should().HaveCount(2);
 
-                foreach (Role rootRole in rootRoles)
-                {
-                    userRoles.Should().Contain(ur => ur.RoleId == rootRole.Id);
-                }
+                long agencyContractId = await dbContext.Set<Contract>()
+                    .AsNoTracking()
+                    .Where(contract => contract.SystemApplicationId == agencyAppIdForAssert)
+                    .Select(contract => contract.Id)
+                    .FirstAsync();
+
+                Role agencyRootRole = rootRoles.Single(role => role.ContractId == agencyContractId);
+                userRoles.Should().ContainSingle(ur => ur.RoleId == agencyRootRole.Id);
 
                 ContractAdminInvitation usedInvitation = await dbContext.Set<ContractAdminInvitation>()
                     .AsNoTracking()
@@ -187,11 +195,22 @@ namespace IdentityManagement.IntegrationTests.Services
                     .Where(item => item.UserId == usuarios[0].Id)
                     .ToListAsync();
 
-                vinculos.Should().HaveCount(4, "dois contratos por empresa, duas empresas");
+                vinculos.Should().HaveCount(2, "uma empresa, um vinculo: o IntegrationPlatform nao entra no convite");
 
+                // Os papeis raiz do IntegrationPlatform existem nos dois contratos — o provisionamento
+                // continua igual. O que mudou e quem recebe: ninguem, ate um administrador conceder.
                 List<Role> raizes = await dbContext.Set<Role>().AsNoTracking().Where(item => item.IsRoot).ToListAsync();
                 raizes.Should().HaveCount(4);
-                raizes.Should().OnlyContain(role => vinculos.Any(item => item.RoleId == role.Id));
+
+                List<string> audiencesConcedidas = await (
+                    from vinculo in dbContext.Set<UserRole>().AsNoTracking()
+                    join role in dbContext.Set<Role>().AsNoTracking() on vinculo.RoleId equals role.Id
+                    join contract in dbContext.Set<Contract>().AsNoTracking() on role.ContractId equals contract.Id
+                    join app in dbContext.Set<SystemApplication>().AsNoTracking() on contract.SystemApplicationId equals app.Id
+                    where vinculo.UserId == usuarios[0].Id
+                    select app.Audience).ToListAsync();
+
+                audiencesConcedidas.Should().OnlyContain(audience => audience == "agency-campaign");
             });
         }
 
@@ -213,8 +232,12 @@ namespace IdentityManagement.IntegrationTests.Services
 
         private static async Task<(long agencyAppId, long integrationAppId)> SeedSystemApplications(DbContext dbContext)
         {
-            SystemApplication agencyApp = new SystemApplication("AgencyCampaign", "Kanvas", "agency-campaign", ApplicationType.External);
-            SystemApplication integrationApp = new SystemApplication("IntegrationPlatform", "Plataforma de Integracoes", "integration-platform", ApplicationType.External);
+            SystemApplication agencyApp = new SystemApplication("AgencyCampaign", "Mainstay", "agency-campaign", ApplicationType.External);
+
+            // Motor de integracoes: provisionado junto (o AgencyCampaign depende da API key do
+            // tenant), mas fora do convite de administrador.
+            SystemApplication integrationApp = new SystemApplication(
+                "IntegrationPlatform", "Plataforma de Integracoes", "integration-platform", ApplicationType.External, grantsAdminOnSetup: false);
 
             await dbContext.Set<SystemApplication>().AddRangeAsync(agencyApp, integrationApp);
             await dbContext.SaveChangesAsync();

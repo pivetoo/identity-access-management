@@ -16,6 +16,7 @@ namespace IdentityManagement.Testing.Domain.Entities
             Assert.That(app.Audience, Is.EqualTo("my-audience"));
             Assert.That(app.IsActive, Is.True);
             Assert.That(app.Type, Is.EqualTo(ApplicationType.External));
+            Assert.That(app.GrantsAdminOnSetup, Is.True, "por padrao a aplicacao entra no convite de administrador");
         }
 
         [Test]
@@ -54,13 +55,24 @@ namespace IdentityManagement.Testing.Domain.Entities
         {
             SystemApplication app = new("My App", "Description", "my-audience");
 
-            app.Update("New App", "New Description", "new-audience", ApplicationType.Internal, false);
+            app.Update("New App", "New Description", "new-audience", ApplicationType.Internal, false, false);
 
             Assert.That(app.Name, Is.EqualTo("New App"));
             Assert.That(app.Description, Is.EqualTo("New Description"));
             Assert.That(app.Audience, Is.EqualTo("new-audience"));
             Assert.That(app.Type, Is.EqualTo(ApplicationType.Internal));
             Assert.That(app.IsActive, Is.False);
+            Assert.That(app.GrantsAdminOnSetup, Is.False);
+        }
+
+        [Test]
+        public void Update_ShouldKeepGrantsAdminOnSetupWhenLeftEnabled()
+        {
+            SystemApplication app = new("My App", "Description", "my-audience");
+
+            app.Update("My App", "Description", "my-audience", ApplicationType.External, true, true);
+
+            Assert.That(app.GrantsAdminOnSetup, Is.True);
         }
 
         [Test]
@@ -68,7 +80,7 @@ namespace IdentityManagement.Testing.Domain.Entities
         {
             SystemApplication app = new("My App", "Description", "my-audience");
 
-            Assert.Throws<ArgumentNullException>(() => app.Update(null!, "Description", "my-audience", ApplicationType.External, true));
+            Assert.Throws<ArgumentNullException>(() => app.Update(null!, "Description", "my-audience", ApplicationType.External, true, true));
         }
 
         [TestCase("")]
@@ -77,7 +89,7 @@ namespace IdentityManagement.Testing.Domain.Entities
         {
             SystemApplication app = new("My App", "Description", "my-audience");
 
-            Assert.Throws<ArgumentException>(() => app.Update(name, "Description", "my-audience", ApplicationType.External, true));
+            Assert.Throws<ArgumentException>(() => app.Update(name, "Description", "my-audience", ApplicationType.External, true, true));
         }
 
         [Test]

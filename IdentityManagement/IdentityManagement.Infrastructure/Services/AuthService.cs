@@ -175,7 +175,7 @@ namespace IdentityManagement.Infrastructure.Services
                 List<Contract> activeContracts = await dbContext.Set<Contract>()
                     .AsNoTracking()
                     .Include(c => c.SystemApplication)
-                    .Where(c => c.CompanyId == invitation.CompanyId.Value && c.IsActive)
+                    .Where(c => c.CompanyId == invitation.CompanyId.Value && c.IsActive && c.SystemApplication.GrantsAdminOnSetup)
                     .ToListAsync(cancellationToken);
 
                 string[] systemApplicationNames = activeContracts
@@ -228,9 +228,12 @@ namespace IdentityManagement.Infrastructure.Services
 
             if (invitation.CompanyId.HasValue)
             {
+                // Filtra por GrantsAdminOnSetup: o convite da empresa concede os sistemas que ela
+                // contratou para usar, nao os que existem para servir de motor. O contrato do
+                // IntegrationPlatform continua provisionado — so nao vem com dono.
                 List<Contract> activeContracts = await dbContext.Set<Contract>()
                     .AsNoTracking()
-                    .Where(c => c.CompanyId == invitation.CompanyId.Value && c.IsActive)
+                    .Where(c => c.CompanyId == invitation.CompanyId.Value && c.IsActive && c.SystemApplication.GrantsAdminOnSetup)
                     .ToListAsync(cancellationToken);
 
                 List<Role> rootRoles = new();
@@ -345,7 +348,7 @@ namespace IdentityManagement.Infrastructure.Services
             {
                 contracts = await dbContext.Set<Contract>()
                     .AsNoTracking()
-                    .Where(c => c.CompanyId == inv.CompanyId.Value && c.IsActive)
+                    .Where(c => c.CompanyId == inv.CompanyId.Value && c.IsActive && c.SystemApplication.GrantsAdminOnSetup)
                     .ToListAsync(cancellationToken);
             }
             else

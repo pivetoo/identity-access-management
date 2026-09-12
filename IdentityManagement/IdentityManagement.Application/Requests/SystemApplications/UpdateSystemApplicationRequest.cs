@@ -25,5 +25,14 @@ namespace IdentityManagement.Application.Requests.SystemApplications
 
         [StringLength(2000)]
         public string? BaseUrl { get; set; }
+
+        /// <summary>
+        /// A aplicacao entra no convite de administrador do tenant. Desligar para sistemas que sao
+        /// motor, nao produto.
+        ///
+        /// Nulo mantem o valor atual: ha chamadas que mandam um corpo parcial (a desativacao pelo
+        /// backoffice, por exemplo), e um default fixo aqui religaria a flag em silencio.
+        /// </summary>
+        public bool? GrantsAdminOnSetup { get; set; }
     }
 }

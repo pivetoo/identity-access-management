@@ -20,6 +20,8 @@ namespace IdentityManagement.Application.Responses.SystemApplications
 
         public string? BaseUrl { get; set; }
 
+        public bool GrantsAdminOnSetup { get; set; }
+
         public DateTimeOffset? CreatedAt { get; set; }
 
         public DateTimeOffset? UpdatedAt { get; set; }

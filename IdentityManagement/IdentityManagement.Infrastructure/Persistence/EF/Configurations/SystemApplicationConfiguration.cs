@@ -30,6 +30,10 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
                 .HasMaxLength(2000)
                 .HasColumnName("baseurl");
 
+            builder.Property(entity => entity.GrantsAdminOnSetup)
+                .IsRequired()
+                .HasColumnName("grantsadminonsetup");
+
             builder.HasMany(entity => entity.Integrations)
                 .WithOne()
                 .HasForeignKey(entity => entity.SystemApplicationId);

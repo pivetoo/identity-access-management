@@ -379,6 +379,8 @@
   <data name="systemApplication.preview.endpointsDescription" xml:space="preserve"><value>URIs de retorno configuradas</value></data>
   <data name="systemApplication.form.toast.updated" xml:space="preserve"><value>Sistema actualizado correctamente.</value></data>
   <data name="systemApplication.form.toast.created" xml:space="preserve"><value>Sistema creado correctamente.</value></data>
+  <data name="systemApplication.field.grantsAdminOnSetup" xml:space="preserve"><value>Concede acceso en la invitacion de administrador</value></data>
+  <data name="systemApplication.field.grantsAdminOnSetup.hint" xml:space="preserve"><value>Desactive para sistemas que funcionan como motor de otros. El contrato y la clave del tenant se siguen aprovisionando; el acceso pasa a depender de una concesion manual.</value></data>
   <data name="systemApplication.form.editTitle" xml:space="preserve"><value>Editar Sistema</value></data>
   <data name="systemApplication.form.createTitle" xml:space="preserve"><value>Nuevo Sistema</value></data>
   <data name="systemRoleTemplate.list.title" xml:space="preserve"><value>Plantillas de Perfiles</value></data>

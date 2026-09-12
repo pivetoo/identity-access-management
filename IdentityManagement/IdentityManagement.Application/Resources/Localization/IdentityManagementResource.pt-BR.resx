@@ -649,6 +649,8 @@
   <data name="systemApplication.preview.endpointsDescription" xml:space="preserve"><value>URIs de retorno configuradas</value></data>
   <data name="systemApplication.form.toast.updated" xml:space="preserve"><value>Sistema atualizado com sucesso.</value></data>
   <data name="systemApplication.form.toast.created" xml:space="preserve"><value>Sistema criado com sucesso.</value></data>
+  <data name="systemApplication.field.grantsAdminOnSetup" xml:space="preserve"><value>Concede acesso no convite de administrador</value></data>
+  <data name="systemApplication.field.grantsAdminOnSetup.hint" xml:space="preserve"><value>Desligue para sistemas que servem de motor a outros. O contrato e a chave do tenant continuam sendo provisionados; o acesso passa a depender de concessao manual.</value></data>
   <data name="systemApplication.form.editTitle" xml:space="preserve"><value>Editar Sistema</value></data>
   <data name="systemApplication.form.createTitle" xml:space="preserve"><value>Novo Sistema</value></data>
   <data name="systemRoleTemplate.list.title" xml:space="preserve"><value>Template de Perfis</value></data>

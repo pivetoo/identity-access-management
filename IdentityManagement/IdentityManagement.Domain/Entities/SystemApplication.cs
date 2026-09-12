@@ -22,6 +22,16 @@ namespace IdentityManagement.Domain.Entities
 
         public string? BaseUrl { get; private set; }
 
+        /// <summary>
+        /// A aplicacao entra no convite de administrador do tenant.
+        ///
+        /// Desligado para sistemas que sao motor e nao produto — o IntegrationPlatform e provisionado
+        /// junto com a agencia porque o AgencyCampaign precisa da API key do tenant para as
+        /// integracoes, mas ninguem nasce com acesso humano a ele: quem precisar recebe de um
+        /// administrador, pelo vinculo de perfil.
+        /// </summary>
+        public bool GrantsAdminOnSetup { get; private set; } = true;
+
         public IReadOnlyCollection<Contract> Contracts => contracts.AsReadOnly();
 
         public IReadOnlyCollection<SystemIntegration> Integrations => integrations.AsReadOnly();
@@ -30,12 +40,13 @@ namespace IdentityManagement.Domain.Entities
         {
         }
 
-        public SystemApplication(string name, string description, string audience, ApplicationType type = ApplicationType.External)
+        public SystemApplication(string name, string description, string audience, ApplicationType type = ApplicationType.External, bool grantsAdminOnSetup = true)
         {
             SetName(name);
             Description = description.Trim();
             Audience = audience.Trim();
             Type = type;
+            GrantsAdminOnSetup = grantsAdminOnSetup;
             CatalogApiKey = Guid.NewGuid().ToString();
         }
 
@@ -49,13 +60,14 @@ namespace IdentityManagement.Domain.Entities
             BaseUrl = string.IsNullOrWhiteSpace(baseUrl) ? null : baseUrl.Trim();
         }
 
-        public void Update(string name, string description, string audience, ApplicationType type, bool isActive)
+        public void Update(string name, string description, string audience, ApplicationType type, bool isActive, bool grantsAdminOnSetup)
         {
             SetName(name);
             Description = description.Trim();
             Audience = audience.Trim();
             Type = type;
             IsActive = isActive;
+            GrantsAdminOnSetup = grantsAdminOnSetup;
         }
 
         private void SetName(string name)

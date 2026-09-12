@@ -17,5 +17,8 @@ namespace IdentityManagement.Application.Requests.SystemApplications
         public string Audience { get; set; } = string.Empty;
 
         public ApplicationType Type { get; set; } = ApplicationType.External;
+
+        /// <summary>A aplicacao entra no convite de administrador do tenant. Desligar para sistemas que sao motor, nao produto.</summary>
+        public bool GrantsAdminOnSetup { get; set; } = true;
     }
 }

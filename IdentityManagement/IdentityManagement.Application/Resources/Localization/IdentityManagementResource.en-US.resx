@@ -387,6 +387,8 @@
   <data name="systemApplication.preview.endpointsDescription" xml:space="preserve"><value>Configured return URIs</value></data>
   <data name="systemApplication.form.toast.updated" xml:space="preserve"><value>System updated successfully.</value></data>
   <data name="systemApplication.form.toast.created" xml:space="preserve"><value>System created successfully.</value></data>
+  <data name="systemApplication.field.grantsAdminOnSetup" xml:space="preserve"><value>Grants access through the admin invitation</value></data>
+  <data name="systemApplication.field.grantsAdminOnSetup.hint" xml:space="preserve"><value>Turn off for systems that act as an engine for others. The contract and the tenant key are still provisioned; access then depends on a manual grant.</value></data>
   <data name="systemApplication.form.editTitle" xml:space="preserve"><value>Edit System</value></data>
   <data name="systemApplication.form.createTitle" xml:space="preserve"><value>New System</value></data>
   <data name="systemRoleTemplate.list.title" xml:space="preserve"><value>Role Templates</value></data>
