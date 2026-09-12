@@ -645,7 +645,6 @@
   <data name="asaas.checkout.callbackNotConfigured" xml:space="preserve"><value>Card payment unavailable: checkout callback is not configured.</value></data>
   <data name="asaas.customer.missingId" xml:space="preserve"><value>Could not identify the company at the payment provider.</value></data>
   <data name="company.billingAddress.missing" xml:space="preserve"><value>Provide the billing address before adding a card.</value></data>
-  <data name="signup.email.alreadyExists" xml:space="preserve"><value>This email is already used by another agency. Use a different email or sign in with the existing account.</value></data>
   <data name="signup.confirmed" xml:space="preserve"><value>Email confirmed and environment created successfully.</value></data>
   <data name="signup.confirm.invalidToken" xml:space="preserve"><value>Invalid confirmation link. Check that you copied the full address from the email.</value></data>
   <data name="signup.confirm.expired" xml:space="preserve"><value>This confirmation link has expired. Sign up again to receive a new one.</value></data>

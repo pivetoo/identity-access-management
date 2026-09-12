@@ -907,7 +907,6 @@
   <data name="asaas.checkout.callbackNotConfigured" xml:space="preserve"><value>Pagamento com cartao indisponivel: retorno do checkout nao configurado.</value></data>
   <data name="asaas.customer.missingId" xml:space="preserve"><value>Nao foi possivel identificar a empresa no provedor de pagamento.</value></data>
   <data name="company.billingAddress.missing" xml:space="preserve"><value>Informe o endereco de cobranca antes de cadastrar o cartao.</value></data>
-  <data name="signup.email.alreadyExists" xml:space="preserve"><value>Este e-mail ja esta em uso por outra agencia. Use outro e-mail ou entre com a conta existente.</value></data>
   <data name="signup.confirmed" xml:space="preserve"><value>E-mail confirmado e ambiente criado com sucesso.</value></data>
   <data name="signup.confirm.invalidToken" xml:space="preserve"><value>Link de confirmacao invalido. Verifique se copiou o endereco completo do e-mail.</value></data>
   <data name="signup.confirm.expired" xml:space="preserve"><value>Este link de confirmacao expirou. Faca o cadastro novamente para receber um novo.</value></data>

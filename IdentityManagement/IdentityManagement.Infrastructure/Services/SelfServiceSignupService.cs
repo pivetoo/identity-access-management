@@ -98,7 +98,7 @@ namespace IdentityManagement.Infrastructure.Services
 
             string email = request.Email.Trim();
 
-            await EnsureNotTakenAsync(document, email, cancellationToken);
+            await EnsureDocumentNotTakenAsync(document, cancellationToken);
 
             // Resolvido JA na etapa 1 mesmo sem provisionar: plano mal configurado e falha de
             // operacao, e descobrir isso so depois que a pessoa confirmou o e-mail seria pior —
@@ -324,8 +324,8 @@ namespace IdentityManagement.Infrastructure.Services
             try
             {
                 // De novo, e nao so na etapa 1: entre o cadastro e o clique alguem pode ter tomado o
-                // CNPJ ou o e-mail — inclusive outro cadastro pendente que confirmou primeiro.
-                await EnsureNotTakenAsync(pending.Document, pending.Email, cancellationToken);
+                // CNPJ — inclusive outro cadastro pendente que confirmou primeiro.
+                await EnsureDocumentNotTakenAsync(pending.Document, cancellationToken);
 
                 Plan plan = await ResolvePlanAsync(pending.Annual, cancellationToken);
                 List<long> systemApplicationIds = await ResolveSystemApplicationIdsAsync(cancellationToken);
@@ -525,7 +525,15 @@ namespace IdentityManagement.Infrastructure.Services
             }
         }
 
-        private async Task EnsureNotTakenAsync(string document, string email, CancellationToken cancellationToken)
+        /// <summary>
+        /// O CNPJ e a unica exclusividade do cadastro.
+        ///
+        /// O e-mail NAO entra aqui de proposito: o campo e o endereco de quem administra, e a mesma
+        /// pessoa pode abrir mais de uma agencia. Recusar por e-mail obrigava quem ja e cliente a
+        /// inventar um endereco por empresa — e o modelo sempre suportou um usuario em varios
+        /// contratos, com a empresa escolhida na selecao de contrato do login.
+        /// </summary>
+        private async Task EnsureDocumentNotTakenAsync(string document, CancellationToken cancellationToken)
         {
             bool companyExists = await dbContext.Set<Company>()
                 .AsNoTracking()
@@ -536,17 +544,6 @@ namespace IdentityManagement.Infrastructure.Services
                 // CNPJ e dado publico, entao dizer que ja existe nao entrega informacao nova —
                 // e evita o suporte receber "cadastrei e nao chegou nada" de quem ja tem conta.
                 throw new ConflictException("signup.company.alreadyExists");
-            }
-
-            // companies.email tem indice UNICO. Sem esta checagem a colisao so aparecia no
-            // SaveChanges, como 500 cru.
-            bool emailInUse = await dbContext.Set<Company>()
-                .AsNoTracking()
-                .AnyAsync(company => company.Email == email, cancellationToken);
-
-            if (emailInUse)
-            {
-                throw new ConflictException("signup.email.alreadyExists");
             }
         }
 

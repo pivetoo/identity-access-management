@@ -117,6 +117,100 @@ namespace IdentityManagement.IntegrationTests.Services
             });
         }
 
+        [Test]
+        public async Task SetupAdmin_gives_the_second_company_to_the_account_that_already_runs_the_first()
+        {
+            // Uma pessoa, duas agencias, o mesmo e-mail. O convite da segunda NAO cria identidade
+            // nova: reaproveita a conta existente, que passa a escolher a empresa no login.
+            const string emailCompartilhado = "admin@duastenants.example";
+            const string senha = "Senha@123456";
+
+            List<string> createdDatabases = new();
+            string primeiroToken = string.Empty;
+            string segundoToken = string.Empty;
+
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                (long agencyAppId, long integrationAppId) = await SeedSystemApplications(dbContext);
+
+                IClientOnboardingService onboarding = sp.GetRequiredService<IClientOnboardingService>();
+
+                var primeira = await onboarding.OnboardClient(
+                    BuildOnboardRequest("Primeira Agencia LTDA", "Primeira", "11222333000144", emailCompartilhado, agencyAppId, integrationAppId),
+                    "https://auth.mainstay.com.br");
+                createdDatabases.AddRange(primeira.DatabaseNames);
+                primeiroToken = NoOpEmailSender.ExtractToken(NoOpEmailSender.LastSetupLink);
+
+                var segunda = await onboarding.OnboardClient(
+                    BuildOnboardRequest("Segunda Agencia LTDA", "Segunda", "11222333000181", emailCompartilhado, agencyAppId, integrationAppId),
+                    "https://auth.mainstay.com.br");
+                createdDatabases.AddRange(segunda.DatabaseNames);
+                segundoToken = NoOpEmailSender.ExtractToken(NoOpEmailSender.LastSetupLink);
+            });
+
+            await InScopeAsync(async sp =>
+            {
+                ITenantProvisioner provisioner = sp.GetRequiredService<ITenantProvisioner>();
+                foreach (string db in createdDatabases)
+                {
+                    await provisioner.DropDatabaseAsync(db);
+                }
+            });
+
+            await InScopeAsync(async sp =>
+            {
+                IAuthService authService = sp.GetRequiredService<IAuthService>();
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+
+                AdminInvitationInfoResponse? primeiraInfo = await authService.ValidateAdminInvitation(primeiroToken);
+                primeiraInfo.Should().NotBeNull();
+                primeiraInfo!.UserExists.Should().BeFalse("nenhuma conta usa esse e-mail ainda");
+
+                bool criou = await authService.SetupAdmin(
+                    new SetupAdminRequest(primeiroToken, "Admin Duas Tenants", "admin.duastenants", emailCompartilhado, senha));
+                criou.Should().BeTrue();
+
+                AdminInvitationInfoResponse? segundaInfo = await authService.ValidateAdminInvitation(segundoToken);
+                segundaInfo.Should().NotBeNull();
+                segundaInfo!.UserExists.Should().BeTrue("a tela precisa abrir direto no modo 'ja tenho conta'");
+
+                bool vinculou = await authService.SetupAdminExistingUser(
+                    new SetupAdminExistingUserRequest(segundoToken, emailCompartilhado, senha));
+                vinculou.Should().BeTrue();
+
+                List<User> usuarios = await dbContext.Set<User>().AsNoTracking().ToListAsync();
+                usuarios.Should().HaveCount(1, "a segunda agencia reaproveita a conta em vez de duplicar identidade");
+
+                List<UserRole> vinculos = await dbContext.Set<UserRole>()
+                    .AsNoTracking()
+                    .Where(item => item.UserId == usuarios[0].Id)
+                    .ToListAsync();
+
+                vinculos.Should().HaveCount(4, "dois contratos por empresa, duas empresas");
+
+                List<Role> raizes = await dbContext.Set<Role>().AsNoTracking().Where(item => item.IsRoot).ToListAsync();
+                raizes.Should().HaveCount(4);
+                raizes.Should().OnlyContain(role => vinculos.Any(item => item.RoleId == role.Id));
+            });
+        }
+
+        private static OnboardClientRequest BuildOnboardRequest(string legalName, string tradeName, string document, string email, long agencyAppId, long integrationAppId)
+        {
+            return new OnboardClientRequest
+            {
+                LegalName = legalName,
+                TradeName = tradeName,
+                Document = document,
+                Email = email,
+                Systems = new List<OnboardClientSystemItem>
+                {
+                    new OnboardClientSystemItem { SystemApplicationId = agencyAppId, StartDate = DateTimeOffset.UtcNow },
+                    new OnboardClientSystemItem { SystemApplicationId = integrationAppId, StartDate = DateTimeOffset.UtcNow }
+                }
+            };
+        }
+
         private static async Task<(long agencyAppId, long integrationAppId)> SeedSystemApplications(DbContext dbContext)
         {
             SystemApplication agencyApp = new SystemApplication("AgencyCampaign", "Kanvas", "agency-campaign", ApplicationType.External);

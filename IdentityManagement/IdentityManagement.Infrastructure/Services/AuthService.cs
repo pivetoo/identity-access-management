@@ -186,6 +186,7 @@ namespace IdentityManagement.Infrastructure.Services
                 {
                     CompanyName = company.LegalName,
                     CompanyEmail = company.Email,
+                    UserExists = await UserExistsForEmail(company.Email, cancellationToken),
                     SystemApplicationNames = systemApplicationNames,
                     SystemApplicationName = systemApplicationNames.Length > 0 ? systemApplicationNames[0] : string.Empty
                 };
@@ -201,8 +202,16 @@ namespace IdentityManagement.Infrastructure.Services
                 CompanyName = invitation.Contract.Company.LegalName,
                 SystemApplicationName = invitation.Contract.SystemApplication.Name,
                 CompanyEmail = invitation.Contract.Company.Email,
+                UserExists = await UserExistsForEmail(invitation.Contract.Company.Email, cancellationToken),
                 SystemApplicationNames = new[] { invitation.Contract.SystemApplication.Name }
             };
+        }
+
+        private Task<bool> UserExistsForEmail(string email, CancellationToken cancellationToken)
+        {
+            return dbContext.Set<User>()
+                .AsNoTracking()
+                .AnyAsync(user => user.Email == email, cancellationToken);
         }
 
         public async Task<bool> SetupAdmin(SetupAdminRequest request, CancellationToken cancellationToken = default)

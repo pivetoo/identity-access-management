@@ -128,23 +128,24 @@ namespace IdentityManagement.IntegrationTests.Services
         }
 
         [Test]
-        public async Task Signup_is_refused_when_the_email_belongs_to_another_company()
+        public async Task Signup_is_accepted_when_the_email_belongs_to_another_company()
         {
-            // companies.email tem indice UNICO: sem esta trava a colisao so estourava no
-            // SaveChanges, como 500 cru, depois de ja ter passado por todas as validacoes.
+            // Quem ja administra uma agencia pode abrir outra com o mesmo e-mail. O que identifica
+            // a empresa e o CNPJ, nao a caixa de entrada de quem cadastrou — e o formulario sempre
+            // chamou esse campo de "e-mail do administrador", nao de e-mail da empresa.
             await InScopeAsync(async sp =>
             {
                 DbContext dbContext = sp.GetRequiredService<DbContext>();
+                await SeedForOnboardingAsync(dbContext);
                 dbContext.Set<Company>().Add(new Company("Outra Empresa LTDA", "Outra Empresa", "11222333000181", "contato@signup.example", "11999990000"));
                 await dbContext.SaveChangesAsync();
 
-                SelfServiceSignupService subject = CreateSubject(sp);
+                SelfServiceSignupService subject = CreateSubject(sp, SingleAudienceOptions());
 
-                Func<Task> act = () => subject.SignupAsync(ValidRequest(), "https://auth.example", null);
+                await subject.SignupAsync(ValidRequest(), "https://auth.example", null);
 
-                await act.Should().ThrowAsync<ConflictException>();
-
-                (await dbContext.Set<Company>().CountAsync()).Should().Be(1, "a empresa nova nao pode ser provisionada");
+                (await dbContext.Set<PendingSignup>().CountAsync()).Should().Be(1, "o cadastro segue para a confirmacao por e-mail");
+                (await dbContext.Set<Company>().CountAsync()).Should().Be(1, "a etapa 1 continua sem provisionar nada");
             });
         }
 
@@ -323,6 +324,51 @@ namespace IdentityManagement.IntegrationTests.Services
                 // O convite anterior tem de ser revogado, para nao sobrar dois validos na caixa.
                 List<ContractAdminInvitation> convites = await dbContext.Set<ContractAdminInvitation>().AsNoTracking().ToListAsync();
                 convites.Count(item => item.IsValid()).Should().Be(1);
+
+                createdDatabases.AddRange(await dbContext.Set<TenantDatabase>().AsNoTracking().Select(item => item.ConnectionString).ToListAsync());
+            });
+
+            await DropCreatedDatabasesAsync(createdDatabases);
+        }
+
+        [Test]
+        public async Task Confirm_provisions_a_second_company_for_an_email_that_already_has_one()
+        {
+            // A segunda agencia da mesma pessoa provisiona normalmente: so o CNPJ e exclusivo.
+            List<string> createdDatabases = new();
+
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                await SeedForOnboardingAsync(dbContext);
+
+                SelfServiceSignupService subject = CreateSubject(sp, SingleAudienceOptions());
+
+                await subject.SignupAsync(ValidRequest(), "https://auth.example", null);
+                await subject.ConfirmAsync(
+                    new SignupConfirmRequest { Token = NoOpEmailSender.ExtractConfirmToken(NoOpEmailSender.LastConfirmLink) },
+                    "https://auth.example");
+
+                SignupRequest segunda = ValidRequest();
+                segunda.LegalName = "Segunda Agencia LTDA";
+                segunda.TradeName = "Segunda Agencia";
+                segunda.Document = "11222333000181";
+
+                await subject.SignupAsync(segunda, "https://auth.example", null);
+                SignupConfirmResponse confirmada = await subject.ConfirmAsync(
+                    new SignupConfirmRequest { Token = NoOpEmailSender.ExtractConfirmToken(NoOpEmailSender.LastConfirmLink) },
+                    "https://auth.example");
+
+                confirmada.SetupToken.Should().NotBeEmpty();
+
+                List<Company> empresas = await dbContext.Set<Company>().AsNoTracking().ToListAsync();
+                empresas.Should().HaveCount(2);
+                empresas.Select(item => item.Email).Distinct().Should().ContainSingle("as duas ficam com o mesmo e-mail de administrador");
+                empresas.Select(item => item.Document).Should().OnlyHaveUniqueItems();
+                empresas.Select(item => item.TenantId).Should().OnlyHaveUniqueItems();
+
+                List<ContractAdminInvitation> convites = await dbContext.Set<ContractAdminInvitation>().AsNoTracking().ToListAsync();
+                convites.Count(item => item.IsValid()).Should().Be(2, "cada empresa recebe o proprio convite de administrador");
 
                 createdDatabases.AddRange(await dbContext.Set<TenantDatabase>().AsNoTracking().Select(item => item.ConnectionString).ToListAsync());
             });

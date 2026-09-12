@@ -5,6 +5,7 @@ export interface AdminInvitationInfo {
   systemApplicationName: string;
   companyEmail: string;
   systemApplicationNames?: string[];
+  userExists?: boolean;
 }
 
 async function validateInvitation(token: string): Promise<AdminInvitationInfo> {

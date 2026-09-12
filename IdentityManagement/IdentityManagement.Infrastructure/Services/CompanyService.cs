@@ -21,7 +21,7 @@ namespace IdentityManagement.Infrastructure.Services
 
         public async Task<CompanyResponse> CreateCompany(CreateCompanyRequest request, CancellationToken cancellationToken = default)
         {
-            await EnsureUniqueCompany(request.Document, request.Email, null, cancellationToken);
+            await EnsureUniqueCompany(request.Document, null, cancellationToken);
 
             Company company = new Company(request.LegalName, request.TradeName, request.Document, request.Email, request.PhoneNumber);
             bool success = await Insert(cancellationToken, company);
@@ -51,7 +51,7 @@ namespace IdentityManagement.Infrastructure.Services
                 throw new InvalidOperationException("company.notFound");
             }
 
-            await EnsureUniqueCompany(request.Document, request.Email, id, cancellationToken);
+            await EnsureUniqueCompany(request.Document, id, cancellationToken);
 
             company.Update(request.LegalName, request.TradeName, request.Document, request.Email, request.PhoneNumber, request.IsActive);
 
@@ -102,7 +102,11 @@ namespace IdentityManagement.Infrastructure.Services
             return companies;
         }
 
-        private async Task EnsureUniqueCompany(string document, string email, long? currentCompanyId, CancellationToken cancellationToken)
+        /// <summary>
+        /// So o CNPJ identifica a empresa. O e-mail pode repetir entre empresas: e o endereco de
+        /// quem administra, e a mesma pessoa pode administrar mais de uma agencia.
+        /// </summary>
+        private async Task EnsureUniqueCompany(string document, long? currentCompanyId, CancellationToken cancellationToken)
         {
             bool documentExists = await (
                 from company in DbContext.Set<Company>().AsNoTracking()
@@ -113,17 +117,6 @@ namespace IdentityManagement.Infrastructure.Services
             if (documentExists)
             {
                 throw new InvalidOperationException("company.document.alreadyExists");
-            }
-
-            bool emailExists = await (
-                from company in DbContext.Set<Company>().AsNoTracking()
-                where company.Email == email && (!currentCompanyId.HasValue || company.Id != currentCompanyId.Value)
-                select company.Id)
-                .AnyAsync(cancellationToken);
-
-            if (emailExists)
-            {
-                throw new InvalidOperationException("email.alreadyExists");
             }
         }
 

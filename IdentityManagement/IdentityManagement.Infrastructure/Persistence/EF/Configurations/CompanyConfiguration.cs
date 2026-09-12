@@ -54,9 +54,6 @@ namespace IdentityManagement.Infrastructure.Persistence.EF.Configurations
 
             builder.HasIndex(entity => entity.Document)
                 .IsUnique();
-
-            builder.HasIndex(entity => entity.Email)
-                .IsUnique();
         }
     }
 }

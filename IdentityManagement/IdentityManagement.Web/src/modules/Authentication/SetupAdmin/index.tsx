@@ -43,6 +43,13 @@ export default function SetupAdmin() {
       .then((data) => {
         setInfo(data)
         setEmail(data.companyEmail)
+
+        // Ja existe conta com esse e-mail: quem esta abrindo a segunda agencia entra com a senha
+        // que ja tem. Deixar em "criar nova conta" so levaria a um conflito de e-mail duplicado.
+        if (data.userExists) {
+          setMode('existing')
+          setLoginIdentifier(data.companyEmail)
+        }
       })
       .catch(() => setTokenInvalid(true))
       .finally(() => setValidating(false))
@@ -152,6 +159,13 @@ export default function SetupAdmin() {
                       </span>
                     </div>
                   </div>
+                )}
+
+                {info?.userExists && (
+                  <p className="text-sm text-muted-foreground mb-4 p-3 rounded-lg bg-muted/60 border border-border">
+                    Já existe uma conta com o e-mail <span className="font-medium text-foreground">{info.companyEmail}</span>.
+                    Entre com a sua senha para administrar também esta empresa — você escolhe qual delas usar a cada login.
+                  </p>
                 )}
 
                 <div className="flex gap-2 mb-6">
