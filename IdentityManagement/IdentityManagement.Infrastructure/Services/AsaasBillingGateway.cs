@@ -38,7 +38,7 @@ namespace IdentityManagement.Infrastructure.Services
             AsaasCustomerRequest body = new AsaasCustomerRequest
             {
                 Name = name,
-                CpfCnpj = DigitsOnly(company.Document),
+                CpfCnpj = GatewayDocument(company.Document),
                 Email = company.Email,
                 MobilePhone = DigitsOnly(company.PhoneNumber)
             };
@@ -211,7 +211,7 @@ namespace IdentityManagement.Infrastructure.Services
             AsaasCustomerRequest body = new AsaasCustomerRequest
             {
                 Name = string.IsNullOrWhiteSpace(company.TradeName) ? company.LegalName : company.TradeName,
-                CpfCnpj = DigitsOnly(company.Document),
+                CpfCnpj = GatewayDocument(company.Document),
                 Email = company.Email,
                 // O provedor exige `phone` (nao so `mobilePhone`) para vincular o cliente ao
                 // checkout. Mandar os dois evita depender de qual deles ele valida.
@@ -322,6 +322,21 @@ namespace IdentityManagement.Infrastructure.Services
 
         private static readonly string[] OpenStatuses = ["PENDING", "OVERDUE", "AWAITING_RISK_ANALYSIS"];
 
+        /// <summary>
+        /// Documento como o provedor deve receber: sem mascara e com as LETRAS preservadas.
+        ///
+        /// Delega para o <see cref="Cnpj"/> em vez de manter regra propria. Manter uma regra aqui foi
+        /// o bug: <c>DigitsOnly</c> aplicado a um CNPJ alfanumerico devolvia so os digitos soltos, o
+        /// provedor recusava o cliente com "CPF/CNPJ invalido" e o tenant nascia sem assinatura.
+        ///
+        /// Serve tambem a CPF, que nao tem letra: o efeito ali continua sendo tirar a mascara.
+        /// </summary>
+        public static string GatewayDocument(string? document)
+        {
+            return Cnpj.Normalize(document);
+        }
+
+        /// <summary>Telefone. Aqui descartar o que nao e digito E o certo — nao vale para documento.</summary>
         private static string DigitsOnly(string? value)
         {
             if (string.IsNullOrEmpty(value))
