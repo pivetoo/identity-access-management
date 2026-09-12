@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Building2, CheckCircle2, MailCheck } from 'lucide-react';
 import { Button, Card, CardContent, Input, useToast } from 'archon-ui';
-import { signupService, captureAttribution, formatDocument, formatPhone, isValidDocument, isValidPhone, normalizeDocument, type SignupResult } from '../../../services/signupService';
+import { signupService, captureAttribution, formatDocument, formatPhone, isValidDocument, isValidPhone, normalizeDocument, type SignupOffer, type SignupResult } from '../../../services/signupService';
 import { trackEvent } from '../../../services/analytics';
 import logoEmpresa from '../../../assets/logo-empresa.png';
 
@@ -12,7 +12,13 @@ import logoEmpresa from '../../../assets/logo-empresa.png';
  * O que a tela NAO faz, de proposito: nao escolhe plano por id nem sistemas a contratar — os dois
  * sao resolvidos no servidor. Aqui o usuario so decide mensal ou anual. Senha tambem nao se define
  * aqui: quem cria o administrador e o link enviado por e-mail, que e o que prova o endereco.
+ *
+ * O preco tambem NAO mora aqui. A tela le da API o plano que o cadastro vai contratar; enquanto o
+ * valor era texto fixo, ela anunciava um numero e o servidor contratava outro.
  */
+const formatCurrency = (amount: number, currency = 'BRL') =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency, maximumFractionDigits: 0 }).format(amount);
+
 export default function Signup() {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -25,12 +31,20 @@ export default function Signup() {
   const [annual, setAnnual] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
+  const [offer, setOffer] = useState<SignupOffer | null>(null);
+
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SignupResult | null>(null);
   const [website, setWebsite] = useState('');
 
   // Capturada uma vez, na abertura: a URL perde os parametros conforme a pessoa navega.
   const attribution = useMemo(() => captureAttribution(), []);
+
+  // Falha aqui nao trava o cadastro: os botoes continuam funcionando sem o valor, e quem decide o
+  // plano e o servidor de qualquer forma.
+  useEffect(() => {
+    signupService.offer().then(setOffer).catch(() => setOffer(null));
+  }, []);
 
   useEffect(() => {
     trackEvent('cadastro-iniciado', { origem: attribution?.source ?? 'direto' });
@@ -206,7 +220,7 @@ export default function Signup() {
               </div>
 
               <fieldset className="flex flex-col gap-2">
-                <legend className="text-sm font-medium text-foreground mb-1">Plano Fundador — condição de lançamento</legend>
+                <legend className="text-sm font-medium text-foreground mb-1">Plano</legend>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
@@ -215,7 +229,9 @@ export default function Signup() {
                     className={`flex flex-col items-start rounded-md border px-4 py-3 text-left transition-colors ${!annual ? 'border-primary bg-primary/10' : 'border-border hover:bg-muted'}`}
                   >
                     <span className={`text-sm font-medium ${!annual ? 'text-primary' : 'text-foreground'}`}>Mensal</span>
-                    <span className="text-xs text-muted-foreground">R$ 497 por mês <span className="line-through opacity-60">R$ 997</span></span>
+                    <span className="text-xs text-muted-foreground">
+                      {offer ? `${formatCurrency(offer.monthlyAmount, offer.currency)} por mês` : 'Cobrança mensal'}
+                    </span>
                   </button>
                   <button
                     type="button"
@@ -224,11 +240,13 @@ export default function Signup() {
                     className={`flex flex-col items-start rounded-md border px-4 py-3 text-left transition-colors ${annual ? 'border-primary bg-primary/10' : 'border-border hover:bg-muted'}`}
                   >
                     <span className={`text-sm font-medium ${annual ? 'text-primary' : 'text-foreground'}`}>Anual</span>
-                    <span className="text-xs text-muted-foreground">R$ 4.970 por ano <span className="line-through opacity-60">R$ 9.970</span></span>
+                    <span className="text-xs text-muted-foreground">
+                      {offer ? `${formatCurrency(offer.annualAmount, offer.currency)} por ano` : 'Cobrança anual'}
+                    </span>
                   </button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Plano Fundador para contas criadas até dez/2026 — preço garantido enquanto a assinatura estiver ativa (tabela: Essencial R$ 997/mês). Tudo incluído; a cobrança só começa depois dos 7 dias.
+                  Todos os módulos incluídos{offer ? ` — a cobrança só começa depois dos ${offer.trialDays} dias de teste` : ''}. No anual, dois meses grátis.
                 </p>
               </fieldset>
 

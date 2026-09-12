@@ -58,6 +58,27 @@ namespace IdentityManagement.Infrastructure.Services
             this.logger = logger;
         }
 
+        public async Task<SignupOfferResponse> GetOfferAsync(CancellationToken cancellationToken = default)
+        {
+            EnsureEnabled();
+
+            // Resolve pelos MESMOS metodos que o Confirm usa. Qualquer outra origem (constante, texto
+            // na tela, tabela paralela) volta a permitir anunciar um preco e cobrar outro.
+            Plan mensal = await ResolvePlanAsync(false, cancellationToken);
+            Plan anual = await ResolvePlanAsync(true, cancellationToken);
+
+            DateTimeOffset agora = DateTimeOffset.UtcNow;
+
+            return new SignupOfferResponse
+            {
+                PlanName = mensal.Name,
+                MonthlyAmount = mensal.EffectivePriceAt(agora),
+                AnnualAmount = anual.EffectivePriceAt(agora),
+                Currency = mensal.Currency,
+                TrialDays = mensal.TrialDays
+            };
+        }
+
         public async Task<SignupResponse> SignupAsync(SignupRequest request, string confirmBaseUrl, string? sourceIp, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(request);
@@ -549,21 +570,6 @@ namespace IdentityManagement.Infrastructure.Services
 
         private async Task<Plan> ResolvePlanAsync(bool annual, CancellationToken cancellationToken)
         {
-            // Dentro da janela de lancamento o cadastro contrata o plano Fundador; fora dela (ou se
-            // o plano Fundador nao existir), o plano padrao da tabela.
-            if (options.LaunchUntil.HasValue && DateTimeOffset.UtcNow <= options.LaunchUntil.Value)
-            {
-                string launchName = annual ? options.LaunchAnnualPlanName : options.LaunchMonthlyPlanName;
-                Plan? launch = await dbContext.Set<Plan>()
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(item => item.Name == launchName && item.IsActive, cancellationToken);
-
-                if (launch is not null)
-                {
-                    return launch;
-                }
-            }
-
             string planName = annual ? options.AnnualPlanName : options.MonthlyPlanName;
 
             Plan? plan = await dbContext.Set<Plan>()

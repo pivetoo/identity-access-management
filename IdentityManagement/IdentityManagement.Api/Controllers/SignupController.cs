@@ -40,6 +40,17 @@ namespace IdentityManagement.Api.Controllers
             Localizer = localizer;
         }
 
+        /// <summary>
+        /// Plano e preco que o cadastro vai contratar. A tela renderiza disto em vez de texto fixo.
+        /// </summary>
+        [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
+        [GetEndpoint]
+        public async Task<IActionResult> Offer(CancellationToken cancellationToken)
+        {
+            return Http200(await signupService.GetOfferAsync(cancellationToken));
+        }
+
         [AllowAnonymous]
         [EnableRateLimiting(RateLimitPolicies.Signup)]
         [PostEndpoint]

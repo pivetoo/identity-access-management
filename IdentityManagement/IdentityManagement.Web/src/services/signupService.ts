@@ -178,6 +178,26 @@ export function isValidDocument(value: string): boolean {
     && check([6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]) === Number(d[13]);
 }
 
+/** O que o cadastro vai contratar. Vem da API para a tela nao anunciar um preco e cobrar outro. */
+export interface SignupOffer {
+  planName: string;
+  monthlyAmount: number;
+  annualAmount: number;
+  currency: string;
+  trialDays: number;
+}
+
+async function offer(): Promise<SignupOffer> {
+  const response = await fetch(`${apiBaseUrl}/Signup/Offer`);
+  const body = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(body?.message || 'Não foi possível carregar o plano.');
+  }
+
+  return body.data as SignupOffer;
+}
+
 async function confirm(token: string): Promise<SignupConfirmResult> {
   const response = await fetch(`${apiBaseUrl}/Signup/Confirm`, {
     method: 'POST',
@@ -198,4 +218,4 @@ async function confirm(token: string): Promise<SignupConfirmResult> {
   return body.data as SignupConfirmResult;
 }
 
-export const signupService = { signup, confirm };
+export const signupService = { signup, confirm, offer };

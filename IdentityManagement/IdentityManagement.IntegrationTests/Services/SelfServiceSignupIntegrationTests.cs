@@ -377,6 +377,44 @@ namespace IdentityManagement.IntegrationTests.Services
         }
 
         [Test]
+        public async Task Offer_announces_the_same_plan_the_confirmation_contracts()
+        {
+            // A tela de cadastro renderiza desta oferta. Enquanto o preco era texto fixo no HTML, ela
+            // anunciava R$ 297 e o servidor contratava o plano de lancamento a R$ 497 — anunciar um
+            // e cobrar outro. Offer e Confirm resolvem pelo MESMO metodo; este teste e o que garante
+            // que continuem resolvendo.
+            List<string> createdDatabases = new();
+
+            await InScopeAsync(async sp =>
+            {
+                DbContext dbContext = sp.GetRequiredService<DbContext>();
+                await SeedForOnboardingAsync(dbContext);
+                dbContext.Set<Plan>().Add(new Plan("Essencial Anual", 2970m, BillingPeriod.Yearly, "BRL", 30, null));
+                await dbContext.SaveChangesAsync();
+
+                SelfServiceSignupService subject = CreateSubject(sp, SingleAudienceOptions());
+
+                SignupOfferResponse oferta = await subject.GetOfferAsync();
+                oferta.PlanName.Should().Be("Essencial Mensal");
+                oferta.AnnualAmount.Should().Be(2970m);
+
+                await subject.SignupAsync(ValidRequest(), "https://auth.example", null);
+                SignupConfirmResponse confirmada = await subject.ConfirmAsync(
+                    new SignupConfirmRequest { Token = NoOpEmailSender.ExtractConfirmToken(NoOpEmailSender.LastConfirmLink) },
+                    "https://auth.example");
+
+                confirmada.PlanName.Should().Be(oferta.PlanName, "o plano contratado tem de ser o anunciado");
+
+                Plan contratado = await dbContext.Set<Plan>().AsNoTracking().FirstAsync(item => item.Name == confirmada.PlanName);
+                oferta.MonthlyAmount.Should().Be(contratado.PriceAmount, "o valor anunciado tem de ser o do plano contratado");
+
+                createdDatabases.AddRange(await dbContext.Set<TenantDatabase>().AsNoTracking().Select(item => item.ConnectionString).ToListAsync());
+            });
+
+            await DropCreatedDatabasesAsync(createdDatabases);
+        }
+
+        [Test]
         public async Task Confirm_does_not_send_the_invitation_email_on_the_public_path()
         {
             // A causa dos dois e-mails: o onboarding mandava o convite mesmo quando a pessoa ja

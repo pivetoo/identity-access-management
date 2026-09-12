@@ -9,6 +9,9 @@ namespace IdentityManagement.Application.Services
         /// Etapa 1: valida e registra o cadastro como PENDENTE, enviando o link de confirmacao.
         /// Nao provisiona nada.
         /// </summary>
+        /// <summary>Planos e trial que o cadastro vai contratar. Mesma origem do Confirm.</summary>
+        Task<SignupOfferResponse> GetOfferAsync(CancellationToken cancellationToken = default);
+
         Task<SignupResponse> SignupAsync(SignupRequest request, string confirmBaseUrl, string? sourceIp, CancellationToken cancellationToken = default);
 
         /// <summary>
